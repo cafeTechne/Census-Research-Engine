@@ -1433,6 +1433,9 @@ def run_manifest(
             kind = "replicates_incomplete" if isinstance(exc, IncompleteReplicatesError) else "analysis_failed"
             deviations.append({"kind": kind, "analysis": aid, "detail": f"{type(exc).__name__}: {exc}"})
 
+    # 5a. the analysed data, for follow-up (exploratory) work on exactly what the models saw
+    analysed_data = _write_analysed_data(out, frame, work_reps)
+
     # 6. hypotheses with the pre-registered correction
     rows = []
     for hyp in m["hypotheses"]:
@@ -1513,6 +1516,8 @@ def run_manifest(
         run_info["adjustments"] = adjustment_log
     if harmonization is not None:
         run_info["harmonization"] = harmonization
+    if analysed_data:
+        run_info["analysed_data"] = analysed_data
     if not complete:
         run_info["status_note"] = INCOMPLETE_STATUS_TEXT
     tables_used = sorted(tables_and_refs(m))
@@ -1525,6 +1530,31 @@ def run_manifest(
     if m.get("adjustments"):
         out_res["adjustments"] = adjustment_log
     return out_res
+
+
+def _write_analysed_data(out: Path, frame: Optional[pd.DataFrame], replicates: Any) -> Dict[str, Any]:
+    """Write the analysis frame and replicates as the analyses received them (after derivations,
+    exclusions and adjustments) to ``out/analysed/``; returns {name: {path, sha256, rows}}.
+
+    Parquet when pyarrow is available, else CSV. Outside the bundle (the replicates can be large);
+    their hashes are in run.json so a follow-up analysis can show it used the same data."""
+    import hashlib
+    written: Dict[str, Any] = {}
+    folder = out / "analysed"
+    for name, df in (("analysis_frame", frame), ("replicates", replicates)):
+        if not isinstance(df, pd.DataFrame) or df.empty:
+            continue
+        folder.mkdir(parents=True, exist_ok=True)
+        data = df.reset_index(drop=True)
+        try:
+            path = folder / f"{name}.parquet"
+            data.to_parquet(path, index=False)
+        except (ImportError, ValueError):
+            path = folder / f"{name}.csv"
+            data.to_csv(path, index=False)
+        written[name] = {"path": str(path.relative_to(out)), "rows": int(len(data)),
+                         "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+    return written
 
 
 def _replicate_overlap(replicates: Any) -> Optional[str]:

@@ -191,6 +191,9 @@ class TestManifestRun(unittest.TestCase):
         methods = open(os.path.join(self.dir, "run", "bundle", "methods.md"), encoding="utf-8").read()
         self.assertIn("Tract harmonization (pre-registered)", methods)
         self.assertIn("apportioned with the same weights", methods)
+        for name in ("analysis_frame", "replicates"):  # analysed data kept for follow-up work
+            path = os.path.join(self.dir, "run", "analysed")
+            self.assertTrue(any(f.startswith(name) for f in os.listdir(path)), name)
 
     def test_crosswalk_failure_is_a_blocking_deviation(self):
         with mock.patch("census.replicate.fetch_vre", side_effect=fake_vre), \

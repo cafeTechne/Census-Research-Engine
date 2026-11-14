@@ -1,7 +1,7 @@
 # Round 19: One Complete Study, End to End
 
 **Date:** 2026-11-14
-**Status:** Planned
+**Status:** Implemented; study awaiting owner review (section 8)
 **Baseline:** v0.17.0 (Round 18 plus review fixes)
 **Owner role:** independent reviewer of the finished study (section 6)
 
@@ -121,3 +121,17 @@ The owner reviews the report as independent reviewer: question, preregistration 
 ## 7. Release
 
 v0.18.0 with a Zenodo DOI after `/code-review high`, the fixes, the full gate, and Python 3.10 and 3.14 runs. The study output archive is attached to the release.
+
+---
+
+## 8. Implementation status (2026-11-14)
+
+| Item | Result |
+| :--- | :--- |
+| A1–A3 | `geography.harmonize_tracts_to`, replicate apportionment (`census.tract_harmonization`), tract `county_metro` RPP areas; offline tests in `tests/test_tract_harmonization.py` and `tests/test_manifest_multistate.py` |
+| Preregistration | Manifest SHA-256 `8f205f51…fb126`, committed alone at `3f0b1fe` (2026-11-14T20:33:49Z) and pushed before any study data request |
+| Run | `confirmatory`, 0 deviations. The reproduction run gave byte-identical `hypotheses.json`. Apportioned VRE estimates match the apportioned API estimates exactly (difference 0.0) |
+| Results | H1 +$3,458 [3,093, 3,824] supported; H2 −$65.6/pp [−122.7, −8.4] not supported (opposite sign); H3 NY − MI +$3,867 [3,232, 4,503] supported |
+| Exploratory | Sensitivity agrees across all real-dollar variants. Per-tract change mostly noise (1% significant after BH). Weak global autocorrelation of the change. Replicate SE ≈ independence SE for apportioned tracts (within 1.3%) |
+| Friction | F1–F4 fixed in round; F5–F10 backlog (report section 11) |
+| Report | `docs/studies/r19_mi_ny_tract_income_change.md` |

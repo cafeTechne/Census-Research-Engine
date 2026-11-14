@@ -524,7 +524,7 @@ class TestTractCountyMetroAreas(unittest.TestCase):
             t = place_adjust(tracts, ["income"], 2024)
         self.assertEqual(set(t["frame"]["rpp_area"]), {c["rpp_area"].iloc[0]})
         self.assertTrue((t["frame"]["income"] == c["income"].iloc[0]).all())
-        self.assertTrue(any("tracts take the RPP area of their county" in n for n in t["notes"]))
+        self.assertTrue(any("RPP AREA: tracts take the RPP area of their county;" in n for n in t["notes"]))
 
     def test_mixed_or_other_geoids_are_refused(self):
         from census.workflows_microdata import place_adjust

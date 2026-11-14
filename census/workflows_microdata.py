@@ -338,8 +338,8 @@ def place_adjust(frame: Any, variables: List[str], year: int, areas: str = "coun
                      f"year); price-level differences between places are assumed unchanged between {rpp_year} "
                      f"and {int(year)}.")
     if areas == "county_metro":
-        notes.append(("RPP AREA: tracts take the RPP area of their county. " if geoids and len(geoids[0]) == 11
-                      else "") + "RPP AREA: counties in a metropolitan CBSA use that MSA's RPP; micropolitan and rural "
+        notes.append("RPP AREA: " + ("tracts take the RPP area of their county; " if geoids and len(geoids[0]) == 11
+                                     else "") + "counties in a metropolitan CBSA use that MSA's RPP; micropolitan and rural "
                      "counties use the state nonmetropolitan-portion RPP (BEA nonmetro portions include "
                      f"micropolitan counties). CBSA membership from {boundary_source} (OMB bulletin 23-01 "
                      "delineation, as in BEA's RPPs).")

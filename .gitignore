@@ -47,3 +47,4 @@ docs/audits/*.csv
 
 # Literature PDFs downloaded by hand (copyrighted; never committed)
 literature_pdfs/
+studies_output/
