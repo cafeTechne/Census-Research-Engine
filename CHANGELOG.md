@@ -5,6 +5,30 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.17.0 (Round 18): metadata integrity
+
+- Verify bundled variable/group archives before use or API fallback, including
+  legacy lookups; return metadata-specific integrity failures across interfaces.
+- Record consumed JSON hashes, custom-source status and group metadata identity;
+  isolate caches by resolved archive root and preserve explicit cache resets.
+- Stop manifest execution on corrupt metadata before current-run output, preserve
+  typed workflow failures, and extend the stored-input reference workflow checks.
+- Keep archived research data and Round 17 model evidence unchanged. No estimator,
+  dependency or archive format changes.
+- Review fixes:
+  - integrity errors are no longer `ValueError`s, so input handlers cannot
+    report corruption as a bad argument; every MCP tool translates them to
+    `BUNDLED_DATA_INTEGRITY` at registration;
+  - manifest analysis ids are checked as portable, case-distinct filenames
+    when the manifest is validated, not after every model has run;
+  - an occupied output folder is reported as an `output_dir` problem (run_manifest)
+    and keeps the completed verification result (verify_proposition);
+  - clearing the metadata cache no longer empties dicts callers still hold;
+  - the model benchmark accepts omitted arguments for tools with no required
+    arguments;
+  - the archive cache no longer retains raw bytes; release labels are matched once
+    per distinct value.
+
 ## 0.16.0 (Round 17): exact claims and bound evidence
 
 - Exact operator-pinned proposition evidence with full digests, reviewed

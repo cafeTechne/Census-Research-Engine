@@ -140,6 +140,8 @@ silently. Anything run outside a manifest should be tagged with
 :func:`label_exploratory`.
 """
 
+from census.data_integrity import integrity_errors, BundledDataIntegrityError
+
 import copy
 import hashlib
 import json
@@ -680,6 +682,8 @@ def _check_variables(manifest: Mapping[str, Any], errors: List[str], resolve: bo
         try:
             conc = build_concordance(table, dataset, releases, client=client)
             _, unknown = conc.resolve_selection(refs)
+        except BundledDataIntegrityError:
+            raise
         except Exception as exc:  # concordance build failures are validation errors
             errors.append(f"{table}: concordance could not be built ({exc})")
             continue
@@ -711,6 +715,15 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
     releases = manifest.get("releases") or []
     if not isinstance(releases, list) or not releases or not all(_is_int(r) for r in releases):
         errors.append("releases must be a non-empty list of ACS 5-year end years (integers)")
+    # Present archive corruption must win over geography probes or API fallback.
+    variables = manifest.get("variables")
+    if resolve and isinstance(releases, list) and all(_is_int(r) for r in releases) and isinstance(variables, list):
+        from .metadata import preflight_archives
+        for variable in variables:
+            if isinstance(variable, Mapping) and "ref" in variable:
+                table = _table_of(variable)
+                if table:
+                    preflight_archives(_dataset_for(table), releases)
     _check_geography(manifest.get("geography") or {}, errors)
     level = manifest.get("confidence_level", 0.90)
     if not isinstance(level, (int, float)) or not 0 < float(level) < 1:
@@ -775,7 +788,9 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
     analyses = manifest.get("analyses") or []
     if not analyses:
         errors.append("analyses: at least one analysis is required")
+    from .report_tables import _artifact_name
     ids = {}
+    folded_ids: Dict[str, Any] = {}
     needs_replicates: List[str] = []  # replicate analyses declaring "replicates": "required"
     for i, a in enumerate(analyses):
         for k in _duplicate_spec_keys(a):
@@ -785,9 +800,22 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
         if method not in ANALYSIS_METHODS:
             errors.append(f"analyses[{i}]: unsupported method {method!r}; supported {sorted(ANALYSIS_METHODS)}")
             continue
-        if a.get("id") in ids or not a.get("id"):
+        aid = a.get("id")
+        if aid in ids or not aid:
             errors.append(f"analyses[{i}]: id must be present and unique")
-        ids[a.get("id")] = method
+        elif str(aid).casefold() in folded_ids:
+            # results-bundle artifacts are named after ids; reject now, not after every model has run
+            errors.append(f"analyses[{i}]: id {aid!r} collides with {folded_ids[str(aid).casefold()]!r} on a "
+                          "case-insensitive filesystem; ids must differ in more than letter case")
+        else:
+            try:
+                _artifact_name(str(aid))
+            except ValueError:
+                errors.append(f"analyses[{i}]: id {aid!r} must be usable as a filename (letters, digits, '_', "
+                              "'-', '.'; no path separators, ':', spaces at the end or reserved device names)")
+        if aid:
+            folded_ids.setdefault(str(aid).casefold(), aid)
+        ids[aid] = method
         if method in REPLICATE_METHODS and a.get("replicates") == "required":
             needs_replicates.append(str(a.get("id")))
         for req in ANALYSIS_METHODS[method][0]:
@@ -910,6 +938,7 @@ def _fill_adjustment_defaults(manifest: Dict[str, Any]) -> List[Dict[str, Any]]:
     return filled
 
 
+@integrity_errors
 def create_manifest(
     path_or_dict: Union[str, Path, Mapping[str, Any]], path: Optional[Union[str, Path]] = None,
     client: Any = None, resolve: bool = True,
@@ -1128,6 +1157,7 @@ def _tag(result: Any, h: str, analysis_id: str, status: str = STATUS_CONFIRMATOR
     return result
 
 
+@integrity_errors
 def run_manifest(
     manifest: Union[str, Path, Mapping[str, Any]], output_dir: Union[str, Path], client: Any = None,
     replicates: Any = None, use_cache: bool = True, replicates_synthetic: Optional[bool] = None,
@@ -1175,8 +1205,8 @@ def run_manifest(
         return {"success": False, "manifest_hash": h, "errors": errors}
     try:
         _require_empty_bundle(out / "bundle")
-    except (OSError, ValueError) as exc:
-        return {"success": False, "manifest_hash": h, "errors": [str(exc)]}
+    except (OSError, ValueError) as exc:  # the destination, not the manifest, is at fault
+        return {"success": False, "manifest_hash": h, "errors": [], "output_error": str(exc)}
     out.mkdir(parents=True, exist_ok=True)
     (out / "manifest.json").write_text(json.dumps(m, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
                                        encoding="utf-8", newline="\n")

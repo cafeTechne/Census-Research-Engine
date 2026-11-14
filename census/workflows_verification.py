@@ -48,16 +48,19 @@ def verify_proposition(
             from .report_tables import results_bundle
 
             evidence = bound.check_evidence(result)
-            bundle = results_bundle(
-                output_dir,
-                results={"verification": evidence},
-                methods="Exact bounded matrix evidence. Empirical analysis status is independent. "
-                "Formalization review is a local operator attestation, not remote authentication.",
-                provenance={
-                    "proposition_id": evidence["proposition_id"],
-                    "evidence_digest": evidence["evidence_digest"],
-                },
-            )
+            try:
+                bundle = _write_evidence_bundle(results_bundle, output_dir, evidence)
+            except (OSError, ValueError) as exc:
+                # The check itself succeeded; only the destination is unusable. Keep the result.
+                return {
+                    "success": False,
+                    "verification": evidence,
+                    "error_code": "INVALID_INPUT",
+                    "error": f"evidence bundle not written: {exc}",
+                    "summary": f"Exact claim {evidence['verification_status']}; the evidence bundle could not be "
+                    f"written to {output_dir!r} ({exc}).",
+                    "next_step": "call again with a new or empty output_dir; the verification result above stands",
+                }
             # The evidence object itself remains replayable; transport artifacts are separate.
             return {
                 "success": True,
@@ -95,3 +98,17 @@ def verify_proposition(
             "summary": str(exc),
             "next_step": "ask the operator to inspect the pinned request and output location; tools cannot approve it",
         }
+
+
+
+def _write_evidence_bundle(results_bundle, output_dir, evidence):
+    return results_bundle(
+        output_dir,
+        results={"verification": evidence},
+        methods="Exact bounded matrix evidence. Empirical analysis status is independent. "
+        "Formalization review is a local operator attestation, not remote authentication.",
+        provenance={
+            "proposition_id": evidence["proposition_id"],
+            "evidence_digest": evidence["evidence_digest"],
+        },
+    )

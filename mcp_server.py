@@ -8,7 +8,7 @@ and independently review concordance overrides (docs/agent_protocol.md).
 """
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
@@ -56,9 +56,9 @@ from census import calculate_cv as _calculate_cv
 from census import describe_variable as _describe_variable
 from census import generate_codebook as _generate_codebook
 from census.concordance import BLOCKING_KINDS
-from census.data_integrity import BundledDataIntegrityError, integrity_error_result
+from census.data_integrity import BundledDataIntegrityError, integrity_error_result, integrity_errors
 from census.decennial import DISCLOSURE_AVOIDANCE_ADVISORY, is_decennial, uncertainty_record
-from census.metadata import table_universe
+from census.metadata import preflight_archives, table_universe
 from census.panel import IDENTIFIER_COLUMNS, describe_columns
 from census.review import draft_override, record_override
 from census.stats import acs_overlap_years
@@ -124,6 +124,14 @@ Call get_research_protocol for the full protocol; get_recipe for short step list
 mcp = FastMCP("US-Census-ACS-Downloader", instructions=INSTRUCTIONS)
 
 
+def _tool(fn: Any) -> Any:
+    """Register ``fn`` as an MCP tool behind the one integrity boundary: a
+    bundled data/metadata checksum failure anywhere below returns
+    BUNDLED_DATA_INTEGRITY instead of escaping or being misreported."""
+    mcp.tool()(integrity_errors(fn))
+    return fn
+
+
 def _default_year(dataset: str = "acs5") -> int:
     return latest_vintage(dataset) or 2024
 
@@ -166,7 +174,7 @@ def _entities_for(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool()
+@_tool
 def get_research_protocol() -> Dict[str, Any]:
     """Return the full agent protocol: extraction workflow, concordance modes,
     issue kinds, the draft/independent-review process for overrides and rules,
@@ -187,7 +195,7 @@ def get_research_protocol() -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool()
+@_tool
 def list_states() -> List[Dict[str, str]]:
     """List all supported US states and territories with their 2-digit FIPS codes."""
     return [
@@ -196,7 +204,8 @@ def list_states() -> List[Dict[str, str]]:
     ]
 
 
-@mcp.tool()
+@_tool
+@integrity_errors
 def list_vintages(dataset: str = "acs5", refresh: bool = False) -> Dict[str, Any]:
     """List ACS 5-year release years available for a dataset.
 
@@ -214,7 +223,7 @@ def list_vintages(dataset: str = "acs5", refresh: bool = False) -> Dict[str, Any
     }
 
 
-@mcp.tool()
+@_tool
 def list_places(
     state_code: str, search: str = "", limit: int = 100
 ) -> List[Dict[str, str]]:
@@ -247,7 +256,7 @@ def list_places(
     return results
 
 
-@mcp.tool()
+@_tool
 def list_counties(state_code: str, year: Optional[int] = None) -> List[Dict[str, str]]:
     """List counties (name + 3-digit FIPS + 5-digit GEOID) in a state.
 
@@ -272,7 +281,7 @@ def list_counties(state_code: str, year: Optional[int] = None) -> List[Dict[str,
     ]
 
 
-@mcp.tool()
+@_tool
 def list_tracts(
     state_code: str, county_code: str, year: Optional[int] = None
 ) -> Dict[str, Any]:
@@ -311,7 +320,7 @@ def list_tracts(
     }
 
 
-@mcp.tool()
+@_tool
 def list_zctas(
     state_code: Optional[str] = None,
     county_code: Optional[str] = None,
@@ -348,10 +357,11 @@ def list_zctas(
     }
 
 
-@mcp.tool()
+@_tool
+@integrity_errors
 def search_tables(
     query: str, limit: int = 25, year: Optional[int] = None, dataset: Optional[str] = None
-) -> List[Dict[str, str]]:
+) -> Union[List[Dict[str, str]], Dict[str, Any]]:
     """Search ACS 5-year tables (detailed, data profile, subject, comparison profile)
     by code or keyword.
 
@@ -375,7 +385,8 @@ def search_tables(
     return matches
 
 
-@mcp.tool()
+@_tool
+@integrity_errors
 def list_variables(
     table_code: str, year: Optional[int] = None, limit: int = 50, dataset: Optional[str] = None
 ) -> Dict[str, Any]:
@@ -405,7 +416,8 @@ def list_variables(
     }
 
 
-@mcp.tool()
+@_tool
+@integrity_errors
 def describe_variable(code: str, year: Optional[int] = None, dataset: Optional[str] = None) -> Dict[str, Any]:
     """Label, concept, table, and universe for one variable code in one release.
 
@@ -426,7 +438,8 @@ def describe_variable(code: str, year: Optional[int] = None, dataset: Optional[s
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool()
+@_tool
+@integrity_errors
 def fetch_table_data(
     year: int,
     state_code: Optional[str],
@@ -467,6 +480,7 @@ def fetch_table_data(
         use_cache: Read/write the local SQLite query cache.
         max_rows: Maximum rows returned in 'data' (default 500).
     """
+    preflight_archives(dataset or infer_dataset(table_code), [year])
     client = _client(use_cache)
     try:
         raw_data = client.fetch(
@@ -528,7 +542,7 @@ def fetch_table_data(
     }
 
 
-@mcp.tool()
+@_tool
 def query_data_profile(
     profile_code: str,
     year: Optional[int] = None,
@@ -578,7 +592,7 @@ def query_data_profile(
     return result
 
 
-@mcp.tool()
+@_tool
 def plan_extraction(
     state_code: Optional[str],
     table_code: str,
@@ -639,7 +653,7 @@ def plan_extraction(
     return public_plan(plan)
 
 
-@mcp.tool()
+@_tool
 def batch_download(
     state_code: Optional[str],
     table_code: str,
@@ -762,7 +776,8 @@ def batch_download(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool()
+@_tool
+@integrity_errors
 def check_variable_concordance(
     table_code: str,
     start_year: int,
@@ -822,7 +837,7 @@ def check_variable_concordance(
     }
 
 
-@mcp.tool()
+@_tool
 def draft_crosswalk_override(
     table_code: str,
     entries: List[str],
@@ -867,7 +882,7 @@ def draft_crosswalk_override(
     return {"success": True, **draft}
 
 
-@mcp.tool()
+@_tool
 def record_crosswalk_review(
     row: Dict[str, str],
     reviewed_by: str,
@@ -890,7 +905,7 @@ def record_crosswalk_review(
     return record_override(row, reviewed_by, dataset, table_code, client=_client())
 
 
-@mcp.tool()
+@_tool
 def validate_crosswalks() -> Dict[str, Any]:
     """Validate every committed override file against the review requirements."""
     return validate_all_crosswalks(_client())
@@ -901,7 +916,7 @@ def validate_crosswalks() -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool()
+@_tool
 def calculate_cv(estimate: float, moe: float, product: Optional[str] = None) -> Dict[str, Any]:
     """Standard error, coefficient of variation and reliability for an ACS estimate.
 
@@ -919,7 +934,7 @@ def calculate_cv(estimate: float, moe: float, product: Optional[str] = None) -> 
         return errors.error_result(errors.INVALID_INPUT, str(exc))
 
 
-@mcp.tool()
+@_tool
 def calculate_significance(
     est1: float,
     moe1: float,
@@ -958,7 +973,7 @@ def calculate_significance(
         return errors.error_result(errors.INVALID_INPUT, str(exc))
 
 
-@mcp.tool()
+@_tool
 def adjust_inflation(
     value: float,
     from_year: int,
@@ -1003,7 +1018,8 @@ def adjust_inflation(
     }
 
 
-@mcp.tool()
+@_tool
+@integrity_errors
 def generate_codebook(
     table_code: str,
     year: Optional[int] = None,
@@ -1076,7 +1092,7 @@ def generate_codebook(
 # (implemented in census.workflows, shared with the CLI)
 # ---------------------------------------------------------------------------
 
-for _tool in (
+for _fn in (
     workflows_verification.verify_proposition,
     workflows.derive_estimate,
     workflows.check_replicate_availability,
@@ -1117,7 +1133,7 @@ for _tool in (
     workflows_microdata.place_adjust_frame,
     workflows_microdata.make_web_map,
 ):
-    mcp.tool()(_tool)
+    _tool(_fn)
 
 # Module-level names so tests and callers can use mcp_server.<tool>(...).
 derive_estimate = workflows.derive_estimate
