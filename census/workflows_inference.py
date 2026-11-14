@@ -766,6 +766,9 @@ def run_manifest(manifest_path: str, output_dir: Optional[str] = None,
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}" if isinstance(exc, KeyError) else str(exc))
     if res.get("error_code") == errors.BUNDLED_DATA_INTEGRITY:
         return res
+    if res.get("output_error"):
+        return _fail(errors.INVALID_INPUT, f"output_dir unusable: {res['output_error']}",
+                     "call run_manifest again with a new or empty output_dir; the manifest is fine")
     if res.get("errors"):
         return _fail(errors.INVALID_INPUT, "Manifest invalid: " + "; ".join(map(str, res["errors"])),
                      "fix the manifest with create_manifest")

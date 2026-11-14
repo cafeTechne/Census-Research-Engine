@@ -265,3 +265,22 @@ commit records these validation results and does not change tested source.
 All Round 18 slices are complete, with no implementation stubs left open.
 The default branch and prepared local v0.16.0 release tag remain at the Round 17
 baseline; this round does not merge or publish a release.
+
+### Review and release (2026-11-14)
+
+`/code-review high` of `faae550..b2f06f0` found 10 issues. Nine were fixed and one was rejected:
+
+| # | Finding | Outcome |
+| :--- | :--- | :--- |
+| 1 | Integrity errors subclass `ValueError`, so input handlers report corruption as INVALID_INPUT | Fixed: base class is `Exception`; every MCP tool is registered behind `integrity_errors` |
+| 2 | Analysis ids are not checked as filenames until the bundle step | Fixed in `validate_manifest` (portable component, case-insensitive uniqueness) |
+| 3 | `tables.clear_cache` empties dicts callers hold | Fixed: rebinds |
+| 4 | Verification bundle-destination errors reported as EVIDENCE_INVALID | Fixed: INVALID_INPUT, verification result kept |
+| 5 | Benchmark rejects omitted arguments | Fixed only for tools whose schema requires none; Round 17's "never substitute {}" rule otherwise holds |
+| 6 | `_archive_at` caches raw + parsed payloads (128 entries) | Fixed: no raw bytes, 32 entries |
+| 7 | Occupied output folder reported as "Manifest invalid" | Fixed: `output_dir unusable`, next step names the folder |
+| 8 | Per-row regex in `_acs_product` | Fixed: distinct labels only |
+| 9 | Redundant `digest` key in `_archived_variables_at` | **Rejected:** the key prevents stale normalized data after independent eviction (`test_normalized_cache_cannot_outlive_different_consumed_bytes`); now commented |
+| 10 | Integrity re-raises patched per call site | Addressed by 1; the remaining explicit re-raise sits before an `except Exception` and stays |
+
+Regression tests: `tests/test_round18_review_fixes.py`. Released as v0.17.0.

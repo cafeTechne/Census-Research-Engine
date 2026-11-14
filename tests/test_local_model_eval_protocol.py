@@ -27,7 +27,7 @@ class FakeSession:
         return SimpleNamespace(content=[SimpleNamespace(text='{"value": 1.25}')])
 
 
-def run(monkeypatch, replies, turns=3):
+def run(monkeypatch, replies, turns=3, tools=()):
     replies = iter(replies)
     monkeypatch.setattr(EVAL, "_chat", lambda *a: next(replies))
     task = EVAL.Task(
@@ -40,7 +40,7 @@ def run(monkeypatch, replies, turns=3):
     )
     args = argparse.Namespace(no_think=False, max_turns=turns, base_url="unused", model="fake", timeout=1)
     session = FakeSession()
-    result = asyncio.run(EVAL._run_task(session, [], task, args))
+    result = asyncio.run(EVAL._run_task(session, list(tools), task, args))
     return result, session
 
 
@@ -84,6 +84,19 @@ def test_missing_arguments_are_not_silently_replaced(monkeypatch):
     result, session = run(monkeypatch, [reply])
     assert result["error_kind"] == "invalid_tool_arguments"
     assert session.calls == []
+
+
+def _schema(required):
+    return {"type": "function", "function": {"name": "compute", "parameters": {
+        "type": "object", "properties": {"value": {"type": "number"}}, **({"required": required} if required else {})}}}
+
+
+@pytest.mark.parametrize("raw", [None, "", "  "])
+def test_omitted_arguments_mean_none_only_for_tools_without_required_arguments(monkeypatch, raw):
+    result, session = run(monkeypatch, [call(raw), {"content": "1.25"}], tools=[_schema([])])
+    assert result["calls"][0]["args"] == {} and session.calls == [("compute", {})]
+    result, session = run(monkeypatch, [call(raw)], tools=[_schema(["value"])])
+    assert result["error_kind"] == "invalid_tool_arguments" and session.calls == []
 
 
 @pytest.mark.parametrize("raw", ['{"value":1.25}', {"value": 1.25}])

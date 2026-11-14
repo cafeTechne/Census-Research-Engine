@@ -248,8 +248,21 @@ def _strip_think(text: Optional[str]) -> str:
     return re.sub(r"<think>.*?</think>", "", text or "", flags=re.S).strip()
 
 
-def _tool_arguments(raw: Any) -> Dict[str, Any]:
+def _takes_no_required_arguments(tools: List[Dict[str, Any]], name: str) -> bool:
+    """True when the advertised schema of tool ``name`` requires no argument."""
+    for t in tools:
+        fn = t.get("function") or {}
+        if fn.get("name") == name:
+            return not (fn.get("parameters") or {}).get("required")
+    return False
+
+
+def _tool_arguments(raw: Any, no_required: bool = False) -> Dict[str, Any]:
     """Preserve argument failures as protocol failures; never substitute {}.
+
+    The one exception is ``no_required``: for a tool whose schema requires no
+    argument, omitted arguments (None or a blank string, as local runtimes
+    emit for zero-argument calls) are the empty object, not an error.
 
     Ordinary research tools accept floating-point values. This is transport
     validation, separate from the verifier's restricted exact-math schema.
@@ -277,6 +290,8 @@ def _tool_arguments(raw: Any) -> Dict[str, Any]:
             for child in value:
                 validate_values(child)
 
+    if no_required and (raw is None or (isinstance(raw, str) and not raw.strip())):
+        return {}
     if isinstance(raw, dict):
         # Some local runtimes already decode their argument object.
         validate_values(raw)
@@ -311,7 +326,8 @@ async def _run_task(session: Any, tools: List[Dict[str, Any]], task: Task, args:
             for tc in tool_calls:
                 name = tc["function"]["name"]
                 try:
-                    targs = _tool_arguments(tc["function"].get("arguments"))
+                    targs = _tool_arguments(tc["function"].get("arguments"),
+                                            no_required=_takes_no_required_arguments(tools, name))
                 except (ValueError, TypeError, RecursionError) as exc:
                     calls.append({"tool": name, "args": None, "argument_error": str(exc)})
                     error_kind = "invalid_tool_arguments"

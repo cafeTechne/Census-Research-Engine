@@ -148,7 +148,10 @@ def test_bundle_contains_replayable_evidence_and_refuses_reuse(tmp_path, monkeyp
     assert "analysis_status" not in r["bundle"]["provenance"]
     old = (out / "bundle.json").read_bytes()
     failed = w.verify_proposition(**request_arguments(p), output_dir=str(out))
-    assert not failed["success"] and failed["verification"]["verification_status"] == "error"
+    # An occupied destination is an input problem; the completed check is kept, not reported invalid.
+    assert not failed["success"] and failed["error_code"] == "INVALID_INPUT"
+    assert failed["verification"] == r["verification"]
+    assert "output_dir" in failed["next_step"]
     assert (out / "bundle.json").read_bytes() == old
 
 

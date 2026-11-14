@@ -50,7 +50,7 @@ def test_manifest_success_then_blocked_reuse_is_refused_before_execution(tmp_pat
     with mock.patch.object(blocked_client, "fetch", wraps=blocked_client.fetch) as fetch:
         blocked = run_manifest(load_manifest(EXAMPLE), folder, client=blocked_client, use_cache=False)
     assert not blocked["success"]
-    assert any("fresh or empty" in error for error in blocked["errors"])
+    assert "fresh or empty" in blocked["output_error"] and not blocked["errors"]
     fetch.assert_not_called()
     assert snapshot(folder) == before
 

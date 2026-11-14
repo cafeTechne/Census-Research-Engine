@@ -37,11 +37,13 @@ _SOURCE_PATHS: Dict[str, str] = {}
 
 
 def clear_cache() -> None:
-    """Clear legacy lookup snapshots along with census.metadata.clear_cache()."""
-    VARIABLE_DEFINITIONS.clear()
-    VARIABLE_METADATA.clear()
-    TABLE_UNIVERSES.clear()
-    _SOURCE_PATHS.clear()
+    """Drop legacy lookup snapshots along with census.metadata.clear_cache().
+
+    The module-level dicts are rebound, not emptied in place: a caller still
+    holding a dict returned by a loader keeps its complete snapshot.
+    """
+    global VARIABLE_DEFINITIONS, VARIABLE_METADATA, TABLE_UNIVERSES, _SOURCE_PATHS
+    VARIABLE_DEFINITIONS, VARIABLE_METADATA, TABLE_UNIVERSES, _SOURCE_PATHS = {}, {}, {}, {}
 
 
 

@@ -95,7 +95,9 @@ def _acs_product(attrs: Mapping[str, Any], releases=()) -> Optional[str]:
         products.append(normalize_product(attrs["product"]))
     if attrs.get("dataset") and attrs["dataset"] not in DECENNIAL_DATASETS:
         products.append(dataset_product(attrs["dataset"]))
-    for label in [attrs.get("release"), *list(releases)]:
+    # Distinct labels only: a long panel's release column holds a handful of values.
+    distinct = pd.unique(pd.Series(releases, dtype="object")) if len(releases) else ()
+    for label in [attrs.get("release"), *distinct]:
         match = re.fullmatch(r"acs([15])_\d{4}(?:\+dec_2020)?", str(label))
         if match:
             products.append("1-year" if match[1] == "1" else "5-year")

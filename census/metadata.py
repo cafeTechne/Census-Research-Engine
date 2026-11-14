@@ -113,8 +113,11 @@ def _archive_path(dataset: str, year: int, name: str) -> str:
     return os.path.join(_root(), *dataset.split("/"), str(year), f"{name}.gz")
 
 
-@lru_cache(maxsize=128)
+# Holds parsed payloads (several MB each for variables.json), so keep it small;
+# normalized variables have their own cache. Raw bytes are not retained.
+@lru_cache(maxsize=32)
 def _archive_at(root: str, dataset: str, year: int, name: str) -> Optional[tuple]:
+    """(parsed payload, provenance) of a verified archive file, or None when absent."""
     path = os.path.join(root, *dataset.split("/"), str(year), f"{name}.gz")
     if not os.path.exists(path):
         return None
@@ -147,18 +150,26 @@ def _archive_at(root: str, dataset: str, year: int, name: str) -> Optional[tuple
         "integrity": "verified" if bundled else "caller_supplied_unverified",
         "url": entry.get("url") if isinstance(entry, dict) else None,
     }
-    return raw, payload, provenance
+    return payload, provenance
 
 
 def _read_archive(dataset: str, year: int, name: str) -> Optional[bytes]:
-    record = _archive_at(_root(), dataset, int(year), name)
-    return record[0] if record is not None else None
+    """Legacy shim: the decompressed bytes, read again after verification."""
+    root = _root()
+    if _archive_at(root, dataset, int(year), name) is None:
+        return None
+    with gzip.open(os.path.join(root, *dataset.split("/"), str(year), f"{name}.gz"), "rb") as f:
+        raw = f.read()
+    expected = archive_provenance(dataset, year, name).get("sha256")
+    if hashlib.sha256(raw).hexdigest() != expected:  # changed on disk since it was verified
+        raise MetadataIntegrityError(f"Metadata archive for {dataset} {year} {name} changed after verification")
+    return raw
 
 
 def archive_provenance(dataset: str, year: int, name: str = "variables.json") -> Dict[str, Any]:
     """Actual decompressed-byte digest and integrity status of an archived source."""
     record = _archive_at(_root(), dataset, int(year), name)
-    return dict(record[2]) if record is not None else {}
+    return dict(record[1]) if record is not None else {}
 
 
 def verify_archive_file(dataset: str, year: int, name: str = "variables.json") -> bool:
@@ -167,7 +178,7 @@ def verify_archive_file(dataset: str, year: int, name: str = "variables.json") -
         record = _archive_at(_root(), dataset, int(year), name)
     except MetadataIntegrityError:
         return False
-    return bool(record and record[2]["expected_sha256"] == record[2]["sha256"])
+    return bool(record and record[1]["expected_sha256"] == record[1]["sha256"])
 
 
 def _normalize_variables(payload: Dict[str, Any]) -> Dict[str, VariableMeta]:
@@ -193,7 +204,7 @@ def _load_json(
 ) -> Tuple[Optional[Dict[str, Any]], str]:
     record = _archive_at(_root(), dataset, int(year), name)
     if record is not None:
-        return record[1], SOURCE_ARCHIVE
+        return record[0], SOURCE_ARCHIVE
     key = (_root(), getattr(client, "base_url", None), dataset, int(year), name)
     if key in _API_MEMO:
         return _API_MEMO[key], SOURCE_API
@@ -210,15 +221,17 @@ def _load_json(
 def _archived_variables_at(
     root: str, dataset: str, year: int, digest: str
 ) -> Optional[Dict[str, VariableMeta]]:
+    # ``digest`` is part of the key on purpose: _archive_at is evicted independently, and a
+    # re-read of changed bytes (custom archive dir) must not be served stale normalized data.
     record = _archive_at(root, dataset, year, "variables.json")
-    return _normalize_variables(record[1]) if record is not None else None
+    return _normalize_variables(record[0]) if record is not None else None
 
 
 def vintage_variables(dataset: str, year: int, client: Any = None) -> Tuple[Dict[str, VariableMeta], str]:
     """All variables for one vintage and the source they came from."""
     root = _root()
     record = _archive_at(root, dataset, int(year), "variables.json")
-    archived = _archived_variables_at(root, dataset, int(year), record[2]["sha256"]) if record else None
+    archived = _archived_variables_at(root, dataset, int(year), record[1]["sha256"]) if record else None
     if archived is not None:
         return archived, SOURCE_ARCHIVE
     payload, source = _load_json(dataset, int(year), "variables.json", client)
@@ -359,5 +372,5 @@ def read_archived_path(path: str) -> Optional[Dict[str, Any]]:
         record = _archive_at(
             os.path.normcase(os.path.realpath(root)), "/".join(parts[:-2]), int(parts[-2]), parts[-1][:-3]
         )
-        return record[1] if record else None
+        return record[0] if record else None
     return None

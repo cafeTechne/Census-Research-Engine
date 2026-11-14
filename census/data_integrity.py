@@ -29,8 +29,14 @@ INTEGRITY_NEXT_STEP = (
 )
 
 
-class BundledDataIntegrityError(ValueError):
-    """A bundled reference table does not match the checksum shipped with it."""
+class BundledDataIntegrityError(Exception):
+    """A bundled reference table does not match the checksum shipped with it.
+
+    Deliberately not a ``ValueError``: ordinary ``except ValueError`` input
+    handlers must not catch it and report corruption as a bad argument. It is
+    translated to BUNDLED_DATA_INTEGRITY once, at the tool/CLI boundary
+    (``integrity_errors``, ``workflows._guided``, ``__main__``).
+    """
 
 
 def sha256_bytes(raw: bytes) -> str:
