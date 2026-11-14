@@ -66,60 +66,103 @@ def validation_errors(geo: Mapping[str, Any], manifest: Mapping[str, Any]) -> Li
                     "use; list the other states in geography.states")
     if manifest.get("aggregation") is not None:
         errs.append("geography.harmonize_tracts_to cannot be combined with aggregation")
-    from .geo_crosswalk import check_additive
+    from .geo_crosswalk import check_additive, tract_vintage
     from .stats import parse_variable_code
+    for r in manifest.get("releases") or []:
+        try:
+            tract_vintage(int(r))
+        except (TypeError, ValueError) as exc:
+            errs.append(f"geography.harmonize_tracts_to: release {r!r}: {exc}")
     for v in manifest.get("variables") or []:
-        ref = str((v or {}).get("ref", "")) if isinstance(v, Mapping) else ""
-        code = ref.split(":", 1)[1] if ":" in ref else None
-        parsed = parse_variable_code(code) if code else None
-        base = parsed[0] if parsed else code
-        if not base:
-            continue  # concept-id refs are checked when the run apportions them
-        _, refused, _ = check_additive([f"{base}E"])
-        if refused:
-            errs.append(f"geography.harmonize_tracts_to: variable {v.get('name')!r} ({base}) cannot be apportioned "
-                        f"between tract vintages: {next(iter(refused.values()))}. Only additive counts can be "
-                        "apportioned; derive rates, means and shares from apportioned counts (derivations)")
+        if not isinstance(v, Mapping):
+            continue
+        ref = str(v.get("ref", ""))
+        if ":" not in ref:  # concept id: the code is only known after concordance resolution
+            errs.append(f"geography.harmonize_tracts_to: variable {v.get('name')!r} uses a concept id ({ref}); "
+                        "give a YEAR:CODE reference so its additivity can be checked before preregistration")
+            continue
+        code = ref.split(":", 1)[1]
+        parsed = parse_variable_code(code)
+        column = f"{parsed[0]}{parsed[1]}" if parsed else f"{code}E"
+        ok, refused, unverified = check_additive([column])
+        reason = next(iter(refused.values()), None) or (
+            "no label in the offline metadata archive, so it cannot be verified as a count" if unverified else None)
+        if reason or not ok:
+            errs.append(f"geography.harmonize_tracts_to: variable {v.get('name')!r} ({code}) cannot be apportioned "
+                        f"between tract vintages: {reason or 'not an additive count'}. Only additive counts can "
+                        "be apportioned; derive rates, means and shares from apportioned counts (derivations)")
     return errs
 
 
-def crosswalks(target: int, states: Sequence[str], kinds: Sequence[str]) -> Dict[str, pd.DataFrame]:
-    """One tract crosswalk per weight kind, built for ``states`` only."""
-    from .geo_crosswalk import tract_crosswalk
-    # No silent land-area fallback: the pre-registered method is block weights; a failure is a deviation.
-    return {k: tract_crosswalk(direction_for(target), weight=k, states=list(states) or None, block_fallback=False)
-            for k in sorted(set(kinds))}
+def ct_coding_for(releases: Sequence[int]) -> str:
+    from .geo_crosswalk import FIRST_RELEASE_CT_PLANNING_REGIONS
+    return "2022" if any(int(y) >= FIRST_RELEASE_CT_PLANNING_REGIONS for y in releases) else "2020"
+
+
+def crosswalks(target: int, states: Sequence[str], kinds: Sequence[str],
+               releases: Sequence[int] = ()) -> Dict[str, pd.DataFrame]:
+    """One tract crosswalk per weight kind, built for ``states`` only, with target codes in
+    the output coding (:func:`census.geo_crosswalk.crosswalk_targets_to_output_codes`)."""
+    from .geo_crosswalk import crosswalk_targets_to_output_codes, tract_crosswalk
+    out = {}
+    for k in sorted(set(kinds)):
+        # No silent land-area fallback: the pre-registered method is block weights; a failure is a deviation.
+        cw = tract_crosswalk(direction_for(target), weight=k, states=list(states) or None, block_fallback=False)
+        attrs = dict(cw.attrs)
+        cw = cw.copy()
+        cw["target_geoid"] = crosswalk_targets_to_output_codes(cw["target_geoid"], target,
+                                                               ct_coding_for(releases)).values
+        cw.attrs = attrs
+        out[k] = cw
+    return out
+
+
+def to_crosswalk_codes(geoids: Any, target: int) -> pd.Series:
+    """Source-release tract GEOIDs in the relationship file's codes (ACS renumberings undone)."""
+    from .geo_crosswalk import normalize_tract_geoids, source_tracts_to_crosswalk_codes
+    return source_tracts_to_crosswalk_codes(pd.Series(normalize_tract_geoids(geoids).values), target)
 
 
 def harmonize_wide(wide: pd.DataFrame, codes: Mapping[str, str], target: int,
                    crosswalk_by_kind: Mapping[str, pd.DataFrame]) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """Put a code-keyed wide frame (GEOID, Year, ``<code>E``/``<code>M``) on ``target`` tracts.
 
-    ``codes``: manifest name -> ACS base code. Returns (frame, record).
+    GEOIDs are recoded exactly as :func:`census.geo_crosswalk.harmonize_panel` does (shared
+    helpers): source rows to the relationship file's codes, native rows to the output coding.
+    ``codes``: manifest name -> ACS base code. Returns (frame, record); the record lists every
+    source tract the crosswalk does not contain (``unmatched_source_tracts``; known ACS boundary
+    changes separately) and every target with rows in a native release but none in an
+    apportioned one (``targets_without_apportioned_rows``).
     """
-    from .geo_crosswalk import apportion, normalize_tract_geoids
+    from .geo_crosswalk import ACS_2010_BOUNDARY_CHANGES, apportion, native_tracts_to_output_codes, \
+        normalize_tract_geoids
     years = sorted(int(y) for y in pd.unique(wide["Year"]))
     moved = releases_to_apportion(years, target)
+    ct = ct_coding_for(years)
     native = wide[~wide["Year"].astype(int).isin(moved)].copy()
-    native["GEOID"] = normalize_tract_geoids(native["GEOID"]).values
-    source = wide[wide["Year"].astype(int).isin(moved)]
+    native["GEOID"] = native_tracts_to_output_codes(
+        pd.Series(normalize_tract_geoids(native["GEOID"]).values, index=native.index), target, ct).values
+    source = wide[wide["Year"].astype(int).isin(moved)].copy()
+    raw_source_ids = normalize_tract_geoids(source["GEOID"]).values
+    source["GEOID"] = to_crosswalk_codes(source["GEOID"], target).values
     by_kind: Dict[str, List[str]] = {}
     for name, code in codes.items():
         by_kind.setdefault(weight_kind(code), []).append(code)
     parts: List[pd.DataFrame] = []
     kinds: Dict[str, Any] = {}
+    unmatched: set = set()
     for kind, kind_codes in sorted(by_kind.items()):
+        if source.empty:
+            continue
         est = [f"{c}E" for c in dict.fromkeys(kind_codes)]
         moe = {e: e[:-1] + "M" for e in est if e[:-1] + "M" in source.columns}
         cw = crosswalk_by_kind[kind]
-        if source.empty:
-            continue
         out = apportion(source[["GEOID", "Year"] + est + list(moe.values())], cw, estimate_cols=est,
                         moe_cols=moe, group_cols=("Year",))
+        unmatched |= set(out.attrs.get("unmatched_geoids") or [])
         kinds[kind] = {"variables": est, "weight_type": out.attrs.get("weight_type"),
                        "notes": out.attrs.get("notes"), "source": cw.attrs.get("source"),
                        "fallbacks": cw.attrs.get("fallbacks"),
-                       "unmatched_source_tracts": len(out.attrs.get("unmatched_geoids") or []),
                        "dropped_targets": out.attrs.get("incomplete_targets") or []}
         parts.append(out)
     apportioned = None
@@ -127,26 +170,43 @@ def harmonize_wide(wide: pd.DataFrame, codes: Mapping[str, str], target: int,
         apportioned = p if apportioned is None else apportioned.merge(p, on=["GEOID", "Year"], how="outer")
     frames = [native] + ([apportioned] if apportioned is not None else [])
     result = pd.concat(frames, ignore_index=True, sort=False)
+    acs_code = dict(zip(source["GEOID"], raw_source_ids))
+    unmatched_acs = sorted(acs_code.get(g, g) for g in unmatched)
+    boundary = [g for g in unmatched_acs if g in ACS_2010_BOUNDARY_CHANGES]
+    missing_targets: List[str] = []
+    if moved:
+        have = set(result.loc[result["Year"].astype(int).isin(moved), "GEOID"])
+        missing_targets = sorted(set(native["GEOID"]) - have)
     record = {"target_vintage": int(target), "direction": direction_for(target), "apportioned_releases": moved,
               "native_releases": [y for y in years if y not in moved], "weights": kinds,
+              "geoid_recodes": int((source["GEOID"].values != raw_source_ids).sum()),
+              "unmatched_source_tracts": [g for g in unmatched_acs if g not in boundary],
+              "acs_boundary_change_tracts": {g: ACS_2010_BOUNDARY_CHANGES[g] for g in boundary},
+              "targets_without_apportioned_rows": missing_targets,
               "rows": {str(y): int((result["Year"].astype(int) == y).sum()) for y in years},
               "uncertainty": "Apportioned MOEs (and _se) use the independence approximation sqrt(sum (w*MOE)^2); "
                              "replicate analyses use apportioned replicates (exact sampling SE of sum w*X). The "
                              "crosswalk's interpolation error is in neither."}
+    if boundary:
+        record["notes"] = [f"{len(boundary)} source tract(s) changed boundaries in the ACS after the 2010 Census "
+                           "(no exact equivalent in the relationship file); their values could not be apportioned: "
+                           + "; ".join(record["acs_boundary_change_tracts"].values())]
     return result, record
 
 
-def apportion_replicates(reps: pd.DataFrame, code: str, crosswalk: pd.DataFrame) -> pd.DataFrame:
+def apportion_replicates(reps: pd.DataFrame, code: str, crosswalk: pd.DataFrame, target: int = 2020) -> pd.DataFrame:
     """Apportion one variable's replicate rows (GEOID, estimate, rep_1..rep_80) with ``crosswalk``.
 
-    Each replicate column is apportioned exactly like the estimate (sum w * X), so
-    replicate variance of the result is the exact sampling variance of the
-    apportioned estimate. Returns the same columns on target GEOIDs.
+    Source GEOIDs are recoded as for the estimates first. Each replicate column is apportioned
+    exactly like the estimate (sum w * X), so replicate variance of the result is the exact
+    sampling variance of the apportioned estimate. Returns the same columns on target GEOIDs.
     """
     from .analysis import REPLICATE_COLUMNS
     from .geo_crosswalk import apportion
     cols = ["estimate"] + [c for c in REPLICATE_COLUMNS if c in reps.columns]
-    out = apportion(reps[["GEOID"] + cols], crosswalk, estimate_cols=cols, assume_additive=True)
+    src = reps[["GEOID"] + cols].copy()
+    src["GEOID"] = to_crosswalk_codes(src["GEOID"], target).values
+    out = apportion(src, crosswalk, estimate_cols=cols, assume_additive=True)
     out.attrs["code"] = code
     return out[["GEOID"] + cols]
 

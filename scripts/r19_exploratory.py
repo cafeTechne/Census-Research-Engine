@@ -41,7 +41,7 @@ def load(run_dir):
         path = run_dir / info["path"]
         if sha256(path) != info["sha256"]:
             raise SystemExit(f"{path} does not match run.json; refusing to analyse different data")
-        data[name] = pd.read_parquet(path)
+        data[name] = pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path, dtype={"GEOID": str})
     return run, data["analysis_frame"], data["replicates"]
 
 
@@ -112,18 +112,22 @@ def main(run_dir, out_dir):
     s19 = se_rep.reindex(list(zip(change["GEOID"], [2019] * len(change)))).to_numpy()
     s24 = se_rep.reindex(list(zip(change["GEOID"], [2024] * len(change)))).to_numpy()
     change["change_se"] = np.sqrt(s19 ** 2 + s24 ** 2)
-    change["change_cv"] = 100 * change["change_se"] / change["change"].abs()
+    change["change_cv"] = 100 * change["change_se"] / change["change"].abs().replace(0, np.nan)
     change["state"] = change["GEOID"].str[:2]
     change_path = out_dir / "tract_change.parquet"
     change.to_parquet(change_path, index=False)
-    sig = (change["change"].abs() / change["change_se"]) > 1.645
+    defined = change["change_se"].notna()
+    sig = ((change["change"].abs() / change["change_se"]) > 1.645)[defined]
+    up = change.loc[defined, "change"] > 0
     summary["change"] = {
-        "tracts": int(len(change)), "mean": float(change["change"].mean()),
+        "tracts": int(len(change)), "tracts_with_change_se": int(defined.sum()),
+        "median_change_cv": float(change["change_cv"].median()),
+        "mean": float(change["change"].mean()),
         "median": float(change["change"].median()),
         "share_positive": float((change["change"] > 0).mean()),
         "share_distinguishable_from_zero_90": float(sig.mean()),
-        "share_up_distinguishable": float((sig & (change["change"] > 0)).mean()),
-        "share_down_distinguishable": float((sig & (change["change"] < 0)).mean()),
+        "share_up_distinguishable": float((sig & up).mean()),
+        "share_down_distinguishable": float((sig & ~up).mean()),
         "median_change_se": float(change["change_se"].median()),
         "by_state": {STATES[s]: {"tracts": int(len(g)), "mean": float(g["change"].mean()),
                                  "median": float(g["change"].median()),
@@ -171,11 +175,17 @@ def main(run_dir, out_dir):
                          "conservative"), "pct_bachelors") for y in (2019, 2024)}
 
     # ---- E4 replicate SE vs independence approximation for apportioned 2019 tracts -------------
-    cw = th.crosswalks(2020, list(STATES), ["housing_units"])["housing_units"]
-    per_target = cw.groupby("target_geoid").agg(n_sources=("source_geoid", "nunique"), w_max=("weight", "max"))
-    kind = np.where(per_target["n_sources"] > 1, "merged from several 2010 tracts",
-                    np.where(per_target["w_max"] >= 0.999, "same tract (weight 1)", "part of a split 2010 tract"))
-    kind = pd.Series(kind, index=per_target.index.astype(str))
+    # Composition of each 2020 tract by 2010 source: share of the target's block mass from each source.
+    # "Merged" needs a second source with at least 10% of the mass (slivers would dilute the comparison).
+    cw = th.crosswalks(2020, list(STATES), ["housing_units"], releases=[2019, 2024])["housing_units"]
+    mass = cw.assign(m=cw["part_area"]).groupby(["target_geoid", "source_geoid"])["m"].sum()
+    share = mass / mass.groupby(level=0).transform("sum")
+    second = share.groupby(level=0).apply(lambda x: x.nlargest(2).iloc[-1] if len(x) > 1 else 0.0)
+    whole = cw.groupby("target_geoid")["weight"].max()
+    kind = pd.Series(np.where(second >= 0.10, "merged (second source >= 10% of the tract)",
+                              np.where(whole.reindex(second.index) >= 0.999, "same tract (weight 1)",
+                                       "part of a split 2010 tract (or slivers < 10%)")),
+                     index=second.index.astype(str))
     e4 = {}
     for var in ("agg_income", "households"):
         rep = replicate_se(reps, var)

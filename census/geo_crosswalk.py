@@ -935,6 +935,29 @@ def _recompute_reliability(panel: pd.DataFrame, rows: pd.Index) -> None:
             panel.loc[rows, col] = cv.map(reliability_flag)
 
 
+def source_tracts_to_crosswalk_codes(geoids: pd.Series, target_vintage: int) -> pd.Series:
+    """Step 1 of a tract harmonization: codes of rows on the *other* vintage, as used by the
+    Census relationship file (2010-vintage ACS renumberings undone for target 2020;
+    Connecticut planning-region codes to former county codes for target 2010)."""
+    if int(target_vintage) == 2020:
+        return geoids.map(acs_to_census2010_geoid)
+    return pd.Series(recode_ct_tracts(geoids, to="2020").values, index=geoids.index)
+
+
+def native_tracts_to_output_codes(geoids: pd.Series, target_vintage: int, ct_coding: str) -> pd.Series:
+    """Step 2a: codes of rows already on the target vintage, in the output coding."""
+    if int(target_vintage) == 2010:
+        return geoids.map(acs_to_census2010_geoid).map(census2010_to_acs_geoid)
+    return pd.Series(recode_ct_tracts(geoids, to=ct_coding).values, index=geoids.index)
+
+
+def crosswalk_targets_to_output_codes(targets: pd.Series, target_vintage: int, ct_coding: str) -> pd.Series:
+    """Step 2b: crosswalk target codes (decennial Census) in the same output coding."""
+    if int(target_vintage) == 2010:
+        return targets.map(census2010_to_acs_geoid)
+    return pd.Series(recode_ct_tracts(targets, to=ct_coding).values, index=targets.index)
+
+
 def harmonize_panel(
     df: pd.DataFrame,
     target_vintage: int = 2020,
@@ -1026,25 +1049,17 @@ def harmonize_panel(
     native_years = [y for y in years if vintages[y] == target_vintage]
     src_mask = panel[year_col].isin(src_years)
     before = panel.loc[src_mask, geoid_col]
-    if target_vintage == 2020:
-        after = before.map(acs_to_census2010_geoid)
-        _count("acs_2010_codes_to_census_2010", before, after)
-    else:
-        after = recode_ct_tracts(before, to="2020")
-        _count("ct_planning_region_to_2020_county", before, after)
+    after = source_tracts_to_crosswalk_codes(before, target_vintage)
+    _count("acs_2010_codes_to_census_2010" if target_vintage == 2020 else "ct_planning_region_to_2020_county",
+           before, after)
     panel.loc[src_mask, geoid_col] = after.values
 
     # 2. Bring native rows and crosswalk targets onto one output coding.
     nat_mask = panel[year_col].isin(native_years)
     before = panel.loc[nat_mask, geoid_col]
-    if target_vintage == 2010:
-        after = before.map(acs_to_census2010_geoid).map(census2010_to_acs_geoid)
-        cw["target_geoid"] = cw["target_geoid"].map(census2010_to_acs_geoid)
-        _count("acs_2010_codes_to_latest", before, after)
-    else:
-        after = recode_ct_tracts(before, to=ct_coding)
-        cw["target_geoid"] = recode_ct_tracts(cw["target_geoid"], to=ct_coding).values
-        _count(f"ct_to_{ct_coding}_coding", before, after)
+    after = native_tracts_to_output_codes(before, target_vintage, ct_coding)
+    cw["target_geoid"] = crosswalk_targets_to_output_codes(cw["target_geoid"], target_vintage, ct_coding).values
+    _count("acs_2010_codes_to_latest" if target_vintage == 2010 else f"ct_to_{ct_coding}_coding", before, after)
     panel.loc[nat_mask, geoid_col] = after.values
 
     # Compare normalized GEOIDs: a panel read without dtype=str loses leading zeros.
@@ -1225,6 +1240,9 @@ __all__ = [
     "ACS_2010_COUNTY_RECODES",
     "ACS_2010_TRACT_RENUMBERING",
     "acs_to_census2010_geoid",
+    "source_tracts_to_crosswalk_codes",
+    "native_tracts_to_output_codes",
+    "crosswalk_targets_to_output_codes",
     "apportion",
     "apportion_long",
     "census2010_to_acs_geoid",

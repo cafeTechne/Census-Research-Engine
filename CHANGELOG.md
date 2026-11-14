@@ -14,8 +14,14 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 - RPP `areas: "county_metro"` at tract level (a tract takes its county's RPP area).
 - `run_manifest` writes the analysed frame and replicates to `<output>/analysed/`, with
   SHA-256s in `run.json`, so follow-up analyses use exactly what the models saw.
+- Review fixes: tract harmonization reuses `harmonize_panel`'s GEOID recodes (ACS 2011/2012
+  renumberings were missed); unexplained unmatched tracts (`harmonization_incomplete`) and
+  replicate/estimate mismatches (`harmonization_mismatch`) are blocking deviations; known
+  ACS boundary changes and targets without apportioned rows are recorded; no crosswalk
+  downloads when nothing needs apportioning; stricter validation (suffix, concept ids,
+  pre-2010 releases, unverifiable codes); a failed analysed-data copy never loses the run.
 - First complete preregistered study: `docs/studies/r19_mi_ny_tract_income_change.md`
-  (H1 and H3 supported, H2 not supported; friction log F1-F10).
+  (H1 and H3 supported, H2 not supported; run history and friction log F1-F11).
 
 ## 0.17.0 (Round 18): metadata integrity
 

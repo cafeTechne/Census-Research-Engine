@@ -180,7 +180,8 @@ BLOCKING_DEVIATIONS = ("blocked_variable", "extraction_failed", "variable_missin
                        "aggregation_failed", "analysis_frame_failed", "analysis_not_run",
                        "replicates_unavailable", "analysis_failed", "replicates_incomplete",
                        "hypothesis_not_tested", "failed_calls", "data_source_mismatch", "adjustment_failed",
-                       "replicates_overlapping_releases", "harmonization_failed")
+                       "replicates_overlapping_releases", "harmonization_failed", "harmonization_incomplete",
+                       "harmonization_mismatch")
 DATA_SOURCE_KEYS = ("synthetic", "description", "generator")
 STATUS_EXPLORATORY = "exploratory"
 
@@ -1305,9 +1306,17 @@ def run_manifest(
             try:
                 h_states = sorted({s for st in manifest_states(geo) if st for s in expand_states(st)})
                 bases = {n: (parse_variable_code(c) or (c.rstrip("E"), "E"))[0] for n, c in refs_by_name.items()}
-                tract_crosswalks = th.crosswalks(target, h_states, [th.weight_kind(c) for c in bases.values()])
-                crosswalk_by_name = {n: tract_crosswalks[th.weight_kind(c)] for n, c in bases.items()}
+                tract_crosswalks = th.crosswalks(target, h_states, [th.weight_kind(c) for c in bases.values()],
+                                                 releases=releases) \
+                    if th.releases_to_apportion(releases, target) else {}  # nothing to apportion: no downloads
+                crosswalk_by_name = {n: tract_crosswalks[th.weight_kind(c)] for n, c in bases.items()
+                                     if th.weight_kind(c) in tract_crosswalks}
                 wide, harmonization = th.harmonize_wide(wide, bases, target, tract_crosswalks)
+                if harmonization.get("unmatched_source_tracts"):
+                    deviations.append({"kind": "harmonization_incomplete", "detail": (
+                        f"{len(harmonization['unmatched_source_tracts'])} source tract(s) are not in the tract "
+                        "relationship file, so their values were not apportioned: "
+                        + ", ".join(harmonization["unmatched_source_tracts"][:20]))})
             except Exception as exc:  # noqa: BLE001 - recorded as a blocking deviation, never substituted
                 deviations.append({"kind": "harmonization_failed", "detail": f"{type(exc).__name__}: {exc}"})
                 harmonization = {"target_vintage": target, "error": f"{type(exc).__name__}: {exc}"}
@@ -1342,6 +1351,14 @@ def run_manifest(
                                "detail": f"Census VRE replicates could not be fetched: {type(exc).__name__}: {exc}"})
             vre_info = {"source": "census_vre", "error": f"{type(exc).__name__}: {exc}"}
             replicates = None
+
+    check = (vre_info or {}).get("apportioned_estimate_check") or {}
+    bad = {n: c for n, c in check.items() if c.get("max_rel_diff") is not None and c["max_rel_diff"] > 1e-6}
+    if bad:
+        deviations.append({"kind": "harmonization_mismatch", "detail": (
+            "apportioned Census VRE estimates differ from the apportioned published estimates for "
+            + ", ".join(f"{n} (max relative difference {c['max_rel_diff']:.3g})" for n, c in sorted(bad.items()))
+            + "; the replicate SEs may not belong to the analysed values")})
 
     # 3b. derivations on supplied replicates
     work_reps = replicates
@@ -1434,7 +1451,10 @@ def run_manifest(
             deviations.append({"kind": kind, "analysis": aid, "detail": f"{type(exc).__name__}: {exc}"})
 
     # 5a. the analysed data, for follow-up (exploratory) work on exactly what the models saw
-    analysed_data = _write_analysed_data(out, frame, work_reps)
+    try:
+        analysed_data = _write_analysed_data(out, frame, work_reps)
+    except Exception as exc:  # noqa: BLE001 - a convenience copy must never cost the confirmatory run
+        analysed_data = {"error": f"analysed data not written: {type(exc).__name__}: {exc}"}
 
     # 6. hypotheses with the pre-registered correction
     rows = []
@@ -1545,11 +1565,14 @@ def _write_analysed_data(out: Path, frame: Optional[pd.DataFrame], replicates: A
         if not isinstance(df, pd.DataFrame) or df.empty:
             continue
         folder.mkdir(parents=True, exist_ok=True)
+        for stale in (folder / f"{name}.parquet", folder / f"{name}.csv"):  # never mix with an earlier run's copy
+            stale.unlink(missing_ok=True)
         data = df.reset_index(drop=True)
         try:
             path = folder / f"{name}.parquet"
             data.to_parquet(path, index=False)
-        except (ImportError, ValueError):
+        except Exception:  # noqa: BLE001 - no pyarrow, or a column pyarrow cannot store: CSV instead
+            (folder / f"{name}.parquet").unlink(missing_ok=True)
             path = folder / f"{name}.csv"
             data.to_csv(path, index=False)
         written[name] = {"path": str(path.relative_to(out)), "rows": int(len(data)),
@@ -1708,7 +1731,13 @@ def _census_vre_replicates(m: Mapping[str, Any], frame: pd.DataFrame, codes_by_y
                     continue
                 part = sub[["GEOID", "estimate"] + REPLICATE_COLUMNS].copy()
                 if year in apportioned:
-                    part = th.apportion_replicates(part, code, (crosswalk_by_name or {})[n])
+                    cw = (crosswalk_by_name or {}).get(n)
+                    if cw is None:  # e.g. the variable is missing from the extraction
+                        unavailable.append({"variable": n, "table": table, "release": year,
+                                            "reason": "no tract crosswalk for this variable (not in the harmonized "
+                                                      "frame)"})
+                        continue
+                    part = th.apportion_replicates(part, code, cw, int(geo["harmonize_tracts_to"]))
                     part = part[part["GEOID"].astype(str).isin(want)]
                 part.insert(1, "Year", int(year))
                 part.insert(2, "variable", n)

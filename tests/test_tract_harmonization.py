@@ -123,6 +123,11 @@ class TestValidation(unittest.TestCase):
         self.assertTrue(self.errors(geography={"level": "tract", "states": ["09", "26"], "harmonize_tracts_to": 2020}))
         median = manifest()["variables"] + [{"name": "med", "ref": "2024:B19013_001"}]
         self.assertTrue(any("cannot be apportioned" in e for e in self.errors(variables=median)))
+        pct = manifest()["variables"] + [{"name": "pct", "ref": "2024:DP02_0068PE"}]
+        self.assertTrue(any("cannot be apportioned" in e for e in self.errors(variables=pct)))
+        concept = manifest()["variables"] + [{"name": "c", "ref": "c_0123456789ab", "table": "B19025"}]
+        self.assertTrue(any("concept id" in e for e in self.errors(variables=concept)))
+        self.assertTrue(any("release 2009" in e for e in self.errors(releases=[2009, 2024])))
 
 
 class TestReplicateApportionment(unittest.TestCase):
@@ -165,6 +170,36 @@ class TestReplicateApportionment(unittest.TestCase):
         self.assertGreater(se_rep, np.sqrt(sum(s ** 2 for s in se_each)) * 1.3)
 
 
+class TestGeoidRecodes(unittest.TestCase):
+    """Review finding: 2010-vintage ACS codes must be recoded to the relationship file's codes."""
+
+    def test_renumbered_and_boundary_change_tracts(self):
+        renumbered_acs, renumbered_census = "36053030101", "36053940101"  # Madison County, NY (ACS 2011)
+        boundary = "36065024900"  # Oneida County, NY: 2010 tract 9402 + part of 0230 (no exact equivalent)
+        unknown = "36099999999"
+        cw = pd.DataFrame({"source_geoid": [renumbered_census], "target_geoid": ["36053030101"],
+                           "weight": [1.0], "part_area": [1.0]})
+        wide = pd.DataFrame({"GEOID": [renumbered_acs, boundary, unknown, "36053030101"],
+                             "Year": [2019, 2019, 2019, 2024], "B19025_001E": [10.0, 20.0, 30.0, 40.0],
+                             "B19025_001M": [1.0, 1.0, 1.0, 1.0]})
+        out, rec = th.harmonize_wide(wide, {"agg": "B19025_001"}, 2020, {"housing_units": cw})
+        got = out[(out["Year"] == 2019)].set_index("GEOID")["B19025_001E"]
+        self.assertEqual(got.loc["36053030101"], 10.0)  # matched only through the recode
+        self.assertEqual(rec["geoid_recodes"], 1)
+        self.assertEqual(rec["unmatched_source_tracts"], [unknown])
+        self.assertIn(boundary, rec["acs_boundary_change_tracts"])
+        reps = pd.DataFrame({"GEOID": [renumbered_acs], "estimate": [10.0], **{c: [10.0] for c in REP_COLS}})
+        r = th.apportion_replicates(reps, "B19025_001", cw)
+        self.assertEqual(list(r["GEOID"]), ["36053030101"])
+
+    def test_targets_without_apportioned_rows_are_listed(self):
+        wide = pd.DataFrame({"GEOID": [ST + CO + "000100", ST + CO + "000201"], "Year": [2019, 2024],
+                             "B19025_001E": [1.0, 2.0], "B19025_001M": [1.0, 1.0]})
+        cw = toy_crosswalk()
+        _, rec = th.harmonize_wide(wide, {"agg": "B19025_001"}, 2020, {"housing_units": cw})
+        self.assertEqual(rec["targets_without_apportioned_rows"], [ST + CO + "000201"])
+
+
 class TestManifestRun(unittest.TestCase):
     def setUp(self):
         self.dir = tempfile.mkdtemp()
@@ -172,7 +207,7 @@ class TestManifestRun(unittest.TestCase):
 
     def run_m(self, m):
         with mock.patch("census.replicate.fetch_vre", side_effect=fake_vre), \
-                mock.patch.object(th, "crosswalks", side_effect=lambda target, states, kinds: {
+                mock.patch.object(th, "crosswalks", side_effect=lambda target, states, kinds, releases=(): {
                     k: toy_crosswalk() for k in kinds}):
             return run_manifest(m, os.path.join(self.dir, "run"), client=TractClient(), use_cache=False)
 
@@ -194,6 +229,33 @@ class TestManifestRun(unittest.TestCase):
         for name in ("analysis_frame", "replicates"):  # analysed data kept for follow-up work
             path = os.path.join(self.dir, "run", "analysed")
             self.assertTrue(any(f.startswith(name) for f in os.listdir(path)), name)
+
+    def test_no_crosswalk_downloads_when_nothing_to_apportion(self):
+        m = manifest(releases=[2024], replicates={"source": "census_vre"})
+        with mock.patch("census.replicate.fetch_vre", side_effect=fake_vre), \
+                mock.patch.object(th, "crosswalks", side_effect=AssertionError("must not be called")):
+            res = run_manifest(m, os.path.join(self.dir, "native"), client=TractClient(), use_cache=False)
+        self.assertNotIn("harmonization_failed", [d["kind"] for d in res["deviations"]])
+
+    def test_vre_estimate_mismatch_is_a_blocking_deviation(self):
+        def drifted(table, year, geo_level, **kw):
+            out = fake_vre(table, year, geo_level, **kw)
+            if year == 2019:
+                out["estimate"] = out["estimate"] * 1.01
+            return out
+        with mock.patch("census.replicate.fetch_vre", side_effect=drifted), \
+                mock.patch.object(th, "crosswalks", side_effect=lambda target, states, kinds, releases=(): {
+                    k: toy_crosswalk() for k in kinds}):
+            res = run_manifest(manifest(), os.path.join(self.dir, "drift"), client=TractClient(), use_cache=False)
+        self.assertIn("harmonization_mismatch", [d["kind"] for d in res["deviations"]])
+        self.assertEqual(res["analysis_status"], "confirmatory_incomplete")
+
+    def test_analysed_data_failure_does_not_lose_the_run(self):
+        from census import manifest as mf
+        with mock.patch.object(mf, "_write_analysed_data", side_effect=OSError("disk full")):
+            res = self.run_m(manifest())
+        self.assertEqual(res["analysis_status"], "confirmatory", res["deviations"])
+        self.assertTrue(os.path.exists(os.path.join(self.dir, "run", "bundle", "methods.md")))
 
     def test_crosswalk_failure_is_a_blocking_deviation(self):
         with mock.patch("census.replicate.fetch_vre", side_effect=fake_vre), \

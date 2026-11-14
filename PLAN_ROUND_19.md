@@ -130,8 +130,8 @@ v0.18.0 with a Zenodo DOI after `/code-review high`, the fixes, the full gate, a
 | :--- | :--- |
 | A1–A3 | `geography.harmonize_tracts_to`, replicate apportionment (`census.tract_harmonization`), tract `county_metro` RPP areas; offline tests in `tests/test_tract_harmonization.py` and `tests/test_manifest_multistate.py` |
 | Preregistration | Manifest SHA-256 `8f205f51…fb126`, committed alone at `3f0b1fe` (2026-11-14T20:33:49Z) and pushed before any study data request |
-| Run | `confirmatory`, 0 deviations. The reproduction run gave byte-identical `hypotheses.json`. Apportioned VRE estimates match the apportioned API estimates exactly (difference 0.0) |
-| Results | H1 +$3,458 [3,093, 3,824] supported; H2 −$65.6/pp [−122.7, −8.4] not supported (opposite sign); H3 NY − MI +$3,867 [3,232, 4,503] supported |
-| Exploratory | Sensitivity agrees across all real-dollar variants. Per-tract change mostly noise (1% significant after BH). Weak global autocorrelation of the change. Replicate SE ≈ independence SE for apportioned tracts (within 1.3%) |
-| Friction | F1–F4 fixed in round; F5–F10 backlog (report section 11) |
+| Run | Run 1 confirmatory, 0 deviations. Code review then found a GEOID-recode defect: 11 renumbered NY tracts were dropped from 2019 without a deviation. Engine fixed and run 3 of the **unchanged** manifest reported: confirmatory, 0 deviations. Both runs disclosed in the report. Apportioned VRE estimates match the API estimates exactly |
+| Results (run 3) | H1 +$3,469 [3,104, 3,834] supported; H2 −$64.8/pp [−121.9, −7.7] not supported (opposite sign); H3 NY − MI +$3,895 [3,259, 4,530] supported |
+| Exploratory | Sensitivity agrees across all real-dollar variants. Per-tract change mostly noise (< 1% significant after BH). Weak global autocorrelation of the change. Independence-approximation SEs right on average but ±6–7% off for genuinely merged tracts |
+| Friction | F1–F4 and F11 fixed in round; F5–F10 backlog (report section 12) |
 | Report | `docs/studies/r19_mi_ny_tract_income_change.md` |
