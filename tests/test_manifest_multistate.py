@@ -183,9 +183,12 @@ class TestValidation(unittest.TestCase):
             {"name": "income", "ref": "2024:B19013_001"}, {"name": "total", "ref": "2024:B15002_001"},
             {"name": "college", "ref": "2024:B15002_015"}]), "dollar_year is required")
         self.check(two_state_manifest(aggregation={"mapping": {"26001": "a"}}), "aggregation")
+        places = two_state_manifest(geography={"level": "place", "state": "26"},
+                                    adjustments=[{"type": "rpp", "variables": ["income"], "areas": "county_metro"}])
+        self.check(places, "needs geography level 'county' or 'tract'")
         tracts = two_state_manifest(geography={"level": "tract", "state": "26"},
                                     adjustments=[{"type": "rpp", "variables": ["income"], "areas": "county_metro"}])
-        self.check(tracts, "needs geography level 'county'")
+        self.assertFalse([e for e in validate_manifest(tracts, resolve=False) if "county_metro" in e])
         zcta = two_state_manifest(geography={"level": "zcta", "state": "26"},
                                   adjustments=[{"type": "rpp", "variables": ["income"]}])
         self.check(zcta, "state-based geography")
@@ -504,3 +507,27 @@ if __name__ == "__main__":
         record()
     else:
         unittest.main()
+
+
+class TestTractCountyMetroAreas(unittest.TestCase):
+    """PLAN_ROUND_19 A3: a tract takes its county's RPP area."""
+
+    def test_tracts_use_their_county_rpp_area(self):
+        from census.workflows_microdata import place_adjust
+        membership, _ = frozen_membership()
+        county = sorted(membership.index)[0]
+        counties = pd.DataFrame({"GEOID": [county], "income": [50000.0], "income_se": [1000.0]})
+        tracts = pd.DataFrame({"GEOID": [county + "000100", county + "000200"], "income": [50000.0] * 2,
+                               "income_se": [1000.0] * 2})
+        with patched_membership():
+            c = place_adjust(counties, ["income"], 2024)["frame"]
+            t = place_adjust(tracts, ["income"], 2024)
+        self.assertEqual(set(t["frame"]["rpp_area"]), {c["rpp_area"].iloc[0]})
+        self.assertTrue((t["frame"]["income"] == c["income"].iloc[0]).all())
+        self.assertTrue(any("tracts take the RPP area of their county" in n for n in t["notes"]))
+
+    def test_mixed_or_other_geoids_are_refused(self):
+        from census.workflows_microdata import place_adjust
+        with self.assertRaises(ValueError):
+            place_adjust(pd.DataFrame({"GEOID": ["2616300", "26163"], "income": [1.0, 1.0],
+                                       "income_se": [1.0, 1.0]}), ["income"], 2024)

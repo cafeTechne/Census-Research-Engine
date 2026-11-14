@@ -12,6 +12,7 @@ pulled. Schema (``schema_version`` 1)::
       "releases": [2019],                                   # ACS 5-year end years
       "geography": {"level": "tract", "state": "36", "codes": ["061"]},
                    # or several states, stacked: {"level": "county", "states": ["26", "36"]}
+                   # tracts across the 2010/2020 redraw: add "harmonize_tracts_to": 2020
       "variables": [                                        # YEAR:CODE or concept IDs
         {"name": "income", "ref": "2019:B19013_001"},
         {"name": "pop", "ref": "c_0123456789ab", "table": "B01003"}
@@ -44,6 +45,15 @@ of 2-digit FIPS codes), never both. With ``states`` each table is extracted
 per state and the states are stacked into one frame; ``codes`` are then not
 allowed (county codes are per state). Pooled models get no automatic state
 term: a cross-state formula states it explicitly, e.g. ``C(GEOID.str[:2])``.
+
+``geography.harmonize_tracts_to`` (optional, ``2020`` or ``2010``; tract level only,
+PLAN_ROUND_19): releases on the other tract vintage are apportioned to that vintage with
+block housing-unit or population weights before the analysis frame is built, and their
+Census VRE replicates go through the same crosswalk, so replicate SEs are exact for the
+apportioned estimates (:mod:`census.tract_harmonization`). Only additive counts can be
+apportioned (derive means and shares from them); Connecticut and ``aggregation`` are
+refused; a crosswalk failure is a blocking ``harmonization_failed`` deviation. An RPP
+adjustment at tract level may use ``areas: "county_metro"`` (each tract's county).
 
 ``adjustments`` (optional) are pre-registered transformations applied to the
 analysis frame after derivations and exclusions (so a pre-registered exclusion
@@ -170,7 +180,7 @@ BLOCKING_DEVIATIONS = ("blocked_variable", "extraction_failed", "variable_missin
                        "aggregation_failed", "analysis_frame_failed", "analysis_not_run",
                        "replicates_unavailable", "analysis_failed", "replicates_incomplete",
                        "hypothesis_not_tested", "failed_calls", "data_source_mismatch", "adjustment_failed",
-                       "replicates_overlapping_releases")
+                       "replicates_overlapping_releases", "harmonization_failed")
 DATA_SOURCE_KEYS = ("synthetic", "description", "generator")
 STATUS_EXPLORATORY = "exploratory"
 
@@ -386,8 +396,9 @@ def _check_adjustments(manifest: Mapping[str, Any], names: List[str], errors: Li
         areas = adj.get("areas", default_rpp_areas(level))
         if areas not in ("county_metro", "state"):
             errors.append(f"adjustments[{i}]: areas must be 'county_metro' or 'state'")
-        elif areas == "county_metro" and level != "county":
-            errors.append(f"adjustments[{i}]: areas 'county_metro' needs geography level 'county'")
+        elif areas == "county_metro" and level not in ("county", "tract"):
+            errors.append(f"adjustments[{i}]: areas 'county_metro' needs geography level 'county' or 'tract' "
+                          "(a tract takes its county's RPP area)")
         elif areas == "state" and level not in _STATE_PREFIXED_LEVELS:
             errors.append(f"adjustments[{i}]: areas 'state' needs a state-based geography level "
                           f"{_STATE_PREFIXED_LEVELS}")
@@ -725,6 +736,8 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
                 if table:
                     preflight_archives(_dataset_for(table), releases)
     _check_geography(manifest.get("geography") or {}, errors)
+    from .tract_harmonization import validation_errors as _harmonization_errors
+    errors.extend(_harmonization_errors(manifest.get("geography") or {}, manifest))
     level = manifest.get("confidence_level", 0.90)
     if not isinstance(level, (int, float)) or not 0 < float(level) < 1:
         errors.append("confidence_level must be in (0, 1), e.g. 0.90")
@@ -1272,8 +1285,10 @@ def run_manifest(
         panels.append(_wide_from_panel(panel, tcols))
         columns.update(tcols)
 
-    # 3. analysis frame (optional aggregation first)
+    # 3. analysis frame (tract harmonization, or optional aggregation, first)
     frame = None
+    harmonization: Optional[Dict[str, Any]] = None
+    crosswalk_by_name: Dict[str, pd.DataFrame] = {}
     if panels:
         wide = panels[0]
         for p in panels[1:]:
@@ -1282,7 +1297,22 @@ def run_manifest(
         refs_by_name = {}
         for name, (_, _, code) in columns.items():
             refs_by_name[name] = code
-        if m.get("aggregation"):
+        if geo.get("harmonize_tracts_to") is not None:
+            from . import tract_harmonization as th
+            from .pipeline import expand_states
+            from .stats import parse_variable_code
+            target = int(geo["harmonize_tracts_to"])
+            try:
+                h_states = sorted({s for st in manifest_states(geo) if st for s in expand_states(st)})
+                bases = {n: (parse_variable_code(c) or (c.rstrip("E"), "E"))[0] for n, c in refs_by_name.items()}
+                tract_crosswalks = th.crosswalks(target, h_states, [th.weight_kind(c) for c in bases.values()])
+                crosswalk_by_name = {n: tract_crosswalks[th.weight_kind(c)] for n, c in bases.items()}
+                wide, harmonization = th.harmonize_wide(wide, bases, target, tract_crosswalks)
+            except Exception as exc:  # noqa: BLE001 - recorded as a blocking deviation, never substituted
+                deviations.append({"kind": "harmonization_failed", "detail": f"{type(exc).__name__}: {exc}"})
+                harmonization = {"target_vintage": target, "error": f"{type(exc).__name__}: {exc}"}
+                wide = None
+        if wide is not None and m.get("aggregation"):
             from .aggregate import aggregate_geographies
             try:
                 parts = []
@@ -1305,7 +1335,8 @@ def run_manifest(
     vre_info: Optional[Dict[str, Any]] = None
     if census_vre_source(m) and frame is not None:
         try:
-            replicates, vre_info = _census_vre_replicates(m, frame, codes_by_year, client)
+            replicates, vre_info = _census_vre_replicates(m, frame, codes_by_year, client,
+                                                          crosswalk_by_name=crosswalk_by_name)
         except Exception as exc:  # noqa: BLE001 - recorded as a blocking deviation, never substituted
             deviations.append({"kind": "replicates_unavailable",
                                "detail": f"Census VRE replicates could not be fetched: {type(exc).__name__}: {exc}"})
@@ -1480,6 +1511,8 @@ def run_manifest(
                 else int(len(frame)), "title": m.get("title"), "data_source": source, "replicates": rep_info}
     if m.get("adjustments"):
         run_info["adjustments"] = adjustment_log
+    if harmonization is not None:
+        run_info["harmonization"] = harmonization
     if not complete:
         run_info["status_note"] = INCOMPLETE_STATUS_TEXT
     tables_used = sorted(tables_and_refs(m))
@@ -1575,7 +1608,8 @@ def _derive_replicates(frame: pd.DataFrame, replicates: Any,
 
 
 def _census_vre_replicates(m: Mapping[str, Any], frame: pd.DataFrame, codes_by_year: Mapping[str, Mapping[int, str]],
-                           client: Any = None) -> Tuple[Optional[pd.DataFrame], Dict[str, Any]]:
+                           client: Any = None, crosswalk_by_name: Optional[Mapping[str, pd.DataFrame]] = None,
+                           ) -> Tuple[Optional[pd.DataFrame], Dict[str, Any]]:
     """Fetch the Census VRE files for the manifest's variables, geography and releases with
     :func:`census.replicate.fetch_vre` (and its cache) and return (replicate long frame, record).
 
@@ -1583,7 +1617,11 @@ def _census_vre_replicates(m: Mapping[str, Any], frame: pd.DataFrame, codes_by_y
     replicates, for the analysis frame's units only. The record lists every file (URL, SHA-256 of
     the file as downloaded, release, summary level, published-MOE self-check) and every variable
     without published replicates (``unavailable``: table not on the release's VRE list, or the
-    line missing from the file). Raises when a published file cannot be fetched."""
+    line missing from the file). Raises when a published file cannot be fetched.
+
+    With ``geography.harmonize_tracts_to`` the replicate rows of releases on the other tract
+    vintage are apportioned with the estimates' crosswalk (``crosswalk_by_name``) before they
+    are matched to the analysis units (census.tract_harmonization.apportion_replicates)."""
     from . import replicate as vre
     from .analysis import REPLICATE_COLUMNS
     from .pipeline import expand_states
@@ -1600,6 +1638,10 @@ def _census_vre_replicates(m: Mapping[str, Any], frame: pd.DataFrame, codes_by_y
                          "no VRE file could be requested")
     units = frame[["GEOID", "Year"]].astype({"GEOID": str, "Year": "int64"})
     releases = [int(r) for r in m["releases"]]
+    apportioned: List[int] = []
+    if geo.get("harmonize_tracts_to") is not None:
+        from . import tract_harmonization as th
+        apportioned = th.releases_to_apportion(releases, int(geo["harmonize_tracts_to"]))
     names_by_table: Dict[str, List[str]] = {}
     for v in m["variables"]:
         names_by_table.setdefault(str(_table_of(v)), []).append(str(v["name"]))
@@ -1623,7 +1665,8 @@ def _census_vre_replicates(m: Mapping[str, Any], frame: pd.DataFrame, codes_by_y
                               "sha256": f.attrs.get("sha256"), "moe_check": f.attrs.get("moe_check")})
                 if f.attrs.get("substitution"):  # B01003 total read from B01001 (census.replicate.fetch_vre)
                     files[-1]["substitution"] = f.attrs["substitution"]
-                frames.append(f[f["GEOID"].astype(str).isin(want)])
+                # apportioned releases: keep every source tract; matched to the units after apportionment
+                frames.append(f if year in apportioned else f[f["GEOID"].astype(str).isin(want)])
             rows = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
             for n in names:
                 code = (codes_by_year.get(n) or {}).get(year)
@@ -1634,6 +1677,9 @@ def _census_vre_replicates(m: Mapping[str, Any], frame: pd.DataFrame, codes_by_y
                                                   "the analysed units"})
                     continue
                 part = sub[["GEOID", "estimate"] + REPLICATE_COLUMNS].copy()
+                if year in apportioned:
+                    part = th.apportion_replicates(part, code, (crosswalk_by_name or {})[n])
+                    part = part[part["GEOID"].astype(str).isin(want)]
                 part.insert(1, "Year", int(year))
                 part.insert(2, "variable", n)
                 parts.append(part)
@@ -1643,6 +1689,9 @@ def _census_vre_replicates(m: Mapping[str, Any], frame: pd.DataFrame, codes_by_y
         reps.attrs["synthetic"] = False
     record = {"source": "census_vre", "synthetic": False, "files": files, "variables": covered,
               "unavailable": unavailable, "documentation": vre.VRE_DOCUMENTATION}
+    if apportioned and reps is not None:
+        record["apportioned_releases"] = apportioned
+        record["apportioned_estimate_check"] = th.replicate_estimate_check(frame, reps, list(covered), apportioned)
     return reps, record
 
 
@@ -2096,6 +2145,12 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
         else:
             lines.append("Multiple releases were linked through the concordance; the 5-year periods do not "
                          "overlap (no shared sample years), so their estimates come from independent samples.")
+    if geo.get("harmonize_tracts_to") is not None:
+        from .tract_harmonization import methods_text as _harmonization_text
+        lines.append(_harmonization_text(run.get("harmonization")) or (
+            f"Tract harmonization (pre-registered): releases on another tract vintage are apportioned to "
+            f"{geo['harmonize_tracts_to']} Census tracts with block weights; their Census VRE replicates are "
+            "apportioned with the same weights."))
     if m.get("aggregation"):
         lines.append(f"Geographies were aggregated into {len(set(m['aggregation']['mapping'].values()))} groups; "
                      "aggregate MOEs use replicate variance where available, else the ACS approximation "

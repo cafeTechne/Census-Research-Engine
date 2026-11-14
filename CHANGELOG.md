@@ -5,6 +5,14 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## Unreleased (Round 19): one complete preregistered study
+
+- Manifests: `geography.harmonize_tracts_to` puts tract panels across the 2010/2020
+  redraw on one tract vintage (block housing-unit/population weights); Census VRE
+  replicates are apportioned through the same crosswalk, giving exact replicate SEs for
+  apportioned estimates (`census.tract_harmonization`).
+- RPP `areas: "county_metro"` at tract level (a tract takes its county's RPP area).
+
 ## 0.17.0 (Round 18): metadata integrity
 
 - Verify bundled variable/group archives before use or API fallback, including

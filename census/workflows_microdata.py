@@ -290,11 +290,14 @@ def place_adjust(frame: Any, variables: List[str], year: int, areas: str = "coun
     geoids = [str(g) for g in frame["GEOID"]]
     boundary_source = None
     if areas == "county_metro":
-        if any(len(g) != 5 for g in geoids):
-            raise ValueError("areas='county_metro' needs county GEOIDs (5 digits); use areas='state'")
-        membership, boundary_source = _county_rpp_areas(sorted(set(geoids)), int(year))
-        member = {g: membership.loc[g] for g in set(geoids)}
-        keys = [rpp.county_rpp_area(g, member[g]["CBSA"] if pd.notna(member[g]["CBSA"]) else None,
+        # Counties (5 digits) or tracts (11 digits; a tract lies in one county, GEOID[:5]).
+        if any(len(g) not in (5, 11) for g in geoids) or len({len(g) for g in geoids}) > 1:
+            raise ValueError("areas='county_metro' needs county (5-digit) or tract (11-digit) GEOIDs; "
+                             "use areas='state'")
+        county_of = {g: g[:5] for g in set(geoids)}
+        membership, boundary_source = _county_rpp_areas(sorted(set(county_of.values())), int(year))
+        member = {g: membership.loc[c] for g, c in county_of.items()}
+        keys = [rpp.county_rpp_area(county_of[g], member[g]["CBSA"] if pd.notna(member[g]["CBSA"]) else None,
                                     member[g]["LSAD"] if pd.notna(member[g]["LSAD"]) else None)
                 for g in geoids]
         frame["cbsa"] = [member[g]["CBSA"] if pd.notna(member[g]["CBSA"]) else "" for g in geoids]
@@ -335,7 +338,8 @@ def place_adjust(frame: Any, variables: List[str], year: int, areas: str = "coun
                      f"year); price-level differences between places are assumed unchanged between {rpp_year} "
                      f"and {int(year)}.")
     if areas == "county_metro":
-        notes.append("RPP AREA: counties in a metropolitan CBSA use that MSA's RPP; micropolitan and rural "
+        notes.append(("RPP AREA: tracts take the RPP area of their county. " if geoids and len(geoids[0]) == 11
+                      else "") + "RPP AREA: counties in a metropolitan CBSA use that MSA's RPP; micropolitan and rural "
                      "counties use the state nonmetropolitan-portion RPP (BEA nonmetro portions include "
                      f"micropolitan counties). CBSA membership from {boundary_source} (OMB bulletin 23-01 "
                      "delineation, as in BEA's RPPs).")
