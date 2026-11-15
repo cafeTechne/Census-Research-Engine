@@ -2948,6 +2948,10 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                          f"{boundary_vintage(max(m['releases']), m['geography']['level'])}); validated in "
                          "docs/audits/spatial_hac_validation.md. Conley, T. G. (1999). GMM estimation with cross "
                          "sectional dependence. Journal of Econometrics, 92(1), 1–45.")
+            from .spatial_hac import SPATIAL_HAC_VALIDATED
+            if not SPATIAL_HAC_VALIDATED:
+                lines.append("The pre-set spatial HAC coverage validation FAILED; these standard errors are "
+                             "exploratory and not validated for confirmatory use.")
         if a["method"] == "fit_eiv" and args.get("cluster"):
             cites.append("cluster")
     lines += ["", "### Hypotheses and multiple comparisons", ""]
