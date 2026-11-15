@@ -88,6 +88,42 @@ FH_POINTER = (
     "for an outcome with known sampling variance use census.sae.fh_regression "
     "(Fay-Herriot weights 1/(sigma_u^2 + s_i^2))"
 )
+SCALES = ("X2", "robust")
+ROBUST_SE_NOTE = (
+    "Robust (HC3 sandwich) SEs for the binomial/Poisson GLM: valid under extra-binomial or extra-Poisson "
+    "variation between areas, which Pearson X2 scaling does not repair when the overdispersion does not "
+    "shrink with the denominator (validated, docs/audits/robust_se_validation.md). Units are treated as "
+    "independent: spatial dependence in the residuals is not covered."
+)
+
+
+def glm_robust_covariance(X: np.ndarray, y: np.ndarray, mu: np.ndarray, model: str,
+                          trials: Optional[np.ndarray] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """HC3 sandwich covariance of a canonical-link binomial or Poisson GLM.
+
+    Binomial: ``y`` and ``mu`` are proportions, ``trials`` the denominators
+    (the GLM's var_weights); score_i = x_i t_i (y_i - mu_i), weight t_i mu_i (1 - mu_i).
+    Poisson: ``y`` and ``mu`` are counts; score_i = x_i (y_i - mu_i), weight mu_i.
+    Bread B = (X'WX)^-1, leverage h_i = w_i x_i'B x_i, meat sum s_i s_i' / (1 - h_i)^2.
+    Returns the covariance and ``{"estimator": "HC3", "max_leverage": ...}``.
+    """
+    X = np.asarray(X, float)
+    y, mu = np.asarray(y, float), np.asarray(mu, float)
+    if model == "binomial":
+        if trials is None:
+            raise ValueError("binomial robust covariance needs trials")
+        t = np.asarray(trials, float)
+        resid, w = t * (y - mu), t * mu * (1 - mu)
+    elif model == "poisson":
+        resid, w = y - mu, mu
+    else:
+        raise ValueError("robust GLM covariance supports binomial and poisson")
+    bread = np.linalg.inv(X.T @ (w[:, None] * X))
+    h = w * np.einsum("ij,jk,ik->i", X, bread, X)
+    if np.any(h >= 1 - 1e-12):
+        raise ValueError("a unit has leverage 1; HC3 is undefined (drop or merge that unit)")
+    s = X * (resid / (1 - h))[:, None]
+    return bread @ (s.T @ s) @ bread, {"estimator": "HC3", "max_leverage": float(h.max())}
 
 
 # ---------------------------------------------------------------------------
