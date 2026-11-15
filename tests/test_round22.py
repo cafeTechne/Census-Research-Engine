@@ -61,7 +61,7 @@ class TestConley:
         np.testing.assert_allclose(conley_meat(scores, apart, .01), scores.T@scores, atol=1e-12)
 
     def test_errors(self):
-        for c in (0, -1, np.nan, np.inf):
+        for c in (0, -1, np.nan, np.inf, None, "invalid", [150], True, 1+2j):
             with pytest.raises(ValueError):
                 conley_meat(np.ones((3,1)), np.zeros((3,3)), c)
         with pytest.raises(ValueError, match='not positive'):

@@ -21,7 +21,12 @@ def haversine_matrix(lon, lat) -> np.ndarray:
 
 def conley_meat(scores: np.ndarray, dist_km: np.ndarray, cutoff_km: float) -> np.ndarray:
     """Bartlett-weighted cross-products of n x k per-observation scores."""
-    if isinstance(cutoff_km, (bool, np.bool_)) or not np.isfinite(cutoff_km) or cutoff_km <= 0:
+    try:
+        invalid = (isinstance(cutoff_km, (bool, np.bool_)) or np.ndim(cutoff_km) != 0
+                   or not np.isfinite(cutoff_km) or cutoff_km <= 0)
+    except (TypeError, ValueError):
+        invalid = True
+    if invalid:
         raise ValueError("cutoff_km must be finite and positive")
     scores, dist = np.asarray(scores, float), np.asarray(dist_km, float)
     if (scores.ndim != 2 or dist.shape != (len(scores), len(scores))
