@@ -14,7 +14,7 @@ calibration (census.models.regression_calibration, which knows s_x but not
 rho) and fit_eiv. Acceptance (PLAN_ROUND_20 A2): fit_eiv |bias| < 10% of the
 naive bias, and 90% interval coverage of 0.87-0.93 at reliability >= 0.8.
 
-Usage: python scripts/eiv_validation.py [--sims 500] [--n 800] [--out docs/audits/eiv_validation.md]
+Usage: python scripts/eiv_validation.py [--sims 500] [--n 800] [--workers 9] [--out docs/audits/eiv_validation.md]
 """
 
 import argparse
@@ -22,6 +22,7 @@ import os
 import sys
 import time
 import warnings
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime, timezone
 
 import numpy as np
@@ -61,40 +62,47 @@ def simulate(seed: int, n: int, rel: float, rho: float):
     return frame, reps
 
 
+def run_cell(cell):
+    rel, rho, sims, n = cell
+    warnings.simplefilter("ignore")
+    rec = {k: [] for k in ("eiv", "eiv_cov", "eiv_se", "naive", "rc", "rc_cov")}
+    for s in range(sims):
+        frame, reps = simulate(1000 * s + 7, n, rel, rho)
+        c = fit_eiv("y ~ x + C(g)", frame, reps).coefficients.set_index("term").loc["x"]
+        rec["eiv"].append(c["estimate"])
+        rec["eiv_se"].append(c["se_total"])
+        rec["eiv_cov"].append(c["ci_lower"] <= BETA <= c["ci_upper"])
+        rec["naive"].append(c["naive_estimate"])
+        rcx = regression_calibration("y ~ x + C(g)", frame, ["x"], n_boot=100, seed=s) \
+            .coefficients.set_index("term").loc["x"]
+        rec["rc"].append(rcx["estimate"])
+        rec["rc_cov"].append(rcx["ci_lower"] <= BETA <= rcx["ci_upper"])
+    eiv_bias = float(np.mean(rec["eiv"]) - BETA)
+    naive_bias = float(np.mean(rec["naive"]) - BETA)
+    return {
+        "reliability": rel, "rho": rho, "sims": sims,
+        "naive_bias": naive_bias, "rc_bias": float(np.mean(rec["rc"]) - BETA),
+        "eiv_bias": eiv_bias,
+        "eiv_bias_share_of_naive": abs(eiv_bias / naive_bias) if naive_bias else float("nan"),
+        "eiv_sd": float(np.std(rec["eiv"], ddof=1)), "eiv_mean_se": float(np.mean(rec["eiv_se"])),
+        "eiv_coverage": float(np.mean(rec["eiv_cov"])), "rc_coverage": float(np.mean(rec["rc_cov"])),
+    }
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--sims", type=int, default=500)
     ap.add_argument("--n", type=int, default=800)
     ap.add_argument("--out", default="docs/audits/eiv_validation.md")
+    ap.add_argument("--workers", type=int, default=min(9, os.cpu_count() or 1))
     args = ap.parse_args(argv)
     warnings.simplefilter("ignore")
     t0 = time.time()
-    rows = []
-    for rel in RELIABILITIES:
-        for rho in RHOS:
-            rec = {k: [] for k in ("eiv", "eiv_cov", "eiv_se", "naive", "rc", "rc_cov")}
-            for s in range(args.sims):
-                frame, reps = simulate(1000 * s + 7, args.n, rel, rho)
-                c = fit_eiv("y ~ x + C(g)", frame, reps).coefficients.set_index("term").loc["x"]
-                rec["eiv"].append(c["estimate"])
-                rec["eiv_se"].append(c["se_total"])
-                rec["eiv_cov"].append(c["ci_lower"] <= BETA <= c["ci_upper"])
-                rec["naive"].append(c["naive_estimate"])
-                rc = regression_calibration("y ~ x + C(g)", frame, ["x"], n_boot=100, seed=s)
-                rcx = rc.coefficients.set_index("term").loc["x"]
-                rec["rc"].append(rcx["estimate"])
-                rec["rc_cov"].append(rcx["ci_lower"] <= BETA <= rcx["ci_upper"])
-            eiv_bias = float(np.mean(rec["eiv"]) - BETA)
-            naive_bias = float(np.mean(rec["naive"]) - BETA)
-            rows.append({
-                "reliability": rel, "rho": rho, "sims": args.sims,
-                "naive_bias": naive_bias, "rc_bias": float(np.mean(rec["rc"]) - BETA),
-                "eiv_bias": eiv_bias,
-                "eiv_bias_share_of_naive": abs(eiv_bias / naive_bias) if naive_bias else float("nan"),
-                "eiv_sd": float(np.std(rec["eiv"], ddof=1)), "eiv_mean_se": float(np.mean(rec["eiv_se"])),
-                "eiv_coverage": float(np.mean(rec["eiv_cov"])), "rc_coverage": float(np.mean(rec["rc_cov"])),
-            })
-            print(rows[-1], flush=True)
+    cells = [(rel, rho, args.sims, args.n) for rel in RELIABILITIES for rho in RHOS]
+    with ProcessPoolExecutor(max_workers=args.workers) as pool:
+        rows = list(pool.map(run_cell, cells))
+    for r in rows:
+        print(r, flush=True)
     df = pd.DataFrame(rows)
     ok = df[df.reliability >= 0.8]
     passed = bool(((ok.eiv_bias_share_of_naive < 0.10) | (ok.eiv_bias.abs() < 0.01)).all()
