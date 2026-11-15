@@ -35,6 +35,7 @@ import numpy as np
 import pandas as pd
 from scipy import linalg as sla, optimize, stats as sps
 
+from .optim import best_start
 from .results import SMALL_AREA_COLUMNS, SmallAreaResult
 from .sae import MSE_METHODS, _coef_frame, _design
 
@@ -144,13 +145,10 @@ def estimate_variance_rho(y, X, D, W, method: str = "REML", fix_rho: Optional[fl
     starts = [(a0, r0) for a0 in a0s for r0 in rho0s]
     if start is not None:
         starts = [(max(float(start[0]), upper * 1e-6), fix_rho if fix_rho is not None else float(start[1]))]
-    best = None
-    for a0, r0 in starts:
-        res = optimize.minimize(nll, np.array([a0, r0]), jac=True, method="L-BFGS-B",
-                                bounds=[(0.0, upper), rho_bounds],
-                                options={"ftol": 1e-15, "gtol": 1e-10, "maxiter": 2000})
-        if best is None or res.fun < best.fun:
-            best = res
+    best = best_start([optimize.minimize(nll, np.array([a0, r0]), jac=True, method="L-BFGS-B",
+                                         bounds=[(0.0, upper), rho_bounds],
+                                         options={"ftol": 1e-15, "gtol": 1e-10, "maxiter": 2000})
+                       for a0, r0 in starts])
     A, rho = float(best.x[0]), float(best.x[1])
     # L-BFGS-B often stops on its line search at the optimum with ftol this
     # tight; judge convergence by the projected, scaled score instead.

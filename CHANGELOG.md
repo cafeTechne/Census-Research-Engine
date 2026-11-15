@@ -41,6 +41,13 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
   mortality (CHR&R 2025, NCHS 2020-2022) against the Round 20 determinants, MI/NY counties. Poverty (H1) and
   disability (H4) supported; no-vehicle (H2, reversed by New York City) and cost burden (H3) not supported.
   The exploratory crude-adult re-run corrects the Part 1 E2 education ratio to 1.4×.
+- Supported versions: Python 3.11 or later (3.10 reached end of life in October 2026) and SciPy 1.16 or later;
+  CI tests Python 3.11-3.13.
+- Multi-start optimizers (`census.optim.best_start`, used by the spatial Fay-Herriot fit, the multilevel model
+  and the study-only `me_sem_fit`) prefer a converged start whose objective ties the minimum. `me_sem_fit` also
+  judges convergence by the projected score, so an ABNORMAL line-search exit at the optimum no longer reports
+  a fit as unconverged. This was the long-standing Python 3.10 failure in `test_spatial_lambda_correction`
+  (SciPy 1.15: two starts reached the same optimum and the flagged one was 2e-13 lower).
 
 ## 0.19.0 (Round 20): public-health determinants
 

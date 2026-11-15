@@ -19,7 +19,7 @@ All four interfaces share one pipeline and the same defaults.
 
 ## Installation
 
-Tested on Python 3.10–3.12 (Linux and Windows CI).
+Requires Python 3.11 or later and SciPy 1.16 or later (Python 3.10 reached end of life in October 2026, and SciPy 1.16+ no longer supports it). CI tests Python 3.11–3.13 on Linux and Windows.
 
 ```bash
 git clone https://github.com/cafeTechne/Census-Research-Engine

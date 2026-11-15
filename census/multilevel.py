@@ -43,6 +43,7 @@ import patsy
 from scipy import optimize
 
 from .analysis import formula_variables
+from .optim import best_start
 from .models import (
     DEFAULT_CV_THRESHOLD, INTERVAL_TARGETS, _replicate_matrices, _screen_summary, _table,
 )
@@ -239,7 +240,7 @@ def _fit_known(eng: BlockGLS, q: int, area_effect: bool, c: float, method: str,
     for i in log_pos:
         alt[i] = np.log(0.1)
     starts.append(alt)
-    best = None
+    runs = []
     for s0 in starts:
         def nll(t):
             v = eng.loglik(t, method)
@@ -249,8 +250,8 @@ def _fit_known(eng: BlockGLS, q: int, area_effect: bool, c: float, method: str,
         # the dietox group variance at 40.388 vs 40.393 locally).
         res = optimize.minimize(nll, np.asarray(s0, float), method="L-BFGS-B", bounds=bounds,
                                 options={"ftol": 1e-15, "gtol": 1e-10, "maxiter": 5000})
-        if best is None or res.fun < best.fun:
-            best = res
+        runs.append(res)
+    best = best_start(runs)
     # Derivative-free polish from the best start; kept only if it improves the likelihood.
     polish = optimize.minimize(nll, best.x, method="Nelder-Mead", bounds=bounds,
                                options={"xatol": 1e-10, "fatol": 1e-12, "maxiter": 20000, "maxfev": 40000})
