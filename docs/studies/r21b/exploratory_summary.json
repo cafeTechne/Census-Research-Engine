@@ -1,0 +1,620 @@
+{
+  "analysis_status": "exploratory",
+  "related_manifest_hash": "8df6b790ae8bd11347f8069e2a6fca16bf29f08e4606d921efb7578e31d470e2",
+  "analysed_data": {
+    "analysis_frame": "1335acb05a1b6b8d287f365b01c2e1eba22fa0ad78fc161c424a2d14012bcf37",
+    "replicates": "f89fb45f4dc8535e4c2ea77d38506f8067d3183f12ceea7596d0cff585b94f2f"
+  },
+  "descriptives": {
+    "n_counties": 145,
+    "prem_mort": {
+      "mean": 404.85377099151725,
+      "sd": 75.75301648016286,
+      "min": 242.38334092,
+      "max": 593.10127375
+    },
+    "pov_rate": {
+      "mean": 13.089681464564057,
+      "sd": 3.5337031887835,
+      "min": 4.857169539186287,
+      "max": 26.91498993322348
+    },
+    "pct_bachelors": {
+      "mean": 26.768482544531167,
+      "sd": 9.967783294190323,
+      "min": 12.15515453225472,
+      "max": 62.750487129525176
+    },
+    "no_vehicle": {
+      "mean": 8.745430799100948,
+      "sd": 8.977901121029742,
+      "min": 2.15962441314554,
+      "max": 77.86956009634987
+    },
+    "cost_burden": {
+      "mean": 26.29345725793532,
+      "sd": 5.803142795315289,
+      "min": 16.447485338546294,
+      "max": 54.939539943738694
+    },
+    "asdp": {
+      "mean": 13.788093232363916,
+      "sd": 2.5721051962478363,
+      "min": 7.7227792682276695,
+      "max": 21.606697347387588
+    },
+    "by_state": {
+      "Michigan": {
+        "n": 83,
+        "prem_mort": 427.52937977963865
+      },
+      "New York": {
+        "n": 62,
+        "prem_mort": 374.49771406548393
+      }
+    },
+    "nyc_prem_mort": {
+      "36005": 482.71333301,
+      "36047": 339.30071031,
+      "36061": 259.4172802,
+      "36081": 297.54456098,
+      "36085": 329.01022087
+    },
+    "correlations_with_prem_mort": {
+      "pov_rate": 0.5784061872315025,
+      "pct_bachelors": -0.7094630351743202,
+      "no_vehicle": -0.09904849884773273,
+      "cost_burden": -0.23003233299591064,
+      "asdp": 0.7392768389234172
+    }
+  },
+  "X1_other_mortality_outcomes": {
+    "sources": [
+      {
+        "dataset": "analytic_data2025_v2.csv",
+        "files": [
+          {
+            "source_url": "https://www.countyhealthrankings.org/sites/default/files/media/document/analytic_data2025_v2.csv",
+            "sha256": "fe94ca504dd8688d55429b908540241bc420466ebc5556cbe27e84adf7aefbcf",
+            "size_bytes": 13085361,
+            "downloaded_at": "2026-11-15T16:42:29Z",
+            "path": ".cache/health/chr/2025/analytic_data2025_v2.csv"
+          }
+        ]
+      }
+    ],
+    "ypll": {
+      "m1": {
+        "pov_rate": {
+          "estimate": 275.479518271386,
+          "se_total": 37.287723325170994,
+          "ci_lower": 214.14667131921547,
+          "ci_upper": 336.8123652235565,
+          "n": 145,
+          "naive_estimate": 256.65923642198925
+        }
+      },
+      "m2": {
+        "no_vehicle": {
+          "estimate": -24.816792501844528,
+          "se_total": 14.29474970058383,
+          "ci_lower": -48.32956339321331,
+          "ci_upper": -1.3040216104757434,
+          "n": 145,
+          "naive_estimate": -20.023431517226545
+        },
+        "cost_burden": {
+          "estimate": 11.765188782777612,
+          "se_total": 27.410349801420193,
+          "ci_lower": -33.320824504096954,
+          "ci_upper": 56.85120206965218,
+          "n": 145,
+          "naive_estimate": 8.38000306623034
+        },
+        "pov_rate": {
+          "estimate": 216.2429623601761,
+          "se_total": 36.76936516025966,
+          "ci_lower": 155.7627387156199,
+          "ci_upper": 276.7231860047323,
+          "n": 145,
+          "naive_estimate": 196.11245125097557
+        },
+        "pct_bachelors": {
+          "estimate": -80.89070518639303,
+          "se_total": 11.949017318951118,
+          "ci_lower": -100.54508966197574,
+          "ci_upper": -61.23632071081033,
+          "n": 145,
+          "naive_estimate": -82.62246618498037
+        }
+      },
+      "m3": {
+        "asdp": {
+          "estimate": 510.78798990559983,
+          "se_total": 47.05670279533369,
+          "ci_lower": 433.38660164031774,
+          "ci_upper": 588.1893781708819,
+          "n": 145,
+          "naive_estimate": 469.9845889642783
+        }
+      }
+    },
+    "chr_le": {
+      "m1": {
+        "pov_rate": {
+          "estimate": -0.3035583430825387,
+          "se_total": 0.04450876952813131,
+          "ci_lower": -0.3767687540720327,
+          "ci_upper": -0.23034793209304474,
+          "n": 145,
+          "naive_estimate": -0.28281976472867326
+        }
+      },
+      "m2": {
+        "no_vehicle": {
+          "estimate": 0.04705196997299627,
+          "se_total": 0.013880093633617974,
+          "ci_lower": 0.024221247617313712,
+          "ci_upper": 0.06988269232867883,
+          "n": 145,
+          "naive_estimate": 0.041730778155301164
+        },
+        "cost_burden": {
+          "estimate": -0.0022936728182180953,
+          "se_total": 0.03012485418036729,
+          "ci_lower": -0.05184464847817945,
+          "ci_upper": 0.04725730284174326,
+          "n": 145,
+          "naive_estimate": 0.0008362604496514544
+        },
+        "pov_rate": {
+          "estimate": -0.2470970516623675,
+          "se_total": 0.034962813946218654,
+          "ci_lower": -0.3046057629902348,
+          "ci_upper": -0.18958834033450023,
+          "n": 145,
+          "naive_estimate": -0.22430964938038328
+        },
+        "pct_bachelors": {
+          "estimate": 0.10541505825350782,
+          "se_total": 0.012128983303193801,
+          "ci_lower": 0.08546465607601564,
+          "ci_upper": 0.125365460431,
+          "n": 145,
+          "naive_estimate": 0.10739755458301672
+        }
+      },
+      "m3": {
+        "asdp": {
+          "estimate": -0.5896039522892954,
+          "se_total": 0.05524754800134778,
+          "ci_lower": -0.6804780819994879,
+          "ci_upper": -0.498729822579103,
+          "n": 145,
+          "naive_estimate": -0.5425044767000585
+        }
+      }
+    }
+  },
+  "X1b_without_nyc": {
+    "m1": {
+      "pov_rate": {
+        "estimate": 14.561608244219926,
+        "se_total": 1.5264211059583372,
+        "ci_lower": 12.050868951829077,
+        "ci_upper": 17.072347536610774,
+        "n": 140,
+        "naive_estimate": 13.406697401257407
+      }
+    },
+    "m2": {
+      "no_vehicle": {
+        "estimate": 5.81260017380064,
+        "se_total": 2.947968657708971,
+        "ci_lower": 0.9636232350287761,
+        "ci_upper": 10.661577112572505,
+        "n": 140,
+        "naive_estimate": 5.46492751458808
+      },
+      "cost_burden": {
+        "estimate": 2.1506288180921804,
+        "se_total": 1.6252625613749587,
+        "ci_lower": -0.5226902007338601,
+        "ci_upper": 4.8239478369182205,
+        "n": 140,
+        "naive_estimate": 1.707023327287109
+      },
+      "pov_rate": {
+        "estimate": 6.455765463432121,
+        "se_total": 1.7236170223615621,
+        "ci_lower": 3.6206677527254083,
+        "ci_upper": 9.290863174138833,
+        "n": 140,
+        "naive_estimate": 6.10961459725295
+      },
+      "pct_bachelors": {
+        "estimate": -4.656346974302811,
+        "se_total": 0.6123703411997279,
+        "ci_lower": -5.663606551062694,
+        "ci_upper": -3.649087397542928,
+        "n": 140,
+        "naive_estimate": -4.559133517610702
+      }
+    },
+    "m3": {
+      "asdp": {
+        "estimate": 22.348077583950253,
+        "se_total": 2.1991849393863703,
+        "ci_lower": 18.730740260063527,
+        "ci_upper": 25.96541490783698,
+        "n": 140,
+        "naive_estimate": 20.445170881430837
+      }
+    }
+  },
+  "X2_part1_jackknife": {
+    "m1": {
+      "estimate": 0.8182532390454702,
+      "se_jackknife": 0.05432572117084678,
+      "se_cr1": 0.0474844594461988,
+      "ci_lower": 0.7288953795408485,
+      "ci_upper": 0.9076110985500919,
+      "related_manifest_hash": "11294774f00613a87f902393a8493a56d033591c3dbb6e7a8e4ac86a32221f76"
+    },
+    "m2": {
+      "estimate": 0.7714791299458058,
+      "se_jackknife": 0.04950698515550218,
+      "se_cr1": 0.046206332131687164,
+      "ci_lower": 0.6900473858533454,
+      "ci_upper": 0.8529108740382663,
+      "related_manifest_hash": "11294774f00613a87f902393a8493a56d033591c3dbb6e7a8e4ac86a32221f76"
+    },
+    "m3": {
+      "estimate": 0.8187388839891349,
+      "se_jackknife": 0.04849909529611523,
+      "se_cr1": 0.04545559835796506,
+      "ci_lower": 0.7389649711874546,
+      "ci_upper": 0.8985127967908151,
+      "related_manifest_hash": "11294774f00613a87f902393a8493a56d033591c3dbb6e7a8e4ac86a32221f76"
+    }
+  },
+  "X3_crude_adult_e2": {
+    "n_tracts": 8129,
+    "acs_dis": {
+      "m1_pov_rate": {
+        "estimate": 0.2899502360714108,
+        "se_total": 0.024785418977339015,
+        "ci_lower": 0.24918184977102287,
+        "ci_upper": 0.3307186223717987,
+        "n": 8129,
+        "naive_estimate": 0.25654036075676,
+        "se_total_independent": 0.012313045025116015
+      },
+      "m2_no_vehicle": {
+        "estimate": 0.02078394015989971,
+        "se_total": 0.013208963181005987,
+        "ci_lower": -0.000942870836646445,
+        "ci_upper": 0.04251075115644586,
+        "n": 8129,
+        "naive_estimate": 0.020430244242380272,
+        "se_total_independent": 0.005275444928650951
+      },
+      "m2_cost_burden": {
+        "estimate": -0.13694992180853124,
+        "se_total": 0.02781013050572454,
+        "ci_lower": -0.18269351583686605,
+        "ci_upper": -0.09120632778019645,
+        "n": 8129,
+        "naive_estimate": -0.07530585012193519,
+        "se_total_independent": 0.013493876700398108
+      },
+      "m2_pov_rate": {
+        "estimate": 0.25645833639155596,
+        "se_total": 0.03412750621413724,
+        "ci_lower": 0.20032358401642342,
+        "ci_upper": 0.3125930887666885,
+        "n": 8129,
+        "naive_estimate": 0.1904686063156296,
+        "se_total_independent": 0.018340582097084755
+      },
+      "m2_pct_bachelors": {
+        "estimate": -0.13882385451639412,
+        "se_total": 0.013947988194313452,
+        "ci_lower": -0.1617662534864869,
+        "ci_upper": -0.11588145554630132,
+        "n": 8129,
+        "naive_estimate": -0.14306919724459385,
+        "se_total_independent": 0.005456423243481201
+      }
+    },
+    "places_dis": {
+      "m1_pov_rate": {
+        "estimate": 0.49259290125909316,
+        "se_total": 0.020092745534811832,
+        "ci_lower": 0.45954327589074495,
+        "ci_upper": 0.5256425266274414,
+        "n": 8129,
+        "naive_estimate": 0.4150949056400532,
+        "se_total_independent": 0.008093096207878927
+      },
+      "m2_no_vehicle": {
+        "estimate": -0.014093803399830216,
+        "se_total": 0.01336313909601768,
+        "ci_lower": -0.03607421120937192,
+        "ci_upper": 0.007886604409711482,
+        "n": 8129,
+        "naive_estimate": 0.003343591150043112,
+        "se_total_independent": 0.00270488174089737
+      },
+      "m2_cost_burden": {
+        "estimate": 0.01811380014830734,
+        "se_total": 0.01743656270959235,
+        "ci_lower": -0.010566793266132423,
+        "ci_upper": 0.0467943935627471,
+        "n": 8129,
+        "naive_estimate": 0.015118056079199199,
+        "se_total_independent": 0.00619679664000268
+      },
+      "m2_pov_rate": {
+        "estimate": 0.3317095167320337,
+        "se_total": 0.018427919305664828,
+        "ci_lower": 0.30139828682494185,
+        "ci_upper": 0.36202074663912553,
+        "n": 8129,
+        "naive_estimate": 0.2591808287384118,
+        "se_total_independent": 0.008311629832563673
+      },
+      "m2_pct_bachelors": {
+        "estimate": -0.19986418444107842,
+        "se_total": 0.008655599881941577,
+        "ci_lower": -0.21410137930033077,
+        "ci_upper": -0.18562698958182608,
+        "n": 8129,
+        "naive_estimate": -0.2051420485862844,
+        "se_total_independent": 0.002760403729007279
+      }
+    },
+    "asdp": {
+      "m1_pov_rate": {
+        "estimate": 0.31656769817309016,
+        "se_total": 0.019481731176017092,
+        "ci_lower": 0.2845231019889249,
+        "ci_upper": 0.34861229435725544,
+        "n": 8056,
+        "naive_estimate": 0.275247775835884,
+        "se_total_independent": 0.00852075444511178
+      },
+      "m2_no_vehicle": {
+        "estimate": 0.005738524115746502,
+        "se_total": 0.008846369662768507,
+        "ci_lower": -0.008812459109411749,
+        "ci_upper": 0.02028950734090475,
+        "n": 8056,
+        "naive_estimate": 0.011918365052621907,
+        "se_total_independent": 0.004606657021246186
+      },
+      "m2_cost_burden": {
+        "estimate": -0.09366056389415107,
+        "se_total": 0.026555022673382143,
+        "ci_lower": -0.13733968925224227,
+        "ci_upper": -0.04998143853605988,
+        "n": 8056,
+        "naive_estimate": -0.049585596064481596,
+        "se_total_independent": 0.009387413688334921
+      },
+      "m2_pov_rate": {
+        "estimate": 0.30363430003439845,
+        "se_total": 0.02869038341590815,
+        "ci_lower": 0.25644281881411357,
+        "ci_upper": 0.35082578125468333,
+        "n": 8056,
+        "naive_estimate": 0.2255665756172634,
+        "se_total_independent": 0.013542803523239612
+      },
+      "m2_pct_bachelors": {
+        "estimate": -0.0864094265411019,
+        "se_total": 0.00998619120081117,
+        "ci_lower": -0.10283524935718702,
+        "ci_upper": -0.06998360372501677,
+        "n": 8056,
+        "naive_estimate": -0.09754490736871524,
+        "se_total_independent": 0.004442345144848236
+      }
+    }
+  },
+  "X4_usaleep": {
+    "note": "exploratory manifest (not pre-registered); R2: pct_bachelors is a USALEEP model input, used as a control only",
+    "manifest_hash": "e17ffa55411b51eaecbb9eb937d4a6627157b0e128bc9175d551a3b721034e79",
+    "hypotheses": {
+      "manifest_hash": "e17ffa55411b51eaecbb9eb937d4a6627157b0e128bc9175d551a3b721034e79",
+      "rows": [
+        {
+          "analysis": "x4a",
+          "ci_lower": -0.20948608393080007,
+          "ci_upper": -0.16631979733123067,
+          "direction": "less",
+          "estimate": -0.18790294063101537,
+          "family": "primary",
+          "id": "X4a",
+          "manifest_hash": "e17ffa55411b51eaecbb9eb937d4a6627157b0e128bc9175d551a3b721034e79",
+          "p_adjusted": 2.458205037527098e-46,
+          "p_two_sided": 1.6388033583513985e-46,
+          "p_value": 8.194016791756993e-47,
+          "se": 0.013121619423234834,
+          "se_basis": "se_total",
+          "significant": true,
+          "statement": "Exploratory: tract life expectancy is lower where poverty is higher.",
+          "statistic": "coefficient",
+          "status": "tested"
+        },
+        {
+          "analysis": "x4b",
+          "ci_lower": 0.004620895993266316,
+          "ci_upper": 0.028311354601222118,
+          "direction": "less",
+          "estimate": 0.016466125297244217,
+          "family": "primary",
+          "id": "X4b",
+          "manifest_hash": "e17ffa55411b51eaecbb9eb937d4a6627157b0e128bc9175d551a3b721034e79",
+          "p_adjusted": 1.0,
+          "p_two_sided": 0.02222379521629886,
+          "p_value": 0.9888881023918505,
+          "se": 0.007201388080914854,
+          "se_basis": "se_total",
+          "significant": false,
+          "statement": "Exploratory: conditional on the others, lower where more households lack a vehicle.",
+          "statistic": "coefficient",
+          "status": "tested"
+        },
+        {
+          "analysis": "x4b",
+          "ci_lower": -0.016490490740309362,
+          "ci_upper": 0.054958726174273026,
+          "direction": "less",
+          "estimate": 0.019234117716981834,
+          "family": "primary",
+          "id": "X4c",
+          "manifest_hash": "e17ffa55411b51eaecbb9eb937d4a6627157b0e128bc9175d551a3b721034e79",
+          "p_adjusted": 1.0,
+          "p_two_sided": 0.3758392221693827,
+          "p_value": 0.8120803889153086,
+          "se": 0.021719019778983148,
+          "se_basis": "se_total",
+          "significant": false,
+          "statement": "Exploratory: conditional on the others, lower where more households are cost-burdened.",
+          "statistic": "coefficient",
+          "status": "tested"
+        },
+        {
+          "analysis": "x4c",
+          "ci_lower": -0.6248378436875717,
+          "ci_upper": -0.5353858876882938,
+          "direction": "less",
+          "estimate": -0.5801118656879327,
+          "family": "primary",
+          "id": "X4d",
+          "manifest_hash": "e17ffa55411b51eaecbb9eb937d4a6627157b0e128bc9175d551a3b721034e79",
+          "p_adjusted": 1.0902264880044986e-100,
+          "p_two_sided": 5.451132440022493e-101,
+          "p_value": 2.7255662200112465e-101,
+          "se": 0.027191463888815968,
+          "se_basis": "se_total",
+          "significant": true,
+          "statement": "Exploratory: lower where age-standardized disability prevalence is higher.",
+          "statistic": "coefficient",
+          "status": "tested"
+        }
+      ]
+    },
+    "external": {
+      "join": {
+        "complete_acs_units": 7499,
+        "complete_units_without_external": 1328,
+        "examples_without_external": [
+          "26001000100",
+          "26003000200",
+          "26005030401",
+          "26005030800",
+          "26005032401",
+          "26007000300",
+          "26013000200",
+          "26015011300",
+          "26017280300",
+          "26017285900",
+          "26021000600",
+          "26021001900",
+          "26021020700",
+          "26025000500",
+          "26025000600",
+          "26025000800",
+          "26025000900",
+          "26025003400",
+          "26027002000",
+          "26029000200"
+        ],
+        "frame_units": 7731,
+        "matched_units": 6171,
+        "missing_limit": {
+          "life_exp": 0.25
+        },
+        "missing_share": 0.17709027870382718,
+        "missing_share_by_variable": {
+          "life_exp": 0.17709027870382718
+        },
+        "source_units_outside_frame": 0
+      }
+    },
+    "predicted": [
+      {
+        "dropped_fully_predicted": 957,
+        "flag_counts": {
+          "1": 227,
+          "2": 957,
+          "3": 5945
+        },
+        "include_predicted": false
+      }
+    ],
+    "deviations": []
+  },
+  "X5_map": {
+    "success": true,
+    "paths": null,
+    "error": null,
+    "prem_mort Michigan": {
+      "success": true,
+      "paths": null,
+      "error": null
+    },
+    "prem_mort New York": {
+      "success": true,
+      "paths": null,
+      "error": null
+    }
+  },
+  "X5_moran": {
+    "global": {
+      "variable": "resid_m2",
+      "I": 0.19546408100313248,
+      "expected_I": -0.006944444444444444,
+      "p_norm": 0.00026722167873175737,
+      "p_sim": 0.001,
+      "z_sim": 3.609329677773397,
+      "permutations": 999,
+      "se_replicate": null,
+      "ci_lower": null,
+      "ci_upper": null,
+      "confidence_level": 0.9,
+      "replicate_I": null,
+      "n": 145,
+      "notes": [
+        "1 island(s) (no neighbors) contribute zero spatial lag"
+      ],
+      "provenance": {
+        "library": "esda.Moran",
+        "weights": {
+          "n": 145,
+          "transform": "R",
+          "n_islands": 1,
+          "islands": [
+            "36085"
+          ],
+          "islands_truncated": false,
+          "neighbors_min": 0,
+          "neighbors_mean": 4.827586206896552,
+          "neighbors_max": 8,
+          "n_components": 4,
+          "pct_nonzero": 3.329369797859691,
+          "kind": "queen",
+          "params": {},
+          "crs": "EPSG:4269",
+          "cache": "off",
+          "cache_key": null,
+          "id_col": "GEOID"
+        },
+        "seed": 12345
+      }
+    },
+    "error": null
+  }
+}

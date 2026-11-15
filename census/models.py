@@ -55,6 +55,7 @@ B4. Numeric diagnostics: share of residual variance attributable to known
 """
 
 import math
+import re
 import warnings
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
@@ -705,6 +706,76 @@ def _design_deviations(formula: str, data: pd.DataFrame, mats: Mapping[str, np.n
     return y, X_df, D, e, rows
 
 
+CLUSTER_PREFIX_RE = re.compile(r"^GEOID\.str\[:(\d+)\]$")
+
+
+def _cluster_jackknife(X: np.ndarray, y: np.ndarray, w: np.ndarray, D: np.ndarray, e: np.ndarray,
+                       inv: np.ndarray, G: int, f: float) -> np.ndarray:
+    """Delete-one-cluster jackknife covariance of the fit_eiv moment estimator (CR3)."""
+    k = X.shape[1]
+    M_g = np.zeros((G, k, k))
+    XX_g = np.zeros((G, k, k))
+    r_g = np.zeros((G, k))
+    for g in range(G):
+        idx = np.flatnonzero(inv == g)
+        Xg, wg = X[idx], w[idx]
+        Dg, eg = D[:, idx], e[:, idx]
+        XX_g[g] = Xg.T @ (wg[:, None] * Xg)
+        M_g[g] = XX_g[g] - f * np.einsum("rnj,n,rnl->jl", Dg, wg, Dg)
+        r_g[g] = Xg.T @ (wg * y[idx]) - f * np.einsum("rnj,n,rn->j", Dg, wg, eg)
+    M, r, XX = M_g.sum(axis=0), r_g.sum(axis=0), XX_g.sum(axis=0)
+    present = np.zeros((G, k))
+    np.add.at(present, inv, (X != 0).astype(float))
+    total_nz = present.sum(axis=0)
+    const = np.all(X == 1, axis=0)
+    indicator = np.all((X == 0) | (X == 1), axis=0) & ~const
+
+    def full_rank(cols: np.ndarray, g: int) -> bool:
+        A = (XX - XX_g[g])[np.ix_(cols, cols)]
+        d = np.sqrt(np.clip(np.diag(A), 1e-300, None))
+        return float(np.linalg.eigvalsh(A / np.outer(d, d))[0]) > 1e-10
+
+    B = np.full((G, k), np.nan)
+    for g in range(G):
+        keep = (total_nz - present[g]) > 0
+        report = keep.copy()
+        if not full_rank(np.flatnonzero(keep), g) and const.any():
+            # deleting the reference cluster of cluster fixed effects leaves the intercept collinear with the
+            # remaining dummies: drop the intercept; the dummies then measure levels, not contrasts, so neither
+            # they nor the intercept enter this refit's jackknife (the other terms are unaffected)
+            keep &= ~const
+            report = keep & ~indicator
+        if not full_rank(np.flatnonzero(keep), g):
+            continue  # not identified without this cluster: the refit is left out
+        Mk = (M - M_g[g])[np.ix_(keep, keep)]
+        try:
+            sol = np.linalg.solve(Mk, (r - r_g[g])[keep])
+        except np.linalg.LinAlgError:
+            continue
+        row = np.full(k, np.nan)
+        row[keep] = sol
+        B[g, report] = row[report]
+    ok = np.isfinite(B)
+    if not ok.any(axis=0).all():
+        raise ValueError("fit_eiv jackknife: some term is not estimable in any delete-one-cluster refit")
+    mean = np.nanmean(B, axis=0)
+    dev = np.where(ok, B - mean, 0.0)
+    cnt = ok.sum(axis=0).astype(float)
+    V = dev.T @ dev
+    scale = np.sqrt((cnt - 1) / cnt)
+    return V * np.outer(scale, scale)
+
+
+def cluster_labels(data: pd.DataFrame, cluster: str) -> np.ndarray:
+    """Cluster labels from a column, or from a GEOID prefix written ``GEOID.str[:N]``."""
+    m = CLUSTER_PREFIX_RE.match(str(cluster))
+    if m:
+        return data["GEOID"].astype(str).str[: int(m.group(1))].to_numpy()
+    if cluster not in data.columns:
+        raise ValueError(f"cluster {cluster!r} is neither a frame column nor GEOID.str[:N]")
+    return data[cluster].astype(str).to_numpy()
+
+
 def fit_eiv(
     formula: str,
     frame: pd.DataFrame,
@@ -715,6 +786,8 @@ def fit_eiv(
     cv_threshold: float = DEFAULT_CV_THRESHOLD,
     replicate_policy: str = "flag",
     cluster: Optional[str] = None,
+    fixed_variables: Sequence[str] = (),
+    cluster_se: str = "cr1",
 ) -> ModelResult:
     """Least squares corrected for ACS sampling error in covariates and outcome (PLAN_ROUND_20 A2).
 
@@ -749,12 +822,31 @@ def fit_eiv(
 
     ``cluster``: a column naming groups (e.g. county) whose units may be correlated (spatially
     autocorrelated model errors); the sandwich then sums psi within clusters, with the
-    G/(G-1) * (n-1)/(n-k) small-sample factor. Needs at least 20 clusters.
+    G/(G-1) * (n-1)/(n-k) small-sample factor. Needs at least 20 clusters. ``GEOID.str[:N]``
+    (e.g. ``GEOID.str[:5]``, counties of tracts) clusters by a GEOID prefix without a column.
+    Validated by simulation in docs/audits/eiv_cluster_validation.md (PLAN_ROUND_21 B1).
+    ``cluster_se="jackknife"`` uses the delete-one-cluster jackknife (CR3) instead:
+    V = (G-1)/G sum_g (b_(g) - mean b_(g))(...)', each b_(g) the moment estimator from the
+    other clusters' sums (exact; the error covariances are not re-estimated). A term whose
+    column is all zero without cluster g (that cluster's own fixed effect) is left out of
+    that refit, and its variance uses the other refits. Less anti-conservative than CR1 with
+    few or unequal clusters (PLAN_ROUND_21 Part 2, C5).
+
+    ``fixed_variables``: variables whose error is independent of the ACS sampling error and
+    which have no replicates (external outcomes, e.g. CDC PLACES; PLAN_ROUND_21 B3). They are
+    held at their estimates in every replicate design row (zero deviation, so s_i has no term
+    from them) and are not counted as missing replicates; as an outcome their error enters the
+    residual, which the sandwich covers. Only the outcome may be fixed: a fixed covariate's
+    error would go uncorrected.
     """
     import scipy.linalg as sla
 
     model = model.lower()
     check_replicate_policy(replicate_policy)
+    if cluster_se not in ("cr1", "jackknife"):
+        raise ValueError("cluster_se must be 'cr1' or 'jackknife'")
+    if cluster_se == "jackknife" and not cluster:
+        raise ValueError("cluster_se='jackknife' needs cluster")
     if model not in EIV_MODELS:
         raise ValueError(f"fit_eiv supports models {EIV_MODELS}; got {model!r}")
     if model == "wls" and not weights:
@@ -766,10 +858,17 @@ def fit_eiv(
     if weights and model == "wls":
         if weights in set(replicates["variable"].astype(str)) or weights in used:
             raise ValueError(f"weights column {weights!r} must be error-free (not a replicated or formula variable)")
-    mats, fixed = _replicate_matrices(data, replicates, used)
+    declared = [v for v in used if v in set(fixed_variables)]
+    if declared:
+        outcome_vars = set(formula_variables(formula.split("~")[0] + "~ 1", data))
+        bad_fixed = [v for v in declared if v not in outcome_vars]
+        if bad_fixed:
+            raise ValueError(f"fixed_variables {bad_fixed} are covariates; only the outcome may be held fixed (a "
+                             "covariate's error would go uncorrected)")
+    mats, fixed = _replicate_matrices(data, replicates, [v for v in used if v not in declared])
     if not mats:
         raise ValueError("no formula variable has replicates in the replicate frame")
-    missing = [v for v in used if v not in mats]
+    missing = [v for v in used if v not in mats and v not in declared]
     stoch_missing = stochastic_variables(frame, missing)
     precheck_replicates(replicate_policy, rows_held_fixed=fixed, variables_without_replicates=stoch_missing,
                         context="fit_eiv")
@@ -828,9 +927,7 @@ def fit_eiv(
     psi = w[:, None] * (X * resid[:, None] - (s_i - Sb_i))
     Minv = np.linalg.inv(M)
     if cluster:
-        if cluster not in used_data.columns:
-            raise ValueError(f"cluster column {cluster!r} not in the frame")
-        groups = used_data[cluster].astype(str).to_numpy()
+        groups = cluster_labels(used_data, cluster)
         codes, inv = np.unique(groups, return_inverse=True)
         G = len(codes)
         if G < 20:
@@ -838,8 +935,16 @@ def fit_eiv(
         psi_g = np.zeros((G, k))
         np.add.at(psi_g, inv, psi)
         V = Minv @ (psi_g.T @ psi_g) @ Minv * (G / (G - 1)) * ((n - 1) / (n - k))
-        diagnostics["clusters"] = {"column": cluster, "groups": int(G)}
-        notes.append(f"se_total clustered by {cluster!r} ({G} clusters)")
+        V_ind = Minv @ (psi.T @ psi) @ Minv * n / (n - k)
+        diagnostics["clusters"] = {"column": cluster, "groups": int(G), "se": cluster_se}
+        if cluster_se == "jackknife":
+            diagnostics["se_total_cr1"] = dict(zip(map(str, X_df.columns),
+                                                   map(float, np.sqrt(np.maximum(np.diag(V), 0.0)))))
+            V = _cluster_jackknife(X, y, w, D, e, inv, G, f)
+        diagnostics["se_total_independent"] = dict(zip(map(str, X_df.columns),
+                                                       map(float, np.sqrt(np.maximum(np.diag(V_ind), 0.0)))))
+        notes.append(f"se_total clustered by {cluster!r} ({G} clusters, "
+                     + ("delete-one-cluster jackknife" if cluster_se == "jackknife" else "CR1") + ")")
     else:
         V = Minv @ (psi.T @ psi) @ Minv * n / (n - k)
     se_total = pd.Series(np.sqrt(np.maximum(np.diag(V), 0.0)), index=terms)
@@ -874,9 +979,14 @@ def fit_eiv(
     if low:
         notes.append(f"LOW RELIABILITY: {low} have reliability below {EIV_LOW_RELIABILITY}; moment corrections are "
                      "unstable there (large variance, possible sign changes)")
+    if declared:
+        diagnostics["replicates_declared_fixed"] = declared
+        notes.append(f"{declared} held fixed in the replicate design rows (declared: error independent of the ACS "
+                     "sampling error, no replicates); their error enters the residual and the sandwich")
     notes.append("fit_eiv: moment-corrected least squares (Fuller 1987) with per-unit error covariances, including "
-                 "the outcome-covariate error covariance, from the ACS replicates; sandwich se_total (units "
-                 "independent) is the basis of intervals and p-values")
+                 "the outcome-covariate error covariance, from the ACS replicates; sandwich se_total ("
+                 + (f"clustered by {cluster!r}" if cluster else "units independent")
+                 + ") is the basis of intervals and p-values")
     res = _corrected_result(formula, model, naive, pd.Series(b, index=terms), se_total, confidence_level,
                             "fit_eiv", notes, diagnostics, int(n))
     res.uncertainty_sources = [SOURCE_MODEL, SOURCE_SAMPLING_REPLICATE]

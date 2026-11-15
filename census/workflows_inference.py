@@ -716,6 +716,73 @@ def save_json(result: Dict[str, Any], path: str) -> str:
     return path
 
 
+def list_health_sources(source: Optional[str] = None) -> Dict[str, Any]:
+    """List external health data sources a manifest can use as an outcome, with the
+    circularity rule. Read each measure's kind and acs_equivalent before designing a study.
+
+    The rule: determinant studies keep using the ACS's own measure as the outcome (for
+    disability: B18101), and use external sources such as CDC PLACES for measures the ACS
+    lacks, such as diabetes. A model-based outcome (PLACES, PLACES-based County Health
+    Rankings measures, USALEEP) must not be tested against its model's inputs (PLACES:
+    age, sex, race/ethnicity, education, poverty). Direct vital records (County Health
+    Rankings mortality, WONDER exports) have no model inputs.
+
+    Args:
+        source: places, usaleep, chr or wonder; omit for all.
+
+    Example: list_health_sources(source="places")
+    """
+    from census.health_sources import registry_summary
+
+    try:
+        reg = registry_summary(source)
+    except ValueError as exc:
+        return _fail(errors.INVALID_INPUT, str(exc), "list_health_sources() to list all sources")
+    names = ", ".join(reg["sources"])
+    return _ok(f"External health sources: {names}. Rule: {reg['rule']}",
+               "get_recipe(name='external_health_outcome'), then add an 'external' entry to a manifest",
+               **reg)
+
+
+def run_variant(
+    run_dir: str,
+    analysis: str,
+    formula: Optional[str] = None,
+    keep_prefixes: Optional[List[str]] = None,
+    drop_prefixes: Optional[List[str]] = None,
+    args: Optional[Dict[str, Any]] = None,
+    output_dir: Optional[str] = None,
+    label: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Exploratory refit of one analysis of a finished run_manifest run, on the same
+    hash-checked analysed data, without writing Python. The output is labelled
+    exploratory with the manifest hash; confirmatory results are never changed.
+
+    Args:
+        run_dir: The run_manifest output folder (holds manifest.json and bundle/).
+        analysis: Analysis id in the manifest, e.g. "m2".
+        formula: Replacement formula (frame columns only), e.g. "y ~ x + C(GEOID.str[:5])".
+        keep_prefixes / drop_prefixes: GEOID prefixes to keep or drop, e.g. ["36"].
+        args: Merged over the analysis args, e.g. {"cluster": "GEOID.str[:5]",
+            "cluster_se": "jackknife"}.
+        label: Short name for the output file.
+    Example: run_variant("studies_output/r21/confirmatory", "m1", drop_prefixes=["36005", "36047"])
+    """
+    from census.manifest import run_variant as _variant
+
+    try:
+        out = _variant(run_dir, analysis, formula=formula, keep_prefixes=keep_prefixes, drop_prefixes=drop_prefixes,
+                       args=args, out_dir=output_dir, label=label)
+    except (FileNotFoundError, OSError, ValueError, KeyError, TypeError) as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
+                     "check run_dir (a run_manifest output folder) and the analysis id")
+    coefs = (out.get("result") or {}).get("coefficients") or []
+    head = "; ".join(f"{c['term']} {c['estimate']:.4g} (SE {c.get('se_total', c.get('se', float('nan'))):.3g})"
+                     for c in coefs[:4] if isinstance(c, dict) and "estimate" in c)
+    return _ok(f"Exploratory variant of {analysis} on {out['units']} units: {head}",
+               "report it labelled exploratory, with related_manifest_hash", **_jsonable(out))
+
+
 def create_manifest(manifest_path: str) -> Dict[str, Any]:
     """Validate a pre-registration manifest (JSON) and return its SHA-256 hash.
     Commit the manifest and hash BEFORE pulling data; then call run_manifest.
@@ -727,7 +794,13 @@ def create_manifest(manifest_path: str) -> Dict[str, Any]:
     Several releases: the adjustment also needs "dollar_year", "price_index"
     and "rpp_years" ({"2019": 2019, "2024": 2024}); omitted ones are filled the same
     way. "replicates": {"source": "census_vre"} makes run_manifest fetch Census
-    replicates; the notes list variables that have none.
+    replicates; the notes list variables that have none. External health outcomes
+    (list_health_sources; no key): "external": [{"name": "diab", "source": "places",
+    "release": 2025, "measure": "DIABETES"}], usable only as the outcome of fit_eiv/
+    fit_replicate/fh_regression. Circularity rule (errors): determinant studies use the
+    ACS's own measure (disability: B18101), and external sources for measures the ACS
+    lacks, such as diabetes; never test a term built from the outcome model's inputs.
+    fit_eiv "args": {"cluster": "GEOID.str[:5]"} clusters SEs by county.
 
     The schema is documented in census/manifest.py and examples/manifests/.
     Example: create_manifest("examples/manifests/income_population_tracts.json")
@@ -736,7 +809,7 @@ def create_manifest(manifest_path: str) -> Dict[str, Any]:
 
     try:
         res = _create(manifest_path)
-    except (FileNotFoundError, OSError, ValueError) as exc:
+    except (FileNotFoundError, OSError, ValueError, TypeError) as exc:
         return _fail(errors.INVALID_INPUT, str(exc))
     if res.get("error_code") == errors.BUNDLED_DATA_INTEGRITY:
         return res
@@ -793,6 +866,8 @@ def run_manifest(manifest_path: str, output_dir: Optional[str] = None,
     }
     if "adjustments" in res:
         out["adjustments"] = res["adjustments"]
+    if "external" in res:
+        out["external"] = res["external"]
     payload = _jsonable(out)
     if not res.get("success"):
         kinds = sorted({str(d.get("kind")) for d in devs})

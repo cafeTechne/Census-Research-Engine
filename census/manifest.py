@@ -37,8 +37,31 @@ pulled. Schema (``schema_version`` 1)::
                       "statistic": "coefficient", "term": "pop",
                       "direction": "two-sided" | "greater" | "less", "family": "primary"}],
       "data_source": {"synthetic": true,                    # optional; default: real Census API data
-                      "description": "...", "generator": "..."}
+                      "description": "...", "generator": "..."},
+      "external": [{"name": "places_dis", "source": "places",  # optional; external health outcomes
+                    "release": 2025, "measure": "DISABILITY"}]
     }
+
+``external`` (optional, PLAN_ROUND_21 B3 and Part 2): variables from a registered external source
+(:mod:`census.health_sources`: CDC PLACES, USALEEP, County Health Rankings, or a pinned CDC WONDER
+export read by :mod:`census.vital_records`), downloaded after the ACS analysis frame is built and
+joined on GEOID, with each file's URL and SHA-256 and the dataset's revision stamp in ``run.json``
+(``external``). An external variable may only be the outcome of ``fit_eiv``, ``fit_replicate`` or
+``fh_regression``: its error is independent of the ACS sampling error, so it is held fixed in
+replicate refits and its error enters the residual (as a covariate it would go uncorrected).
+Derivations cannot use external variables; aggregation is refused; the values' tract vintage must
+match every release (``harmonize_tracts_to``, or ``apportion_to`` for USALEEP). A failed download
+is a blocking ``external_unavailable`` deviation; more than the source's limit (5%; 25% for
+USALEEP, whose small tracts are unpublished) of the units with complete ACS data lacking an
+external value is a blocking ``external_join_failed``.
+
+The circularity rule is enforced (:func:`circularity_errors`): R1, an outcome whose construct the
+ACS measures directly (PLACES DISABILITY: B18101) is allowed only in a comparison with that ACS
+measure, testing only it (determinant studies use the ACS measure); R2, a tested term built from
+the outcome model's own inputs (PLACES: age, sex, race/ethnicity, education, poverty; USALEEP:
+income, race/ethnicity, education, density) needs a written ``circularity_justification`` on the
+hypothesis. Overlapping controls are noted by :func:`create_manifest`; direct outcomes (vital
+records) have no model inputs. The methods text states each source's model.
 
 ``geography`` takes ``state`` (one state, or ``"all"``) or ``states`` (a list
 of 2-digit FIPS codes), never both. With ``states`` each table is extracted
@@ -159,7 +182,7 @@ import math
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -181,7 +204,7 @@ BLOCKING_DEVIATIONS = ("blocked_variable", "extraction_failed", "variable_missin
                        "replicates_unavailable", "analysis_failed", "replicates_incomplete",
                        "hypothesis_not_tested", "failed_calls", "data_source_mismatch", "adjustment_failed",
                        "replicates_overlapping_releases", "harmonization_failed", "harmonization_incomplete",
-                       "harmonization_mismatch")
+                       "harmonization_mismatch", "external_unavailable", "external_join_failed")
 DATA_SOURCE_KEYS = ("synthetic", "description", "generator")
 STATUS_EXPLORATORY = "exploratory"
 
@@ -225,6 +248,8 @@ REFERENCES = {
              "(1995). JASA 90, 1247-1256; Devanarayan, V. & Stefanski, L.A. (2002). Stat. Prob. "
              "Letters 59, 219-225.",
     "fuller": "Fuller, W.A. (1987). Measurement Error Models. Wiley, sections 2.2 and 3.1.",
+    "cluster": "Cameron, A.C. & Miller, D.L. (2015). A practitioner's guide to cluster-robust inference. "
+               "J. Human Resources 50, 317-372.",
     "standard_pop": "Klein, R.J. & Schoenborn, C.A. (2001). Age adjustment using the 2000 projected U.S. "
                     "population. Healthy People 2010 Statistical Notes 20. National Center for Health Statistics.",
     "fisher": "Fisher, R.A. (1921). On the probable error of a coefficient of correlation. Metron 1, 3-32.",
@@ -871,6 +896,14 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
     agg = manifest.get("aggregation")
     if agg is not None and not isinstance(agg.get("mapping"), Mapping):
         errors.append("aggregation.mapping must be an object GEOID -> group id")
+    ext_names = external_names(manifest)
+    if manifest.get("external") is not None:
+        from .health_sources import validate_external
+        errors.extend(validate_external(manifest.get("external"), manifest.get("geography") or {},
+                                        [int(r) for r in releases if _is_int(r)] if isinstance(releases, list)
+                                        else [], names))
+        if agg is not None:
+            errors.append("external variables cannot be combined with aggregation (external values are per unit)")
     _check_adjustments(manifest, names, errors)
     _check_replicates(manifest, errors)
 
@@ -926,18 +959,44 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
             if a.get(key):
                 used.append(a[key])
         for u in used:
-            if u not in names:
+            if u not in names and u not in ext_names:
                 errors.append(f"analyses[{i}] ({a.get('id')}): {u!r} is not a manifest variable")
+        ext_used = [u for u in used if u in ext_names]
+        if ext_used:
+            from .health_sources import EXTERNAL_OUTCOME_METHODS
+            outcome = _formula_names(str(a.get("formula", "")).split("~")[0]) if "~" in str(a.get("formula", "")) \
+                else []
+            if method not in EXTERNAL_OUTCOME_METHODS:
+                errors.append(f"analyses[{i}] ({a.get('id')}): external variables {ext_used} can only be the outcome "
+                              f"of {list(EXTERNAL_OUTCOME_METHODS)}")
+            elif [u for u in ext_used if u not in outcome] or len(outcome) != 1:
+                errors.append(f"analyses[{i}] ({a.get('id')}): external variables {ext_used} may only be the outcome "
+                              "(alone): as covariates their model-based error would go uncorrected")
+            elif method == "fit_replicate" and (a.get("args") or {}).get("target", "population") == "these_areas":
+                errors.append(f"analyses[{i}] ({a.get('id')}): an external outcome is held fixed in the refits, so "
+                              "target 'these_areas' (replicate SE alone) is refused; use 'population' or "
+                              "'conservative'")
         if method == "fit_eiv":
             eargs = a.get("args") or {}
-            unknown = sorted(set(eargs) - {"model", "weights", "cv_threshold", "target", "cluster"})
+            unknown = sorted(set(eargs) - {"model", "weights", "cv_threshold", "target", "cluster", "cluster_se"})
             if unknown:
                 errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv does not take args {unknown} (allowed: "
-                              "model, weights, cv_threshold, cluster)")
+                              "model, weights, cv_threshold, cluster, cluster_se)")
+            if "cluster_se" in eargs and (eargs["cluster_se"] not in ("cr1", "jackknife") or "cluster" not in eargs):
+                errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv args.cluster_se must be 'cr1' or 'jackknife' "
+                              "and needs args.cluster")
             if "target" in eargs:
                 errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv takes no 'target': its intervals use the "
                               "sandwich se_total (a measurement-error correction is a claim about the population "
                               "relationship, not about these areas)")
+            if "cluster" in eargs:
+                cl = eargs["cluster"]
+                from .models import CLUSTER_PREFIX_RE
+                mm = CLUSTER_PREFIX_RE.match(str(cl)) if isinstance(cl, str) else None
+                if not isinstance(cl, str) or not (cl in names or cl in FORMULA_ID_COLUMNS
+                                                   or (mm and 1 <= int(mm.group(1)) <= 11)):
+                    errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv args.cluster must be a manifest variable "
+                                  "or GEOID.str[:N] (e.g. GEOID.str[:5] for counties of tracts)")
             if str(eargs.get("model", "ols")).lower() not in ("ols", "wls"):
                 errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv supports model 'ols' or 'wls'")
             if str(eargs.get("model", "ols")).lower() == "wls" and not eargs.get("weights"):
@@ -990,6 +1049,114 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
         for k in need:
             if k not in h:
                 errors.append(f"hypotheses[{i}]: {k!r} is required for statistic {h.get('statistic')!r}")
+        just = h.get("circularity_justification")
+        if just is not None and not isinstance(just, str):
+            errors.append(f"hypotheses[{i}]: circularity_justification must be text")
+    if ext_names:
+        errors.extend(circularity_errors(manifest))
+    return errors
+
+
+def external_names(manifest: Mapping[str, Any]) -> List[str]:
+    """Names of the manifest's ``external`` variables (well-formed entries only)."""
+    ext = manifest.get("external")
+    return [str(e["name"]) for e in (ext if isinstance(ext, list) else [])
+            if isinstance(e, Mapping) and e.get("name") is not None]
+
+
+def external_circularity(manifest: Mapping[str, Any]) -> List[Dict[str, Any]]:
+    """Analyses with an external outcome, with the covariates that measure the outcome model's inputs
+    (``overlap``) and those that measure the outcome's construct directly in the ACS (``equivalent``)."""
+    from .health_sources import circularity_overlap, equivalent_tables, measure_kind
+    ext = {str(e["name"]): e for e in manifest.get("external") or [] if isinstance(e, Mapping) and "name" in e}
+    if not ext:
+        return []
+    tables = _variable_tables(manifest)
+    out = []
+    for a in manifest.get("analyses") or []:
+        if not isinstance(a, Mapping) or "~" not in str(a.get("formula", "")):
+            continue
+        lhs, rhs = str(a["formula"]).split("~", 1)
+        ys = [y for y in _formula_names(lhs) if y in ext]
+        if not ys:
+            continue
+        covs = [c for c in _formula_names(rhs) if c in tables]
+        for y in ys:
+            src, meas = ext[y].get("source"), ext[y].get("measure")
+            try:
+                kind = measure_kind(src, meas)
+                hit = {c: circularity_overlap(src, tables[c], meas) for c in covs}
+                eq = {c: equivalent_tables(src, meas, tables[c]) for c in covs}
+            except (ValueError, KeyError, TypeError):  # unknown source or measure: reported by validation
+                continue
+            out.append({"analysis": a.get("id"), "outcome": y, "source": src, "measure": meas, "kind": kind,
+                        "overlap": {c: v for c, v in hit.items() if v},
+                        "equivalent": {c: v for c, v in eq.items() if v},
+                        "has_equivalent": bool(_has_equivalent(src, meas))})
+    return out
+
+
+def _ext_source_text(entry: Mapping[str, Any]) -> str:
+    from .health_sources import SOURCES, source_text
+    try:
+        return source_text(str(entry["source"]), entry["measure"])
+    except (KeyError, ValueError):
+        return str(SOURCES.get(entry.get("source"), {}).get("model_text", ""))
+
+
+def _has_equivalent(source: Any, measure: Any) -> tuple:
+    from .health_sources import acs_equivalent
+    try:
+        return acs_equivalent(str(source), measure)
+    except ValueError:
+        return ()
+
+
+def circularity_errors(manifest: Mapping[str, Any]) -> List[str]:
+    """The enforced circularity rule (PLAN_ROUND_21 Part 2, C1): R1 same construct, R2 model inputs."""
+    from .health_sources import CIRCULARITY_RULE, acs_equivalent
+    errors: List[str] = []
+    by_analysis: Dict[Any, List[Dict[str, Any]]] = {}
+    for c in external_circularity(manifest):
+        by_analysis.setdefault(c["analysis"], []).append(c)
+    hyps = [h for h in manifest.get("hypotheses") or [] if isinstance(h, Mapping)]
+    tables = _variable_tables(manifest)
+    for aid, recs in by_analysis.items():
+        tested = [h for h in hyps if h.get("analysis") == aid]
+        for c in recs:
+            if c["has_equivalent"]:
+                eq_tabs = "/".join(t.rstrip("*") + ("*" if t.endswith("*") else "")
+                                   for t in acs_equivalent(c["source"], c["measure"])[:4])
+                if not c["equivalent"]:
+                    errors.append(
+                        f"analyses {aid}: CIRCULARITY R1: the outcome {c['outcome']} ({c['source']} "
+                        f"{c['measure']}) measures a construct the ACS measures directly ({eq_tabs}). Use the "
+                        "ACS measure as the outcome of a determinant study; an external measure of the same "
+                        "construct is allowed only to compare the two (the model must contain the ACS measure "
+                        f"and only it may be tested). {CIRCULARITY_RULE}")
+                    continue
+                for h in tested:
+                    term = [n for n in _formula_names(str(h.get("term", ""))) if n in tables] or [str(h.get("term"))]
+                    if not all(t in c["equivalent"] for t in term):
+                        errors.append(
+                            f"hypotheses {h.get('id')}: CIRCULARITY R1: analysis {aid} compares the external "
+                            f"{c['outcome']} with its ACS equivalent {sorted(c['equivalent'])}; only that "
+                            f"comparison may be tested, not {h.get('term')!r} (a determinant study uses the ACS "
+                            "measure as its outcome)")
+            if c["kind"] == "direct":
+                continue
+            for h in tested:
+                term = [n for n in _formula_names(str(h.get("term", ""))) if n in c["overlap"]]
+                just = h.get("circularity_justification")
+                if term and not (isinstance(just, str) and len(just.strip()) >= 20):
+                    fams = "; ".join(f"{t}: " + ", ".join(f"{lab} {'/'.join(tabs)}" for lab, tabs in c["overlap"][t].items())
+                                     for t in term)
+                    errors.append(
+                        f"hypotheses {h.get('id')}: CIRCULARITY R2: the tested term {h.get('term')!r} is built from "
+                        f"inputs of the model that produced {c['outcome']} ({c['source']}, {c['kind']}: {fams}); "
+                        "its coefficient partly recovers that model, not the world. Test a direct outcome (the "
+                        "ACS measure, vital records), or add a written circularity_justification (20+ "
+                        "characters) to the hypothesis")
     return errors
 
 
@@ -1111,6 +1278,37 @@ def create_manifest(
                              "will be held at its estimate in every refit as declared (the hashed declaration "
                              "governs; the run records whether its replicates were available); remove the "
                              "declaration before hashing to use the outcome's replicates")
+    if not errors:
+        from .health_sources import CIRCULARITY_RULE
+        hyps = [h for h in manifest.get("hypotheses") or [] if isinstance(h, Mapping)]
+        for c in external_circularity(manifest):
+            model = _ext_source_text(c)
+            if c["equivalent"]:
+                notes.append(f"analyses {c['analysis']}: MEASUREMENT COMPARISON: the outcome {c['outcome']} "
+                             f"({c['source']} {c['measure']}) is compared with its direct ACS equivalent "
+                             f"{sorted(c['equivalent'])} (allowed by rule R1; a determinant study would use the "
+                             "ACS measure as its outcome)")
+            if c["kind"] == "direct":
+                notes.append(f"analyses {c['analysis']}: the outcome {c['outcome']} is a direct external estimate "
+                             f"({c['source']}: {model}); no model inputs, so no circularity check applies")
+                continue
+            justified = [h.get("id") for h in hyps if h.get("analysis") == c["analysis"]
+                         and h.get("circularity_justification")]
+            if c["overlap"]:
+                notes.append(f"analyses {c['analysis']}: CIRCULARITY: the outcome {c['outcome']} is {c['kind'].replace('_', '-')} "
+                             f"({c['source']}: {model}); covariates "
+                             + "; ".join(k + " (" + ", ".join(lab + ": " + "/".join(t) for lab, t in v.items()) + ")"
+                                         for k, v in c["overlap"].items())
+                             + " measure the model's own inputs, so their coefficients partly recover the source "
+                             "model, not the world (allowed as controls; tested terms need a written "
+                             "circularity_justification"
+                             + (f", given for {justified}" if justified else "") + ")")
+            else:
+                notes.append(f"analyses {c['analysis']}: the outcome {c['outcome']} is {c['kind'].replace('_', '-')} ({c['source']}: "
+                             f"{model}); associations with covariates outside the model arise only through their "
+                             "correlation with the model's inputs")
+        if manifest.get("external"):
+            notes.append("external outcomes: " + CIRCULARITY_RULE)
     out = {"hash": manifest_hash(manifest), "path": out_path, "errors": errors, "valid": not errors,
            "notes": notes, "filled": filled}
     if filled:
@@ -1193,7 +1391,7 @@ def _one_sided(p: float, estimate: float, direction: str) -> float:
 
 
 def _run_analysis(a: Mapping[str, Any], frame: pd.DataFrame, level: float, replicates: Any,
-                  correction: str) -> Any:
+                  correction: str, external: Sequence[str] = ()) -> Any:
     from . import correlation, models, multitest, sae, trends
     a = _normalize_analysis(a)
     method, args = a["method"], dict(a.get("args") or {})
@@ -1204,11 +1402,17 @@ def _run_analysis(a: Mapping[str, Any], frame: pd.DataFrame, level: float, repli
         # Confirmatory runs refuse incomplete replicates (PLAN_ROUND_11 Q2/D7);
         # the failure is recorded as a "replicates_incomplete" deviation.
         args["replicate_policy"] = CONFIRMATORY_REPLICATE_POLICY
+    held_external = [v for v in _formula_names(str(a.get("formula", "")).split("~")[0]) if v in set(external)]
     if method == "fit_replicate":
+        fixed_vars = list(held_external)
         if a.get("replicate_scope") == "covariates_only":  # pre-registered: the outcome is held fixed
-            args["fixed_variables"] = _formula_names(a["formula"].split("~")[0])
+            fixed_vars += [v for v in _formula_names(a["formula"].split("~")[0]) if v not in fixed_vars]
+        if fixed_vars:
+            args["fixed_variables"] = fixed_vars
         return models.fit_replicate(a["formula"], frame, replicates=replicates, confidence_level=level, **args)
     if method == "fit_eiv":
+        if held_external:
+            args["fixed_variables"] = held_external
         return models.fit_eiv(a["formula"], frame, replicates=replicates, confidence_level=level, **args)
     if method in ("regression_calibration", "simex"):
         return getattr(models, method)(a["formula"], frame, confidence_level=level, **args)
@@ -1277,10 +1481,86 @@ def _tag(result: Any, h: str, analysis_id: str, status: str = STATUS_CONFIRMATOR
     return result
 
 
+def run_variant(
+    run_dir: Union[str, Path],
+    analysis: str,
+    formula: Optional[str] = None,
+    keep_prefixes: Optional[Sequence[str]] = None,
+    drop_prefixes: Optional[Sequence[str]] = None,
+    args: Optional[Mapping[str, Any]] = None,
+    out_dir: Optional[Union[str, Path]] = None,
+    label: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Exploratory refit of one analysis of a completed run (PLAN_ROUND_21 Part 2, C7).
+
+    Loads ``<run_dir>/manifest.json`` and the analysed data recorded in run.json (refusing files
+    whose SHA-256 differs), applies the variant (``formula``; ``keep_prefixes``/``drop_prefixes``:
+    GEOID prefixes, e.g. ["36"] or ["36005", "36047"]; ``args`` merged over the analysis args, e.g.
+    {"cluster": "GEOID.str[:5]", "cluster_se": "jackknife"}), refits with the confirmatory code path
+    and writes ``<out_dir>/variant_<analysis>_<label>.json`` labelled ``exploratory`` with the
+    manifest hash. Never changes the confirmatory outputs.
+    """
+    import hashlib
+    run_dir = Path(run_dir)
+    run = json.loads((run_dir / "bundle" / "results" / "run.json").read_text(encoding="utf-8"))
+    m = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    if manifest_hash(m) != run.get("manifest_hash"):
+        raise ValueError("manifest.json does not match the run's manifest hash")
+    data: Dict[str, pd.DataFrame] = {}
+    for name, info in (run.get("analysed_data") or {}).items():
+        if not isinstance(info, Mapping) or "path" not in info or "sha256" not in info:
+            raise ValueError(f"run.json records no analysed {name} file ({info!r}); the run cannot be refitted")
+        path = run_dir / info["path"]
+        if hashlib.sha256(path.read_bytes()).hexdigest() != info["sha256"]:
+            raise ValueError(f"{path} does not match run.json (SHA-256); refusing to analyse different data")
+        df = pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path, dtype={"GEOID": str})
+        df["GEOID"] = df["GEOID"].astype(str)
+        data[name] = df
+    if "analysis_frame" not in data:
+        raise ValueError("run.json lists no analysed analysis_frame")
+    spec = next((a for a in m.get("analyses") or [] if a.get("id") == analysis), None)
+    if spec is None:
+        raise ValueError(f"analysis {analysis!r} is not in the manifest (ids: "
+                         f"{[a.get('id') for a in m.get('analyses') or []]})")
+    a = dict(_normalize_analysis(spec))
+    if formula:
+        a["formula"] = formula
+    if args:
+        a["args"] = {**(a.get("args") or {}), **dict(args)}
+    frame, reps = data["analysis_frame"], data.get("replicates")
+    mask = np.ones(len(frame), bool)
+    if keep_prefixes:
+        mask &= frame["GEOID"].str.startswith(tuple(str(p) for p in keep_prefixes)).to_numpy()
+    if drop_prefixes:
+        mask &= ~frame["GEOID"].str.startswith(tuple(str(p) for p in drop_prefixes)).to_numpy()
+    frame = frame[mask].reset_index(drop=True)
+    if reps is not None:
+        reps = reps[reps["GEOID"].isin(set(frame["GEOID"]))].reset_index(drop=True)
+    corr = (m.get("correction") or {}).get("method", "holm")
+    res = _run_analysis(a, frame, float(m.get("confidence_level", 0.90)), reps, corr, external=external_names(m))
+    variant = {"analysis": analysis, "formula": a.get("formula"), "keep_prefixes": list(keep_prefixes or []),
+               "drop_prefixes": list(drop_prefixes or []), "args": a.get("args") or {}}
+    if label is not None and (not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", str(label)) or not str(label).strip(".")):
+        raise ValueError("label must be 1-64 letters, digits, '_', '-' or '.' (it names the output file)")
+    tag = label or hashlib.sha256(json.dumps(variant, sort_keys=True, default=str).encode()).hexdigest()[:10]
+    out = {"analysis_status": "exploratory", "related_manifest_hash": run["manifest_hash"],
+           "note": "exploratory variant of a pre-registered analysis; not confirmatory",
+           "variant": variant, "units": int(len(frame)),
+           "analysed_data": {k: v["sha256"] for k, v in run["analysed_data"].items()},
+           "result": res.to_dict() if hasattr(res, "to_dict") else res}
+    folder = Path(out_dir) if out_dir else run_dir / "exploratory"
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"variant_{analysis}_{tag}.json"
+    path.write_text(json.dumps(out, indent=2, default=str) + "\n", encoding="utf-8")
+    out["path"] = str(path)
+    return out
+
+
 @integrity_errors
 def run_manifest(
     manifest: Union[str, Path, Mapping[str, Any]], output_dir: Union[str, Path], client: Any = None,
     replicates: Any = None, use_cache: bool = True, replicates_synthetic: Optional[bool] = None,
+    external_fetch: Optional[Callable[[str], bytes]] = None,
 ) -> Dict[str, Any]:
     """Execute a manifest exactly: plan -> extraction -> analysis frame ->
     derivations on replicates -> exclusions -> adjustments -> analyses -> hypothesis tests with the pre-registered
@@ -1308,6 +1588,7 @@ def run_manifest(
     Never raises on data problems; returns ``success``, ``deviations``,
     ``hypotheses`` and the bundle manifest. The manifest hash is written into
     every output (results JSON, tables, figure sidecars, methods.md, bundle.json).
+    ``external_fetch(url) -> bytes`` replaces the HTTP client of external sources (tests).
     """
     from .analysis import analysis_frame
     from .multitest import adjust_pvalues
@@ -1478,6 +1759,36 @@ def run_manifest(
             deviations.append({"kind": "replicates_incomplete", "detail": "derivations on replicates failed: "
                                f"{type(exc).__name__}: {exc}"})
 
+    # 3c. external variables (PLAN_ROUND_21 B3), joined on GEOID after the ACS frame
+    external_info: Optional[Dict[str, Any]] = None
+    joined_external: List[str] = []
+    if frame is not None and m.get("external"):
+        from . import health_sources as hs
+        ext_names = external_names(m)
+        required = sorted({v for a in m["analyses"] for v in _formula_names(str(_normalize_analysis(a).get("formula", "")))
+                           if set(_formula_names(str(_normalize_analysis(a).get("formula", "")))) & set(ext_names)}
+                          - set(ext_names))
+        try:
+            ext_wide, ext_prov = hs.load_external(m["external"], str(geo["level"]),
+                                                  [s for s in manifest_states(geo) if s], fetch=external_fetch)
+            frame, join = hs.join_external(frame, ext_wide, ext_names, required=required)
+            joined_external = ext_names
+            external_info = {"variables": m["external"], "sources": ext_prov, "join": join,
+                             "required_acs_variables": required}
+            limits = hs.join_limit(m["external"])
+            join["missing_limit"] = limits
+            over = {n: s for n, s in join["missing_share_by_variable"].items()
+                    if not s <= limits.get(n, hs.JOIN_MISSING_LIMIT)}
+            if over:
+                deviations.append({"kind": "external_join_failed", "detail": (
+                    "; ".join(f"{n}: {s:.1%} of {join['complete_acs_units']} units with complete ACS data have no "
+                              f"value (> {limits.get(n, hs.JOIN_MISSING_LIMIT):.0%})" for n, s in over.items())
+                    + "; a geography-vintage mismatch is likely. Examples: "
+                    + ", ".join(join["examples_without_external"][:5]))})
+        except Exception as exc:  # noqa: BLE001 - recorded as a blocking deviation, never substituted
+            deviations.append({"kind": "external_unavailable", "detail": f"{type(exc).__name__}: {exc}"})
+            external_info = {"variables": m["external"], "error": f"{type(exc).__name__}: {exc}"}
+
     # 4. exclusions (before adjustments: a pre-registered exclusion can remove a unit without an
     # RPP area; the CV screen gives the same rows either way, since the RPP factor leaves CVs unchanged)
     exclusion_log: List[Dict[str, Any]] = []
@@ -1515,7 +1826,7 @@ def run_manifest(
         derived_on_replicates = {k: v for k, v in counts.items() if v["rows_replicate"]}
 
     # 5. analyses
-    available = set(columns) | {str(d["name"]) for d in m.get("derivations") or []}
+    available = set(columns) | {str(d["name"]) for d in m.get("derivations") or []} | set(joined_external)
     results: Dict[str, Any] = {}
     # caller-supplied replicates of overlapping releases: refused (census_vre is refused at validation)
     rep_overlap = _replicate_overlap(replicates) if replicates is not None and not census_vre_source(m) else None
@@ -1551,7 +1862,7 @@ def run_manifest(
             if had:
                 fixed_had_replicates[aid] = had
         try:
-            results[aid] = _run_analysis(a, frame, level, work_reps, corr_method)
+            results[aid] = _run_analysis(a, frame, level, work_reps, corr_method, external=joined_external)
         except Exception as exc:
             kind = "replicates_incomplete" if isinstance(exc, IncompleteReplicatesError) else "analysis_failed"
             deviations.append({"kind": kind, "analysis": aid, "detail": f"{type(exc).__name__}: {exc}"})
@@ -1642,6 +1953,8 @@ def run_manifest(
         run_info["adjustments"] = adjustment_log
     if harmonization is not None:
         run_info["harmonization"] = harmonization
+    if external_info is not None:
+        run_info["external"] = external_info
     if analysed_data:
         run_info["analysed_data"] = analysed_data
     if not complete:
@@ -1649,12 +1962,16 @@ def run_manifest(
     tables_used = sorted(tables_and_refs(m))
     citation = data_citation(releases, tables_used, synthetic=source["synthetic"],
                              description=source.get("description"))
+    if external_info and external_info.get("sources"):
+        citation = citation + " External data: " + " ".join(p["citation"] for p in external_info["sources"])
     bundle = _write_bundle(out / "bundle", m, h, tagged, hyp_df, run_info, citation)
     out_res = {"success": complete, "analysis_status": status, "data_source": source, "replicates": rep_info,
                "manifest_hash": h, "deviations": deviations, "hypotheses": hyp_df, "results": tagged,
                "frame": frame, "bundle": bundle, "output_dir": str(out), "errors": []}
     if m.get("adjustments"):
         out_res["adjustments"] = adjustment_log
+    if external_info is not None:
+        out_res["external"] = external_info
     return out_res
 
 
@@ -2188,7 +2505,7 @@ _METHOD_TEXT = {
     "fit_eiv": ("Coefficients were estimated by moment-corrected least squares ({model}; Fuller 1987) with "
                 "per-unit sampling-error covariances of every design column and of the outcome, including the "
                 "outcome-covariate error covariance, estimated from {rep_source} (4/80 sum over replicates). "
-                "Standard errors are sandwich SEs treating units as independent (se_total, used for "
+                "Standard errors are {se_basis} (se_total, used for "
                 "normal-theory intervals and p-values); naive coefficients are reported alongside. Coefficients "
                 "are {estimand}.", ["fuller", "vre", "design"]),
     "simex": ("Covariates measured with known ACS sampling error ({cov}) were corrected by "
@@ -2341,6 +2658,55 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
             f"Tract harmonization (pre-registered): releases on another tract vintage are apportioned to "
             f"{geo['harmonize_tracts_to']} Census tracts with block weights; their Census VRE replicates are "
             "apportioned with the same weights."))
+    if m.get("external"):
+        from .health_sources import SOURCES
+        ext_run = run.get("external") or {}
+        from .health_sources import measure_info
+        for e in m["external"]:
+            info = SOURCES.get(e.get("source"), {})
+            try:
+                unit = measure_info(e["source"], e["measure"]).get("unit") or info.get("unit", "")
+            except (KeyError, ValueError):
+                unit = info.get("unit", "")
+            rel = f" {e.get('release')} release," if e.get("release") is not None else ""
+            lines.append(f"- External variable `{e['name']}`: {info.get('title', e.get('source'))}{rel} measure "
+                         f"{e.get('measure')} ({unit}), joined on GEOID. Source: "
+                         f"{_ext_source_text(e)}. Uncertainty: {info.get('uncertainty_text', '')}. Its error is "
+                         "independent of the ACS sampling error (a different data system); how each analysis uses "
+                         "it is stated under Analyses.")
+            src_run = next((p for p in ext_run.get("sources") or [] if e["name"] in (p.get("measures") or {}).values()),
+                           {})
+            if src_run.get("predicted"):
+                pr = src_run["predicted"]
+                lines.append(f"  USALEEP flag counts {pr.get('flag_counts')}; "
+                             + ("tracts with fully predicted death rates (flag 2) kept" if pr.get("include_predicted")
+                                else f"{pr.get('dropped_fully_predicted')} tracts with fully predicted death rates "
+                                     "(flag 2) dropped (pre-registered default)") + ".")
+            if src_run.get("apportionment"):
+                ap = src_run["apportionment"]
+                lines.append(f"  Apportioned from 2010 to 2020 tracts: {ap['method']}; targets below "
+                             f"{ap['min_coverage']:.0%} population coverage left missing ({ap['targets_below_coverage']}); "
+                             + (f"{ap['split_targets_left_missing']} split tracts left missing (inheriting the parent's "
+                                "value failed validation, docs/audits/rate_apportionment_validation.md)."
+                                if ap.get("split_policy", "missing") == "missing" else
+                                f"{ap.get('split_targets', 0)} split tracts inherit their parent's value (NOT validated: "
+                                "docs/audits/rate_apportionment_validation.md)."))
+            if src_run.get("export"):
+                ex = src_run["export"]
+                lines.append(f"  WONDER export {ex['dataset']} (SHA-256 {ex['file']['sha256'][:12]}...; query date "
+                             f"{ex.get('query_date')}); {ex['suppressed_units']} suppressed units kept as censored "
+                             f"(1-9 deaths, missing rates), {ex['unreliable_units']} unreliable (fewer than 20).")
+        join = ext_run.get("join")
+        if join:
+            lines.append(f"  {join['matched_units']} of {join['complete_acs_units']} units with complete ACS data had "
+                         f"an external value; files and SHA-256 in run.json (external).")
+        for c in external_circularity(m):
+            if c["overlap"] and c["kind"] != "direct":
+                lines.append(f"  Circularity: in {c['analysis']}, covariates {sorted(c['overlap'])} measure inputs of "
+                             f"the {c['source']} model; their coefficients partly recover that model.")
+            if c["equivalent"]:
+                lines.append(f"  Measurement comparison: in {c['analysis']}, {c['outcome']} is compared with its "
+                             f"direct ACS equivalent {sorted(c['equivalent'])}.")
     if m.get("aggregation"):
         lines.append(f"Geographies were aggregated into {len(set(m['aggregation']['mapping'].values()))} groups; "
                      "aggregate MOEs use replicate variance where available, else the ACS approximation "
@@ -2419,7 +2785,34 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                            target_se={"se_model": "model SE (se_model)", "se_sampling": "replicate sampling SE "
                                       "(se_sampling)", "se_total": "combined SE (se_total)"}[info["basis_column"]],
                            cov=", ".join(a.get("error_covariates") or args.get("error_covariates") or []),
-                           rep=rep_short if (a.get("replicates") or rep_info) else "", rep_source=rep_source)
+                           rep=rep_short if (a.get("replicates") or rep_info) else "", rep_source=rep_source,
+                           se_basis=(f"delete-one-cluster jackknife (CR3) SEs over groups of `{args['cluster']}` "
+                                     "(validated by simulation, docs/audits/eiv_cluster_validation.md)"
+                                     if args.get("cluster") and args.get("cluster_se") == "jackknife" else
+                                     f"cluster-robust sandwich SEs with units correlated within groups of "
+                                     f"`{args['cluster']}` (G/(G-1) small-sample factor; validated by simulation, "
+                                     "docs/audits/eiv_cluster_validation.md)" if args.get("cluster")
+                                     else "sandwich SEs treating units as independent"))
+        ext_out = [v for v in _formula_names(str(a.get("formula", "")).split("~")[0]) if v in external_names(m)]
+        ext_kind = "an external model-based estimate"
+        if ext_out:
+            from .health_sources import kind_phrase
+            ent = next((e for e in m["external"] if e.get("name") == ext_out[0]), {})
+            try:
+                ext_kind = kind_phrase(ent["source"], ent["measure"])
+            except (KeyError, ValueError):
+                pass
+        if ext_out and a["method"] == "fit_eiv":
+            text += (f" The outcome ({', '.join(ext_out)}) is {ext_kind} with no ACS "
+                     "replicates: it was held fixed in the replicate design rows, so the outcome-covariate error "
+                     "covariance is zero by construction (independent surveys) and only the covariates' error was "
+                     "corrected; the outcome's own error enters the residual and the sandwich.")
+        elif ext_out and a["method"] == "fit_replicate":
+            text += (f" The outcome ({', '.join(ext_out)}) is {ext_kind} held fixed in every "
+                     "refit; se_sampling covers the covariates' ACS sampling error only.")
+        elif ext_out and a["method"] == "fh_regression":
+            text += (f" The outcome ({', '.join(ext_out)}) is {ext_kind}; its published "
+                     "interval-derived SE was used as the known sampling variance of the Fay-Herriot model.")
         if a.get("replicate_scope") == "covariates_only":
             held = _formula_names(str(a.get("formula", "")).split("~")[0])
             had = ((rep_info or {}).get("covariates_only_outcome_had_replicates") or {}).get(a["id"])
@@ -2442,10 +2835,14 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
         target = a.get("formula") or a.get("variables") or a.get("variable")
         lines.append(f"- **{a['id']}** (`{target}`): {text}")
         cites += refs
+        if a["method"] == "fit_eiv" and args.get("cluster"):
+            cites.append("cluster")
     lines += ["", "### Hypotheses and multiple comparisons", ""]
     for hyp in m.get("hypotheses", []):
         lines.append(f"- **{hyp['id']}** ({hyp.get('direction', 'two-sided')}, {hyp['statistic']}"
                      + (f" of `{hyp['term']}`" if hyp.get("term") else "") + f"): {hyp.get('statement', '')}")
+        if hyp.get("circularity_justification"):
+            lines.append(f"  Circularity justification (pre-registered): {hyp['circularity_justification']}")
     cm = str(corr.get("method", "holm")).lower()
     lines.append(f"Intervals are {level:.0%}. p-values were adjusted with the {cm} procedure across "
                  f"{'all hypotheses' if corr.get('family', 'all') == 'all' else 'each hypothesis family'}; "

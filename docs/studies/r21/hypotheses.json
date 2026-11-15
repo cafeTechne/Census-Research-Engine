@@ -1,0 +1,62 @@
+{
+  "manifest_hash": "11294774f00613a87f902393a8493a56d033591c3dbb6e7a8e4ac86a32221f76",
+  "rows": [
+    {
+      "analysis": "m1",
+      "ci_lower": 0.74014825370156,
+      "ci_upper": 0.8963582243893804,
+      "direction": "greater",
+      "estimate": 0.8182532390454702,
+      "family": "primary",
+      "id": "H1",
+      "manifest_hash": "11294774f00613a87f902393a8493a56d033591c3dbb6e7a8e4ac86a32221f76",
+      "p_adjusted": 1.5271884804769213e-66,
+      "p_two_sided": 1.5271884804769213e-66,
+      "p_value": 7.635942402384606e-67,
+      "se": 0.0474844594461988,
+      "se_basis": "se_total",
+      "significant": true,
+      "statement": "Across Michigan and New York tracts (state effects), PLACES 2025 adult disability prevalence is higher where the ACS 2020-2024 adult disability prevalence is higher (ACS sampling error corrected; SEs clustered by county).",
+      "statistic": "coefficient",
+      "status": "tested"
+    },
+    {
+      "analysis": "m2",
+      "ci_lower": 0.6954764769508759,
+      "ci_upper": 0.8474817829407357,
+      "direction": "greater",
+      "estimate": 0.7714791299458058,
+      "family": "primary",
+      "id": "H2",
+      "manifest_hash": "11294774f00613a87f902393a8493a56d033591c3dbb6e7a8e4ac86a32221f76",
+      "p_adjusted": 6.961440718281514e-63,
+      "p_two_sided": 1.3922881436563028e-62,
+      "p_value": 6.961440718281514e-63,
+      "se": 0.046206332131687164,
+      "se_basis": "se_total",
+      "significant": true,
+      "statement": "Within counties (county fixed effects), PLACES adult disability prevalence is higher where ACS adult disability prevalence is higher.",
+      "statistic": "coefficient",
+      "status": "tested"
+    },
+    {
+      "analysis": "m3",
+      "ci_lower": 0.7439710781647867,
+      "ci_upper": 0.893506689813483,
+      "direction": "greater",
+      "estimate": 0.8187388839891349,
+      "family": "primary",
+      "id": "H3",
+      "manifest_hash": "11294774f00613a87f902393a8493a56d033591c3dbb6e7a8e4ac86a32221f76",
+      "p_adjusted": 2.3597464226581773e-72,
+      "p_two_sided": 1.5731642817721183e-72,
+      "p_value": 7.865821408860591e-73,
+      "se": 0.04545559835796506,
+      "se_basis": "se_total",
+      "significant": true,
+      "statement": "Within counties and conditional on the share of adults aged 65+, PLACES adult disability prevalence is higher where ACS adult disability prevalence is higher: PLACES carries ACS-measured disability variation beyond adult age structure.",
+      "statistic": "coefficient",
+      "status": "tested"
+    }
+  ]
+}

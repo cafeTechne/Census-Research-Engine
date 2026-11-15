@@ -56,6 +56,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 from scipy import linalg as sla, optimize, stats as sps
 
+from .optim import best_start, projected_score_ok
 from .simulation import (FAST, FULL, NOMINAL, SimConfig, _geoids, acs_frame, draw_cv, lattice_weights,
                          sar_inverse)
 
@@ -208,13 +209,13 @@ def me_sem_fit(y: np.ndarray, X: np.ndarray, W: np.ndarray, Sigma: np.ndarray,
 
     var_y = float(np.var(y, ddof=1))
     a0 = math.log(max(var_y - float(np.mean(np.diag(Sigma))), 0.1 * var_y))
-    best = None
-    for l0 in starts:
-        res = optimize.minimize(nll, np.array([a0, l0]), jac=True, method="L-BFGS-B",
-                                bounds=[(math.log(var_y) - 25, math.log(var_y) + 5), (-lam_b, lam_b)],
-                                options={"ftol": 1e-13, "gtol": 1e-8, "maxiter": 500})
-        if best is None or res.fun < best.fun:
-            best = res
+    bounds = [(math.log(var_y) - 25, math.log(var_y) + 5), (-lam_b, lam_b)]
+    runs = [optimize.minimize(nll, np.array([a0, l0]), jac=True, method="L-BFGS-B", bounds=bounds,
+                              options={"ftol": 1e-13, "gtol": 1e-8, "maxiter": 500}) for l0 in starts]
+    best = best_start(runs)
+    # An ABNORMAL line-search exit at the optimum (SciPy-version dependent) is
+    # not a failure: judge convergence by the projected score at the solution.
+    converged = bool(np.isfinite(best.fun)) and (bool(best.success) or projected_score_ok(best.x, nll(best.x)[1], bounds))
     A, lam = math.exp(float(best.x[0])), float(best.x[1])
     s = state(A, lam)
     M = [s["M"] @ s["C"], s["M"] @ (A * s["dC"])]
@@ -227,7 +228,7 @@ def me_sem_fit(y: np.ndarray, X: np.ndarray, W: np.ndarray, Sigma: np.ndarray,
     except (np.linalg.LinAlgError, sla.LinAlgError, ValueError):
         se_lam = float("nan")
     return {"lambda": lam, "A": A, "beta": s["beta"], "se_beta": np.sqrt(np.diag(s["Q"])), "se_lambda": se_lam,
-            "converged": bool(best.success) and np.isfinite(best.fun), "loglik": -float(best.fun),
+            "converged": converged, "message": str(best.message), "loglik": -float(best.fun),
             "boundary": abs(lam) >= SPREG16_BOUNDARY or A <= 1e-8 * var_y}
 
 

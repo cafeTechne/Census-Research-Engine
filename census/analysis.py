@@ -321,7 +321,8 @@ def _cv(est: np.ndarray, se: np.ndarray) -> np.ndarray:
         return np.where(est != 0, se / np.abs(est) * 100.0, np.nan)
 
 
-def _put(out: pd.DataFrame, name: str, est: Any, se: Any, method: Any) -> None:
+def _put(out: Any, name: str, est: Any, se: Any, method: Any) -> None:
+    """Add a variable's columns to ``out`` (a DataFrame or a dict of columns)."""
     est = np.asarray(est, dtype=float)
     se = np.asarray(se, dtype=float)
     out[name] = est
@@ -387,9 +388,10 @@ def analysis_frame(
 
     if df.duplicated([c for c in UNIT_COLUMNS if c in df.columns]).any():
         raise ValueError("source has duplicate GEOID (and Year) rows; one row per unit is required")
-    out = df[[c for c in ID_COLUMNS if c in df.columns]].copy()
+    ids = df[[c for c in ID_COLUMNS if c in df.columns]].copy()
+    cols: Dict[str, Any] = {}  # built once at the end (no per-column inserts: no fragmentation, F10 of Round 20)
+    work_cols: Dict[str, Any] = {}
     info: Dict[str, Dict[str, Any]] = {}
-    work = df.copy()
     n_decennial = 0
     for name, ref in var_map.items():
         est_col, moe_col = _resolve(df, ref, decennial)
@@ -399,28 +401,34 @@ def analysis_frame(
             se = np.full_like(e, np.nan)  # census count: sampling SE undefined, never 0
             method = METHOD_NOT_SAMPLE_BASED
             n_decennial += 1
-        _put(out, name, e, se, method)
+        _put(cols, name, e, se, method)
         info[name] = {"estimate_column": est_col, "moe_column": moe_col,
                       "method": method,
                       "concept_id": (concept_ids or {}).get(name)}
         # expose cleaned values under the analysis name for derive specs
-        work[f"{name}_estimate"] = e
-        work[f"{name}_moe"] = se * Z90
+        work_cols[f"{name}_estimate"] = e
+        work_cols[f"{name}_moe"] = se * Z90
 
     for entry in derive or []:
         name = str(entry.get("name"))
-        if name in out.columns:
+        if name in cols or name in ids.columns:
             raise ValueError(f"derived variable {name!r} collides with an existing column")
     if derive:
+        new = pd.DataFrame(work_cols, index=df.index)
+        work = pd.concat([df.drop(columns=[c for c in new.columns if c in df.columns]), new], axis=1)
         derived = derive_columns(work, derive, metadata=metadata)
         for entry in derive:
             name = str(entry["name"])
-            _put(out, name, derived[f"{name}_estimate"], derived[f"{name}_se"], derived[f"{name}_method"].to_numpy())
-            out[f"{name}_notes"] = derived[f"{name}_notes"].to_numpy()
+            _put(cols, name, derived[f"{name}_estimate"], derived[f"{name}_se"], derived[f"{name}_method"].to_numpy())
+            cols[f"{name}_notes"] = derived[f"{name}_notes"].to_numpy()
             info[name] = {"derive": dict(entry), "method": "derived (census.derived, approximate MOE)",
                           "concept_id": (concept_ids or {}).get(name)}
     for col in keep_columns:
-        out[col] = df[col].to_numpy()
+        if col in ids.columns:  # an ID column kept explicitly: overwrite, never duplicate the label
+            ids[col] = df[col].to_numpy()
+        else:
+            cols[col] = df[col].to_numpy()
+    out = pd.concat([ids, pd.DataFrame(cols, index=df.index)], axis=1)
     notes: List[str] = []
     if n_decennial and n_decennial < len(var_map):
         from .decennial import MIXED_NOTE

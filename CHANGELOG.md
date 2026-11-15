@@ -5,6 +5,50 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.20.0 (Round 21): external health outcomes (Step 2)
+
+- `census.health_sources`: registry of external health sources and the CDC PLACES connector (2025 release,
+  tract and county). Keyless Socrata CSV exports filtered to states, measures and crude values; pages cached
+  with SHA-256 sidecars; the dataset revision stamp (`rowsUpdatedAt`) recorded with the download it describes;
+  `CENSUS_HEALTH_OFFLINE`; SE from the published 95% interval.
+- Manifest `external` variables: joined on GEOID after the ACS frame; outcome-only for `fit_eiv`,
+  `fit_replicate` and `fh_regression`; single release; tract vintage checked (or `harmonize_tracts_to`);
+  blocking `external_unavailable` and `external_join_failed` deviations; `create_manifest` notes covariates that
+  are inputs of the source's model (circularity); provenance, citation and methods text.
+- `fit_eiv`: `fixed_variables` (an outcome from another survey, no replicates), `cluster="GEOID.str[:N]"`, the
+  independence SE kept in the diagnostics when clustered. Cluster-robust SEs validated by simulation
+  (`docs/audits/eiv_cluster_validation.md`, `scripts/eiv_cluster_validation.py`).
+- `analysis_frame` builds its columns at once (no pandas fragmentation warnings).
+- Study: `docs/studies/r21_mi_ny_places_disability_validation.md`: PLACES 2025 adult disability against the
+  ACS 2020-2024 direct estimate, MI/NY tracts. H1-H3 supported (slope about 0.8 after correcting ACS error,
+  within counties and beyond age); levels differ by about 13 points; exploratory E2 shows the circularity of
+  determinant studies with a PLACES outcome.
+- Part 2 (owner request): the circularity rule is enforced and stated in the MCP. `create_manifest` refuses
+  (R1) an external outcome whose construct the ACS measures directly (PLACES DISABILITY: B18101) unless the
+  analysis compares it with that ACS measure, and (R2) a tested term built from the outcome model's inputs
+  unless the hypothesis carries a written `circularity_justification`. The rule is in the server instructions,
+  the core profile, `docs/agent_protocol.md` section 16, the recipe `external_health_outcome` and the new tool
+  `list_health_sources`.
+- New sources: USALEEP tract life expectancy (2010 tracts; fully predicted tracts dropped by default;
+  `apportion_to: 2020` by population-weighted rate apportionment, split tracts left missing because
+  inheritance failed validation, `docs/audits/rate_apportionment_validation.md`); County Health Rankings &
+  Roadmaps 2025 county data (direct NCHS mortality measures; PLACES-based measures flagged; ACS-derived columns
+  refused); CDC WONDER exports (`census.vital_records`: pinned by SHA-256, footer required, suppressed counts
+  censored, exact Poisson intervals).
+- `fit_eiv(cluster_se="jackknife")`: delete-one-cluster jackknife, validated beside CR1; `make_map`
+  `scheme="diverging"`; `run_variant` (exploratory refits of a finished run, MCP tool).
+- Study (Part 2): `docs/studies/r21b_mi_ny_county_premature_mortality.md`: county premature age-adjusted
+  mortality (CHR&R 2025, NCHS 2020-2022) against the Round 20 determinants, MI/NY counties. Poverty (H1) and
+  disability (H4) supported; no-vehicle (H2, reversed by New York City) and cost burden (H3) not supported.
+  The exploratory crude-adult re-run corrects the Part 1 E2 education ratio to 1.4×.
+- Supported versions: Python 3.11 or later (3.10 reached end of life in October 2026) and SciPy 1.16 or later;
+  CI tests Python 3.11-3.13.
+- Multi-start optimizers (`census.optim.best_start`, used by the spatial Fay-Herriot fit, the multilevel model
+  and the study-only `me_sem_fit`) prefer a converged start whose objective ties the minimum. `me_sem_fit` also
+  judges convergence by the projected score, so an ABNORMAL line-search exit at the optimum no longer reports
+  a fit as unconverged. This was the long-standing Python 3.10 failure in `test_spatial_lambda_correction`
+  (SciPy 1.15: two starts reached the same optimum and the flagged one was 2e-13 lower).
+
 ## 0.19.0 (Round 20): public-health determinants
 
 - Age standardization: `census.standardize` with the bundled 2000 U.S. standard population (NCHS/SEER single

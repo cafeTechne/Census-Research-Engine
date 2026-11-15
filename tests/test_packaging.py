@@ -6,10 +6,7 @@ import os
 import re
 import unittest
 
-try:
-    import tomllib
-except ImportError:  # Python 3.10
-    tomllib = None
+import tomllib
 
 import census
 from census import pipeline
@@ -31,7 +28,6 @@ def _requirement_lines():
     return out
 
 
-@unittest.skipIf(tomllib is None, "tomllib needs Python 3.11+")
 class TestPyproject(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

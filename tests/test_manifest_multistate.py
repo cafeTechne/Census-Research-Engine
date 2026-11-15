@@ -329,9 +329,9 @@ class TestTwoStateRun(unittest.TestCase):
         seen = {}
         real = manifest._run_analysis
 
-        def spy(a, frame, level, replicates, correction):
+        def spy(a, frame, level, replicates, correction, **kw):
             seen["reps"] = replicates
-            return real(a, frame, level, replicates, correction)
+            return real(a, frame, level, replicates, correction, **kw)
 
         with mock.patch.object(manifest, "_run_analysis", side_effect=spy):
             self.run_m(two_state_manifest(), replicates=reps)

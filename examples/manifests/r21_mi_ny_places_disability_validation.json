@@ -1,0 +1,217 @@
+{
+  "analyses": [
+    {
+      "args": {
+        "cluster": "GEOID.str[:5]",
+        "model": "ols"
+      },
+      "formula": "places_dis ~ acs_dis + C(GEOID.str[:2])",
+      "id": "m1",
+      "method": "fit_eiv"
+    },
+    {
+      "args": {
+        "cluster": "GEOID.str[:5]",
+        "model": "ols"
+      },
+      "formula": "places_dis ~ acs_dis + C(GEOID.str[:5])",
+      "id": "m2",
+      "method": "fit_eiv"
+    },
+    {
+      "args": {
+        "cluster": "GEOID.str[:5]",
+        "model": "ols"
+      },
+      "formula": "places_dis ~ acs_dis + pct65 + C(GEOID.str[:5])",
+      "id": "m3",
+      "method": "fit_eiv"
+    }
+  ],
+  "authors": [
+    "agent:claude"
+  ],
+  "confidence_level": 0.9,
+  "correction": {
+    "family": "all",
+    "method": "holm"
+  },
+  "created": "2026-11-15T04:34:24Z",
+  "derivations": [
+    {
+      "as_percent": true,
+      "den": [
+        "pop_009",
+        "pop_028",
+        "pop_012",
+        "pop_031",
+        "pop_015",
+        "pop_034",
+        "pop_018",
+        "pop_037"
+      ],
+      "name": "acs_dis",
+      "num": [
+        "dis_010",
+        "dis_029",
+        "dis_013",
+        "dis_032",
+        "dis_016",
+        "dis_035",
+        "dis_019",
+        "dis_038"
+      ],
+      "op": "proportion"
+    },
+    {
+      "as_percent": true,
+      "den": [
+        "pop_009",
+        "pop_028",
+        "pop_012",
+        "pop_031",
+        "pop_015",
+        "pop_034",
+        "pop_018",
+        "pop_037"
+      ],
+      "name": "pct65",
+      "num": [
+        "pop_015",
+        "pop_034",
+        "pop_018",
+        "pop_037"
+      ],
+      "op": "proportion"
+    }
+  ],
+  "exclusions": [
+    {
+      "action": "flag",
+      "rule": "cv_screen",
+      "threshold": 30,
+      "variables": [
+        "acs_dis"
+      ]
+    }
+  ],
+  "external": [
+    {
+      "measure": "DISABILITY",
+      "name": "places_dis",
+      "release": 2025,
+      "source": "places"
+    }
+  ],
+  "geography": {
+    "level": "tract",
+    "states": [
+      "26",
+      "36"
+    ]
+  },
+  "hypotheses": [
+    {
+      "analysis": "m1",
+      "direction": "greater",
+      "family": "primary",
+      "id": "H1",
+      "statement": "Across Michigan and New York tracts (state effects), PLACES 2025 adult disability prevalence is higher where the ACS 2020-2024 adult disability prevalence is higher (ACS sampling error corrected; SEs clustered by county).",
+      "statistic": "coefficient",
+      "term": "acs_dis"
+    },
+    {
+      "analysis": "m2",
+      "direction": "greater",
+      "family": "primary",
+      "id": "H2",
+      "statement": "Within counties (county fixed effects), PLACES adult disability prevalence is higher where ACS adult disability prevalence is higher.",
+      "statistic": "coefficient",
+      "term": "acs_dis"
+    },
+    {
+      "analysis": "m3",
+      "direction": "greater",
+      "family": "primary",
+      "id": "H3",
+      "statement": "Within counties and conditional on the share of adults aged 65+, PLACES adult disability prevalence is higher where ACS adult disability prevalence is higher: PLACES carries ACS-measured disability variation beyond adult age structure.",
+      "statistic": "coefficient",
+      "term": "acs_dis"
+    }
+  ],
+  "missing": "complete_case",
+  "releases": [
+    2024
+  ],
+  "replicates": {
+    "source": "census_vre"
+  },
+  "schema_version": 1,
+  "title": "Does CDC PLACES see tract disability? PLACES 2025 model-based adult disability against ACS 2020-2024 direct estimates, Michigan and New York tracts",
+  "variables": [
+    {
+      "name": "pop_009",
+      "ref": "2024:B18101_009"
+    },
+    {
+      "name": "pop_028",
+      "ref": "2024:B18101_028"
+    },
+    {
+      "name": "dis_010",
+      "ref": "2024:B18101_010"
+    },
+    {
+      "name": "dis_029",
+      "ref": "2024:B18101_029"
+    },
+    {
+      "name": "pop_012",
+      "ref": "2024:B18101_012"
+    },
+    {
+      "name": "pop_031",
+      "ref": "2024:B18101_031"
+    },
+    {
+      "name": "dis_013",
+      "ref": "2024:B18101_013"
+    },
+    {
+      "name": "dis_032",
+      "ref": "2024:B18101_032"
+    },
+    {
+      "name": "pop_015",
+      "ref": "2024:B18101_015"
+    },
+    {
+      "name": "pop_034",
+      "ref": "2024:B18101_034"
+    },
+    {
+      "name": "dis_016",
+      "ref": "2024:B18101_016"
+    },
+    {
+      "name": "dis_035",
+      "ref": "2024:B18101_035"
+    },
+    {
+      "name": "pop_018",
+      "ref": "2024:B18101_018"
+    },
+    {
+      "name": "pop_037",
+      "ref": "2024:B18101_037"
+    },
+    {
+      "name": "dis_019",
+      "ref": "2024:B18101_019"
+    },
+    {
+      "name": "dis_038",
+      "ref": "2024:B18101_038"
+    }
+  ]
+}

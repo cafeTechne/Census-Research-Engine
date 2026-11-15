@@ -1,0 +1,432 @@
+{
+  "analysis_status": "exploratory",
+  "related_manifest_hash": "11294774f00613a87f902393a8493a56d033591c3dbb6e7a8e4ac86a32221f76",
+  "analysed_data": {
+    "analysis_frame": "43bb483df3d17b3c489acd53a2c74ab5842fb873290142aaf57e5ae5b3b8d102",
+    "replicates": "7c8e2ef42b1edc7b9307f60ac0111df161e11adeea1fbe75f043994291dcb9cc"
+  },
+  "descriptives": {
+    "n_tracts": 8158,
+    "places_dis": {
+      "mean": 29.42179455748958,
+      "sd": 7.195976810118889,
+      "median_se": 1.8877897906212202
+    },
+    "acs_dis": {
+      "mean": 16.094391603267404,
+      "sd": 7.247004401912431,
+      "median_se": 3.0696909087734623
+    },
+    "pct65": {
+      "mean": 22.97614409826973,
+      "sd": 8.828021324755376,
+      "median_se": 3.230726137292152
+    },
+    "pearson_places_acs": 0.6272180575888217,
+    "share_of_places_variance_between_counties": 0.35315138639415405,
+    "share_of_acs_variance_between_counties": 0.22441486321472928,
+    "by_state": {
+      "Michigan": {
+        "n": 2897,
+        "places_dis": 32.3830514325164,
+        "acs_dis": 17.76691316197533
+      },
+      "New York": {
+        "n": 5261,
+        "places_dis": 27.79116137616423,
+        "acs_dis": 15.173407958413412
+      }
+    }
+  },
+  "E1_registered_refit": {
+    "H1": {
+      "estimate": 0.8182532390454702,
+      "se_total": 0.0474844594461988,
+      "ci_lower": 0.74014825370156,
+      "ci_upper": 0.8963582243893804,
+      "n": 8158,
+      "naive_estimate": 0.5881175929114644,
+      "se_independent": 0.02333124712685672
+    },
+    "H2": {
+      "estimate": 0.7714791299458058,
+      "se_total": 0.046206332131687164,
+      "ci_lower": 0.6954764769508759,
+      "ci_upper": 0.8474817829407357,
+      "n": 8158,
+      "naive_estimate": 0.4999221140737333,
+      "se_independent": 0.02857184293041815
+    },
+    "H3": {
+      "estimate": 0.8187388839891349,
+      "se_total": 0.04545559835796506,
+      "ci_lower": 0.7439710781647867,
+      "ci_upper": 0.893506689813483,
+      "n": 8158,
+      "naive_estimate": 0.5381211018193262,
+      "se_independent": 0.029054004106415378
+    },
+    "H3_pct65": {
+      "estimate": -0.18738671545550592,
+      "se_total": 0.023351283886687522,
+      "ci_lower": -0.22579615945049736,
+      "ci_upper": -0.14897727146051448,
+      "n": 8158,
+      "naive_estimate": -0.1488717747768501,
+      "se_independent": 0.013181534521720575
+    }
+  },
+  "reliability": {
+    "H1": {
+      "acs_dis": 0.7187476502965402
+    },
+    "H2": {
+      "acs_dis": 0.6480047154468898
+    },
+    "H3": {
+      "acs_dis": 0.6480047154468898,
+      "pct65": 0.7806347945670075
+    }
+  },
+  "E2_round20_models_places_outcome": {
+    "related_round20_manifest_hash": "b67232d511556cb2a1af106eabb3d98fcb1f3e175ede63f7c4ccd5b4be72f833",
+    "asdp": {
+      "m1_pov_rate": {
+        "estimate": 0.3169368206419919,
+        "se_total": 0.01941750781605814,
+        "ci_lower": 0.28499786248439013,
+        "ci_upper": 0.3488757787995937,
+        "n": 8058,
+        "naive_estimate": 0.2753606476499617,
+        "se_independent": 0.008503252780479526
+      },
+      "m2_pov_rate": {
+        "estimate": 0.30363430003439845,
+        "se_total": 0.02869038341590815,
+        "ci_lower": 0.25644281881411357,
+        "ci_upper": 0.35082578125468333,
+        "n": 8056,
+        "naive_estimate": 0.2255665756172634,
+        "se_independent": 0.013542803523239612
+      },
+      "m2_pct_bachelors": {
+        "estimate": -0.0864094265411019,
+        "se_total": 0.00998619120081117,
+        "ci_lower": -0.10283524935718702,
+        "ci_upper": -0.06998360372501677,
+        "n": 8056,
+        "naive_estimate": -0.09754490736871524,
+        "se_independent": 0.004442345144848236
+      },
+      "m2_no_vehicle": {
+        "estimate": 0.005738524115746502,
+        "se_total": 0.008846369662768507,
+        "ci_lower": -0.008812459109411749,
+        "ci_upper": 0.02028950734090475,
+        "n": 8056,
+        "naive_estimate": 0.011918365052621907,
+        "se_independent": 0.004606657021246186
+      },
+      "m2_cost_burden": {
+        "estimate": -0.09366056389415107,
+        "se_total": 0.026555022673382143,
+        "ci_lower": -0.13733968925224227,
+        "ci_upper": -0.04998143853605988,
+        "n": 8056,
+        "naive_estimate": -0.049585596064481596,
+        "se_independent": 0.009387413688334921
+      }
+    },
+    "places_dis": {
+      "m1_pov_rate": {
+        "estimate": 0.509125868039123,
+        "se_total": 0.02009747707867662,
+        "ci_lower": 0.47606845997368763,
+        "ci_upper": 0.5421832761045583,
+        "n": 8058,
+        "naive_estimate": 0.4266969991191532,
+        "se_independent": 0.007157266112085682
+      },
+      "m2_pov_rate": {
+        "estimate": 0.33722084394857416,
+        "se_total": 0.018885571473222874,
+        "ci_lower": 0.3061568432137923,
+        "ci_upper": 0.36828484468335604,
+        "n": 8056,
+        "naive_estimate": 0.2583250212151325,
+        "se_independent": 0.008179783705290862
+      },
+      "m2_pct_bachelors": {
+        "estimate": -0.1977664191676094,
+        "se_total": 0.008670165237814342,
+        "ci_lower": -0.2120275719052969,
+        "ci_upper": -0.1835052664299219,
+        "n": 8056,
+        "naive_estimate": -0.2061074503221936,
+        "se_independent": 0.0027001259300023753
+      },
+      "m2_no_vehicle": {
+        "estimate": -0.015956112929117725,
+        "se_total": 0.01405519517996371,
+        "ci_lower": -0.03907485169839188,
+        "ci_upper": 0.007162625840156433,
+        "n": 8056,
+        "naive_estimate": 0.00379862006983106,
+        "se_independent": 0.002689475995019389
+      },
+      "m2_cost_burden": {
+        "estimate": 0.021908213211446054,
+        "se_total": 0.01818574138688479,
+        "ci_lower": -0.008004669467572889,
+        "ci_upper": 0.051821095890465,
+        "n": 8056,
+        "naive_estimate": 0.016658426002020166,
+        "se_independent": 0.005911399569336697
+      }
+    }
+  },
+  "E3_lacktrpt": {
+    "all": {
+      "estimate": 0.1316246713803076,
+      "se_total": 0.03762312584596987,
+      "ci_lower": 0.06974013637531237,
+      "ci_upper": 0.1935092063853028,
+      "n": 8129,
+      "naive_estimate": 0.12537157534052526,
+      "se_independent": 0.003496536963056274
+    },
+    "without_nyc": {
+      "estimate": 0.44800447363937446,
+      "se_total": 0.04282772365057911,
+      "ci_lower": 0.3775591370586441,
+      "ci_upper": 0.5184498102201048,
+      "n": 5909,
+      "naive_estimate": 0.379125860637794,
+      "se_independent": 0.013517716505458606
+    },
+    "pearson": 0.4437320221492786,
+    "sources": [
+      {
+        "dataset": "cwsq-ngmh",
+        "rows_updated_at": 1765560443,
+        "files": [
+          {
+            "source_url": "https://data.cdc.gov/resource/cwsq-ngmh.csv?%24where=stateabbr+in%28%27MI%27%2C%27NY%27%29+AND+measureid+in%28%27LACKTRPT%27%29+AND+datavaluetypeid%3D%27CrdPrv%27&%24order=locationid%2Cmeasureid&%24limit=50000&%24offset=0",
+            "sha256": "b89b71293df7d3050fc0e946a73161ff29bc501f45db176e7f2e5a4c0690205c",
+            "size_bytes": 2649682,
+            "downloaded_at": "2026-11-15T04:36:14Z"
+          }
+        ]
+      }
+    ]
+  },
+  "E4_without_nyc": {
+    "H1": {
+      "estimate": 0.8388091477327673,
+      "se_total": 0.05494730751150412,
+      "ci_lower": 0.7484288696812519,
+      "ci_upper": 0.9291894257842827,
+      "n": 5931,
+      "naive_estimate": 0.6045138898919362,
+      "se_independent": 0.024985787227451026
+    },
+    "H2": {
+      "estimate": 0.7819282500354993,
+      "se_total": 0.051066046545824466,
+      "ci_lower": 0.6979320781605272,
+      "ci_upper": 0.8659244219104714,
+      "n": 5931,
+      "naive_estimate": 0.5016325773073205,
+      "se_independent": 0.031124975375890502
+    },
+    "H3": {
+      "estimate": 0.8023160904486498,
+      "se_total": 0.04914081476075062,
+      "ci_lower": 0.7214866430580787,
+      "ci_upper": 0.8831455378392209,
+      "n": 5931,
+      "naive_estimate": 0.5266705646553924,
+      "se_independent": 0.031692185725850995
+    }
+  },
+  "E4_by_state": {
+    "Michigan": {
+      "H1": {
+        "estimate": 0.9438481001410499,
+        "se_total": 0.06510681511624754,
+        "ci_lower": 0.8367569191578312,
+        "ci_upper": 1.0509392811242686,
+        "n": 2897,
+        "naive_estimate": 0.6773090853147203,
+        "se_independent": 0.0327364538976742
+      },
+      "H2": {
+        "estimate": 0.8493815851962144,
+        "se_total": 0.0525071636902647,
+        "ci_lower": 0.7630149865593479,
+        "ci_upper": 0.935748183833081,
+        "n": 2897,
+        "naive_estimate": 0.531201181263389,
+        "se_independent": 0.042130865837812
+      },
+      "H3": {
+        "estimate": 0.8731405080723201,
+        "se_total": 0.04409100317055882,
+        "ci_lower": 0.8006172615912976,
+        "ci_upper": 0.9456637545533426,
+        "n": 2897,
+        "naive_estimate": 0.5618578913257293,
+        "se_independent": 0.0399362763649279
+      }
+    },
+    "New York": {
+      "H1": {
+        "estimate": 0.7485979739852813,
+        "se_total": 0.05157748145324518,
+        "ci_lower": 0.6637605665478886,
+        "ci_upper": 0.8334353814226739,
+        "n": 5261,
+        "naive_estimate": 0.538529065094942,
+        "se_independent": 0.029055781814132573
+      },
+      "H2": {
+        "estimate": 0.73390935059341,
+        "se_total": 0.055191826339571086,
+        "ci_lower": 0.6431268748606908,
+        "ci_upper": 0.8246918263261293,
+        "n": 5261,
+        "naive_estimate": 0.48401464163926156,
+        "se_independent": 0.03570881931378958
+      },
+      "H3": {
+        "estimate": 0.7851890196905695,
+        "se_total": 0.05878066376490932,
+        "ci_lower": 0.6885034317022435,
+        "ci_upper": 0.8818746076788956,
+        "n": 5261,
+        "naive_estimate": 0.520959214169398,
+        "se_independent": 0.03791181931712889
+      }
+    }
+  },
+  "E5": {
+    "places_dis Michigan": {
+      "success": true,
+      "error": null
+    },
+    "acs_dis Michigan": {
+      "success": true,
+      "error": null
+    },
+    "resid_m1 Michigan": {
+      "success": true,
+      "error": null
+    },
+    "places_dis New York": {
+      "success": true,
+      "error": null
+    },
+    "acs_dis New York": {
+      "success": true,
+      "error": null
+    },
+    "resid_m1 New York": {
+      "success": true,
+      "error": null
+    }
+  },
+  "E6": {
+    "Michigan": {
+      "global": {
+        "variable": "resid",
+        "I": 0.1566143674126168,
+        "expected_I": -0.0003453038674033149,
+        "p_norm": 6.036565245438308e-47,
+        "p_sim": 0.001,
+        "z_sim": 14.260854289566623,
+        "permutations": 999,
+        "se_replicate": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "confidence_level": 0.9,
+        "replicate_I": null,
+        "n": 2897,
+        "notes": [
+          "1 island(s) (no neighbors) contribute zero spatial lag"
+        ],
+        "provenance": {
+          "library": "esda.Moran",
+          "weights": {
+            "n": 2897,
+            "transform": "R",
+            "n_islands": 1,
+            "islands": [
+              "26029000500"
+            ],
+            "islands_truncated": false,
+            "neighbors_min": 0,
+            "neighbors_mean": 6.233344839489127,
+            "neighbors_max": 16,
+            "n_components": 3,
+            "pct_nonzero": 0.21516551051049798,
+            "kind": "queen",
+            "params": {},
+            "crs": "EPSG:4269",
+            "cache": "off",
+            "cache_key": null,
+            "id_col": "GEOID"
+          },
+          "seed": 12345
+        }
+      },
+      "error": null
+    },
+    "New York": {
+      "global": {
+        "variable": "resid",
+        "I": 0.26099245223122014,
+        "expected_I": -0.00019011406844106463,
+        "p_norm": 1.771111564773588e-220,
+        "p_sim": 0.001,
+        "z_sim": 31.99856928461186,
+        "permutations": 999,
+        "se_replicate": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "confidence_level": 0.9,
+        "replicate_I": null,
+        "n": 5261,
+        "notes": [
+          "3 island(s) (no neighbors) contribute zero spatial lag"
+        ],
+        "provenance": {
+          "library": "esda.Moran",
+          "weights": {
+            "n": 5261,
+            "transform": "R",
+            "n_islands": 3,
+            "islands": [
+              "36005051601",
+              "36081091603",
+              "36081107201"
+            ],
+            "islands_truncated": false,
+            "neighbors_min": 0,
+            "neighbors_mean": 5.966926439840335,
+            "neighbors_max": 22,
+            "n_components": 5,
+            "pct_nonzero": 0.11341810377951596,
+            "kind": "queen",
+            "params": {},
+            "crs": "EPSG:4269",
+            "cache": "off",
+            "cache_key": null,
+            "id_col": "GEOID"
+          },
+          "seed": 12345
+        }
+      },
+      "error": null
+    }
+  }
+}

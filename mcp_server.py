@@ -115,6 +115,15 @@ Census counts are not sample-based: MOE/CV are undefined (never 0); significance
 refuse decennial-only tests (product='decennial'); an ACS estimate can be tested against
 a census count with calculate_significance(product='5-year', product2='decennial').
 
+External health data (list_health_sources; get_recipe('external_health_outcome')):
+determinant studies keep using the ACS's own measure as the outcome (for disability:
+B18101), and use external sources such as CDC PLACES for measures the ACS lacks, such as
+diabetes. PLACES is model-based: within a county it varies only with age, sex,
+race/ethnicity and education composition, so never test a PLACES outcome against those
+(it recovers CDC's model, not the world). USALEEP life expectancy is partly modelled on
+income, race/ethnicity and education. County Health Rankings mortality and WONDER exports
+are direct death records. create_manifest refuses violations (CIRCULARITY R1/R2).
+
 Inflation: default index is R-CPI-U-RS (the Census Bureau's ACS index); 'c-cpi-u'
 matches CPS ASEC income reports. Never pass guessed values via cpi_table.
 Branch on error_code in failed results.
@@ -1118,6 +1127,8 @@ for _fn in (
     workflows_inference.make_results_bundle,
     recipes.get_recipe,
     workflows_inference.create_manifest,
+    workflows_inference.list_health_sources,
+    workflows_inference.run_variant,
     workflows_inference.run_manifest,
     workflows_geo.get_boundaries,
     workflows_geo.make_map,
@@ -1160,6 +1171,8 @@ make_table = workflows_inference.make_table
 make_results_bundle = workflows_inference.make_results_bundle
 create_manifest = workflows_inference.create_manifest
 run_manifest = workflows_inference.run_manifest
+list_health_sources = workflows_inference.list_health_sources
+run_variant = workflows_inference.run_variant
 get_boundaries = workflows_geo.get_boundaries
 make_map = workflows_geo.make_map
 spatial_autocorrelation = workflows_geo.spatial_autocorrelation

@@ -198,6 +198,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
 4. Trends need non-overlapping releases (e.g. 2013, 2018, 2023): trend_test.
 5. Download with download_table (it plans first); stop if would_block is true.
 6. On failure read error_code and fix; do not guess numbers.
+7. Health outcomes: use the ACS's own measure (disability: B18101); use CDC PLACES
+   only for measures the ACS lacks, such as diabetes (get_recipe first).
 """
 
 REVIEW_INSTRUCTIONS = """\
