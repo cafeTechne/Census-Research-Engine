@@ -347,6 +347,13 @@ class TestFitEiv(unittest.TestCase):
         frame, reps = _sim(n=500)
         res = fit_eiv("y ~ x", frame, reps, model="wls", weights="w")
         self.assertEqual(res.model_type, "wls")
+        zero = frame.copy()
+        zero.loc[:9, "w"] = 0.0
+        res0 = fit_eiv("y ~ x", zero, reps, model="wls", weights="w")
+        self.assertEqual(res0.n_obs, len(frame) - 10)
+        self.assertTrue(any("weight 0 left out" in n for n in res0.notes))
+        with self.assertRaisesRegex(ValueError, "non-negative"):
+            fit_eiv("y ~ x", zero.assign(w=-zero["w"]), reps, model="wls", weights="w")
         with self.assertRaisesRegex(ValueError, "needs replicates"):
             fit_eiv("y ~ x", frame, None)
         with self.assertRaisesRegex(ValueError, "supports models"):
@@ -459,3 +466,25 @@ class TestReviewFixes(unittest.TestCase):
         root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         ignored = subprocess.run(["git", "check-ignore", "-q", "data/standard_populations/us2000.csv"], cwd=root)
         self.assertNotEqual(ignored.returncode, 0, "us2000.csv is git-ignored")
+
+
+class TestClusteredSandwich(unittest.TestCase):
+    def test_cluster_widens_se_under_shared_errors(self):
+        frame, reps = _sim(n=2000, rel=0.9, rho=0.0)
+        rng = np.random.default_rng(9)
+        frame["county"] = (np.arange(len(frame)) // 40).astype(str)
+        shock = rng.normal(0, 3, 50)[np.arange(len(frame)) // 40]
+        frame["y"] = frame["y"] + shock + 0.5 * shock * (frame["x"] - 10) / 3
+        reps = reps.copy()
+        sel = reps["variable"] == "y"
+        delta = (frame["y"].to_numpy() - reps.loc[sel, "estimate"].to_numpy())
+        reps.loc[sel, ["estimate"] + REPLICATE_COLUMNS] = reps.loc[sel, ["estimate"] + REPLICATE_COLUMNS] \
+            .to_numpy() + delta[:, None]
+        plain = fit_eiv("y ~ x", frame, reps).coefficients.set_index("term")
+        clus = fit_eiv("y ~ x", frame, reps, cluster="county")
+        c = clus.coefficients.set_index("term")
+        np.testing.assert_allclose(c["estimate"], plain["estimate"])
+        self.assertGreater(c.loc["x", "se_total"], 1.5 * plain.loc["x", "se_total"])
+        self.assertEqual(clus.diagnostics["clusters"]["groups"], 50)
+        with self.assertRaisesRegex(ValueError, "at least 20"):
+            fit_eiv("y ~ x", frame.assign(county=(np.arange(len(frame)) % 5).astype(str)), reps, cluster="county")

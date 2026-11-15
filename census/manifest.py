@@ -930,10 +930,10 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
                 errors.append(f"analyses[{i}] ({a.get('id')}): {u!r} is not a manifest variable")
         if method == "fit_eiv":
             eargs = a.get("args") or {}
-            unknown = sorted(set(eargs) - {"model", "weights", "cv_threshold", "target"})
+            unknown = sorted(set(eargs) - {"model", "weights", "cv_threshold", "target", "cluster"})
             if unknown:
                 errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv does not take args {unknown} (allowed: "
-                              "model, weights, cv_threshold)")
+                              "model, weights, cv_threshold, cluster)")
             if "target" in eargs:
                 errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv takes no 'target': its intervals use the "
                               "sandwich se_total (a measurement-error correction is a claim about the population "

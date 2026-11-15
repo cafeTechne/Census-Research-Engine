@@ -714,6 +714,7 @@ def fit_eiv(
     confidence_level: float = 0.90,
     cv_threshold: float = DEFAULT_CV_THRESHOLD,
     replicate_policy: str = "flag",
+    cluster: Optional[str] = None,
 ) -> ModelResult:
     """Least squares corrected for ACS sampling error in covariates and outcome (PLAN_ROUND_20 A2).
 
@@ -745,6 +746,10 @@ def fit_eiv(
     ``replicate_policy`` as in fit_replicate ("strict" refuses rows or variables without them).
     Refuses a fit whose corrected moment matrix is not positive definite; notes covariates whose
     reliability is below 0.5, where moment corrections become unstable.
+
+    ``cluster``: a column naming groups (e.g. county) whose units may be correlated (spatially
+    autocorrelated model errors); the sandwich then sums psi within clusters, with the
+    G/(G-1) * (n-1)/(n-k) small-sample factor. Needs at least 20 clusters.
     """
     import scipy.linalg as sla
 
@@ -789,10 +794,19 @@ def fit_eiv(
     n, k = X_df.shape
     if n <= k:
         raise ValueError(f"fit_eiv: {n} rows for {k} coefficients")
-    X = X_df.to_numpy(float)
     w = used_data[weights].to_numpy(float) if model == "wls" else np.ones(n)
-    if not (np.isfinite(w).all() and (w > 0).all()):
-        raise ValueError("weights must be positive and finite")
+    if not (np.isfinite(w).all() and (w >= 0).all()):
+        raise ValueError("weights must be non-negative and finite")
+    if (w == 0).any():  # zero weight = the unit does not enter the weighted fit (as in WLS)
+        keep = w > 0
+        notes.append(f"{int((~keep).sum())} unit(s) with weight 0 left out of the weighted fit")
+        y, D, e, w = y[keep], D[:, keep], e[:, keep], w[keep]
+        X_df = X_df.iloc[np.flatnonzero(keep)]
+        used_data = used_data.loc[keep].reset_index(drop=True)
+        n = len(y)
+        if n <= k:
+            raise ValueError(f"fit_eiv: {n} rows with positive weight for {k} coefficients")
+    X = X_df.to_numpy(float)
     terms = list(X_df.columns)
     f = REPLICATE_FACTOR
     S_sum = f * np.einsum("rnj,n,rnl->jl", D, w, D)        # sum_i w_i S_i
@@ -813,7 +827,21 @@ def fit_eiv(
     Sb_i = f * np.einsum("rnj,rn->nj", D, D @ b)            # (n, k): S_i b
     psi = w[:, None] * (X * resid[:, None] - (s_i - Sb_i))
     Minv = np.linalg.inv(M)
-    V = Minv @ (psi.T @ psi) @ Minv * n / (n - k)
+    if cluster:
+        if cluster not in used_data.columns:
+            raise ValueError(f"cluster column {cluster!r} not in the frame")
+        groups = used_data[cluster].astype(str).to_numpy()
+        codes, inv = np.unique(groups, return_inverse=True)
+        G = len(codes)
+        if G < 20:
+            raise ValueError(f"cluster {cluster!r} has {G} groups; the clustered sandwich needs at least 20")
+        psi_g = np.zeros((G, k))
+        np.add.at(psi_g, inv, psi)
+        V = Minv @ (psi_g.T @ psi_g) @ Minv * (G / (G - 1)) * ((n - 1) / (n - k))
+        diagnostics["clusters"] = {"column": cluster, "groups": int(G)}
+        notes.append(f"se_total clustered by {cluster!r} ({G} clusters)")
+    else:
+        V = Minv @ (psi.T @ psi) @ Minv * n / (n - k)
     se_total = pd.Series(np.sqrt(np.maximum(np.diag(V), 0.0)), index=terms)
 
     naive = _fit(formula, used_data, model, weights if model == "wls" else None, None, None)

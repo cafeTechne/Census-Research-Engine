@@ -1,0 +1,62 @@
+{
+  "manifest_hash": "b67232d511556cb2a1af106eabb3d98fcb1f3e175ede63f7c4ccd5b4be72f833",
+  "rows": [
+    {
+      "analysis": "m1",
+      "ci_lower": 0.3018988840983955,
+      "ci_upper": 0.32996980445540414,
+      "direction": "greater",
+      "estimate": 0.3159343442768998,
+      "family": "primary",
+      "id": "H1",
+      "manifest_hash": "b67232d511556cb2a1af106eabb3d98fcb1f3e175ede63f7c4ccd5b4be72f833",
+      "p_adjusted": 6.753582607423842e-300,
+      "p_two_sided": 4.502388404949228e-300,
+      "p_value": 2.251194202474614e-300,
+      "se": 0.008532953904547278,
+      "se_basis": "se_total",
+      "significant": true,
+      "statement": "Across Michigan and New York census tracts in 2020-2024, age-standardized disability prevalence (2000 U.S. standard population) is higher where the poverty rate is higher, with state intercepts; coefficient corrected for ACS sampling error in both variables (fit_eiv).",
+      "statistic": "coefficient",
+      "status": "tested"
+    },
+    {
+      "analysis": "m2",
+      "ci_lower": -0.0010570244392899032,
+      "ci_upper": 0.01425336821591396,
+      "direction": "greater",
+      "estimate": 0.006598171888312028,
+      "family": "primary",
+      "id": "H2",
+      "manifest_hash": "b67232d511556cb2a1af106eabb3d98fcb1f3e175ede63f7c4ccd5b4be72f833",
+      "p_adjusted": 0.15626863605512317,
+      "p_two_sided": 0.15626863605512317,
+      "p_value": 0.07813431802756159,
+      "se": 0.0046540289069914795,
+      "se_basis": "se_total",
+      "significant": false,
+      "statement": "Conditional on the poverty rate, the share of adults with a bachelor's degree or higher, the housing cost-burden share and state, age-standardized disability prevalence is higher where a larger share of occupied housing units has no vehicle available (fit_eiv).",
+      "statistic": "coefficient",
+      "status": "tested"
+    },
+    {
+      "analysis": "m2",
+      "ci_lower": -0.11077374143786399,
+      "ci_upper": -0.07960058391831971,
+      "direction": "greater",
+      "estimate": -0.09518716267809185,
+      "family": "primary",
+      "id": "H3",
+      "manifest_hash": "b67232d511556cb2a1af106eabb3d98fcb1f3e175ede63f7c4ccd5b4be72f833",
+      "p_adjusted": 1.0,
+      "p_two_sided": 9.653666795015566e-24,
+      "p_value": 1.0,
+      "se": 0.00947596704313434,
+      "se_basis": "se_total",
+      "significant": false,
+      "statement": "Conditional on the poverty rate, the bachelor's share, the no-vehicle share and state, age-standardized disability prevalence is higher where a larger share of households spends 30% or more of income on housing costs (renters and owners, among households with the ratio computed) (fit_eiv).",
+      "statistic": "coefficient",
+      "status": "tested"
+    }
+  ]
+}

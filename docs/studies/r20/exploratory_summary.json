@@ -1,0 +1,467 @@
+{
+  "analysis_status": "exploratory",
+  "related_manifest_hash": "b67232d511556cb2a1af106eabb3d98fcb1f3e175ede63f7c4ccd5b4be72f833",
+  "analysed_data": {
+    "analysis_frame": "98879e9a7f98a403ba517804ad20cc5a408f796cdc79ca9799371a732c478644",
+    "replicates": "032a514f2c804a359f2ecb66f69ee2cbbe08ca68b1a07866f678d1a4a04e92b4"
+  },
+  "descriptives": {
+    "asdp": {
+      "mean": 12.620201350722825,
+      "sd": 5.809792080023596,
+      "median_cv": 20.379439487600504
+    },
+    "pov_rate": {
+      "mean": 14.350977872513045,
+      "sd": 11.87977378819793,
+      "median_cv": 32.238868406323625
+    },
+    "pct_bachelors": {
+      "mean": 35.667793130294875,
+      "sd": 19.525983673139887,
+      "median_cv": 14.025467214716256
+    },
+    "no_vehicle": {
+      "mean": 19.64531798821655,
+      "sd": 23.345066887428505,
+      "median_cv": 35.94543052335308
+    },
+    "cost_burden": {
+      "mean": 35.044362864502524,
+      "sd": 14.291889177989027,
+      "median_cv": 17.444006294001863
+    },
+    "n_tracts": 8057,
+    "by_state": {
+      "Michigan": {
+        "asdp": 13.995894054344252,
+        "pov_rate": 14.60358574706135,
+        "pct_bachelors": 30.843756251081544,
+        "no_vehicle": 7.648643958260099,
+        "cost_burden": 28.088930702115075,
+        "n": 2868
+      },
+      "New York": {
+        "asdp": 11.859845468281847,
+        "pov_rate": 14.211359567597928,
+        "pct_bachelors": 38.33407522117633,
+        "no_vehicle": 26.27597150872438,
+        "cost_burden": 38.888683435272846,
+        "n": 5189
+      }
+    }
+  },
+  "registered_refit": {
+    "H1": {
+      "estimate": 0.3159343442768998,
+      "se": 0.008532953904547278,
+      "ci_lower": 0.3018988840983955,
+      "ci_upper": 0.32996980445540414,
+      "n": 8059,
+      "naive_estimate": 0.2745269867974636
+    },
+    "H2": {
+      "estimate": 0.006598171888312028,
+      "se": 0.0046540289069914795,
+      "ci_lower": -0.0010570244392899032,
+      "ci_upper": 0.01425336821591396,
+      "n": 8057,
+      "naive_estimate": 0.012539280327681248
+    },
+    "H3": {
+      "estimate": -0.09518716267809185,
+      "se": 0.00947596704313434,
+      "ci_lower": -0.11077374143786399,
+      "ci_upper": -0.07960058391831971,
+      "n": 8057,
+      "naive_estimate": -0.0504947783943416
+    }
+  },
+  "reliability": {
+    "m1": {
+      "pov_rate": 0.8381697085942084
+    },
+    "m2": {
+      "pov_rate": 0.8387104793666031,
+      "pct_bachelors": 0.9406881135783134,
+      "no_vehicle": 0.9534587589859292,
+      "cost_burden": 0.7814305394489203
+    }
+  },
+  "outcome_error_correlation": {
+    "m1": {
+      "pov_rate": 0.09768573763883527
+    },
+    "m2": {
+      "pov_rate": 0.09796652237472189,
+      "pct_bachelors": -0.08609183664691722,
+      "no_vehicle": 0.08851869728410404,
+      "cost_burden": 0.0931241529762003
+    }
+  },
+  "E1": {
+    "naive_fit_replicate_conservative": {
+      "H1": {
+        "estimate": 0.2745269867974636,
+        "se": 0.015768101030153303,
+        "ci_lower": 0.2485907686278787,
+        "ci_upper": 0.30046320496704854,
+        "n": 8059
+      },
+      "H2": {
+        "estimate": 0.012539280327681248,
+        "se": 0.004460260230672639,
+        "ci_lower": 0.005202805110111949,
+        "ci_upper": 0.019875755545250548,
+        "n": 8057
+      },
+      "H3": {
+        "estimate": -0.0504947783943416,
+        "se": 0.011845237820097427,
+        "ci_lower": -0.06997846078483161,
+        "ci_upper": -0.031011096003851595,
+        "n": 8057
+      }
+    },
+    "regression_calibration": {
+      "H1": {
+        "estimate": 0.37038383698996796,
+        "se": 0.009046516581520512,
+        "ci_lower": 0.3555036413795773,
+        "ci_upper": 0.38526403260035863,
+        "n": 8059,
+        "naive_estimate": 0.2745269867974636
+      },
+      "H2": {
+        "estimate": 0.007066111212367037,
+        "se": 0.0039059082619506045,
+        "ci_lower": 0.000641463841157864,
+        "ci_upper": 0.01349075858357621,
+        "n": 8057,
+        "naive_estimate": 0.012539280327681248
+      },
+      "H3": {
+        "estimate": -0.09828433522297804,
+        "se": 0.008236194453649264,
+        "ci_lower": -0.11183166954234063,
+        "ci_upper": -0.08473700090361545,
+        "n": 8057,
+        "naive_estimate": -0.0504947783943416
+      }
+    }
+  },
+  "E2": {
+    "without_nyc": {
+      "H1": {
+        "estimate": 0.32838087933676596,
+        "se": 0.010750090540298593,
+        "ci_lower": 0.3106985539214991,
+        "ci_upper": 0.34606320475203284,
+        "n": 5863,
+        "naive_estimate": 0.28980052010828067
+      },
+      "H2": {
+        "estimate": 0.16000930863672763,
+        "se": 0.02133039788533357,
+        "ci_lower": 0.12492392631071869,
+        "ci_upper": 0.19509469096273657,
+        "n": 5863,
+        "naive_estimate": 0.14309504758177863
+      },
+      "H3": {
+        "estimate": -0.05158905652884953,
+        "se": 0.013425080261192811,
+        "ci_lower": -0.07367134848858714,
+        "ci_upper": -0.029506764569111915,
+        "n": 5863,
+        "naive_estimate": -0.01936292786015283
+      }
+    },
+    "Michigan": {
+      "H1": {
+        "estimate": 0.32254200758867635,
+        "se": 0.01423188362820498,
+        "ci_lower": 0.2991326421844721,
+        "ci_upper": 0.3459513729928806,
+        "n": 2868,
+        "naive_estimate": 0.2847100919188964
+      },
+      "H2": {
+        "estimate": 0.22128410659808329,
+        "se": 0.042470643957460606,
+        "ci_lower": 0.15142611384568957,
+        "ci_upper": 0.29114209935047697,
+        "n": 2868,
+        "naive_estimate": 0.1715873165347324
+      },
+      "H3": {
+        "estimate": -0.006682301184193368,
+        "se": 0.026360589286585745,
+        "ci_lower": -0.05004161208081205,
+        "ci_upper": 0.03667700971242531,
+        "n": 2868,
+        "naive_estimate": 0.02347311548606469
+      }
+    },
+    "New York": {
+      "H1": {
+        "estimate": 0.3116630548729043,
+        "se": 0.010686196593794677,
+        "ci_lower": 0.29408582564728464,
+        "ci_upper": 0.32924028409852396,
+        "n": 5191,
+        "naive_estimate": 0.26814585453429524
+      },
+      "H2": {
+        "estimate": 0.00536078768237257,
+        "se": 0.006102280213484142,
+        "ci_lower": -0.0046765700594510245,
+        "ci_upper": 0.015398145424196163,
+        "n": 5189,
+        "naive_estimate": 0.01109794048308588
+      },
+      "H3": {
+        "estimate": -0.11745942577425313,
+        "se": 0.010714493774999476,
+        "ci_lower": -0.13508319972101,
+        "ci_upper": -0.09983565182749626,
+        "n": 5189,
+        "naive_estimate": -0.07414564821925462
+      }
+    }
+  },
+  "E3_crude": {
+    "H1": {
+      "estimate": 0.24949846540379356,
+      "se": 0.014584051997229296,
+      "ci_lower": 0.22550983458050208,
+      "ci_upper": 0.273487096227085,
+      "n": 8162,
+      "naive_estimate": 0.21803221413835988
+    },
+    "H2": {
+      "estimate": 0.02019395931563956,
+      "se": 0.005296640484019935,
+      "ci_lower": 0.011481761004841369,
+      "ci_upper": 0.02890615762643775,
+      "n": 8148,
+      "naive_estimate": 0.019817160516944432
+    },
+    "H3": {
+      "estimate": -0.13030898295316526,
+      "se": 0.013543532563211282,
+      "ci_lower": -0.1525861116114987,
+      "ci_upper": -0.10803185429483181,
+      "n": 8148,
+      "naive_estimate": -0.07374363132237606
+    }
+  },
+  "E4": {
+    "drop_cv_flagged": {
+      "H1": {
+        "estimate": 0.34319556960216174,
+        "se": 0.008020524371272656,
+        "ci_lower": 0.33000298100002123,
+        "ci_upper": 0.35638815820430225,
+        "n": 7258,
+        "naive_estimate": 0.2974289550207553
+      },
+      "H2": {
+        "estimate": -0.0008006562377816448,
+        "se": 0.005156661624114458,
+        "ci_lower": -0.00928260981316778,
+        "ci_upper": 0.0076812973376044905,
+        "n": 7256,
+        "naive_estimate": 0.01092293798876133
+      },
+      "H3": {
+        "estimate": -0.07250413629650679,
+        "se": 0.010016998422526197,
+        "ci_lower": -0.08898063248296617,
+        "ci_upper": -0.0560276401100474,
+        "n": 7256,
+        "naive_estimate": -0.0363173691309534
+      }
+    },
+    "n_flagged": 801,
+    "household_weighted": {
+      "H1": {
+        "estimate": 0.3283993055644965,
+        "se": 0.008213238541003485,
+        "ci_lower": 0.3148897303613093,
+        "ci_upper": 0.34190888076768366,
+        "n": 8057,
+        "naive_estimate": 0.2863793279466698
+      },
+      "H2": {
+        "estimate": 0.0052690739991921335,
+        "se": 0.0039356642139527845,
+        "ci_lower": -0.0012045175575912193,
+        "ci_upper": 0.011742665555975487,
+        "n": 8057,
+        "naive_estimate": 0.01207560516259553
+      },
+      "H3": {
+        "estimate": -0.0864754254419621,
+        "se": 0.008339597471150925,
+        "ci_lower": -0.10019284258970003,
+        "ci_upper": -0.07275800829422417,
+        "n": 8057,
+        "naive_estimate": -0.044146274148900856
+      }
+    }
+  },
+  "E5": {
+    "Michigan": {
+      "global": {
+        "variable": "resid_m2",
+        "I": 0.11924425597547539,
+        "expected_I": -0.0003487966515521451,
+        "p_norm": 1.5719622435472185e-27,
+        "p_sim": 0.001,
+        "z_sim": 11.025537431113225,
+        "permutations": 999,
+        "se_replicate": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "confidence_level": 0.9,
+        "replicate_I": null,
+        "n": 2868,
+        "notes": [
+          "2 island(s) (no neighbors) contribute zero spatial lag"
+        ],
+        "provenance": {
+          "library": "esda.Moran",
+          "weights": {
+            "n": 2868,
+            "transform": "R",
+            "n_islands": 2,
+            "islands": [
+              "26029000500",
+              "26065004403"
+            ],
+            "islands_truncated": false,
+            "neighbors_min": 0,
+            "neighbors_mean": 6.200836820083682,
+            "neighbors_max": 16,
+            "n_components": 4,
+            "pct_nonzero": 0.21620769944503773,
+            "kind": "queen",
+            "params": {},
+            "crs": "EPSG:4269",
+            "cache": "off",
+            "cache_key": null,
+            "id_col": "GEOID"
+          },
+          "seed": 12345
+        }
+      },
+      "error": null
+    },
+    "New York": {
+      "global": {
+        "variable": "resid_m2",
+        "I": 0.19246124685756696,
+        "expected_I": -0.00019275250578257516,
+        "p_norm": 2.9525795424845368e-118,
+        "p_sim": 0.001,
+        "z_sim": 23.16563489399296,
+        "permutations": 999,
+        "se_replicate": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "confidence_level": 0.9,
+        "replicate_I": null,
+        "n": 5189,
+        "notes": [
+          "3 island(s) (no neighbors) contribute zero spatial lag"
+        ],
+        "provenance": {
+          "library": "esda.Moran",
+          "weights": {
+            "n": 5189,
+            "transform": "R",
+            "n_islands": 3,
+            "islands": [
+              "36005051601",
+              "36081091603",
+              "36081107201"
+            ],
+            "islands_truncated": false,
+            "neighbors_min": 0,
+            "neighbors_mean": 5.918288687608403,
+            "neighbors_max": 22,
+            "n_components": 5,
+            "pct_nonzero": 0.11405451315491236,
+            "kind": "queen",
+            "params": {},
+            "crs": "EPSG:4269",
+            "cache": "off",
+            "cache_key": null,
+            "id_col": "GEOID"
+          },
+          "seed": 12345
+        }
+      },
+      "error": null
+    }
+  },
+  "E5_county_clustered": {
+    "H1": {
+      "estimate": 0.3159343442768998,
+      "se": 0.019419525065454003,
+      "ci_lower": 0.28399206803931276,
+      "ci_upper": 0.34787662051448687,
+      "n": 8059,
+      "naive_estimate": 0.2745269867974636
+    },
+    "H2": {
+      "estimate": 0.006598171888312028,
+      "se": 0.008667127347629424,
+      "ci_lower": -0.0076579839646865235,
+      "ci_upper": 0.02085432774131058,
+      "n": 8057,
+      "naive_estimate": 0.012539280327681248
+    },
+    "H3": {
+      "estimate": -0.09518716267809185,
+      "se": 0.027356923737274965,
+      "ci_lower": -0.1401852979095834,
+      "ci_upper": -0.0501890274466003,
+      "n": 8057,
+      "naive_estimate": -0.0504947783943416
+    }
+  },
+  "E6": {
+    "asdp Michigan": {
+      "success": true,
+      "paths": null,
+      "error": null
+    },
+    "no_vehicle Michigan": {
+      "success": true,
+      "paths": null,
+      "error": null
+    },
+    "cost_burden Michigan": {
+      "success": true,
+      "paths": null,
+      "error": null
+    },
+    "asdp New York": {
+      "success": true,
+      "paths": null,
+      "error": null
+    },
+    "no_vehicle New York": {
+      "success": true,
+      "paths": null,
+      "error": null
+    },
+    "cost_burden New York": {
+      "success": true,
+      "paths": null,
+      "error": null
+    }
+  }
+}

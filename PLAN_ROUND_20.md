@@ -1,7 +1,7 @@
 # Round 20: Public-health determinants: disability, housing cost burden, vehicle access
 
 **Date:** 2026-11-14
-**Status:** Planned
+**Status:** Implemented; study run and reviewed (section 9)
 **Baseline:** v0.18.0 (Round 19, first complete preregistered study)
 **Owner direction:** move the engine towards public-health research. The test study uses disability, housing cost burden, vehicle access and the social and economic determinants themselves, not insurance.
 
@@ -189,6 +189,15 @@ County premature mortality (WONDER exports, ages < 75, age-adjusted) against ACS
 
 ---
 
-## 9. Implementation status
+## 9. Implementation status (2026-11-15)
 
-(Filled in at the end of the round.)
+| Item | Result |
+| :--- | :--- |
+| A1 | `census.standardize` (bundled 2000 U.S. standard, SHA-256 checked; `standard_weights`, `direct_standardize`, Fay–Feuer `age_adjusted_interval`); manifest derivation `age_standardized` (weights filled by `create_manifest`, exact replicate SEs) |
+| A2 | `census.models.fit_eiv` (manifest method `fit_eiv`, `fit_model` method `eiv`). Validation `docs/audits/eiv_validation.md`: passed, coverage 0.89–0.92, bias removed in all 9 cells. Regression calibration coverage fell to 0.04–0.51 with correlated errors |
+| A3 | `fit_replicate` reports covariate reliability per factor group and notes low or uneven reliability |
+| Review | `/code-review high` before registration: 10 findings fixed. Most serious: the standard table was git-ignored; reliability was grouped by tract instead of state |
+| Preregistration | Manifest `b67232d5…f833`, committed alone at `bb53959` (01:58:54Z); first study request 01:59:05Z |
+| Results | H1 supported (+0.32 per point of poverty); H2 not supported pooled, but clear outside New York City (exploratory); H3 not supported (opposite sign, concentrated in New York State) |
+| Lesson | Residuals are spatially autocorrelated; county-clustered SEs are 2–3× the registered ones (no conclusion changes). `fit_eiv(cluster=...)` added; validating it is the first item for the next health manifest |
+| Report | `docs/studies/r20_mi_ny_disability_determinants.md`; friction F1–F5 fixed, F6 partly, F7–F10 backlog |

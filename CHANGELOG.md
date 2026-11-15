@@ -5,6 +5,23 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.19.0 (Round 20): public-health determinants
+
+- Age standardization: `census.standardize` with the bundled 2000 U.S. standard population (NCHS/SEER single
+  ages, SHA-256 checked, `scripts/update_standard_populations.py`), `standard_weights`, `direct_standardize`
+  and the Fay-Feuer interval for age-adjusted rates from counts. Manifest derivation `age_standardized`
+  (bands, standard; `create_manifest` fills the weights before hashing; exact replicate SEs).
+- `fit_eiv` (`census.models`, manifest method `fit_eiv`, `fit_model` method `eiv`): least squares corrected for
+  ACS sampling error in covariates and outcome, including their correlated errors, with error covariances from
+  the replicates (Fuller 1987); sandwich SEs, optional `cluster`. Simulation validation in
+  `docs/audits/eiv_validation.md` (`scripts/eiv_validation.py`).
+- `fit_replicate` reports covariate reliability (overall and per factor group) and notes low or uneven
+  reliability, pointing to `fit_eiv` (or regression calibration for GLMs).
+- `aggregate_then_derive` collects the codes of `age_standardized` groups.
+- Study: `docs/studies/r20_mi_ny_disability_determinants.md` (H1 supported; H2 not supported pooled but clear
+  outside New York City, exploratory; H3 not supported, opposite sign; friction log F1-F10).
+- PLAN_ROUND_20 also tracks Step 2 (external health data, no API keys needed) and Step 3 (count outcomes).
+
 ## 0.18.0 (Round 19): one complete preregistered study
 
 - Manifests: `geography.harmonize_tracts_to` puts tract panels across the 2010/2020
