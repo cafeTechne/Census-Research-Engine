@@ -911,8 +911,9 @@ def fit_eiv(
         notes.append(f"{declared} held fixed in the replicate design rows (declared: error independent of the ACS "
                      "sampling error, no replicates); their error enters the residual and the sandwich")
     notes.append("fit_eiv: moment-corrected least squares (Fuller 1987) with per-unit error covariances, including "
-                 "the outcome-covariate error covariance, from the ACS replicates; sandwich se_total (units "
-                 "independent) is the basis of intervals and p-values")
+                 "the outcome-covariate error covariance, from the ACS replicates; sandwich se_total ("
+                 + (f"clustered by {cluster!r}" if cluster else "units independent")
+                 + ") is the basis of intervals and p-values")
     res = _corrected_result(formula, model, naive, pd.Series(b, index=terms), se_total, confidence_level,
                             "fit_eiv", notes, diagnostics, int(n))
     res.uncertainty_sources = [SOURCE_MODEL, SOURCE_SAMPLING_REPLICATE]

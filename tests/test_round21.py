@@ -94,10 +94,36 @@ class TestPlacesConnector(HealthCase):
         again = hs.fetch_places(2025, "tract", ["26"], ["DISABILITY"], fetch=f)
         self.assertEqual(len(f.urls), n_calls)  # served from the cache
         self.assertEqual(again["files"][0]["sha256"], rec["sha256"])
-        with open(rec["path"], "ab") as fh:
+        self.assertIn("datavaluetypeid%3D%27CrdPrv%27", url)
+        with open(rec["path"], "ab") as fh:  # a corrupted cache file is fetched again, never used
             fh.write(b"x")
-        with self.assertRaisesRegex(hs.HealthSourceError, "SHA-256"):
-            hs.fetch_places(2025, "tract", ["26"], ["DISABILITY"], fetch=f)
+        third = hs.fetch_places(2025, "tract", ["26"], ["DISABILITY"], fetch=f)
+        self.assertGreater(len(f.urls), n_calls)
+        self.assertEqual(third["files"][0]["sha256"], rec["sha256"])
+
+    def test_revision_stamp_belongs_to_the_download(self):
+        stamps = iter([111, 222])
+
+        def fetch(url):
+            if "/api/views/" in url:
+                return json.dumps({"rowsUpdatedAt": next(stamps)}).encode()
+            return _places_csv(TRACTS)
+
+        first = hs.fetch_places(2025, "tract", ["26"], ["DISABILITY"], fetch=fetch)
+        self.assertEqual(first["rows_updated_at"], 111)
+        cached = hs.fetch_places(2025, "tract", ["26"], ["DISABILITY"], fetch=fetch)
+        self.assertEqual(cached["rows_updated_at"], 111)  # pages and stamp both from the cache
+        os.remove(first["files"][0]["path"])
+        fresh = hs.fetch_places(2025, "tract", ["26"], ["DISABILITY"], fetch=fetch)
+        self.assertEqual(fresh["rows_updated_at"], 222)  # fresh pages: fresh stamp
+
+        def fail_meta(url):
+            if "/api/views/" in url:
+                raise hs.HealthSourceError("down")
+            return _places_csv(TRACTS)
+
+        os.remove(first["files"][0]["path"])
+        self.assertIsNone(hs.fetch_places(2025, "tract", ["26"], ["DISABILITY"], fetch=fail_meta)["rows_updated_at"])
 
     def test_offline_refuses_and_html_is_not_cached(self):
         with mock.patch.dict(os.environ, {"CENSUS_HEALTH_OFFLINE": "1"}):
@@ -135,11 +161,15 @@ class TestPlacesConnector(HealthCase):
             (ok, {"level": "block group", "states": ["26"]}, [2024], "no dataset for geography level"),
             (ok, geo, [2019], "uses 2020 tracts"),
             (ok, {"level": "tract", "state": "all"}, [2024], "needs geography.state"),
+            (ok, dict(geo, harmonize_tracts_to=2010), [2024], "harmonize_tracts_to is 2010"),
+            (ok, dict(geo, harmonize_tracts_to=2020), [2019, 2024], "single ACS release"),
+            (ok + [dict(ok[0], name="dis2")], geo, [2024], "name each measure once"),
+            (ok, geo, [2008], "2000 Census tracts"),
         ]
         for entries, g, rel, msg in cases:
             errs = hs.validate_external(entries, g, rel, ["x"])
             self.assertTrue(any(msg in e for e in errs), (msg, errs))
-        self.assertEqual(hs.validate_external(ok, dict(geo, harmonize_tracts_to=2020), [2019, 2024], []), [])
+        self.assertEqual(hs.validate_external(ok, dict(geo, harmonize_tracts_to=2020), [2019], []), [])
 
     def test_circularity_overlap(self):
         self.assertEqual(hs.circularity_overlap("places", ["B25044"]), {})
@@ -217,6 +247,8 @@ class TestManifestExternal(HealthCase):
         with open(os.path.join(out, "methods.md"), encoding="utf-8") as f:
             methods = f.read()
         self.assertIn("External variable `places_dis`: CDC PLACES", methods)
+        self.assertIn("held fixed in the replicate design rows", methods)
+        self.assertIn("sandwich SEs treating units as independent", methods)
         self.assertIn("Circularity", methods)
         with open(os.path.join(out, "results", "run.json"), encoding="utf-8") as f:
             run = json.load(f)
@@ -258,7 +290,10 @@ class TestFitEivFixedAndClusters(unittest.TestCase):
         a = fit_eiv("y ~ x", frame, reps, cluster="county").coefficients
         b = fit_eiv("y ~ x", frame, reps, cluster="GEOID.str[:5]").coefficients
         self.assertTrue(np.allclose(a["se_total"], b["se_total"]))
-        self.assertEqual(fit_eiv("y ~ x", frame, reps, cluster="GEOID.str[:5]").diagnostics["clusters"]["groups"], 30)
+        clus = fit_eiv("y ~ x", frame, reps, cluster="GEOID.str[:5]")
+        self.assertEqual(clus.diagnostics["clusters"]["groups"], 30)
+        self.assertFalse(any("units independent" in n for n in clus.notes))
+        self.assertIn("x", clus.diagnostics["se_total_independent"])
         with self.assertRaisesRegex(ValueError, "neither a frame column"):
             fit_eiv("y ~ x", frame, reps, cluster="tract")
 
@@ -278,6 +313,9 @@ class TestAnalysisFrameNoFragmentation(unittest.TestCase):
                                               "den": "B01001_001"}])
         self.assertIn("share_se", out.columns)
         self.assertEqual(len(out), n)
+        df["NAME"] = "x"
+        kept = analysis_frame(df, variables=["B01001_001"], keep_columns=["NAME"])
+        self.assertEqual(list(kept.columns).count("NAME"), 1)
 
 
 if __name__ == "__main__":

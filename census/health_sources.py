@@ -17,7 +17,6 @@ the dataset's ``rowsUpdatedAt`` is recorded because Socrata datasets can be
 revised in place. ``CENSUS_HEALTH_OFFLINE`` refuses downloads (cache only).
 """
 
-import hashlib
 import io
 import json
 import os
@@ -30,6 +29,7 @@ import pandas as pd
 
 from .block_weights import STATE_ABBR
 from .geo import get_resource_path
+from .replicate import _read_cached, _sha256, _sidecar_path, _write_cached
 
 USER_AGENT = "census-research-engine/health-sources (research toolkit; python-requests)"
 Z95 = 1.959963984540054
@@ -131,7 +131,11 @@ def validate_external(entries: Any, geography: Mapping[str, Any], releases: Sequ
     if not isinstance(entries, list) or not entries:
         return ["external must be a non-empty list of {name, source, release, measure} objects"]
     taken = set(taken_names)
+    seen: Dict[tuple, str] = {}
     level = str(geography.get("level", ""))
+    if len(list(releases)) > 1:
+        errors.append("external variables need a single ACS release (one row per unit to join on GEOID; external "
+                      "values are not release-specific)")
     for i, e in enumerate(entries):
         if not isinstance(e, Mapping):
             errors.append(f"external[{i}]: must be an object")
@@ -159,13 +163,29 @@ def validate_external(entries: Any, geography: Mapping[str, Any], releases: Sequ
             continue
         if str(e["measure"]) not in info["measures"]:
             errors.append(f"external[{i}]: measure {e['measure']!r} is not a {e['source']} measure")
+        key = (str(e["source"]), e["release"], str(e["measure"]).upper())
+        if key in seen:
+            errors.append(f"external[{i}]: {key[0]} {key[1]} {key[2]} is already external {seen[key]!r}; name each "
+                          "measure once")
+        seen.setdefault(key, name)
         if level == "tract":
+            from .geo_crosswalk import tract_vintage
             vintage = info["releases"][e["release"]].get("tract_vintage")
             target = geography.get("harmonize_tracts_to")
-            other = [r for r in releases if (2020 if int(r) >= 2020 else 2010) != vintage]
-            if vintage is not None and other and target != vintage:
-                errors.append(f"external[{i}]: {e['source']} {e['release']} uses {vintage} tracts; ACS releases "
-                              f"{other} use the other tract vintage (set geography.harmonize_tracts_to to {vintage})")
+            if target is not None:
+                if target != vintage:
+                    errors.append(f"external[{i}]: {e['source']} {e['release']} uses {vintage} tracts; "
+                                  f"harmonize_tracts_to is {target}")
+            else:
+                other = []
+                try:
+                    other = [r for r in releases if tract_vintage(int(r)) != vintage]
+                except ValueError as exc:  # pre-2010 tracts
+                    errors.append(f"external[{i}]: {exc}")
+                if other:
+                    errors.append(f"external[{i}]: {e['source']} {e['release']} uses {vintage} tracts; ACS releases "
+                                  f"{other} use the other tract vintage (set geography.harmonize_tracts_to to "
+                                  f"{vintage})")
     if geography.get("states") is None and geography.get("state") in (None, "all"):
         errors.append("external: needs geography.state or geography.states (downloads are filtered by state)")
     return errors
@@ -188,10 +208,6 @@ def circularity_overlap(source: str, tables: Iterable[str]) -> Dict[str, List[st
 # ---------------------------------------------------------------------------
 
 
-def _sha256(raw: bytes) -> str:
-    return hashlib.sha256(raw).hexdigest()
-
-
 def _http_get(url: str, session: Any = None, timeout: float = 300.0) -> bytes:
     from .http import polite_get
     resp = polite_get(url, user_agent=USER_AGENT, error=HealthSourceError, session=session, timeout=timeout)
@@ -200,32 +216,9 @@ def _http_get(url: str, session: Any = None, timeout: float = 300.0) -> bytes:
     return resp.content or b""
 
 
-def _cached(path: str) -> Optional[bytes]:
-    side = path + ".json"
-    if not (os.path.exists(path) and os.path.exists(side)):
-        return None
-    with open(path, "rb") as f:
-        raw = f.read()
-    with open(side, encoding="utf-8") as f:
-        meta = json.load(f)
-    if meta.get("sha256") != _sha256(raw):
-        raise HealthSourceError(f"cached file {path} does not match its recorded SHA-256; delete it and its "
-                                "sidecar to download again")
-    return raw
-
-
-def _write(path: str, raw: bytes, meta: Mapping[str, Any]) -> Dict[str, Any]:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".part"
-    with open(tmp, "wb") as f:
-        f.write(raw)
-    os.replace(tmp, path)
-    import time
-    side = {**meta, "sha256": _sha256(raw), "size_bytes": len(raw),
-            "downloaded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
-    with open(path + ".json", "w", encoding="utf-8") as f:
-        json.dump(side, f, indent=2)
-    return side
+def _side(path: str) -> Dict[str, Any]:
+    with open(_sidecar_path(path), encoding="utf-8") as f:
+        return json.load(f)
 
 
 def _states_abbr(states: Sequence[str]) -> List[str]:
@@ -239,9 +232,12 @@ def _states_abbr(states: Sequence[str]) -> List[str]:
 
 
 def places_query_url(ds: str, states: Sequence[str], measures: Sequence[str], offset: int, limit: int) -> str:
+    """Socrata CSV export of crude prevalences (datavaluetypeid CrdPrv) for ``states`` and ``measures``;
+    (locationid, measureid) is unique among them, so offset paging is deterministic."""
     sts = ",".join(f"'{a}'" for a in _states_abbr(states))
     ms = ",".join(f"'{m}'" for m in measures)
-    params = {"$where": f"stateabbr in({sts}) AND measureid in({ms})", "$order": "locationid,measureid",
+    params = {"$where": f"stateabbr in({sts}) AND measureid in({ms}) AND datavaluetypeid='CrdPrv'",
+              "$order": "locationid,measureid",
               "$limit": str(limit), "$offset": str(offset)}
     return f"https://data.cdc.gov/resource/{ds}.csv?" + urlencode(params)
 
@@ -270,23 +266,25 @@ def fetch_places(
     get = fetch or (lambda u: _http_get(u, session=session))
     key = _sha256(json.dumps([states, measures]).encode())[:12]
     folder = os.path.join(cache_dir or health_cache_dir(), "places", str(release), level)
+    meta_url = f"https://data.cdc.gov/api/views/{ds}.json"
+    meta_path = os.path.join(folder, f"{ds}_{key}_metadata.json")
     files: List[Dict[str, Any]] = []
     frames: List[pd.DataFrame] = []
+    fresh = False
     offset = 0
     while True:
         url = places_query_url(ds, states, measures, offset, PAGE_SIZE)
         path = os.path.join(folder, f"{ds}_{key}_{offset}.csv")
-        raw = _cached(path)
+        raw = _read_cached(path)  # None when absent or not matching its sidecar SHA-256 (then fetched again)
         if raw is None:
             if _offline():
                 raise HealthSourceError(f"{path} not cached and CENSUS_HEALTH_OFFLINE is set")
             raw = get(url)
             if raw[:200].lstrip().lower().startswith((b"<!doctype", b"<html")):
                 raise HealthSourceError(f"{url} returned an HTML page, not CSV; nothing cached")
-            side = _write(path, raw, {"source_url": url, "dataset": ds, "content_type": "text/csv"})
-        else:
-            with open(path + ".json", encoding="utf-8") as f:
-                side = json.load(f)
+            _write_cached(path, raw, url, "text/csv")
+            fresh = True
+        side = _side(path)
         files.append({k: side.get(k) for k in ("source_url", "sha256", "size_bytes", "downloaded_at")} |
                      {"path": path})
         try:
@@ -298,17 +296,21 @@ def fetch_places(
             break
         offset += PAGE_SIZE
     rows = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+    # the revision stamp belongs to this download: fetched with fresh pages, read from the cache only
+    # when every page came from it (a stamp that cannot be fetched is recorded as unknown)
+    raw_meta = None if fresh else _read_cached(meta_path)
+    if raw_meta is None:
+        for p in (meta_path, _sidecar_path(meta_path)):
+            if os.path.exists(p):
+                os.remove(p)
+        if not _offline():
+            try:
+                raw_meta = get(meta_url)
+                json.loads(raw_meta)
+                _write_cached(meta_path, raw_meta, meta_url, "application/json")
+            except Exception:  # noqa: BLE001 - the revision stamp is provenance only
+                raw_meta = None
     updated = None
-    meta_url = f"https://data.cdc.gov/api/views/{ds}.json"
-    meta_path = os.path.join(folder, f"{ds}_metadata.json")
-    raw_meta = _cached(meta_path)
-    if raw_meta is None and not _offline():
-        try:
-            raw_meta = get(meta_url)
-            json.loads(raw_meta)
-            _write(meta_path, raw_meta, {"source_url": meta_url, "dataset": ds, "content_type": "application/json"})
-        except Exception:  # noqa: BLE001 - the revision stamp is provenance only
-            raw_meta = None
     if raw_meta is not None:
         try:
             updated = json.loads(raw_meta).get("rowsUpdatedAt")

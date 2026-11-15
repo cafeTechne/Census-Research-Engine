@@ -424,7 +424,10 @@ def analysis_frame(
             info[name] = {"derive": dict(entry), "method": "derived (census.derived, approximate MOE)",
                           "concept_id": (concept_ids or {}).get(name)}
     for col in keep_columns:
-        cols[col] = df[col].to_numpy()
+        if col in ids.columns:  # an ID column kept explicitly: overwrite, never duplicate the label
+            ids[col] = df[col].to_numpy()
+        else:
+            cols[col] = df[col].to_numpy()
     out = pd.concat([ids, pd.DataFrame(cols, index=df.index)], axis=1)
     notes: List[str] = []
     if n_decennial and n_decennial < len(var_map):

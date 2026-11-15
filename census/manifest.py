@@ -2324,7 +2324,7 @@ _METHOD_TEXT = {
     "fit_eiv": ("Coefficients were estimated by moment-corrected least squares ({model}; Fuller 1987) with "
                 "per-unit sampling-error covariances of every design column and of the outcome, including the "
                 "outcome-covariate error covariance, estimated from {rep_source} (4/80 sum over replicates). "
-                "Standard errors are sandwich SEs treating units as independent (se_total, used for "
+                "Standard errors are {se_basis} (se_total, used for "
                 "normal-theory intervals and p-values); naive coefficients are reported alongside. Coefficients "
                 "are {estimand}.", ["fuller", "vre", "design"]),
     "simex": ("Covariates measured with known ACS sampling error ({cov}) were corrected by "
@@ -2485,8 +2485,8 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
             lines.append(f"- External variable `{e['name']}`: {info.get('title', e.get('source'))} {e.get('release')} "
                          f"release, measure {e.get('measure')} ({info.get('unit', '')}), joined on GEOID. Model: "
                          f"{info.get('model_text', '')}. Uncertainty: {info.get('uncertainty_text', '')}. Its error is "
-                         "independent of the ACS sampling error (a different survey), so it is held fixed in replicate "
-                         "refits and its variance enters the model residual.")
+                         "independent of the ACS sampling error (a different survey); how each analysis uses it is "
+                         "stated under Analyses.")
         join = ext_run.get("join")
         if join:
             lines.append(f"  {join['matched_units']} of {join['complete_acs_units']} units with complete ACS data had "
@@ -2573,7 +2573,23 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                            target_se={"se_model": "model SE (se_model)", "se_sampling": "replicate sampling SE "
                                       "(se_sampling)", "se_total": "combined SE (se_total)"}[info["basis_column"]],
                            cov=", ".join(a.get("error_covariates") or args.get("error_covariates") or []),
-                           rep=rep_short if (a.get("replicates") or rep_info) else "", rep_source=rep_source)
+                           rep=rep_short if (a.get("replicates") or rep_info) else "", rep_source=rep_source,
+                           se_basis=(f"cluster-robust sandwich SEs with units correlated within groups of "
+                                     f"`{args['cluster']}` (G/(G-1) small-sample factor; validated by simulation, "
+                                     "docs/audits/eiv_cluster_validation.md)" if args.get("cluster")
+                                     else "sandwich SEs treating units as independent"))
+        ext_out = [v for v in _formula_names(str(a.get("formula", "")).split("~")[0]) if v in external_names(m)]
+        if ext_out and a["method"] == "fit_eiv":
+            text += (f" The outcome ({', '.join(ext_out)}) is an external model-based estimate with no ACS "
+                     "replicates: it was held fixed in the replicate design rows, so the outcome-covariate error "
+                     "covariance is zero by construction (independent surveys) and only the covariates' error was "
+                     "corrected; the outcome's own error enters the residual and the sandwich.")
+        elif ext_out and a["method"] == "fit_replicate":
+            text += (f" The outcome ({', '.join(ext_out)}) is an external model-based estimate held fixed in every "
+                     "refit; se_sampling covers the covariates' ACS sampling error only.")
+        elif ext_out and a["method"] == "fh_regression":
+            text += (f" The outcome ({', '.join(ext_out)}) is an external model-based estimate; its published "
+                     "interval-derived SE was used as the known sampling variance of the Fay-Herriot model.")
         if a.get("replicate_scope") == "covariates_only":
             held = _formula_names(str(a.get("formula", "")).split("~")[0])
             had = ((rep_info or {}).get("covariates_only_outcome_had_replicates") or {}).get(a["id"])
@@ -2583,11 +2599,6 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                         else " (declared because it has no published replicates)")
                      + ", so se_sampling covers the covariates' sampling error only; the stated interval does not "
                      "use se_sampling alone.")
-        if a["method"] == "fit_eiv" and args.get("cluster"):
-            text = text.replace("sandwich SEs treating units as independent",
-                                f"cluster-robust sandwich SEs with units correlated within groups of "
-                                f"`{args['cluster']}` (G/(G-1) small-sample factor; validated by simulation, "
-                                "docs/audits/eiv_cluster_validation.md)")
         if a.get("formula") and "C(Year)" in str(a["formula"]) and len(manifest_releases(m)) > 1:
             if release_overlap_message(manifest_releases(m), "releases") is None:
                 text += (" `C(Year)` contrasts the releases; replicate r of each release enters refit r together. "
