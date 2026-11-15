@@ -1,0 +1,490 @@
+{
+  "analyses": [
+    {
+      "args": {
+        "model": "ols"
+      },
+      "formula": "prem_mort ~ pov_rate + C(GEOID.str[:2])",
+      "id": "m1",
+      "method": "fit_eiv"
+    },
+    {
+      "args": {
+        "model": "ols"
+      },
+      "formula": "prem_mort ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])",
+      "id": "m2",
+      "method": "fit_eiv"
+    },
+    {
+      "args": {
+        "model": "ols"
+      },
+      "formula": "prem_mort ~ asdp + C(GEOID.str[:2])",
+      "id": "m3",
+      "method": "fit_eiv"
+    }
+  ],
+  "authors": [
+    "agent:claude"
+  ],
+  "confidence_level": 0.9,
+  "correction": {
+    "family": "all",
+    "method": "holm"
+  },
+  "created": "2026-11-15T00:00:00Z",
+  "derivations": [
+    {
+      "as_percent": true,
+      "bands": [
+        [
+          0,
+          17
+        ],
+        [
+          18,
+          34
+        ],
+        [
+          35,
+          64
+        ],
+        [
+          65,
+          74
+        ],
+        [
+          75,
+          null
+        ]
+      ],
+      "groups": [
+        {
+          "den": [
+            "dis_pop_003",
+            "dis_pop_006",
+            "dis_pop_022",
+            "dis_pop_025"
+          ],
+          "num": [
+            "dis_with_004",
+            "dis_with_007",
+            "dis_with_023",
+            "dis_with_026"
+          ]
+        },
+        {
+          "den": [
+            "dis_pop_009",
+            "dis_pop_028"
+          ],
+          "num": [
+            "dis_with_010",
+            "dis_with_029"
+          ]
+        },
+        {
+          "den": [
+            "dis_pop_012",
+            "dis_pop_031"
+          ],
+          "num": [
+            "dis_with_013",
+            "dis_with_032"
+          ]
+        },
+        {
+          "den": [
+            "dis_pop_015",
+            "dis_pop_034"
+          ],
+          "num": [
+            "dis_with_016",
+            "dis_with_035"
+          ]
+        },
+        {
+          "den": [
+            "dis_pop_018",
+            "dis_pop_037"
+          ],
+          "num": [
+            "dis_with_019",
+            "dis_with_038"
+          ]
+        }
+      ],
+      "name": "asdp",
+      "op": "age_standardized",
+      "standard": "us2000",
+      "weights": [
+        0.25773045678067363,
+        0.23118749959992155,
+        0.38469738168494305,
+        0.06603529657885103,
+        0.06034936535561073
+      ]
+    },
+    {
+      "as_percent": true,
+      "den": "pov_total",
+      "name": "pov_rate",
+      "num": "pov_below",
+      "op": "proportion"
+    },
+    {
+      "as_percent": true,
+      "den": "hh_total",
+      "name": "no_vehicle",
+      "num": [
+        "own_noveh",
+        "rent_noveh"
+      ],
+      "op": "proportion"
+    },
+    {
+      "den": [
+        "rent_nc",
+        "own_m_nc",
+        "own_nm_nc"
+      ],
+      "name": "burden_base",
+      "num": [
+        "rent_total",
+        "own_total"
+      ],
+      "op": "difference"
+    },
+    {
+      "as_percent": true,
+      "den": "burden_base",
+      "name": "cost_burden",
+      "num": [
+        "rent_b007",
+        "rent_b008",
+        "rent_b009",
+        "rent_b010",
+        "own_b008",
+        "own_b009",
+        "own_b010",
+        "own_b011",
+        "own_b019",
+        "own_b020",
+        "own_b021",
+        "own_b022"
+      ],
+      "op": "proportion"
+    },
+    {
+      "as_percent": true,
+      "den": "ed_total",
+      "name": "pct_bachelors",
+      "num": [
+        "ed_ba_015",
+        "ed_ba_016",
+        "ed_ba_017",
+        "ed_ba_018",
+        "ed_ba_032",
+        "ed_ba_033",
+        "ed_ba_034",
+        "ed_ba_035"
+      ],
+      "op": "proportion"
+    }
+  ],
+  "exclusions": [
+    {
+      "action": "flag",
+      "rule": "cv_screen",
+      "threshold": 30,
+      "variables": [
+        "asdp",
+        "pov_rate",
+        "no_vehicle",
+        "cost_burden",
+        "pct_bachelors"
+      ]
+    }
+  ],
+  "external": [
+    {
+      "measure": "v127",
+      "name": "prem_mort",
+      "release": 2025,
+      "source": "chr"
+    }
+  ],
+  "geography": {
+    "level": "county",
+    "states": [
+      "26",
+      "36"
+    ]
+  },
+  "hypotheses": [
+    {
+      "analysis": "m1",
+      "direction": "greater",
+      "id": "H1",
+      "statement": "Across Michigan and New York counties, County Health Rankings & Roadmaps 2025 premature age-adjusted mortality (v127: deaths under age 75 per 100,000, age-adjusted; NCHS death records 2020-2022, Census Population Estimates denominators) is higher where the ACS 2018-2022 poverty rate is higher, with state intercepts; coefficient corrected for ACS sampling error in the covariate (fit_eiv; the outcome is an external direct estimate held fixed).",
+      "statistic": "coefficient",
+      "term": "pov_rate"
+    },
+    {
+      "analysis": "m2",
+      "direction": "greater",
+      "id": "H2",
+      "statement": "Conditional on the poverty rate, the share of adults 25+ with a bachelor's degree or higher, the housing cost-burden share and state, county premature age-adjusted mortality is higher where a larger share of occupied housing units has no vehicle available (fit_eiv).",
+      "statistic": "coefficient",
+      "term": "no_vehicle"
+    },
+    {
+      "analysis": "m2",
+      "direction": "greater",
+      "id": "H3",
+      "statement": "Conditional on the poverty rate, the bachelor's share, the no-vehicle share and state, county premature age-adjusted mortality is higher where a larger share of households spends 30% or more of income on housing costs (fit_eiv).",
+      "statistic": "coefficient",
+      "term": "cost_burden"
+    },
+    {
+      "analysis": "m3",
+      "direction": "greater",
+      "id": "H4",
+      "statement": "Across Michigan and New York counties, premature age-adjusted mortality is higher where age-standardized disability prevalence (all ages, 2000 U.S. standard population, ACS 2018-2022) is higher, with state intercepts (fit_eiv).",
+      "statistic": "coefficient",
+      "term": "asdp"
+    }
+  ],
+  "missing": "complete_case",
+  "releases": [
+    2022
+  ],
+  "replicates": {
+    "source": "census_vre"
+  },
+  "schema_version": 1,
+  "title": "Premature mortality and the social and economic determinants of disability across Michigan and New York counties: County Health Rankings 2025 (NCHS 2020-2022) and ACS 2018-2022",
+  "variables": [
+    {
+      "name": "dis_pop_003",
+      "ref": "2022:B18101_003"
+    },
+    {
+      "name": "dis_with_004",
+      "ref": "2022:B18101_004"
+    },
+    {
+      "name": "dis_pop_006",
+      "ref": "2022:B18101_006"
+    },
+    {
+      "name": "dis_with_007",
+      "ref": "2022:B18101_007"
+    },
+    {
+      "name": "dis_pop_022",
+      "ref": "2022:B18101_022"
+    },
+    {
+      "name": "dis_with_023",
+      "ref": "2022:B18101_023"
+    },
+    {
+      "name": "dis_pop_025",
+      "ref": "2022:B18101_025"
+    },
+    {
+      "name": "dis_with_026",
+      "ref": "2022:B18101_026"
+    },
+    {
+      "name": "dis_pop_009",
+      "ref": "2022:B18101_009"
+    },
+    {
+      "name": "dis_with_010",
+      "ref": "2022:B18101_010"
+    },
+    {
+      "name": "dis_pop_028",
+      "ref": "2022:B18101_028"
+    },
+    {
+      "name": "dis_with_029",
+      "ref": "2022:B18101_029"
+    },
+    {
+      "name": "dis_pop_012",
+      "ref": "2022:B18101_012"
+    },
+    {
+      "name": "dis_with_013",
+      "ref": "2022:B18101_013"
+    },
+    {
+      "name": "dis_pop_031",
+      "ref": "2022:B18101_031"
+    },
+    {
+      "name": "dis_with_032",
+      "ref": "2022:B18101_032"
+    },
+    {
+      "name": "dis_pop_015",
+      "ref": "2022:B18101_015"
+    },
+    {
+      "name": "dis_with_016",
+      "ref": "2022:B18101_016"
+    },
+    {
+      "name": "dis_pop_034",
+      "ref": "2022:B18101_034"
+    },
+    {
+      "name": "dis_with_035",
+      "ref": "2022:B18101_035"
+    },
+    {
+      "name": "dis_pop_018",
+      "ref": "2022:B18101_018"
+    },
+    {
+      "name": "dis_with_019",
+      "ref": "2022:B18101_019"
+    },
+    {
+      "name": "dis_pop_037",
+      "ref": "2022:B18101_037"
+    },
+    {
+      "name": "dis_with_038",
+      "ref": "2022:B18101_038"
+    },
+    {
+      "name": "pov_total",
+      "ref": "2022:B17001_001"
+    },
+    {
+      "name": "pov_below",
+      "ref": "2022:B17001_002"
+    },
+    {
+      "name": "hh_total",
+      "ref": "2022:B25044_001"
+    },
+    {
+      "name": "own_noveh",
+      "ref": "2022:B25044_003"
+    },
+    {
+      "name": "rent_noveh",
+      "ref": "2022:B25044_010"
+    },
+    {
+      "name": "rent_total",
+      "ref": "2022:B25070_001"
+    },
+    {
+      "name": "rent_nc",
+      "ref": "2022:B25070_011"
+    },
+    {
+      "name": "rent_b007",
+      "ref": "2022:B25070_007"
+    },
+    {
+      "name": "rent_b008",
+      "ref": "2022:B25070_008"
+    },
+    {
+      "name": "rent_b009",
+      "ref": "2022:B25070_009"
+    },
+    {
+      "name": "rent_b010",
+      "ref": "2022:B25070_010"
+    },
+    {
+      "name": "own_total",
+      "ref": "2022:B25091_001"
+    },
+    {
+      "name": "own_m_nc",
+      "ref": "2022:B25091_012"
+    },
+    {
+      "name": "own_nm_nc",
+      "ref": "2022:B25091_023"
+    },
+    {
+      "name": "own_b008",
+      "ref": "2022:B25091_008"
+    },
+    {
+      "name": "own_b009",
+      "ref": "2022:B25091_009"
+    },
+    {
+      "name": "own_b010",
+      "ref": "2022:B25091_010"
+    },
+    {
+      "name": "own_b011",
+      "ref": "2022:B25091_011"
+    },
+    {
+      "name": "own_b019",
+      "ref": "2022:B25091_019"
+    },
+    {
+      "name": "own_b020",
+      "ref": "2022:B25091_020"
+    },
+    {
+      "name": "own_b021",
+      "ref": "2022:B25091_021"
+    },
+    {
+      "name": "own_b022",
+      "ref": "2022:B25091_022"
+    },
+    {
+      "name": "ed_total",
+      "ref": "2022:B15002_001"
+    },
+    {
+      "name": "ed_ba_015",
+      "ref": "2022:B15002_015"
+    },
+    {
+      "name": "ed_ba_016",
+      "ref": "2022:B15002_016"
+    },
+    {
+      "name": "ed_ba_017",
+      "ref": "2022:B15002_017"
+    },
+    {
+      "name": "ed_ba_018",
+      "ref": "2022:B15002_018"
+    },
+    {
+      "name": "ed_ba_032",
+      "ref": "2022:B15002_032"
+    },
+    {
+      "name": "ed_ba_033",
+      "ref": "2022:B15002_033"
+    },
+    {
+      "name": "ed_ba_034",
+      "ref": "2022:B15002_034"
+    },
+    {
+      "name": "ed_ba_035",
+      "ref": "2022:B15002_035"
+    }
+  ]
+}
