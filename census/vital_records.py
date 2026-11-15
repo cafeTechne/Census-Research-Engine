@@ -12,14 +12,13 @@ that the user exports from WONDER ("Export Results"). It does not automate the f
 * Crude rates get exact Poisson (Garwood) 95% intervals from the count (or WONDER's exported
   interval when present), SE = sqrt(deaths) / population (sqrt(1) for zero deaths). Age-adjusted rates need WONDER's exported
   standard error column: without age-specific counts the Fay-Feuer interval cannot be computed.
-* A manifest pins the export by SHA-256; a different file is refused at run time.
+* A manifest pins the export by SHA-256; a different file is refused at registration (create_manifest) and at run time.
 """
 
 import hashlib
 import io
 import os
-import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd

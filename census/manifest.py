@@ -1279,7 +1279,7 @@ def create_manifest(
                              "governs; the run records whether its replicates were available); remove the "
                              "declaration before hashing to use the outcome's replicates")
     if not errors:
-        from .health_sources import CIRCULARITY_RULE, SOURCES
+        from .health_sources import CIRCULARITY_RULE
         hyps = [h for h in manifest.get("hypotheses") or [] if isinstance(h, Mapping)]
         for c in external_circularity(manifest):
             model = _ext_source_text(c)
