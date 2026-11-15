@@ -281,6 +281,46 @@ def _replicate_matrices(data: pd.DataFrame, replicates: pd.DataFrame, used: Sequ
     return mats, fixed
 
 
+RELIABILITY_NOTE_THRESHOLD = 0.9
+RELIABILITY_GROUP_SPREAD = 0.02
+
+
+def covariate_reliability(formula: str, data: pd.DataFrame, mats: Mapping[str, np.ndarray]) -> Dict[str, Any]:
+    """Replicate reliability 1 - mean(SE^2) / Var(x) of each numeric covariate with replicates
+    (PLAN_ROUND_20 A3), overall and within each group of every factor named as C(<column>) in the
+    formula. ``low``: covariates below RELIABILITY_NOTE_THRESHOLD; ``uneven``: covariates whose
+    group reliabilities differ by more than RELIABILITY_GROUP_SPREAD (a slope comparison
+    between those groups is then biased by measurement error alone)."""
+    import re as _re
+    y = _outcome(formula)
+    factors = [c for c in _re.findall(r"C\(\s*([A-Za-z_][A-Za-z0-9_]*)", formula) if c in data.columns]
+    out: Dict[str, Any] = {"covariates": {}, "by_group": {}, "low": [], "uneven": []}
+
+    def rel_of(x: np.ndarray, m: np.ndarray) -> float:
+        if len(x) < 3:
+            return float("nan")
+        err = float(np.mean(REPLICATE_FACTOR * ((m - x[:, None]) ** 2).sum(axis=1)))
+        v = float(np.var(x, ddof=1))
+        return 1.0 - err / v if v > 0 else float("nan")
+
+    for v, m in mats.items():
+        if v == y or v not in data.columns or not pd.api.types.is_numeric_dtype(data[v]):
+            continue
+        x = data[v].to_numpy(float)
+        r = rel_of(x, m)
+        out["covariates"][v] = r
+        if np.isfinite(r) and r < RELIABILITY_NOTE_THRESHOLD:
+            out["low"].append(v)
+        for fcol in factors:
+            groups = data[fcol].astype(str).to_numpy()
+            per = {g: rel_of(x[groups == g], m[groups == g]) for g in sorted(set(groups))}
+            out["by_group"].setdefault(v, {})[fcol] = per
+            vals = [q for q in per.values() if np.isfinite(q)]
+            if len(vals) > 1 and max(vals) - min(vals) > RELIABILITY_GROUP_SPREAD and v not in out["uneven"]:
+                out["uneven"].append(v)
+    return out
+
+
 def fit_replicate(
     formula: str,
     frame: pd.DataFrame,
@@ -386,6 +426,18 @@ def fit_replicate(
             for j, t in enumerate(params.index)
         }
         diagnostics["replicate_failures"] = failed
+        rel = covariate_reliability(formula, data, mats)
+        if rel["covariates"]:
+            diagnostics["covariate_reliability"] = rel
+            if rel["low"] or rel["uneven"]:
+                notes.append("COVARIATE MEASUREMENT ERROR: "
+                             + (f"reliability below {RELIABILITY_NOTE_THRESHOLD} for {rel['low']}" if rel["low"] else "")
+                             + ("; " if rel["low"] and rel["uneven"] else "")
+                             + (f"reliability differs by more than {RELIABILITY_GROUP_SPREAD} between groups of "
+                                f"{rel['uneven']}" if rel["uneven"] else "")
+                             + ". Replicate refits widen intervals for this noise but do not remove the bias it "
+                             "causes (attenuation, uneven across groups); use fit_eiv (census.models.fit_eiv, "
+                             "fit_model method='eiv') for the corrected coefficients")
         provenance["replicate_variables"] = sorted(mats)
         if declared:
             diagnostics["replicates_declared_fixed"] = declared
@@ -564,6 +616,180 @@ def regression_calibration(
                      "row-bootstrap refits including calibration", FH_POINTER]
     return _corrected_result(formula, model, naive, cal.params, se_total, confidence_level,
                              "regression_calibration", notes, diagnostics, int(cal.nobs))
+
+
+# ---------------------------------------------------------------------------
+# B2b. fit_eiv: moment-corrected least squares with replicate error covariances
+# ---------------------------------------------------------------------------
+
+EIV_MODELS = ("ols", "wls")
+EIV_LOW_RELIABILITY = 0.5
+
+
+def _design_deviations(formula: str, data: pd.DataFrame, mats: Mapping[str, np.ndarray]):
+    """Design matrices of the estimates and the per-replicate deviations of every design column.
+
+    Returns (y (n,), X (n, k) DataFrame, D (R, n, k), e (R, n), kept row positions). Replicate
+    design rows reuse the estimates' patsy design information, so factor coding is identical and
+    error-free columns (constant, factors) have zero deviation."""
+    import patsy
+    y_df, X_df = patsy.dmatrices(formula, data, return_type="dataframe", NA_action="drop")
+    rows = np.asarray(X_df.index)
+    sub = data.loc[rows].reset_index(drop=True)
+    y = y_df.iloc[:, 0].to_numpy(float)
+    X = X_df.to_numpy(float)
+    R = REPLICATE_COUNT
+    D = np.zeros((R, len(sub), X.shape[1]))
+    e = np.zeros((R, len(sub)))
+    pos = data.index.get_indexer(rows)
+    for r in range(R):
+        d = sub.copy()
+        for v, m in mats.items():
+            d[v] = m[pos, r]
+        Xr = np.asarray(patsy.build_design_matrices([X_df.design_info], d, NA_action="raise")[0], float)
+        yr = np.asarray(patsy.build_design_matrices([y_df.design_info], d, NA_action="raise")[0], float)[:, 0]
+        D[r] = Xr - X
+        e[r] = yr - y
+    return y, X_df, D, e, rows
+
+
+def fit_eiv(
+    formula: str,
+    frame: pd.DataFrame,
+    replicates: Optional[pd.DataFrame] = None,
+    model: str = "ols",
+    weights: Optional[str] = None,
+    confidence_level: float = 0.90,
+    cv_threshold: float = DEFAULT_CV_THRESHOLD,
+    replicate_policy: str = "flag",
+) -> ModelResult:
+    """Least squares corrected for ACS sampling error in covariates and outcome (PLAN_ROUND_20 A2).
+
+    With x_i the design row of unit i from the estimates, x_i^(r) the same row from replicate r
+    and y likewise, the per-unit error covariances are estimated from the replicates (the VRE
+    successive-difference formula):
+
+        S_i = 4/80 sum_r (x_i^(r) - x_i)(x_i^(r) - x_i)',   s_i = 4/80 sum_r (x_i^(r) - x_i)(y_i^(r) - y_i)
+
+    and the coefficients are Fuller's moment estimator with known heteroscedastic error
+    covariance (Fuller 1987, Measurement Error Models, sections 2.2 and 3.1):
+
+        b = (sum w_i x_i x_i' - sum w_i S_i)^-1 (sum w_i x_i y_i - sum w_i s_i).
+
+    Unlike regression_calibration, it removes the bias from the correlation between the
+    outcome's and the covariates' sampling errors (s_i), which arises when both are estimated
+    from the same ACS sample, and it handles transformed and interaction columns (their error
+    comes from their own replicate design rows). Error-free columns (constant, factors) have
+    S_i = 0.
+
+    Variance: sandwich M^-1 (sum psi_i psi_i') M^-1 * n/(n-k), psi_i = w_i [x_i (y_i - x_i'b) -
+    (s_i - S_i b)], M = sum w_i x_i x_i' - sum w_i S_i, units independent (tract sampling errors
+    are nearly uncorrelated between neighbours, Round 16). It covers model and sampling error:
+    reported as se_total, the basis of intervals and p-values; se_model is the naive fit's
+    model SE and the naive (uncorrected) coefficients are reported alongside.
+
+    ``model``: "ols", or "wls" with an error-free ``weights`` column. Needs ``replicates`` (the
+    long frame of census.analysis.attach_replicates) for every stochastic formula variable;
+    ``replicate_policy`` as in fit_replicate ("strict" refuses rows or variables without them).
+    Refuses a fit whose corrected moment matrix is not positive definite; notes covariates whose
+    reliability is below 0.5, where moment corrections become unstable.
+    """
+    import scipy.linalg as sla
+
+    model = model.lower()
+    check_replicate_policy(replicate_policy)
+    if model not in EIV_MODELS:
+        raise ValueError(f"fit_eiv supports models {EIV_MODELS}; got {model!r}")
+    if model == "wls" and not weights:
+        raise ValueError("model='wls' needs weights=<column>")
+    if replicates is None or not len(replicates):
+        raise ValueError("fit_eiv needs replicates (the error covariances come from them)")
+    data, _, notes = _prepare(frame, formula, model, weights if model == "wls" else None, None, None)
+    used = formula_variables(formula, data)
+    if weights and model == "wls":
+        if weights in set(replicates["variable"].astype(str)) or weights in used:
+            raise ValueError(f"weights column {weights!r} must be error-free (not a replicated or formula variable)")
+    mats, fixed = _replicate_matrices(data, replicates, used)
+    if not mats:
+        raise ValueError("no formula variable has replicates in the replicate frame")
+    missing = [v for v in used if v not in mats]
+    stoch_missing = stochastic_variables(frame, missing)
+    precheck_replicates(replicate_policy, rows_held_fixed=fixed, variables_without_replicates=stoch_missing,
+                        context="fit_eiv")
+    diagnostics: Dict[str, Any] = {"reliability_screen": _screen_summary(data, formula, cv_threshold)}
+    replicate_completeness(replicate_policy, rows_held_fixed=fixed, variables_without_replicates=stoch_missing,
+                           context="fit_eiv", diagnostics=diagnostics, notes=notes)
+
+    y, X_df, D, e, rows = _design_deviations(formula, data, mats)
+    used_data = data.loc[rows].reset_index(drop=True)
+    n, k = X_df.shape
+    if n <= k:
+        raise ValueError(f"fit_eiv: {n} rows for {k} coefficients")
+    X = X_df.to_numpy(float)
+    w = used_data[weights].to_numpy(float) if model == "wls" else np.ones(n)
+    if not (np.isfinite(w).all() and (w > 0).all()):
+        raise ValueError("weights must be positive and finite")
+    terms = list(X_df.columns)
+    f = REPLICATE_FACTOR
+    S_sum = f * np.einsum("rnj,n,rnl->jl", D, w, D)        # sum_i w_i S_i
+    s_sum = f * np.einsum("rnj,n,rn->j", D, w, e)          # sum_i w_i s_i
+    XtWX = X.T @ (w[:, None] * X)
+    M = XtWX - S_sum
+    try:
+        rel_eig = float(sla.eigh(M, XtWX, eigvals_only=True)[0])
+    except (np.linalg.LinAlgError, ValueError) as exc:
+        raise ValueError(f"fit_eiv: design matrix is singular ({exc})") from exc
+    if not rel_eig > 0:
+        raise ValueError("fit_eiv: the corrected moment matrix X'WX - sum S_i is not positive definite "
+                         f"(smallest relative eigenvalue {rel_eig:.3g}): the covariates' sampling error is as large as "
+                         "their spread; the correction is not identified for this model")
+    b = np.linalg.solve(M, X.T @ (w * y) - s_sum)
+    resid = y - X @ b
+    s_i = f * np.einsum("rnj,rn->nj", D, e)                 # (n, k)
+    Sb_i = f * np.einsum("rnj,rn->nj", D, D @ b)            # (n, k): S_i b
+    psi = w[:, None] * (X * resid[:, None] - (s_i - Sb_i))
+    Minv = np.linalg.inv(M)
+    V = Minv @ (psi.T @ psi) @ Minv * n / (n - k)
+    se_total = pd.Series(np.sqrt(np.maximum(np.diag(V), 0.0)), index=terms)
+
+    naive = _fit(formula, used_data, model, weights if model == "wls" else None, None, None)
+    noisy = [j for j in range(k) if np.any(D[:, :, j] != 0)]
+    clean = [j for j in range(k) if j not in noisy]
+    reliability: Dict[str, float] = {}
+    for j in noisy:
+        xj = X[:, j]
+        if clean:
+            Z = X[:, clean]
+            coef, *_ = np.linalg.lstsq(Z * np.sqrt(w)[:, None], xj * np.sqrt(w), rcond=None)
+            xj = xj - Z @ coef
+        var_obs = float(np.sum(w * xj**2) / np.sum(w))
+        err = float(f * np.einsum("rn,n,rn->", D[:, :, j], w, D[:, :, j]) / np.sum(w))
+        reliability[terms[j]] = 1.0 - err / var_obs if var_obs > 0 else float("nan")
+    err_corr: Dict[str, float] = {}
+    var_y = f * np.einsum("rn,rn->n", e, e)
+    for j in noisy:
+        var_x = f * np.einsum("rn,rn->n", D[:, :, j], D[:, :, j])
+        den = np.sqrt(np.mean(var_x) * np.mean(var_y))
+        err_corr[terms[j]] = float(np.mean(s_i[:, j]) / den) if den > 0 else float("nan")
+    diagnostics.update({
+        "reliability": reliability,
+        "outcome_error_correlation": err_corr,
+        "smallest_relative_eigenvalue": rel_eig,
+        "error_covariance_from": "replicates (4/80 sum over 80 replicates)",
+        "noisy_terms": [terms[j] for j in noisy],
+    })
+    low = [t for t, r in reliability.items() if np.isfinite(r) and r < EIV_LOW_RELIABILITY]
+    if low:
+        notes.append(f"LOW RELIABILITY: {low} have reliability below {EIV_LOW_RELIABILITY}; moment corrections are "
+                     "unstable there (large variance, possible sign changes)")
+    notes.append("fit_eiv: moment-corrected least squares (Fuller 1987) with per-unit error covariances, including "
+                 "the outcome-covariate error covariance, from the ACS replicates; sandwich se_total (units "
+                 "independent) is the basis of intervals and p-values")
+    res = _corrected_result(formula, model, naive, pd.Series(b, index=terms), se_total, confidence_level,
+                            "fit_eiv", notes, diagnostics, int(n))
+    res.uncertainty_sources = [SOURCE_MODEL, SOURCE_SAMPLING_REPLICATE]
+    res.provenance = {**(res.provenance or {}), "replicate_variables": sorted(mats), "rows_used": int(n)}
+    return res
 
 
 def simex(

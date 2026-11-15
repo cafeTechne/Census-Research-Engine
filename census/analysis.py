@@ -524,6 +524,15 @@ def _eval_spec_replicates(entry: Mapping[str, Any], get) -> np.ndarray:
 
     if op == "sum":
         return total("num")
+    if op == "age_standardized":
+        from .derived import standardization_weights
+        out = None
+        for g, w in zip(entry["groups"], standardization_weights(entry)):
+            refs_n = g["num"] if isinstance(g["num"], (list, tuple)) else [g["num"]]
+            refs_d = g["den"] if isinstance(g["den"], (list, tuple)) else [g["den"]]
+            rate = _ratio_reps(sum(get(str(r)) for r in refs_n), sum(get(str(r)) for r in refs_d))
+            out = w * rate if out is None else out + w * rate
+        return out * (100.0 if entry.get("as_percent") else 1.0)
     if op == "scale":
         return total("num") * float(entry["k"])
     x, y = total("num"), total("den")

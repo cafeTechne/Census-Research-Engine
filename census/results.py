@@ -151,6 +151,7 @@ DID_CAUSAL_CAVEAT = ("causal interpretation requires the DiD identifying assumpt
 _CORRECTED_ESTIMAND = {
     "regression_calibration": "the association corrected for predictor measurement error",
     "simex": "the association corrected for predictor measurement error (SIMEX, exploratory only)",
+    "fit_eiv": "the association corrected for predictor measurement error and correlated outcome error",
 }
 
 

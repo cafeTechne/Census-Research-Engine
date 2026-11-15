@@ -1,0 +1,12 @@
+{
+  "name": "us2000",
+  "description": "2000 U.S. standard population (Census P25-1130), single ages 0-84 and 85+",
+  "source": "https://seer.cancer.gov/stdpopulations/singleages.pops.tables.csv",
+  "source_column": "2000 U.S. Standard Population (Census P25-1130) / Single Ages to 84",
+  "reference": "Klein, R.J. & Schoenborn, C.A. (2001). Age adjustment using the 2000 projected U.S. population. Healthy People 2010 Statistical Notes 20. NCHS.",
+  "retrieved_at": "2026-11-15T01:12:00+00:00",
+  "raw_file": "data/standard_populations/source/singleages.pops.tables.csv",
+  "raw_sha256": "fe2815bf9569512c6d5218b07e81a981711a567a84058f522d36e6ba13e7c872",
+  "csv_sha256": "4549c2a9de43fe030af2c27da9a82a4e713a8668ec335c7f89633d9e8add7119",
+  "total": 274633642
+}

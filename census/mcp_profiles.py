@@ -149,8 +149,8 @@ DESCRIPTION_OVERRIDES: Dict[str, str] = {
     ),
     "fit_model": (
         "Fit a regression whose standard errors include ACS sampling error.\n"
-        "input_path: analysis frame. formula: 'y ~ x1 + x2'. method: replicate | "
-        "regression_calibration | simex | fay_herriot. model: ols|wls|binomial|poisson|negbin.\n"
+        "input_path: analysis frame. formula: 'y ~ x1 + x2'. method: replicate | eiv | "
+        "regression_calibration | simex | fay_herriot. eiv corrects noisy ACS predictors (needs replicates_path). model: ols|wls|binomial|poisson|negbin.\n"
         "replicates_path: from build_analysis_frame. se_col: outcome SE (fay_herriot).\n"
         "Example: fit_model(input_path=\"downloads/analysis_frame.parquet\", "
         "formula=\"poverty_rate ~ median_rent\")"

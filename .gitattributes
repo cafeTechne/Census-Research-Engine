@@ -12,3 +12,6 @@ data/*.json -text
 data/*.csv -text
 data/price_parities/*.csv -text
 data/price_parities/*.json -text
+data/standard_populations/*.csv -text
+data/standard_populations/*.json -text
+data/standard_populations/source/* -text

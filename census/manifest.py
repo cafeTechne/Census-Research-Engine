@@ -188,6 +188,7 @@ STATUS_EXPLORATORY = "exploratory"
 # method -> (required args, statistics it supports)
 ANALYSIS_METHODS: Dict[str, Tuple[Tuple[str, ...], Tuple[str, ...]]] = {
     "fit_replicate": (("formula",), ("coefficient",)),
+    "fit_eiv": (("formula",), ("coefficient",)),
     "regression_calibration": (("formula", "error_covariates"), ("coefficient",)),
     "simex": (("formula", "error_covariates"), ("coefficient",)),
     "fh_regression": (("formula",), ("coefficient",)),
@@ -223,6 +224,9 @@ REFERENCES = {
     "simex": "Cook, J.R. & Stefanski, L.A. (1994). JASA 89, 1314-1328; Stefanski, L.A. & Cook, J.R. "
              "(1995). JASA 90, 1247-1256; Devanarayan, V. & Stefanski, L.A. (2002). Stat. Prob. "
              "Letters 59, 219-225.",
+    "fuller": "Fuller, W.A. (1987). Measurement Error Models. Wiley, sections 2.2 and 3.1.",
+    "standard_pop": "Klein, R.J. & Schoenborn, C.A. (2001). Age adjustment using the 2000 projected U.S. "
+                    "population. Healthy People 2010 Statistical Notes 20. National Center for Health Statistics.",
     "fisher": "Fisher, R.A. (1921). On the probable error of a coefficient of correlation. Metron 1, 3-32.",
     "holm": "Holm, S. (1979). Scand. J. Statist. 6, 65-70.",
     "bh": "Benjamini, Y. & Hochberg, Y. (1995). JRSS-B 57, 289-300.",
@@ -560,6 +564,93 @@ def _check_replicates(manifest: Mapping[str, Any], errors: List[str]) -> None:
         errors.append(overlap)
 
 
+def _derivation_refs(d: Mapping[str, Any]) -> List[str]:
+    """Every input name of a derivation: ``num``/``den`` and, for ``age_standardized``, each
+    group's ``num``/``den``."""
+    def listed(v: Any) -> List[Any]:
+        return list(v) if isinstance(v, list) else [v] if v is not None else []
+    refs = [r for part in ("num", "den") for r in listed(d.get(part))]
+    groups = d.get("groups")
+    for g in groups if isinstance(groups, list) else []:
+        if isinstance(g, Mapping):
+            refs += [r for part in ("num", "den") for r in listed(g.get(part))]
+    return [str(r) for r in refs]
+
+
+def _age_standardized_errors(d: Mapping[str, Any], errors: List[str]) -> None:
+    """Validation of an ``age_standardized`` derivation (PLAN_ROUND_20 A1)."""
+    from .derived import standardization_weights
+    from .standardize import STANDARDS, normalize_bands, standard_weights
+    name = d.get("name")
+    groups = d.get("groups")
+    if not isinstance(groups, list) or not groups:
+        errors.append(f"derivation {name!r}: age_standardized needs 'groups', one {{num, den}} per age band")
+        return
+    for k, g in enumerate(groups):
+        if not isinstance(g, Mapping) or g.get("num") is None or g.get("den") is None:
+            errors.append(f"derivation {name!r}: groups[{k}] needs 'num' and 'den'")
+            return
+    for key in ("num", "den"):
+        if d.get(key) is not None:
+            errors.append(f"derivation {name!r}: age_standardized takes 'groups', not {key!r}")
+    standard = d.get("standard")
+    if standard is None:
+        errors.append(f"derivation {name!r}: 'standard' is required ({list(STANDARDS)} or 'custom' with 'weights')")
+        return
+    if standard != "custom" and standard not in STANDARDS:
+        errors.append(f"derivation {name!r}: unknown standard {standard!r}; expected one of {list(STANDARDS)} "
+                      "or 'custom'")
+        return
+    if standard != "custom":
+        try:
+            bands = normalize_bands(d.get("bands"))
+        except ValueError as exc:
+            errors.append(f"derivation {name!r}: {exc}")
+            return
+        if len(bands) != len(groups):
+            errors.append(f"derivation {name!r}: {len(bands)} bands for {len(groups)} groups")
+            return
+        try:
+            expected = standard_weights(bands, standard)
+        except ValueError as exc:
+            errors.append(f"derivation {name!r}: {exc}")
+            return
+        given = d.get("weights")
+        if given is not None and (not isinstance(given, list) or len(given) != len(expected) or any(
+                not isinstance(x, (int, float)) or abs(float(x) - e) > 1e-12 for x, e in zip(given, expected))):
+            errors.append(f"derivation {name!r}: weights do not match the {standard} standard over these bands "
+                          f"(expected {expected}); omit them so create_manifest fills them in, or declare "
+                          "\"standard\": \"custom\"")
+            return
+    elif d.get("weights") is None:
+        errors.append(f"derivation {name!r}: standard 'custom' needs explicit 'weights'")
+        return
+    if d.get("weights") is not None:
+        try:
+            standardization_weights(d)
+        except ValueError as exc:
+            errors.append(f"derivation {name!r}: {exc}")
+
+
+def _fill_derivation_defaults(manifest: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Fill omitted ``weights`` of ``age_standardized`` derivations (in place) from their
+    standard, so the hash fixes them; returns one ``{"derivation": i, "weights": [...]}``
+    entry per filled derivation. Invalid entries are left for validation to report."""
+    filled: List[Dict[str, Any]] = []
+    derivations = manifest.get("derivations")
+    for i, d in enumerate(derivations if isinstance(derivations, list) else []):
+        if not (isinstance(d, dict) and d.get("op") == "age_standardized" and d.get("weights") is None
+                and d.get("standard") not in (None, "custom")):
+            continue
+        try:
+            from .standardize import standard_weights
+            d["weights"] = standard_weights(d.get("bands"), str(d["standard"]))
+        except (ValueError, TypeError):
+            continue
+        filled.append({"derivation": i, "weights": list(d["weights"])})
+    return filled
+
+
 def _variable_tables(manifest: Mapping[str, Any]) -> Dict[str, List[str]]:
     """Manifest variable or derivation name -> the tables it is built from."""
     out: Dict[str, List[str]] = {}
@@ -571,8 +662,7 @@ def _variable_tables(manifest: Mapping[str, Any]) -> Dict[str, List[str]]:
     for d in derivations if isinstance(derivations, list) else []:
         if not isinstance(d, Mapping):  # reported by validate_manifest
             continue
-        refs = [r for part in ("num", "den")
-                for r in (d.get(part) if isinstance(d.get(part), list) else [d.get(part)]) if r is not None]
+        refs = _derivation_refs(d)
         out[str(d.get("name"))] = sorted({t for r in refs for t in out.get(str(r), [])})
     return out
 
@@ -773,12 +863,15 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
         if not isinstance(d, Mapping):
             errors.append(f"derivations[{i}] must be an object {{name, op, num, den}}")
             continue
+        if d.get("op") == "age_standardized":
+            _age_standardized_errors(d, errors)
+            if manifest.get("aggregation") is not None:
+                errors.append(f"derivation {d.get('name')!r}: age_standardized cannot be combined with "
+                              "aggregation (aggregate the band counts in a separate step)")
+        for r in _derivation_refs(d):
+            if r not in names:
+                errors.append(f"derivation {d.get('name')!r}: input {r!r} is not an earlier variable name")
         names.append(str(d.get("name")))
-        for part in ("num", "den"):
-            refs = d.get(part)
-            for r in (refs if isinstance(refs, list) else [refs] if refs is not None else []):
-                if str(r) not in names:
-                    errors.append(f"derivation {d.get('name')!r}: {part} {r!r} is not an earlier variable name")
     for n in names:
         if not NAME_RE.match(n):
             errors.append(f"name {n!r} must be a Python identifier (used in formulas)")
@@ -844,6 +937,19 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
         for u in used:
             if u not in names:
                 errors.append(f"analyses[{i}] ({a.get('id')}): {u!r} is not a manifest variable")
+        if method == "fit_eiv":
+            eargs = a.get("args") or {}
+            if "target" in eargs:
+                errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv takes no 'target': its intervals use the "
+                              "sandwich se_total (a measurement-error correction is a claim about the population "
+                              "relationship, not about these areas)")
+            if str(eargs.get("model", "ols")).lower() not in ("ols", "wls"):
+                errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv supports model 'ols' or 'wls'")
+            if str(eargs.get("model", "ols")).lower() == "wls" and not eargs.get("weights"):
+                errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv with model 'wls' needs args.weights")
+            if not census_vre_source(manifest) and a.get("replicates") != "required":
+                errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv needs replicates: declare "
+                              "replicates.source 'census_vre' or \"replicates\": \"required\"")
         scope = a.get("replicate_scope", "all")
         if scope not in REPLICATE_SCOPES:
             errors.append(f"analyses[{i}] ({a.get('id')}): replicate_scope must be one of {REPLICATE_SCOPES}")
@@ -974,7 +1080,7 @@ def create_manifest(
     ``"manifest"`` when something was filled in).
     """
     manifest = load_manifest(path_or_dict)
-    filled = _fill_adjustment_defaults(manifest)
+    filled = _fill_adjustment_defaults(manifest) + _fill_derivation_defaults(manifest)
     errors = validate_manifest(manifest, resolve=resolve, client=client)
     out_path = str(path) if path else (str(path_or_dict) if not isinstance(path_or_dict, Mapping) else None)
     write_to = path
@@ -989,7 +1095,10 @@ def create_manifest(
     where = f" (written to {write_to})" if write_to and not errors else "; commit the completed manifest"
     notes = [f"adjustments[{f['adjustment']}]: {k} was omitted; filled in with {json.dumps(v)}, "
              + _FILL_REASONS[k] + ", before hashing" + where
-             for f in filled for k, v in f.items() if k != "adjustment"]
+             for f in filled if "adjustment" in f for k, v in f.items() if k != "adjustment"]
+    notes += [f"derivations[{f['derivation']}]: weights were omitted; filled in with {json.dumps(f['weights'])} "
+              "from the derivation's standard population, before hashing" + where
+              for f in filled if "derivation" in f]
     if census_vre_source(manifest):
         missing = vre_unavailable(manifest)
         if missing:
@@ -1078,7 +1187,7 @@ CONFIRMATORY_REPLICATE_POLICY = "strict"
 # Manifest methods that use replicates; each runs with replicate_policy="strict".
 # (Spatial, multilevel, DiD and PUMS analyses are not manifest methods; if added
 # they must join this set so confirmatory runs refuse incomplete replicates.)
-REPLICATE_METHODS = ("fit_replicate", "correlation_matrix")
+REPLICATE_METHODS = ("fit_replicate", "correlation_matrix", "fit_eiv")
 
 
 def _one_sided(p: float, estimate: float, direction: str) -> float:
@@ -1104,6 +1213,8 @@ def _run_analysis(a: Mapping[str, Any], frame: pd.DataFrame, level: float, repli
         if a.get("replicate_scope") == "covariates_only":  # pre-registered: the outcome is held fixed
             args["fixed_variables"] = _formula_names(a["formula"].split("~")[0])
         return models.fit_replicate(a["formula"], frame, replicates=replicates, confidence_level=level, **args)
+    if method == "fit_eiv":
+        return models.fit_eiv(a["formula"], frame, replicates=replicates, confidence_level=level, **args)
     if method in ("regression_calibration", "simex"):
         return getattr(models, method)(a["formula"], frame, confidence_level=level, **args)
     if method in ("fay_herriot", "fh_regression"):
@@ -1623,9 +1734,7 @@ def _derive_replicates(frame: pd.DataFrame, replicates: Any,
         return frame, replicates, {}
     have = {_default_name(v) for v in reps["variable"].astype(str)}
 
-    def refs_of(d: Mapping[str, Any]) -> List[str]:
-        return [str(r) for part in ("num", "den")
-                for r in (d[part] if isinstance(d.get(part), list) else [d[part]] if d.get(part) is not None else [])]
+    refs_of = _derivation_refs
 
     var_map: Dict[str, str] = {}  # manifest name -> replicate variable
     for v in m.get("variables") or []:
@@ -2081,6 +2190,12 @@ _METHOD_TEXT = {
                                "regression calibration with heteroscedastic known error variances; standard "
                                "errors (se_total, used for normal-theory intervals and p-values) by row bootstrap "
                                "re-estimating the calibration. Coefficients are {estimand}.", ["carroll"]),
+    "fit_eiv": ("Coefficients were estimated by moment-corrected least squares ({model}; Fuller 1987) with "
+                "per-unit sampling-error covariances of every design column and of the outcome, including the "
+                "outcome-covariate error covariance, estimated from {rep_source} (4/80 sum over replicates). "
+                "Standard errors are sandwich SEs treating units as independent (se_total, used for "
+                "normal-theory intervals and p-values); naive coefficients are reported alongside. Coefficients "
+                "are {estimand}.", ["fuller", "vre", "design"]),
     "simex": ("Covariates measured with known ACS sampling error ({cov}) were corrected by "
               "simulation-extrapolation (SIMEX, quadratic extrapolation) with the measurement-error jackknife "
               "variance (se_total, used for normal-theory intervals and p-values). Coefficients are "
@@ -2094,6 +2209,27 @@ _METHOD_TEXT = {
                           "sampling variances.", ["testing"]),
     "batch_z_test": ("Differences were tested with the Census two-sample z test, SE = MOE/1.645.", ["testing"]),
 }
+
+
+def _age_standardized_text(d: Mapping[str, Any]) -> str:
+    """Methods sentence for an ``age_standardized`` derivation: standard, bands, weights and the
+    standard table's checksum."""
+    from .derived import standardization_weights
+    w = standardization_weights(d)
+    bands = d.get("bands") or []
+    band_txt = ", ".join(f"{lo}-{hi}" if hi is not None else f"{lo}+" for lo, hi in bands) if bands else \
+        f"{len(w)} groups"
+    if d.get("standard") == "custom":
+        std = "custom weights"
+    else:
+        from .standardize import standard_info
+        info = standard_info(str(d["standard"]))
+        std = (f"the {info.get('description', d['standard'])} ({info.get('reference', '')}; bundled table "
+               f"SHA-256 {info.get('csv_sha256')})")
+    return (f"- `{d['name']}`: directly age-standardized rate{' (percent)' if d.get('as_percent') else ''}, "
+            f"sum over age bands ({band_txt}) of weight x band numerator / band denominator, with weights "
+            f"{[round(x, 6) for x in w]} from {std}. A unit with an empty age band has no standardized rate "
+            "(complete case)")
 
 
 def _multi_release_adjustment_text(m: Mapping[str, Any], adj: Mapping[str, Any],
@@ -2227,6 +2363,9 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                        "formulas, Handbook ch. 8) elsewhere")
         else:
             se_text = "; MOE by the ACS approximation formulas (Handbook ch. 8)"
+        if d.get("op") == "age_standardized":
+            lines.append(_age_standardized_text(d) + se_text + ".")
+            continue
         lines.append(f"- `{d['name']}` = {d.get('op', 'auto')} of {d.get('num')}"
                      + (f" over {d['den']}" if d.get("den") is not None else "") + se_text + ".")
     for ex in m.get("exclusions") or []:
