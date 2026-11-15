@@ -3,7 +3,7 @@
 **Status:** confirmatory run complete; reviewed (section 13: author review delegated by the owner, not independent)
 **Study plan:** [PLAN_ROUND_19.md](../../PLAN_ROUND_19.md)
 **Manifest:** [`examples/manifests/r19_mi_ny_tract_income_change.json`](../../examples/manifests/r19_mi_ny_tract_income_change.json), SHA-256 `8f205f51a3de3b29e5f8713fcf7a26fba85ca1bd977adf660e69dd30033fb126`
-**Engine:** Census Research Engine, branch `phase19/tract-study` (released as v0.18.0)
+**Engine:** Census Research Engine, branch `phase19/tract-study` released as v0.18.0
 
 ## Summary
 

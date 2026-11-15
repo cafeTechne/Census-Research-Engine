@@ -5,7 +5,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
-## Unreleased (Round 19): one complete preregistered study
+## 0.18.0 (Round 19): one complete preregistered study
 
 - Manifests: `geography.harmonize_tracts_to` puts tract panels across the 2010/2020
   redraw on one tract vintage (block housing-unit/population weights); Census VRE
@@ -21,7 +21,9 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
   downloads when nothing needs apportioning; stricter validation (suffix, concept ids,
   pre-2010 releases, unverifiable codes); a failed analysed-data copy never loses the run.
 - First complete preregistered study: `docs/studies/r19_mi_ny_tract_income_change.md`
-  (H1 and H3 supported, H2 not supported; run history and friction log F1-F11).
+  (H1 and H3 supported, H2 not supported; run history, friction log F1-F12 and review).
+  The review (author self-review at the owner's request) adds an errors-in-variables check
+  of H2 (`scripts/r19_review_eiv.py`).
 
 ## 0.17.0 (Round 18): metadata integrity
 
