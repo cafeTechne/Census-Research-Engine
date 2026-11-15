@@ -773,7 +773,7 @@ def run_variant(
     try:
         out = _variant(run_dir, analysis, formula=formula, keep_prefixes=keep_prefixes, drop_prefixes=drop_prefixes,
                        args=args, out_dir=output_dir, label=label)
-    except (FileNotFoundError, OSError, ValueError, KeyError) as exc:
+    except (FileNotFoundError, OSError, ValueError, KeyError, TypeError) as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
                      "check run_dir (a run_manifest output folder) and the analysis id")
     coefs = (out.get("result") or {}).get("coefficients") or []
@@ -809,7 +809,7 @@ def create_manifest(manifest_path: str) -> Dict[str, Any]:
 
     try:
         res = _create(manifest_path)
-    except (FileNotFoundError, OSError, ValueError) as exc:
+    except (FileNotFoundError, OSError, ValueError, TypeError) as exc:
         return _fail(errors.INVALID_INPUT, str(exc))
     if res.get("error_code") == errors.BUNDLED_DATA_INTEGRITY:
         return res

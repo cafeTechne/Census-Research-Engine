@@ -714,25 +714,47 @@ def _cluster_jackknife(X: np.ndarray, y: np.ndarray, w: np.ndarray, D: np.ndarra
     """Delete-one-cluster jackknife covariance of the fit_eiv moment estimator (CR3)."""
     k = X.shape[1]
     M_g = np.zeros((G, k, k))
+    XX_g = np.zeros((G, k, k))
     r_g = np.zeros((G, k))
     for g in range(G):
         idx = np.flatnonzero(inv == g)
         Xg, wg = X[idx], w[idx]
         Dg, eg = D[:, idx], e[:, idx]
-        M_g[g] = Xg.T @ (wg[:, None] * Xg) - f * np.einsum("rnj,n,rnl->jl", Dg, wg, Dg)
+        XX_g[g] = Xg.T @ (wg[:, None] * Xg)
+        M_g[g] = XX_g[g] - f * np.einsum("rnj,n,rnl->jl", Dg, wg, Dg)
         r_g[g] = Xg.T @ (wg * y[idx]) - f * np.einsum("rnj,n,rn->j", Dg, wg, eg)
-    M, r = M_g.sum(axis=0), r_g.sum(axis=0)
+    M, r, XX = M_g.sum(axis=0), r_g.sum(axis=0), XX_g.sum(axis=0)
     present = np.zeros((G, k))
     np.add.at(present, inv, (X != 0).astype(float))
     total_nz = present.sum(axis=0)
+    const = np.all(X == 1, axis=0)
+    indicator = np.all((X == 0) | (X == 1), axis=0) & ~const
+
+    def full_rank(cols: np.ndarray, g: int) -> bool:
+        A = (XX - XX_g[g])[np.ix_(cols, cols)]
+        d = np.sqrt(np.clip(np.diag(A), 1e-300, None))
+        return float(np.linalg.eigvalsh(A / np.outer(d, d))[0]) > 1e-10
+
     B = np.full((G, k), np.nan)
     for g in range(G):
         keep = (total_nz - present[g]) > 0
+        report = keep.copy()
+        if not full_rank(np.flatnonzero(keep), g) and const.any():
+            # deleting the reference cluster of cluster fixed effects leaves the intercept collinear with the
+            # remaining dummies: drop the intercept; the dummies then measure levels, not contrasts, so neither
+            # they nor the intercept enter this refit's jackknife (the other terms are unaffected)
+            keep &= ~const
+            report = keep & ~indicator
+        if not full_rank(np.flatnonzero(keep), g):
+            continue  # not identified without this cluster: the refit is left out
         Mk = (M - M_g[g])[np.ix_(keep, keep)]
         try:
-            B[g, keep] = np.linalg.solve(Mk, (r - r_g[g])[keep])
+            sol = np.linalg.solve(Mk, (r - r_g[g])[keep])
         except np.linalg.LinAlgError:
             continue
+        row = np.full(k, np.nan)
+        row[keep] = sol
+        B[g, report] = row[report]
     ok = np.isfinite(B)
     if not ok.any(axis=0).all():
         raise ValueError("fit_eiv jackknife: some term is not estimable in any delete-one-cluster refit")

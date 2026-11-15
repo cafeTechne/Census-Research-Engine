@@ -476,8 +476,12 @@ def choropleth(
     else:
         colors = sequential_colors(kk, cmap)
     low = np.isfinite(cv) & (cv > cv_threshold)
+    if scheme == "diverging":
+        # CV = se/|x| is meaningless for signed values near zero (residuals, gaps): no CV hatching
+        low = np.zeros(len(est), bool)
     finite = est[np.isfinite(est)]
-    lowers = np.concatenate([[finite.min()], bins[:-1]])
+    first = finite.min() if scheme != "diverging" else min(finite.min(), 2 * bins[0] - bins[1])
+    lowers = np.concatenate([[first], bins[:-1]])
     values = pd.concat([_ids(g), pd.DataFrame({
         "estimate": est, "se": se, "moe90": se * Z90, "ci_lower": est - zc * se, "ci_upper": est + zc * se,
         "cv_percent": cv, "low_reliability": low,

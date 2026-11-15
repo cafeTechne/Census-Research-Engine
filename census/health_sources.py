@@ -348,12 +348,32 @@ def _required_keys(source: str) -> tuple:
 
 
 def external_vintage(entry: Mapping[str, Any]) -> Optional[int]:
-    """Tract vintage of an external entry's values after any apportionment."""
+    """Tract vintage of an external entry's values after any apportionment (None when undefined)."""
     info = source_info(str(entry["source"]))
     rel = info["releases"].get(entry.get("release"))
     if entry.get("apportion_to") is not None:
-        return int(entry["apportion_to"])
+        a = entry["apportion_to"]
+        return a if isinstance(a, int) and not isinstance(a, bool) else None
     return (rel or {}).get("tract_vintage")
+
+
+def resolve_external_file(path: str) -> str:
+    """A WONDER export path: absolute, or relative to the repository root (not the process cwd), so the
+    hashed manifest means the same file wherever the server runs."""
+    return path if os.path.isabs(path) else get_resource_path(path)
+
+
+def _wonder_file_errors(e: Mapping[str, Any]) -> List[str]:
+    """Pre-registration check of a WONDER entry: the export exists and matches its pinned SHA-256."""
+    path = resolve_external_file(str(e["file"]))
+    if not os.path.exists(path):
+        return [f"WONDER export {e['file']!r} not found (relative paths resolve against the repository root: "
+                f"{path}); export it before pre-registering, so the hash pins the data"]
+    from .pipeline import file_sha256
+    got = file_sha256(path)
+    if got != str(e["sha256"]).lower():
+        return [f"WONDER export {e['file']!r} has SHA-256 {got}, not the pinned {e['sha256']}"]
+    return []
 
 
 def validate_external(entries: Any, geography: Mapping[str, Any], releases: Sequence[int],
@@ -411,7 +431,7 @@ def validate_external(entries: Any, geography: Mapping[str, Any], releases: Sequ
             hint = (f"; {mkey} is an ACS-derived CHR&R column: use the ACS table {CHR_ACS_DERIVED[mkey]} directly"
                     if source == "chr" and mkey in CHR_ACS_DERIVED else "")
             errors.append(f"external[{i}]: measure {e['measure']!r} is not a {source} measure{hint}")
-        key = (source, release, mkey)
+        key = (source, release, mkey) if source != "wonder" else (source, str(e.get("sha256")).lower(), mkey)
         if key in seen:
             errors.append(f"external[{i}]: {key[0]} {key[1]} {key[2]} is already external {seen[key]!r}; name each "
                           "measure once")
@@ -430,7 +450,9 @@ def validate_external(entries: Any, geography: Mapping[str, Any], releases: Sequ
                     errors.append(f"external[{i}]: min_coverage must be a number in [0.5, 1]")
                 elif "apportion_to" not in e:
                     errors.append(f"external[{i}]: min_coverage applies only with apportion_to")
-        if level == "tract":
+        if source == "wonder":
+            errors.extend(f"external[{i}]: {m}" for m in _wonder_file_errors(e))
+        if level == "tract" and external_vintage(e) is not None:
             from .geo_crosswalk import tract_vintage
             vintage = external_vintage(e)
             target = geography.get("harmonize_tracts_to")
@@ -468,11 +490,10 @@ def circularity_overlap(source: str, tables: Iterable[str], measure: Any = None)
     return out
 
 
-def join_limit(entries: Sequence[Mapping[str, Any]]) -> float:
-    """The external_join_failed limit for a manifest's entries (the strictest source's)."""
-    lims = [float(source_info(str(e["source"])).get("join_missing_limit", JOIN_MISSING_LIMIT))
-            for e in entries if str(e.get("source")) in SOURCES]
-    return min(lims) if lims else JOIN_MISSING_LIMIT
+def join_limit(entries: Sequence[Mapping[str, Any]]) -> Dict[str, float]:
+    """The external_join_failed limit of each external variable (its source's ``join_missing_limit``)."""
+    return {str(e["name"]): float(source_info(str(e["source"])).get("join_missing_limit", JOIN_MISSING_LIMIT))
+            for e in entries if str(e.get("source")) in SOURCES}
 
 
 def registry_summary(source: Optional[str] = None) -> Dict[str, Any]:
@@ -577,18 +598,10 @@ def fetch_places(
     while True:
         url = places_query_url(ds, states, measures, offset, PAGE_SIZE)
         path = os.path.join(folder, f"{ds}_{key}_{offset}.csv")
-        raw = _read_cached(path)  # None when absent or not matching its sidecar SHA-256 (then fetched again)
-        if raw is None:
-            if _offline():
-                raise HealthSourceError(f"{path} not cached and CENSUS_HEALTH_OFFLINE is set")
-            raw = get(url)
-            if raw[:200].lstrip().lower().startswith((b"<!doctype", b"<html")):
-                raise HealthSourceError(f"{url} returned an HTML page, not CSV; nothing cached")
-            _write_cached(path, raw, url, "text/csv")
-            fresh = True
-        side = _side(path)
-        files.append({k: side.get(k) for k in ("source_url", "sha256", "size_bytes", "downloaded_at")} |
-                     {"path": path})
+        # None from the cache when absent or not matching its sidecar SHA-256: then fetched again
+        raw, rec, got_fresh = _cached_file(path, url, get, "text/csv")
+        fresh = fresh or got_fresh
+        files.append(rec)
         try:
             page = pd.read_csv(io.BytesIO(raw), dtype=str)
         except Exception as exc:  # noqa: BLE001
@@ -661,9 +674,11 @@ def parse_places(rows: pd.DataFrame, level: str, measure_names: Mapping[str, str
 
 
 def _cached_file(path: str, url: str, get: Callable[[str], bytes], content_type: str,
-                 html_check: bool = True) -> "tuple[bytes, Dict[str, Any]]":
-    """Bytes of ``url`` from the SHA-256-checked cache, else downloaded and cached; with the sidecar record."""
+                 html_check: bool = True) -> "tuple[bytes, Dict[str, Any], bool]":
+    """Bytes of ``url`` from the SHA-256-checked cache, else downloaded and cached; with the sidecar record
+    and whether it was downloaded now."""
     raw = _read_cached(path)
+    fresh = raw is None
     if raw is None:
         if _offline():
             raise HealthSourceError(f"{path} not cached and CENSUS_HEALTH_OFFLINE is set")
@@ -672,7 +687,7 @@ def _cached_file(path: str, url: str, get: Callable[[str], bytes], content_type:
             raise HealthSourceError(f"{url} returned an HTML page, not data; nothing cached")
         _write_cached(path, raw, url, content_type)
     side = _side(path)
-    return raw, {k: side.get(k) for k in ("source_url", "sha256", "size_bytes", "downloaded_at")} | {"path": path}
+    return raw, {k: side.get(k) for k in ("source_url", "sha256", "size_bytes", "downloaded_at")} | {"path": path}, fresh
 
 
 # ---------------------------------------------------------------------------
@@ -693,7 +708,7 @@ def fetch_usaleep(states: Sequence[str], fetch: Optional[Callable[[str], bytes]]
             continue
         abbr = _states_abbr([st])[0]
         url = info["url_template"].format(st=abbr)
-        raw, rec = _cached_file(os.path.join(folder, f"{abbr}_A.CSV"), url, get, "text/csv")
+        raw, rec, _ = _cached_file(os.path.join(folder, f"{abbr}_A.CSV"), url, get, "text/csv")
         files.append(rec)
         try:
             frames.append(pd.read_csv(io.BytesIO(raw), dtype=str))
@@ -782,8 +797,9 @@ def apportion_rates(values: pd.DataFrame, name: str, crosswalk: pd.DataFrame,
     if split == "missing":
         out.loc[is_split, [name, f"{name}_se"]] = np.nan
     record = {"method": "population-mass-weighted mean of source tract values (2010 block population), SE from "
-                        "independent source SEs; life expectancy is not additive, so this is an approximation "
-                        "(a split tract inherits its parent's value)",
+                        "independent source SEs; life expectancy is not additive, so this is an approximation"
+                        + (" (a split tract inherits its parent's value, NOT validated)" if split == "inherit" else
+                           " (a target whose only source is split across several targets is left missing)"),
               "min_coverage": float(min_coverage), "targets": int(len(out)), "split_policy": split,
               "split_targets": int(is_split.sum()),
               "split_targets_left_missing": int(is_split.sum()) if split == "missing" else 0,
@@ -819,7 +835,7 @@ def fetch_chr(release: int, fetch: Optional[Callable[[str], bytes]] = None, cach
         raise ValueError(f"chr: release {release} not registered")
     get = fetch or (lambda u: _http_get(u, session=session))
     path = os.path.join(cache_dir or health_cache_dir(), "chr", str(release), rel["datasets"]["county"])
-    raw, rec = _cached_file(path, rel["url"], get, "text/csv")
+    raw, rec, _ = _cached_file(path, rel["url"], get, "text/csv")
     return {"raw": raw, "files": [rec], "dataset": rel["datasets"]["county"], "rows_updated_at": None}
 
 
@@ -944,7 +960,8 @@ def load_external(
             parts.append(part)
         elif e["source"] == "wonder":
             from .vital_records import load_wonder_measure
-            part, rec = load_wonder_measure(str(e["file"]), str(e["sha256"]), str(e["measure"]), name, level)
+            part, rec = load_wonder_measure(resolve_external_file(str(e["file"])), str(e["sha256"]),
+                                            str(e["measure"]), name, level)
             prov.append(_provenance("wonder", None, level, rec["dataset"], {str(e["measure"]).lower(): name},
                                     [rec["file"]], len(part), export=rec))
             parts.append(part)
@@ -973,9 +990,13 @@ def join_external(frame: pd.DataFrame, ext: pd.DataFrame, names: Sequence[str],
     complete = np.isfinite(out[req].to_numpy(float)).all(axis=1) if req else np.ones(len(out), bool)
     has = np.isfinite(out[list(names)].to_numpy(float)).all(axis=1)
     lacking = out.loc[complete & ~has, "GEOID"].astype(str).tolist()
+    n_complete = int(complete.sum())
+    per_name = {n: float((complete & ~np.isfinite(out[n].to_numpy(float))).sum() / n_complete) if n_complete
+                else float("nan") for n in names}
     record = {"frame_units": int(len(out)), "complete_acs_units": int(complete.sum()),
               "matched_units": int((complete & has).sum()), "complete_units_without_external": len(lacking),
               "missing_share": float(len(lacking) / complete.sum()) if complete.sum() else float("nan"),
+              "missing_share_by_variable": per_name,
               "examples_without_external": lacking[:20],
               "source_units_outside_frame": int((~ext["GEOID"].isin(frame["GEOID"].astype(str))).sum())}
     return out, record

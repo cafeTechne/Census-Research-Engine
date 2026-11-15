@@ -10,7 +10,7 @@ Multi-year panels are built from **concepts**, not raw variable codes. ACS codes
 
 | Interface | Entry point | Intended user |
 | :--- | :--- | :--- |
-| MCP server | `mcp_server.py` (61 tools; `--profile core` gives 14 for local models) | Agents in Claude Code, Claude Desktop, other MCP clients |
+| MCP server | `mcp_server.py` (63 tools; `--profile core` gives 14 for local models) | Agents in Claude Code, Claude Desktop, other MCP clients |
 | Command line | `python -m census <command> --json` | Agents and scripts without MCP |
 | Python library | `census` package (`plan_extraction`, `run_batch`) | Notebooks, pipelines |
 | Desktop GUI | `acs_downloader.py` (Tkinter) | Legacy point-and-click use; maintenance mode |
@@ -265,6 +265,19 @@ Built on GeoPandas, Shapely (GEOS), pyogrio (GDAL), pyproj, and PySAL. Outputs a
 | Difference-in-differences | `census.did.difference_in_differences` | Non-overlapping periods only; coverage 0.90–0.91; reproduces Card and Krueger (1994) |
 | Cost of living between places | `census.rpp.adjust_for_place` / `adjust_for_place` | BEA Regional Price Parities; reproduces BEA real personal income for all states (2008); never applied by default |
 | Interactive maps | `census.web_maps.web_choropleth` / `make_web_map` | Self-contained HTML, no external requests |
+
+## External health data
+
+Health outcomes the ACS lacks come from registered external sources (`list_health_sources`, recipe `external_health_outcome`, `docs/agent_protocol.md` section 16), joined to a manifest's ACS frame as outcomes only:
+
+| Source | Level | Kind | Notes |
+| :--- | :--- | :--- | :--- |
+| CDC PLACES 2025 | tract, county | model-based (BRFSS MRP) | No key; within a county varies only with age, sex, race/ethnicity and education composition |
+| USALEEP | tract (2010) | partly model-based | Life expectancy 2010-2015; fully predicted tracts dropped; `apportion_to: 2020` (split tracts left missing) |
+| County Health Rankings & Roadmaps 2025 | county | direct (mortality) or PLACES-based | Non-commercial research use; ACS-derived columns refused |
+| CDC WONDER exports | county, state | direct | User-exported files pinned by SHA-256; suppressed counts censored |
+
+**Circularity rule (enforced by `create_manifest`):** determinant studies keep using the ACS's own measure as the outcome (for disability: B18101), and use external sources for measures the ACS lacks, such as diabetes. A model-based outcome is never tested against its model's own inputs.
 
 ## 2020 Decennial Census
 

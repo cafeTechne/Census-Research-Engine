@@ -135,7 +135,10 @@ class TestApportion(unittest.TestCase):
         self.assertAlmostEqual(o.loc["T3", "v_se"], np.sqrt((50 / 150) ** 2 * 4 + (100 / 150) ** 2 * 9))
         self.assertAlmostEqual(o.loc["T4", "v"], 30.0)  # 95% covered >= 0.9
         self.assertEqual(rec["split_targets_left_missing"], 1)
+        self.assertIn("left missing", rec["method"])
+        self.assertNotIn("inherits", rec["method"])
         out, rec = hs.apportion_rates(vals, "v", cw, split="inherit", min_coverage=0.99)
+        self.assertIn("NOT validated", rec["method"])
         o = out.set_index("GEOID")
         self.assertEqual(o.loc["T2", "v"], 20.0)
         self.assertTrue(np.isnan(o.loc["T4", "v"]))  # below coverage
@@ -198,11 +201,31 @@ class TestValidateNewSources(unittest.TestCase):
         errs = hs.validate_external([dict(pm, measure="v069")], county, [2022], [])
         self.assertTrue(any("ACS-derived" in e and "B15003" in e for e in errs), errs)
         self.assertTrue(hs.validate_external([pm], tract, [2022], []))
-        w = {"name": "d", "source": "wonder", "measure": "deaths", "file": "x.txt", "sha256": "0" * 64}
+        d = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, d, True)
+        p1, p2 = os.path.join(d, "heart.txt"), os.path.join(d, "cancer.txt")
+        for p, txt in ((p1, WONDER), (p2, WONDER.replace("150", "151"))):
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(txt)
+        sha = lambda p: hashlib.sha256(open(p, "rb").read()).hexdigest()  # noqa: E731
+        w = {"name": "d", "source": "wonder", "measure": "deaths", "file": p1, "sha256": sha(p1)}
         self.assertEqual(hs.validate_external([w], county, [2022], []), [])
+        # two exports with the same measure (two causes of death) are allowed
+        w2 = dict(w, name="d2", file=p2, sha256=sha(p2))
+        self.assertEqual(hs.validate_external([w, w2], county, [2022], []), [])
+        self.assertTrue(any("name each measure once" in e
+                            for e in hs.validate_external([w, dict(w, name="d3")], county, [2022], [])))
         self.assertTrue(hs.validate_external([dict(w, sha256="abc")], county, [2022], []))
+        errs = hs.validate_external([dict(w, sha256="0" * 64)], county, [2022], [])
+        self.assertTrue(any("not the pinned" in e for e in errs), errs)  # checked before registration
+        errs = hs.validate_external([dict(w, file="no/such/export.txt")], county, [2022], [])
+        self.assertTrue(any("not found" in e and "repository root" in e for e in errs), errs)
         self.assertTrue(hs.validate_external([w], tract, [2022], []))
         self.assertTrue(hs.validate_external([{k: v for k, v in w.items() if k != "file"}], county, [2022], []))
+        # a malformed apportion_to is reported, not raised
+        for bad in ("x", [2020], True):
+            errs = hs.validate_external([dict(le, apportion_to=bad)], tract, [2024], [])
+            self.assertTrue(any("apportion_to must be 2020" in e for e in errs), errs)
 
     def test_registry_summary(self):
         reg = hs.registry_summary()
@@ -275,6 +298,13 @@ class TestWonder(Tmp):
         self.assertEqual(exp["footer"]["parameters"]["Year/Month"], "2020; 2021; 2022")
         self.assertEqual(exp["footer"]["query_date"], "Nov 15, 2026 10:00:00 AM")
 
+    def test_zero_deaths_keep_finite_se(self):
+        p, sha = self._file(WONDER.replace("\t15\t6000\t250.0 (Unreliable)", "\t0\t6000\t0.0 (Unreliable)"))
+        r = vr.read_wonder_export(p)["rows"].set_index("GEOID")
+        self.assertAlmostEqual(r.loc["26005", "crude_rate_se"], 1e5 / 6000)
+        out, _ = vr.load_wonder_measure(p, sha, "deaths", "d")
+        self.assertEqual(out.set_index("GEOID").loc["26005", "d_se"], 1.0)
+
     def test_garwood(self):
         lo, hi = vr.garwood_interval(np.array([0.0, 10.0]))
         self.assertAlmostEqual(lo[0], 0.0)
@@ -337,7 +367,11 @@ class TestJackknife(unittest.TestCase):
         frame, reps = self._data()
         frame["cty"] = frame["GEOID"].str[:5]
         res = fit_eiv("y ~ x + C(cty)", frame, reps, cluster="GEOID.str[:5]", cluster_se="jackknife")
-        self.assertTrue(np.isfinite(res.coefficients.set_index("term").loc["x", "se_total"]))
+        jk = res.coefficients.set_index("term")["se_total"]
+        cr1 = pd.Series(res.diagnostics["se_total_cr1"])
+        self.assertTrue(np.isfinite(jk["x"]))
+        # deleting the reference county must not inflate the intercept (collinear refit left out)
+        self.assertLess(jk["Intercept"], 1.5 * cr1["Intercept"])
         with self.assertRaisesRegex(ValueError, "needs cluster"):
             fit_eiv("y ~ x", frame, reps, cluster_se="jackknife")
         with self.assertRaisesRegex(ValueError, "cluster_se"):
@@ -350,6 +384,16 @@ class TestJackknife(unittest.TestCase):
         self.assertEqual(validate_manifest(m, resolve=False), [])
         m["analyses"][0]["args"] = {"cluster_se": "jackknife"}
         self.assertTrue(any("cluster_se" in e for e in validate_manifest(m, resolve=False)))
+
+
+class TestJoinLimitPerSource(unittest.TestCase):
+    def test_per_variable_shares_and_limits(self):
+        frame = pd.DataFrame({"GEOID": [f"{i:011d}" for i in range(10)], "x": 1.0})
+        ext = pd.DataFrame({"GEOID": frame["GEOID"], "le": [1.0] * 8 + [np.nan] * 2, "diab": 1.0})
+        _, rec = hs.join_external(frame, ext, ["le", "diab"], ["x"])
+        self.assertEqual(rec["missing_share_by_variable"], {"le": 0.2, "diab": 0.0})
+        lims = hs.join_limit([{"name": "le", "source": "usaleep"}, {"name": "diab", "source": "places"}])
+        self.assertEqual(lims, {"le": 0.25, "diab": 0.05})  # USALEEP keeps its own limit when combined
 
 
 class TestDiverging(unittest.TestCase):
@@ -383,6 +427,20 @@ class TestRunVariant(unittest.TestCase):
                                                                            "analysis_frame.parquet"))))
             with self.assertRaisesRegex(ValueError, "not in the manifest"):
                 run_variant(run_dir, "m9")
+            with self.assertRaisesRegex(ValueError, "label"):
+                run_variant(run_dir, "m1", label="../../x")
+            runjson = os.path.join(run_dir, "bundle", "results", "run.json")
+            saved = open(runjson, encoding="utf-8").read()
+            bad = json.loads(saved)
+            bad["analysed_data"]["replicates"] = {"error": "write failed"}
+            with open(runjson, "w", encoding="utf-8") as f:
+                json.dump(bad, f)
+            with self.assertRaisesRegex(ValueError, "no analysed replicates"):
+                run_variant(run_dir, "m1")
+            from census.workflows_inference import run_variant as tool
+            self.assertFalse(tool(run_dir, "m1")["success"])
+            with open(runjson, "w", encoding="utf-8") as f:
+                f.write(saved)
             with open(os.path.join(run_dir, "analysed", "analysis_frame.parquet"), "ab") as f:
                 f.write(b"x")
             with self.assertRaisesRegex(ValueError, "does not match run.json"):

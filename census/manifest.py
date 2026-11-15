@@ -1501,6 +1501,8 @@ def run_variant(
         raise ValueError("manifest.json does not match the run's manifest hash")
     data: Dict[str, pd.DataFrame] = {}
     for name, info in (run.get("analysed_data") or {}).items():
+        if not isinstance(info, Mapping) or "path" not in info or "sha256" not in info:
+            raise ValueError(f"run.json records no analysed {name} file ({info!r}); the run cannot be refitted")
         path = run_dir / info["path"]
         if hashlib.sha256(path.read_bytes()).hexdigest() != info["sha256"]:
             raise ValueError(f"{path} does not match run.json (SHA-256); refusing to analyse different data")
@@ -1531,6 +1533,8 @@ def run_variant(
     res = _run_analysis(a, frame, float(m.get("confidence_level", 0.90)), reps, corr, external=external_names(m))
     variant = {"analysis": analysis, "formula": a.get("formula"), "keep_prefixes": list(keep_prefixes or []),
                "drop_prefixes": list(drop_prefixes or []), "args": a.get("args") or {}}
+    if label is not None and (not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", str(label)) or not str(label).strip(".")):
+        raise ValueError("label must be 1-64 letters, digits, '_', '-' or '.' (it names the output file)")
     tag = label or hashlib.sha256(json.dumps(variant, sort_keys=True, default=str).encode()).hexdigest()[:10]
     out = {"analysis_status": "exploratory", "related_manifest_hash": run["manifest_hash"],
            "note": "exploratory variant of a pre-registered analysis; not confirmatory",
@@ -1763,13 +1767,15 @@ def run_manifest(
             joined_external = ext_names
             external_info = {"variables": m["external"], "sources": ext_prov, "join": join,
                              "required_acs_variables": required}
-            limit = hs.join_limit(m["external"])
-            join["missing_limit"] = limit
-            if not join["missing_share"] <= limit:
+            limits = hs.join_limit(m["external"])
+            join["missing_limit"] = limits
+            over = {n: s for n, s in join["missing_share_by_variable"].items()
+                    if not s <= limits.get(n, hs.JOIN_MISSING_LIMIT)}
+            if over:
                 deviations.append({"kind": "external_join_failed", "detail": (
-                    f"{join['complete_units_without_external']} of {join['complete_acs_units']} units with complete "
-                    f"ACS data have no external value ({join['missing_share']:.1%} > "
-                    f"{limit:.0%}); a geography-vintage mismatch is likely. Examples: "
+                    "; ".join(f"{n}: {s:.1%} of {join['complete_acs_units']} units with complete ACS data have no "
+                              f"value (> {limits.get(n, hs.JOIN_MISSING_LIMIT):.0%})" for n, s in over.items())
+                    + "; a geography-vintage mismatch is likely. Examples: "
                     + ", ".join(join["examples_without_external"][:5]))})
         except Exception as exc:  # noqa: BLE001 - recorded as a blocking deviation, never substituted
             deviations.append({"kind": "external_unavailable", "detail": f"{type(exc).__name__}: {exc}"})

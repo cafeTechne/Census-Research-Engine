@@ -23,6 +23,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
   ACS 2020-2024 direct estimate, MI/NY tracts. H1-H3 supported (slope about 0.8 after correcting ACS error,
   within counties and beyond age); levels differ by about 13 points; exploratory E2 shows the circularity of
   determinant studies with a PLACES outcome.
+- Part 2 (owner request): the circularity rule is enforced and stated in the MCP. `create_manifest` refuses
+  (R1) an external outcome whose construct the ACS measures directly (PLACES DISABILITY: B18101) unless the
+  analysis compares it with that ACS measure, and (R2) a tested term built from the outcome model's inputs
+  unless the hypothesis carries a written `circularity_justification`. The rule is in the server instructions,
+  the core profile, `docs/agent_protocol.md` section 16, the recipe `external_health_outcome` and the new tool
+  `list_health_sources`.
+- New sources: USALEEP tract life expectancy (2010 tracts; fully predicted tracts dropped by default;
+  `apportion_to: 2020` by population-weighted rate apportionment, split tracts left missing because
+  inheritance failed validation, `docs/audits/rate_apportionment_validation.md`); County Health Rankings &
+  Roadmaps 2025 county data (direct NCHS mortality measures; PLACES-based measures flagged; ACS-derived columns
+  refused); CDC WONDER exports (`census.vital_records`: pinned by SHA-256, footer required, suppressed counts
+  censored, exact Poisson intervals).
+- `fit_eiv(cluster_se="jackknife")`: delete-one-cluster jackknife, validated beside CR1; `make_map`
+  `scheme="diverging"`; `run_variant` (exploratory refits of a finished run, MCP tool).
 
 ## 0.19.0 (Round 20): public-health determinants
 

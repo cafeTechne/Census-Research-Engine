@@ -10,7 +10,7 @@ that the user exports from WONDER ("Export Results"). It does not automate the f
 * WONDER suppresses counts of 1-9 (``Suppressed``): they are kept as censored, bounds [1, 9], never
   zero-filled; their rates are missing. Rates from fewer than 20 deaths carry ``(Unreliable)``.
 * Crude rates get exact Poisson (Garwood) 95% intervals from the count (or WONDER's exported
-  interval when present), SE = rate / sqrt(deaths). Age-adjusted rates need WONDER's exported
+  interval when present), SE = sqrt(deaths) / population (sqrt(1) for zero deaths). Age-adjusted rates need WONDER's exported
   standard error column: without age-specific counts the Fay-Feuer interval cannot be computed.
 * A manifest pins the export by SHA-256; a different file is refused at run time.
 """
@@ -31,14 +31,6 @@ _GEO_COLUMNS = {"county": ("County Code", 5), "state": ("State Code", 2)}
 
 class WonderExportError(ValueError):
     """A WONDER export could not be read, or does not match its pinned hash."""
-
-
-def sha256_file(path: str) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
 
 
 def _unquote(s: str) -> str:
@@ -148,7 +140,10 @@ def read_wonder_export(path: str, level: str = "county") -> Dict[str, Any]:
             out["crude_rate_ci_lower"] = lo / pop * 1e5
             out["crude_rate_ci_upper"] = hi / pop * 1e5
     with np.errstate(divide="ignore", invalid="ignore"):
-        out["crude_rate_se"] = out["crude_rate"] / np.sqrt(out["deaths"])
+        # Poisson SE sqrt(D)/P; a county with zero deaths gets sqrt(1)/P (one death's worth) so it keeps a
+        # finite, conservative SE instead of 0 or 0/0 (dropping it would remove the lowest-mortality counties)
+        out["crude_rate_se"] = np.sqrt(np.maximum(out["deaths"], 1.0)) / pop * 1e5
+        out.loc[~np.isfinite(out["crude_rate"]), "crude_rate_se"] = np.nan
     if "Age Adjusted Rate" in df.columns:
         aa, aas, aau = _num(df["Age Adjusted Rate"])
         unrel |= aau
@@ -186,17 +181,16 @@ def load_wonder_measure(path: str, sha256: str, measure: str, name: str,
         raise WonderExportError(f"measure must be one of {MEASURES}")
     if not os.path.exists(path):
         raise WonderExportError(f"WONDER export {path} not found")
-    got = sha256_file(path)
-    if got != str(sha256).lower():
-        raise WonderExportError(f"{path} has SHA-256 {got}, not the pinned {sha256}: a different or edited file")
-    exp = read_wonder_export(path, level)
+    exp = read_wonder_export(path, level)  # hashes the bytes it parses (one read)
+    if exp["sha256"] != str(sha256).lower():
+        raise WonderExportError(f"{path} has SHA-256 {exp['sha256']}, not the pinned {sha256}: a different or "
+                                "edited file")
     r = exp["rows"]
     flag = np.where(r["deaths_suppressed"], 2, np.where(r["unreliable"], 1, 0))
     out = pd.DataFrame({"GEOID": r["GEOID"]})
     if measure == "deaths":
         out[name] = r["deaths"]
-        with np.errstate(invalid="ignore"):
-            out[f"{name}_se"] = np.sqrt(r["deaths"])
+        out[f"{name}_se"] = np.sqrt(np.maximum(r["deaths"], 1.0))  # NaN stays NaN (suppressed)
         lo, hi = garwood_interval(r["deaths"].to_numpy(float))
         out[f"{name}_ci_lower"], out[f"{name}_ci_upper"] = lo, hi
         out[f"{name}_lower_bound"], out[f"{name}_upper_bound"] = r["deaths_lower_bound"], r["deaths_upper_bound"]
