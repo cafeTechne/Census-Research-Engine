@@ -1,7 +1,7 @@
 # Round 21: External health outcomes (Step 2): CDC PLACES connector and a validation study
 
 **Date:** 2026-11-14
-**Status:** Implemented; study run and reviewed (section 9)
+**Status:** Part 1 implemented, study run and reviewed (section 9). Part 2 (sections 10-17, the section 8 work plus the circularity rule, at the owner's request of 2026-11-15) in progress
 **Baseline:** v0.19.0 (Round 20, DOI 10.5281/zenodo.24238647)
 **Roadmap:** Step 2 of PLAN_ROUND_20 section 0. Step 3 (count outcomes, PLAN_ROUND_20 section 8) stays next.
 
@@ -176,3 +176,94 @@ v0.20.0 with a Zenodo DOI, after the review, its fixes, both suites and the repo
 | Preregistration | Manifest `11294774...1f76`, committed alone at `2af16e0` (04:34:25Z); first PLACES download 04:34:46Z |
 | Results | H1-H3 supported (corrected slopes 0.82, 0.77, 0.82; county-clustered). PLACES levels about 13 points above ACS. E2: PLACES reproduces model inputs (education doubled) but not cost burden, the circularity problem in data |
 | Report | `docs/studies/r21_mi_ny_places_disability_validation.md`; friction F1-F7 |
+
+---
+
+# Part 2 (owner request, 2026-11-15): enforce the circularity lesson, then do section 8
+
+The owner asked that the MCP state, and the engine enforce, the lesson of the Part 1 study: **determinant studies keep using the ACS's own measure (for disability: B18101), and use PLACES for measures the ACS lacks, such as diabetes**. Then implement the rest of the plan (section 8, and the Part 1 backlog that blocks it) on this branch before merging.
+
+## 10. What the sources are (verified 2026-11-15)
+
+- **USALEEP** (NCHS, NAPHSIS, RWJF): tract life expectancy at birth e(0) and its SE for 2010-2015 deaths, on **2010 tracts** (Census 2010 codes). Files per state: `https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NVSS/USALEEP/CSV/{ST}_A.CSV` (columns `Tract ID, STATE2KX, CNTY2KX, TRACT2KX, e(0), se(e(0)), Abridged life table flag`). 65,662 tracts (88.8%); Maine and Wisconsin are missing; tracts under 5,000 people over the period are excluded.
+  - **It is partly model-based.** Age groups with missing deaths take **predicted** death rates from a zero-truncated Poisson or negative-binomial model. Its covariates are tract quartiles of median family income, population density, % non-Hispanic Black, % Hispanic and % bachelor's or higher (ACS 2011-2015 and the 2010 census), plus a reservation-area indicator (PRCSDA) and region.
+  - Abridged life table flag (record layout): 1 = observed rates for all ages; 2 = **predicted for all ages**; 3 = combination. Nationally 4,639 tracts are flag 1, 4,872 flag 2 and 56,915 flag 3 (Arias et al. 2018, Vital Health Stat 2(181)).
+  - Consequence: a flag-2 tract's e(0) is a function of its income, race/ethnicity and education composition; flag-3 tracts are partly so. The same circularity rule applies as for PLACES.
+- **County Health Rankings & Roadmaps (CHR&R)** analytic data, 2025 release: one CSV, `https://www.countyhealthrankings.org/sites/default/files/media/document/analytic_data2025_v2.csv` (796 columns; row 1 names, row 2 codes `vNNN_rawvalue`, `_numerator`, `_denominator`, `_cilow`, `_cihigh`, `_flag`; state and national rows mixed in).
+  - Mortality measures come from NCHS death records with Census Population Estimates denominators: premature death (v001, YPLL before 75 per 100,000, age-adjusted), premature age-adjusted mortality (v127, deaths under 75 per 100,000, age-adjusted), life expectancy (v147), child (v128) and infant (v129) mortality, drug overdose (v138) and injury deaths (v135); 2020-2022 for the premature measures in the 2025 release. Counties with fewer than 20 deaths are missing.
+  - Its BRFSS measures (diabetes v060, frequent physical v144 and mental v145 distress, % disability v180) are **PLACES model estimates**: the same circularity, at county level. % disability (v180) has a direct ACS equivalent.
+  - Terms of use: non-commercial research and public-health use; cite "University of Wisconsin Population Health Institute. County Health Rankings & Roadmaps 2025"; no suggested endorsement. The engine caches the file and does not redistribute it.
+- **CDC WONDER**: unchanged from PLAN_ROUND_20 section 8.1. County data only through the web form; the engine reads exported text files the user supplies.
+
+## 11. Engine work, Part 2
+
+**C1. The circularity rule, enforced (validation errors, not notes).** Registry: every measure records `kind` (`direct`, `model_based` or `partly_model_based`), its source model's covariate tables, and its **ACS equivalent** (tables that measure the same construct directly: PLACES DISABILITY and the six disability types: B18101-B18107; CHR v180: B18101; PLACES ACCESS2: B27010; PLACES FOODSTAMP: B22001 at household level). In `create_manifest`:
+- **R1. Same construct.** An external outcome whose measure has an ACS equivalent is allowed only in a *measurement-comparison* analysis: the model contains a variable built from the equivalent tables, and every hypothesis on that analysis tests such a term. Otherwise: error, with the rule's text ("use the ACS's own measure, B18101, as the outcome; use the external source for measures the ACS lacks, such as diabetes"). Part 1's manifest passes (it is a comparison).
+- **R2. Model inputs.** A hypothesis whose tested term draws on the source model's covariate tables (PLACES: age-sex, race/ethnicity, education, poverty; USALEEP: income, race/ethnicity, education) with an external outcome from that model is an error unless the hypothesis carries a written `circularity_justification`, which the methods text repeats. Controls that overlap stay notes.
+- **R3. Composition confound stated.** Every analysis with a `model_based` or `partly_model_based` outcome gets the within-county (PLACES) or covariate-imputation (USALEEP) caveat in methods.md, as now.
+- **MCP.** The server instructions, the core profile's instructions, `docs/agent_protocol.md` (new section 16, *External health data*), a recipe `external_health_outcome`, and a new tool `list_health_sources` (registry, measure kinds, ACS equivalents, the rule) state the rule in these words.
+
+**C2. USALEEP connector (tract).** `SOURCES["usaleep"]` (release 2018, the publication year; data 2010-2015; tract vintage 2010; `partly_model_based`).
+- Per-state A files, cached with SHA-256 sidecars; GEOIDs converted from Census 2010 codes to ACS codes (the existing `census2010_to_acs_geoid`).
+- Parser: `<name>`, `<name>_se`, and `<name>_flag`. **Flag 2 (fully predicted) tracts are dropped by default** (`"include_predicted": true` keeps them, and R2 then applies to every tested term); the drop is recorded in run.json.
+- **Rate apportionment to 2020 tracts** (`"apportion_to": 2020` on the entry): value_t = sum_s m_st v_s / sum_s m_st, with m_st the 2010 block population in source tract s and target tract t (block-weight crosswalk, Round 13). SE: sqrt(sum_s a_st^2 se_s^2) with a_st = m_st / sum m_st (independent tract estimates). A target needs at least 90% of its population mass covered by sources with a value, else missing. This is an approximation (life expectancy is not additive; a split tract inherits its parent's value), recorded in methods.
+  - **Validation:** apportion ACS 2015-2019 crude disability prevalence (2010 tracts) to 2020 tracts and compare with ACS 2016-2020 (2020 tracts) for MI and NY: z-scores of the difference for 1:1, split and merged tracts (`docs/audits/rate_apportionment_validation.md`). Acceptance: median |z| for split and merged tracts no worse than 1.25 times the 1:1 tracts'.
+- Join tolerance per source: USALEEP's documented exclusions (under 5,000 people, flag 2 when dropped) mean the 5% `external_join_failed` limit is the share of *eligible* units missing; the excluded counts are reported separately.
+
+**C3. County Health Rankings connector (county).** `SOURCES["chr"]` (release 2025, county only; `direct` mortality measures; `model_based` BRFSS measures with PLACES covariates and ACS equivalents where they exist).
+- The file is cached with a sidecar; HTTP `Last-Modified` and `ETag` are recorded, since CHR&R reissues files.
+- Parser: county rows only; `<name>`, `<name>_se` = (cihigh - cilow) / (2 x 1.96), `<name>_numerator`, `<name>_denominator`; flag 2 (suppressed) is missing and flag 1 (unreliable) is recorded.
+- Measures the ACS itself supplies (CHR's ACS-derived columns) are not registered: the error says to use the ACS table.
+
+**C4. WONDER export reader (Step 3).** `census.vital_records`:
+- `read_wonder_export(path)` parses the tab-delimited export, the footer's dataset and query parameters, and the `Suppressed`, `Unreliable` and `Not Applicable` markers. Suppressed counts are kept as censored [0, 9], never zero. It refuses files without the footer (edited or partial).
+- Crude rates get exact Poisson (Garwood) intervals; age-adjusted rates use WONDER's own SE when exported, else Fay-Feuer intervals need age-specific counts and are refused.
+- Manifest `external` entries with `"source": "wonder"` take `"file"` and `"sha256"` (the export is pinned by hash; a different file is a validation error at run time).
+
+**C5. Delete-one-cluster jackknife for `fit_eiv` (Part 1 F3).**
+- `args.cluster_se`: `"cr1"` (default) or `"jackknife"` (CR3: delete-one-cluster refits from the per-cluster moment sums; exact, no re-estimation of covariances).
+- Validated in `scripts/eiv_cluster_validation.py` beside CR1 (same cells). Acceptance: coverage of 0.87-0.93 at G >= 60 and at least CR1's at G = 30.
+
+**C6. Diverging map scheme (Part 1 F1).** `make_map(..., scheme="diverging")`: symmetric breaks around 0 (or `center=`) with a red-blue palette, for residuals and gaps.
+
+**C7. `run_variant` (Part 1 F2, Round 20 F8).** Exploratory refits of a completed run without Python: `run_variant(run_dir, analysis, formula=None, subset=None, cluster=None, cluster_se=None)` checks the analysed files' SHA-256 against run.json, refits, and writes the result labelled `exploratory` with the manifest hash. `subset` keeps or drops GEOID prefixes. Exposed as an MCP tool.
+
+F4 (spatial HAC) and F5 (Round 20 age bands, NYC insets) stay in the backlog.
+
+## 12. Study (Part 2): county premature mortality and the Round 20 determinants
+
+The section 8 Step 3 pilot, with a direct outcome that has no model inputs: does the Round 20 determinant pattern for disability carry over to a hard outcome?
+
+| Item | Choice | Why |
+| :--- | :--- | :--- |
+| Units | All MI (83) and NY (62) counties | Test states; the outcome is county-level |
+| Outcome | `prem_mort`: CHR&R 2025 premature age-adjusted mortality (v127), deaths under 75 per 100,000, NCHS 2020-2022 | Direct vital records; age-adjusted; no ACS inputs (Population Estimates denominator) |
+| ACS | 5-year 2022 (2018-2022), county, Census VRE replicates | Period overlaps 2020-2022 |
+| Determinants | `pov_rate`, `pct_bachelors`, `no_vehicle`, `cost_burden`, `asdp` (age-standardized disability, all ages, 2000 standard), built as in Round 20 | Same constructs as Round 20 |
+| Estimator | `fit_eiv`, outcome held fixed (independent error); units independent (no clustering unit with >= 20 groups above the county) | |
+| Correction | Holm across four hypotheses, 90% intervals | |
+
+**Hypotheses** (`examples/manifests/r21b_mi_ny_county_premature_mortality.json`), all `greater`:
+- **H1** (m1: `prem_mort ~ pov_rate + C(state)`): premature mortality is higher where poverty is higher.
+- **H2** (m2: `prem_mort ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(state)`): conditional on the others, higher where more households lack a vehicle.
+- **H3** (m2): conditional on the others, higher where more households are cost-burdened.
+- **H4** (m3: `prem_mort ~ asdp + C(state)`): higher where age-standardized disability prevalence is higher.
+
+**Expectations stated before the data.** H1 and H4 are likely. H2 and H3 are open: among counties, no-vehicle and cost-burden shares are highest in New York City, whose premature mortality is not the highest in New York, and the county count (145) is small.
+
+**Circularity.** None by construction; `create_manifest` must report no R1 or R2 finding. This is the worked example of the rule.
+
+**Seen before registration:** the CHR&R file's header rows (names and codes) only. No CHR&R values, no county ACS values for these variables.
+
+**Exploratory (labelled, `scripts/r21b_exploratory.py`):**
+- **X1:** the same models with v001 (YPLL) and v147 (life expectancy, sign reversed).
+- **X2:** jackknife versus CR1 standard errors on Part 1's H1-H3 (C5).
+- **X3:** Part 1 E2 re-run with the crude adult ACS measure (`acs_dis`), the follow-up the Part 1 report asked for.
+- **X4:** USALEEP tract life expectancy against Round 20 determinants on ACS 2011-2015 (native 2010 tracts, flag-2 tracts dropped, county-clustered), the first tract-level mortality look. Tested terms on education overlap the USALEEP model (R2), so it is reported with that caveat.
+- **X5:** a map of m2 residuals (diverging scheme) and Moran's I.
+
+## 13. Protocol, acceptance and release
+
+- C1-C7 come with offline tests; C2's apportionment validation and C5's simulation pass; then `/code-review high` and its fixes.
+- Then the manifest is committed alone, run, the exploratory analyses run, and the report written (`docs/studies/r21b_mi_ny_county_premature_mortality.md`, author self-review).
+- Both suites run. The release stays **v0.20.0** (not yet tagged), covering Parts 1 and 2; the merge waits for the owner.
