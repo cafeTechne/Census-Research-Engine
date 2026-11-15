@@ -20,7 +20,7 @@ The run was confirmatory with no deviations. All Holm-adjusted p-values are belo
 The two systems agree on which tracts have more disability, but not on how much there is:
 - **Levels differ by a factor of almost two.** PLACES averages 29.4% of adults and ACS 16.1%. The surveys ask similar questions in different settings (section 8). So PLACES values should not be read as ACS-comparable rates.
 - **The agreement is not just age.** Within counties and holding the share of adults 65+ fixed, the slope is unchanged (H3). The demographic composition PLACES uses (sex, race/ethnicity and education besides age) carries real disability variation.
-- **Reproducing the ACS pattern is not the same as measuring the world.** Rerunning Round 20's determinant models with PLACES as the outcome (E2) reproduces poverty and, much more strongly, education: these are inputs to the PLACES model. It does not reproduce Round 20's cost-burden association. A PLACES outcome cannot test determinants that are themselves composition (section 7).
+- **Reproducing the ACS pattern is not the same as measuring the world.** Rerunning Round 20's determinant models with PLACES as the outcome (E2) reproduces poverty and, more strongly, education: these are inputs to the PLACES model. It does not reproduce Round 20's cost-burden association. A PLACES outcome cannot test determinants that are themselves composition (section 7). *Addendum (section 12): against the crude adult ACS measure, the education gradient is inflated about 1.4×, not 2×; the missing cost-burden association is confirmed.*
 
 **Method notes:**
 - ACS sampling error in `acs_dis` and `pct65` is corrected by `fit_eiv`. The naive slope is 0.59, not 0.82: the reliability of tract ACS disability is only 0.72.
@@ -131,7 +131,7 @@ All analyses are in `docs/studies/r21/exploratory_summary.json`, labelled with t
   | m2 `no_vehicle` | +0.006 (−0.009 to 0.020) | −0.016 (−0.039 to 0.007) |
   | m2 `cost_burden` | **−0.09** (−0.14 to −0.05) | +0.02 (−0.01 to 0.05) |
 
-  - PLACES doubles the education gradient. Education is an input to the PLACES model.
+  - PLACES doubles the education gradient. Education is an input to the PLACES model. *(Against the age-standardized ACS outcome; against the crude adult ACS measure the ratio is about 1.4×: section 12.)*
   - PLACES loses the ACS's cost-burden association. Housing cost is not a model input.
   - This is the circularity problem seen in data: a determinant study with a PLACES outcome finds what the model put in.
   - One limit on the comparison: the ACS outcome here is age-standardized (all ages), while PLACES is crude (adults).
@@ -215,3 +215,18 @@ python scripts/eiv_cluster_validation.py
 - **The `pct65` sign** is reported with its untested explanation marked as such.
 
 **Recommendation.** Have someone independent review the report before citing it externally. Run the crude-adult version of E2 next round.
+
+## 12. Addendum (2026-11-15): E2 with the crude adult ACS measure
+
+The review above asked for E2 on a like-for-like ACS outcome. Round 21 Part 2 ran it as exploratory analysis X3 (`docs/studies/r21b_mi_ny_county_premature_mortality.md` section 6; `docs/studies/r21b/exploratory_summary.json`). It fits Round 20's models on 8,129 tracts with three outcomes, county-clustered, 90% intervals:
+
+| Term | ACS crude adult (`acs_dis`) | PLACES | ACS age-standardized (`asdp`) |
+| :--- | ---: | ---: | ---: |
+| m1 `pov_rate` | 0.29 (0.25 to 0.33) | 0.49 (0.46 to 0.53) | 0.32 (0.29 to 0.35) |
+| m2 `pct_bachelors` | −0.14 (−0.16 to −0.12) | −0.20 (−0.21 to −0.19) | −0.09 (−0.10 to −0.07) |
+| m2 `cost_burden` | −0.14 (−0.18 to −0.09) | +0.02 (−0.01 to 0.05) | −0.09 (−0.14 to −0.05) |
+
+- **Correction.** Against the crude adult measure, PLACES inflates the education gradient by about 1.4× (−0.20 against −0.14), not the 2× reported in E2. Part of that difference came from comparing a crude outcome with an age-standardized one.
+- **Confirmed.** PLACES inflates the poverty gradient (1.7× in m1). Its cost-burden association is absent, while both ACS measures show it.
+- **Consequence.** The circularity reading stands, and the engine now enforces it. `create_manifest` refuses PLACES disability as the outcome of a determinant study (rule R1) and refuses tested terms built from PLACES model inputs (rule R2).
+

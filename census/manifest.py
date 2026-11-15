@@ -1096,6 +1096,14 @@ def external_circularity(manifest: Mapping[str, Any]) -> List[Dict[str, Any]]:
     return out
 
 
+def _ext_source_text(entry: Mapping[str, Any]) -> str:
+    from .health_sources import SOURCES, source_text
+    try:
+        return source_text(str(entry["source"]), entry["measure"])
+    except (KeyError, ValueError):
+        return str(SOURCES.get(entry.get("source"), {}).get("model_text", ""))
+
+
 def _has_equivalent(source: Any, measure: Any) -> tuple:
     from .health_sources import acs_equivalent
     try:
@@ -1274,7 +1282,7 @@ def create_manifest(
         from .health_sources import CIRCULARITY_RULE, SOURCES
         hyps = [h for h in manifest.get("hypotheses") or [] if isinstance(h, Mapping)]
         for c in external_circularity(manifest):
-            model = SOURCES[c["source"]]["model_text"]
+            model = _ext_source_text(c)
             if c["equivalent"]:
                 notes.append(f"analyses {c['analysis']}: MEASUREMENT COMPARISON: the outcome {c['outcome']} "
                              f"({c['source']} {c['measure']}) is compared with its direct ACS equivalent "
@@ -2663,7 +2671,7 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
             rel = f" {e.get('release')} release," if e.get("release") is not None else ""
             lines.append(f"- External variable `{e['name']}`: {info.get('title', e.get('source'))}{rel} measure "
                          f"{e.get('measure')} ({unit}), joined on GEOID. Source: "
-                         f"{info.get('model_text', '')}. Uncertainty: {info.get('uncertainty_text', '')}. Its error is "
+                         f"{_ext_source_text(e)}. Uncertainty: {info.get('uncertainty_text', '')}. Its error is "
                          "independent of the ACS sampling error (a different data system); how each analysis uses "
                          "it is stated under Analyses.")
             src_run = next((p for p in ext_run.get("sources") or [] if e["name"] in (p.get("measures") or {}).values()),

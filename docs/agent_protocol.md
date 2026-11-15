@@ -202,7 +202,7 @@ Validated in `docs/audits/inference_validation.md` by simulation with known trut
 
 ## 16. External health data (CDC PLACES, USALEEP, County Health Rankings, WONDER)
 
-**The rule (enforced by `create_manifest`).** Determinant studies keep using the ACS's own measure as the outcome (for disability: `B18101`), and use external sources for measures the ACS lacks, such as diabetes. Round 21 showed why: refitting the Round 20 disability determinants with CDC PLACES disability as the outcome doubled the education gradient (education is a PLACES model input) and lost the housing cost-burden association (not an input). Within a county, PLACES varies only with age, sex, race/ethnicity and education composition; it carries no tract-level health information.
+**The rule (enforced by `create_manifest`).** Determinant studies keep using the ACS's own measure as the outcome (for disability: `B18101`), and use external sources for measures the ACS lacks, such as diabetes. Round 21 showed why: refitting the Round 20 disability determinants with CDC PLACES disability as the outcome inflated the education gradient 1.4× and the poverty gradient 1.7× against the ACS crude adult measure (both are PLACES model inputs) and lost the housing cost-burden association the ACS shows (not an input). Within a county, PLACES varies only with age, sex, race/ethnicity and education composition; it carries no tract-level health information.
 
 | Check | Refused when | What to do |
 | :--- | :--- | :--- |

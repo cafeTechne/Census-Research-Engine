@@ -37,6 +37,10 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
   censored, exact Poisson intervals).
 - `fit_eiv(cluster_se="jackknife")`: delete-one-cluster jackknife, validated beside CR1; `make_map`
   `scheme="diverging"`; `run_variant` (exploratory refits of a finished run, MCP tool).
+- Study (Part 2): `docs/studies/r21b_mi_ny_county_premature_mortality.md`: county premature age-adjusted
+  mortality (CHR&R 2025, NCHS 2020-2022) against the Round 20 determinants, MI/NY counties. Poverty (H1) and
+  disability (H4) supported; no-vehicle (H2, reversed by New York City) and cost burden (H3) not supported.
+  The exploratory crude-adult re-run corrects the Part 1 E2 education ratio to 1.4×.
 
 ## 0.19.0 (Round 20): public-health determinants
 

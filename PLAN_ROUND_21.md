@@ -185,7 +185,7 @@ The owner asked that the MCP state, and the engine enforce, the lesson of the Pa
 
 ## 10. What the sources are (verified 2026-11-15)
 
-- **USALEEP** (NCHS, NAPHSIS, RWJF): tract life expectancy at birth e(0) and its SE for 2010-2015 deaths, on **2010 tracts** (Census 2010 codes). Files per state: `https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NVSS/USALEEP/CSV/{ST}_A.CSV` (columns `Tract ID, STATE2KX, CNTY2KX, TRACT2KX, e(0), se(e(0)), Abridged life table flag`). 65,662 tracts (88.8%); Maine and Wisconsin are missing; tracts under 5,000 people over the period are excluded.
+- **USALEEP** (NCHS, NAPHSIS, RWJF): tract life expectancy at birth e(0) and its SE for 2010-2015 deaths, on **2010 tracts** (Census 2010 codes). Files per state: `https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NVSS/USALEEP/CSV/{ST}_A.CSV` (columns `Tract ID, STATE2KX, CNTY2KX, TRACT2KX, e(0), se(e(0)), Abridged life table flag`). 65,662 tracts (88.8%); tracts under 5,000 people over the period are excluded. New York City has its own file (`NYC_A.CSV`), separate from the rest of New York (found when the first X4 run left 54% of NY tracts unmatched; fixed before any X4 result was read). Maine and Wisconsin were added in a second phase (files exist; an early registry entry wrongly marked them missing).
   - **It is partly model-based.** Age groups with missing deaths take **predicted** death rates from a zero-truncated Poisson or negative-binomial model. Its covariates are tract quartiles of median family income, population density, % non-Hispanic Black, % Hispanic and % bachelor's or higher (ACS 2011-2015 and the 2010 census), plus a reservation-area indicator (PRCSDA) and region.
   - Abridged life table flag (record layout): 1 = observed rates for all ages; 2 = **predicted for all ages**; 3 = combination. Nationally 4,639 tracts are flag 1, 4,872 flag 2 and 56,915 flag 3 (Arias et al. 2018, Vital Health Stat 2(181)).
   - Consequence: a flag-2 tract's e(0) is a function of its income, race/ethnicity and education composition; flag-3 tracts are partly so. The same circularity rule applies as for PLACES.
@@ -269,3 +269,18 @@ The section 8 Step 3 pilot, with a direct outcome that has no model inputs: does
 - C1-C7 come with offline tests; C2's apportionment validation and C5's simulation pass; then `/code-review high` and its fixes.
 - Then the manifest is committed alone, run, the exploratory analyses run, and the report written (`docs/studies/r21b_mi_ny_county_premature_mortality.md`, author self-review).
 - Both suites run. The release stays **v0.20.0** (not yet tagged), covering Parts 1 and 2; the merge waits for the owner.
+
+## 14. Part 2 implementation status
+
+| Item | Result |
+| :--- | :--- |
+| C1 | Rule enforced: R1 (same construct) and R2 (tested model inputs) are `create_manifest` errors. MCP: instructions, core profile line 7, protocol section 16, recipe `external_health_outcome`, tool `list_health_sources` |
+| C2 | USALEEP connector (NYC file, flag-2 drop). Rate apportionment validation **FAILED** for split tracts (1.33 > 1.25; merged 1.05), so split targets are missing by default |
+| C3 | CHR&R 2025 connector (direct mortality; PLACES-based flagged; ACS-derived refused; per-measure source text) |
+| C4 | `census.vital_records` WONDER reader (footer required, SHA-256 pinned and checked at registration, censored suppression, Garwood intervals) |
+| C5 | `cluster_se="jackknife"`: validation PASSED (G >= 60 coverage 0.872-0.916; at G = 30, mean 0.891 against CR1's 0.880) |
+| C6, C7 | `scheme="diverging"`; `run_variant` (MCP tool) |
+| Review | `/code-review high`: 10 findings fixed before registration |
+| Preregistration | Manifest `8df6b790...70e2` committed alone at `15ffb9e` (16:41:51Z); first CHR&R download 16:42:29Z |
+| Results | H1 (poverty +13.0) and H4 (disability +22.4) supported; H2 (no vehicle, −0.90) and H3 (cost burden, +0.82) not supported. Without NYC, no-vehicle is +5.8 (exploratory). X3 corrects Part 1 E2 (education 1.4×, not 2×; cost burden confirmed absent in PLACES). X4: USALEEP life expectancy −0.19 years per poverty point |
+| Report | `docs/studies/r21b_mi_ny_county_premature_mortality.md`; friction F1-F6; Part 1 addendum (section 12) |

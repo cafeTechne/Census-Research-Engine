@@ -96,12 +96,18 @@ class TestUsaleep(Tmp):
             urls.append(u)
             return _usaleep_csv(self.ROWS)
 
-        got = hs.fetch_usaleep(["26", "23"], fetch=fetch)
+        got = hs.fetch_usaleep(["26"], fetch=fetch)
         self.assertEqual(urls, ["https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NVSS/USALEEP/CSV/MI_A.CSV"])
-        self.assertEqual(got["states_without_estimates"], ["23"])
         self.assertEqual(len(got["files"][0]["sha256"]), 64)
         hs.fetch_usaleep(["26"], fetch=fetch)
         self.assertEqual(len(urls), 1)  # cached
+        # New York: the state file plus New York City's own file
+        ny = {"NY_A": [("36001000100", 78.0, 1.0, 3)], "NYC_A": [("36005000200", 84.1, 3.2, 3)]}
+        got = hs.fetch_usaleep(["36"], fetch=lambda u: _usaleep_csv(ny[u.rsplit("/", 1)[1][:-4]]))
+        self.assertEqual(sorted(got["rows"]["Tract ID"]), ["36001000100", "36005000200"])
+        self.assertIn("NYC", got["dataset"])
+        with self.assertRaisesRegex(hs.HealthSourceError, "outside state"):
+            hs.fetch_usaleep(["55"], fetch=lambda u: _usaleep_csv(self.ROWS), cache_dir=tempfile.mkdtemp())
 
     def test_load_external_native_and_apportioned(self):
         e = {"name": "le", "source": "usaleep", "release": 2018, "measure": "E0"}

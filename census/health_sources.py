@@ -180,7 +180,10 @@ SOURCES: Dict[str, Dict[str, Any]] = {
         "url_template": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NVSS/USALEEP/CSV/{st}_A.CSV",
         "releases": {
             2018: {"datasets": {"tract": "USALEEP A files"}, "data_years": "deaths 2010-2015",
-                   "tract_vintage": 2010, "missing_states": ("23", "55")},
+                   "tract_vintage": 2010,
+                   # New York City is a separate registration area with its own file; the NY file
+                   # holds the other 57 counties
+                   "extra_files": {"36": ("NYC",)}},
         },
         "measures": {"E0": {"kind": "partly_model_based", "unit": "years (life expectancy at birth)"}},
         "kind": "partly_model_based",
@@ -194,7 +197,8 @@ SOURCES: Dict[str, Dict[str, Any]] = {
                       "and % with a bachelor's degree or higher (2010 census, ACS 2011-2015), a "
                       "Purchased/Referred Care Service Delivery Area indicator and region (flag 2: predicted "
                       "for all ages; flag 3: observed and predicted; flag 1: observed only). Tracts under 5,000 "
-                      "people over the period, and Maine and Wisconsin, have no estimate",
+                      "people over the period have no estimate; Maine and Wisconsin were added in a second "
+                      "phase",
         "model_covariate_tables": _USALEEP_COVARIATES,
         # 11.2% of tracts unpublished nationally, plus flag-2 tracts when dropped (7% of published)
         "join_missing_limit": 0.25,
@@ -303,6 +307,23 @@ def equivalent_tables(source: str, measure: Any, tables: Iterable[str]) -> List[
     """``tables`` that measure ``measure``'s construct directly in the ACS."""
     eq = acs_equivalent(source, measure)
     return sorted({str(t) for t in tables if eq and _table_matches(t, eq)})
+
+
+_CHR_DIRECT_TEXT = ("NCHS death (and birth) records by county of residence, Census Population Estimates "
+                    "denominators; missing for fewer than 20 deaths")
+
+
+def source_text(source: str, measure: Any) -> str:
+    """How ``measure`` was produced: the measure's own text when the source mixes kinds (CHR&R), else the
+    source's model text."""
+    info = source_info(source)
+    if source == "chr":
+        try:
+            kind = measure_kind(source, measure)
+        except ValueError:
+            return info["model_text"]
+        return _CHR_DIRECT_TEXT if kind == "direct" else "CDC PLACES model estimate (" + _PLACES_MODEL_TEXT + ")"
+    return info["model_text"]
 
 
 def kind_phrase(source: str, measure: Any) -> str:
@@ -701,23 +722,24 @@ def fetch_usaleep(states: Sequence[str], fetch: Optional[Callable[[str], bytes]]
     info = SOURCES["usaleep"]
     get = fetch or (lambda u: _http_get(u, session=session))
     folder = os.path.join(cache_dir or health_cache_dir(), "usaleep", "2018")
-    frames, files, missing = [], [], []
+    frames, files, names = [], [], []
+    extra = info["releases"][2018]["extra_files"]
     for st in sorted({str(s).zfill(2) for s in states}):
-        if st in info["releases"][2018]["missing_states"]:
-            missing.append(st)
-            continue
-        abbr = _states_abbr([st])[0]
-        url = info["url_template"].format(st=abbr)
-        raw, rec, _ = _cached_file(os.path.join(folder, f"{abbr}_A.CSV"), url, get, "text/csv")
-        files.append(rec)
-        try:
-            frames.append(pd.read_csv(io.BytesIO(raw), dtype=str))
-        except Exception as exc:  # noqa: BLE001
-            raise HealthSourceError(f"{url}: not a CSV ({exc})") from exc
+        for abbr in (_states_abbr([st])[0],) + tuple(extra.get(st, ())):
+            url = info["url_template"].format(st=abbr)
+            raw, rec, _ = _cached_file(os.path.join(folder, f"{abbr}_A.CSV"), url, get, "text/csv")
+            files.append(rec)
+            names.append(abbr)
+            try:
+                part = pd.read_csv(io.BytesIO(raw), dtype=str)
+            except Exception as exc:  # noqa: BLE001
+                raise HealthSourceError(f"{url}: not a CSV ({exc})") from exc
+            if "Tract ID" in part.columns and not part["Tract ID"].astype(str).str.startswith(st).all():
+                raise HealthSourceError(f"{url}: rows outside state {st}")
+            frames.append(part)
     rows = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
-    return {"rows": rows, "files": files, "dataset": "USALEEP A files (" + ", ".join(
-        _states_abbr([s])[0] for s in sorted({str(x).zfill(2) for x in states}) if s not in missing) + ")",
-        "states_without_estimates": missing, "rows_updated_at": None}
+    return {"rows": rows, "files": files, "dataset": "USALEEP A files (" + ", ".join(names) + ")",
+            "rows_updated_at": None}
 
 
 def parse_usaleep(rows: pd.DataFrame, name: str, include_predicted: bool = False) -> "tuple[pd.DataFrame, Dict]":
@@ -942,7 +964,7 @@ def load_external(
         if e["source"] == "usaleep":
             got = fetch_usaleep(states, fetch=fetch, cache_dir=cache_dir)
             part, drop = parse_usaleep(got["rows"], name, bool(e.get("include_predicted", False)))
-            extra: Dict[str, Any] = {"predicted": drop, "states_without_estimates": got["states_without_estimates"]}
+            extra: Dict[str, Any] = {"predicted": drop}
             if e.get("apportion_to") is not None:
                 cw = crosswalk
                 if cw is None:
