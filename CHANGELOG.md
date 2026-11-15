@@ -5,6 +5,25 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.20.0 (Round 21): external health outcomes (Step 2)
+
+- `census.health_sources`: registry of external health sources and the CDC PLACES connector (2025 release,
+  tract and county). Keyless Socrata CSV exports filtered to states, measures and crude values; pages cached
+  with SHA-256 sidecars; the dataset revision stamp (`rowsUpdatedAt`) recorded with the download it describes;
+  `CENSUS_HEALTH_OFFLINE`; SE from the published 95% interval.
+- Manifest `external` variables: joined on GEOID after the ACS frame; outcome-only for `fit_eiv`,
+  `fit_replicate` and `fh_regression`; single release; tract vintage checked (or `harmonize_tracts_to`);
+  blocking `external_unavailable` and `external_join_failed` deviations; `create_manifest` notes covariates that
+  are inputs of the source's model (circularity); provenance, citation and methods text.
+- `fit_eiv`: `fixed_variables` (an outcome from another survey, no replicates), `cluster="GEOID.str[:N]"`, the
+  independence SE kept in the diagnostics when clustered. Cluster-robust SEs validated by simulation
+  (`docs/audits/eiv_cluster_validation.md`, `scripts/eiv_cluster_validation.py`).
+- `analysis_frame` builds its columns at once (no pandas fragmentation warnings).
+- Study: `docs/studies/r21_mi_ny_places_disability_validation.md`: PLACES 2025 adult disability against the
+  ACS 2020-2024 direct estimate, MI/NY tracts. H1-H3 supported (slope about 0.8 after correcting ACS error,
+  within counties and beyond age); levels differ by about 13 points; exploratory E2 shows the circularity of
+  determinant studies with a PLACES outcome.
+
 ## 0.19.0 (Round 20): public-health determinants
 
 - Age standardization: `census.standardize` with the bundled 2000 U.S. standard population (NCHS/SEER single

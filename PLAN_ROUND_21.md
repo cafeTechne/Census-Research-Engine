@@ -1,7 +1,7 @@
 # Round 21: External health outcomes (Step 2): CDC PLACES connector and a validation study
 
 **Date:** 2026-11-14
-**Status:** In progress (section 9)
+**Status:** Implemented; study run and reviewed (section 9)
 **Baseline:** v0.19.0 (Round 20, DOI 10.5281/zenodo.24238647)
 **Roadmap:** Step 2 of PLAN_ROUND_20 section 0. Step 3 (count outcomes, PLAN_ROUND_20 section 8) stays next.
 
@@ -168,10 +168,11 @@ v0.20.0 with a Zenodo DOI, after the review, its fixes, both suites and the repo
 
 | Item | Result |
 | :--- | :--- |
-| B1 | |
-| B2 | |
-| B3 | |
-| B4 | |
-| Review | |
-| Preregistration | |
-| Results | |
+| B1 | Clustered sandwich validated (`docs/audits/eiv_cluster_validation.md`, 500 per cell): G >= 60 coverage 0.870-0.914, passed; the independence sandwich fell to 0.46-0.88 under clustering. `args.cluster` takes `GEOID.str[:N]` |
+| B2 | `census.health_sources` with the CDC PLACES connector (crude-only, deterministic paging, SHA-256 sidecars, revision stamp tied to the download, offline mode) |
+| B3 | Manifest `external` variables (outcome-only, single release, vintage check, blocking deviations, circularity notes, methods text); `fit_eiv(fixed_variables=...)` |
+| B4 | `analysis_frame` without fragmentation (F10) |
+| Review | `/code-review high` before registration: 10 findings fixed (vintage check under `harmonize_tracts_to`, multi-release externals, duplicate measures, paging, revision stamp, cache helper reuse, methods wording) |
+| Preregistration | Manifest `11294774...1f76`, committed alone at `2af16e0` (04:34:25Z); first PLACES download 04:34:46Z |
+| Results | H1-H3 supported (corrected slopes 0.82, 0.77, 0.82; county-clustered). PLACES levels about 13 points above ACS. E2: PLACES reproduces model inputs (education doubled) but not cost burden, the circularity problem in data |
+| Report | `docs/studies/r21_mi_ny_places_disability_validation.md`; friction F1-F7 |
