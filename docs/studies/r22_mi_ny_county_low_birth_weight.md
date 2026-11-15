@@ -66,7 +66,7 @@ The engine and validation decisions were committed as `85a8caf`, with the final 
 clarification `31e55ed`. The manifest was then committed **alone** as
 `7b967d1ebfeaa369b9dabeb7f81cecdf4d1ec037` (2026-11-15T15:50:25-05:00), including its canonical
 SHA-256 in the commit message, and pushed to `phase22/count-outcomes` **before** the first
-`run_manifest` call. No LBW–determinant association was computed, plotted or inspected beforehand.
+`run_manifest` call. No LBW–determinant association was computed, plotted or inspected beforehand in this implementation.
 The main manifest was not changed after fitting. The policy decision from the failed A2 validation
 was applied before registration: neither m1 nor m2 contains `spatial_se`.
 
@@ -259,6 +259,8 @@ records the current execution checkout and must not alter its fixed criterion or
   cutoffs, study fits, simulation results and the committed main manifest were unchanged.
 - **Status checks:** both X1/X2 run and per-analysis provenance are exploratory; blocking deviations
   would remain recorded. Main results retain their original confirmatory status and three hypotheses.
+- **Local verification:** full suite **1,628 passed, 37 skipped, 0 failed, 48 subtests passed**;
+  final targeted cutoff-error checks **15 passed**. All 11 example manifests validate; MCP count is 63.
 - **Numbers:** the results table is generated from `bundle/results/hypotheses.json`; OR per 10 pp
   explicitly exponentiates ten times the stored logit estimate. Exploratory numbers are drawn from the
   hashed summary, not substituted into the registered table.

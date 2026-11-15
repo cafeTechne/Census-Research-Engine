@@ -1,6 +1,6 @@
 # Round 22: Count outcomes, spatial standard errors and a low birth weight study
 
-Status: **implementation in progress** (written 2026-11-15, after v0.20.0 / DOI 10.5281/zenodo.24260044).
+Status: **implemented; local validation complete; PR handoff in progress** (written 2026-11-15, after v0.20.0 / DOI 10.5281/zenodo.24260044).
 Implementer: an external agent. This plan is written to be followed literally: do what it says, in the order
 it says, and nothing else. Where a decision is not covered here, choose the smallest change that satisfies
 the acceptance criteria, and record the decision in section 9 (implementation status). Do not redesign
@@ -507,17 +507,17 @@ PLAN_ROUND_22.md)", adding the A2/A4 result in a few words. Change nothing else 
 
 ## 7. Acceptance checklist (all must be true before opening the PR)
 
-- [ ] A1 implemented and tested; existing tests unchanged and passing.
-- [ ] A2 implemented; identity tests pass; `docs/audits/spatial_hac_validation.md` committed with PASSED or
+- [x] A1 implemented and tested; existing tests unchanged and passing.
+- [x] A2 implemented; identity tests pass; `docs/audits/spatial_hac_validation.md` committed with PASSED or
       FAILED and the stated consequence applied.
-- [ ] A3 implemented; manifest rules enforced; `v037` registered with confirmed years.
-- [ ] A4 re-test run on OH/PA with `docs/audits/rate_apportionment_retest.md` committed; `"dominant"` added
+- [x] A3 implemented; manifest rules enforced; `v037` registered with confirmed years.
+- [x] A4 re-test run on OH/PA with `docs/audits/rate_apportionment_retest.md` committed; `"dominant"` added
       only if PASSED; default still `"missing"`.
-- [ ] Docs/MCP updated per section 4. MCP tool count is still 63.
-- [ ] Manifest committed with its hash before `run_manifest`; study run, exploratory run, report written.
-- [ ] Full suite 0 failures; all example manifests still valid.
-- [ ] No API key, email or attribution lines in any commit, output or PR text.
-- [ ] Section 9 of this plan filled in.
+- [x] Docs/MCP updated per section 4. MCP tool count is still 63.
+- [x] Manifest committed with its hash before `run_manifest`; study run, exploratory run, report written.
+- [x] Full suite 0 failures; all example manifests still valid.
+- [x] No API key, email or attribution lines in any commit, output or PR text.
+- [x] Section 9 of this plan filled in.
 
 ## 8. What to do when stuck
 
@@ -541,10 +541,10 @@ PLAN_ROUND_22.md)", adding the A2/A4 result in a few words. Change nothing else 
 | A4 | PASSED | OH/PA held out; preregistration d8ad360; 499 high-share split targets, ratio 0.912797 <=1.25. dominant opt-in only; default missing. |
 | Docs/MCP | Updated | Version 0.21.0; no added tools; no circularity text weakened; no CI, tags or releases. |
 | Self-review findings | Reviewed before study registration | Fixed an OR-loop name shadowing the data-source record, a misplaced dominant annotation caught by USALEEP regressions, count outcomes in RHS roles, and moved unreliable-count reporting after exclusions. Scores use trials-weighted binomial residuals / exposure-adjusted Poisson mu; n/(n-k) only; coordinate rows align to actual fit rows. |
-| Study registration (hash, commit) | | |
-| Study results | | |
-| Exploratory X1–X5 | | |
-| Test suite counts | In progress | Baseline: 8/8 example manifests valid on the code shared with defaultBranch. Focused 41 passed; final new Round 22 tests 15 passed. Full offline suite running on the project venv. |
+| Study registration (hash, commit) | Committed and pushed before fitting | Canonical SHA-256 `10c46acedc6eff827d8a41df34d272f839ed0d75804666e81b77ca75eab83ea6`, commit `7b967d1ebfeaa369b9dabeb7f81cecdf4d1ec037`; registered manifest bytes unchanged. |
+| Study results | Complete, confirmatory; no blocking deviations | 144/145 counties used. H1 poverty supported (Holm p=2.65109e-12); H2 cost burden supported (p=0.00498352); H3 no-vehicle not supported (p=0.923584). Pearson dispersion 21.99/21.02. Independence SEs, as A2 requires. |
+| Exploratory X1–X5 | Complete, labelled exploratory | X1 without NYC n=139; X2 composition n=144; X3 all six cutoff refits not validated; X4 residual Moran I=0.183552, p_sim=0.003, 999 permutations, seed 20261122; X5 Poisson n=144. Report and hashed summary in docs/studies/r22*. |
+| Test suite counts | 1,628 passed; 37 skipped; 0 failed; 48 subtests passed | Full local project-venv suite, 555.84 seconds, Python 3.14 / SciPy 1.18.1. Final invalid-cutoff focused check: 15 passed. All 11 current example manifests validate; all 8 baseline examples validated before implementation. No GitHub CI. |
 
 
 ### Decisions and execution record
@@ -565,3 +565,38 @@ PLAN_ROUND_22.md)", adding the A2/A4 result in a few words. Change nothing else 
   explicitly identifies 2017–2023 for the 2025 release; [2025 dictionary](https://www.countyhealthrankings.org/sites/default/files/media/document/DataDictionary_2025.pdf)
   lists v037 raw proportion, numerator, denominator and unreliability indicator.
   No different years were documented in the cached analytic CSV.
+
+
+### Final implementation references and handoff
+
+- Exploratory validation/status: `census/manifest.py:815` (`validate_manifest`) and
+  `census/manifest.py:1620` (`run_manifest`); checks in `tests/test_round22.py:16`.
+- Spatial covariance and coordinate provenance: `census/spatial_hac.py:22` and
+  `census/spatial_hac.py:68`; model integration `census/models.py:372` and
+  `census/models.py:809`. `SPATIAL_HAC_VALIDATED` remains false, matching the
+  committed fixed validation result. No confirmatory spatial argument is permitted.
+- Count roles, fitting and fixed external outcomes: `census/manifest.py:1444`,
+  `census/models.py:372`; source/role/circularity and end-to-end controls in
+  `tests/test_round22.py:123`.
+- Held-out dominant policy: `census/health_sources.py:786`; threshold/default
+  checks in `tests/test_round22_a4.py`. The original Round 21 audit is unchanged.
+  The validation script already had `--out`; it was preserved rather than duplicated.
+- Only the F3/F5/F6 Status cells were changed in the older study report. All new
+  study results, limits, exact reproduction commands and the friction backlog are
+  in `docs/studies/r22_mi_ny_county_low_birth_weight.md`.
+- Main registration preceded all LBW associations. Two allowed exploratory
+  manifests retain their own hashes and exploratory provenance. The versioned
+  summary SHA-256 is `818543c462d2f3f1f1ce01f91335fde315b764e15e79359dcf23aff016a6bab3`.
+- One post-registration review fix standardized ValueError for invalid/nonnumeric
+  spatial cutoffs. It changes no accepted numeric input, score, coefficient,
+  validation criterion or study result; all 15 focused controls passed afterward.
+  This is disclosed in the study self-review. No registered manifest was edited.
+- The residual map was visually inspected. Generated SVG whitespace is preserved
+  as renderer output to retain its recorded hash; source/doc checks exclude that
+  generated vector file. No formatting sweep or map redesign was performed.
+- Literal-key scan: zero hits across the complete local study outputs and copied
+  docs artifacts, and zero hits in newly generated validation outputs. The raw
+  cached CHR file is not redistributed. MCP tool count verified as 63.
+- Every new commit carries `[skip ci]`, including the final handoff. The default
+  branch, existing tags and releases remain unchanged. One PR is the remaining
+  external handoff; no merge is authorized or attempted.
