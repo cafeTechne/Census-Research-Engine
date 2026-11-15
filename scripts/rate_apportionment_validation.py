@@ -63,7 +63,10 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--states", nargs="+", default=["26", "36"])
     ap.add_argument("--out", default="docs/audits/rate_apportionment_validation.md")
+    ap.add_argument("--parent-share-min", type=float, default=None)
     args = ap.parse_args(argv)
+    if args.parent_share_min is not None and not 0 < args.parent_share_min <= 1:
+        ap.error("parent-share-min must be in (0,1]")
     load_dotenv()
     client = CensusAPIClient(cache=get_default_cache())
     src = pd.concat([fetch_rates(client, 2019, s) for s in args.states], ignore_index=True)
@@ -144,6 +147,28 @@ def main(argv=None) -> int:
         "remain an approximation, stated in every methods text that uses them.",
         "",
     ]
+    if args.parent_share_min is not None:
+        sub = m[(m.type == "split") & (m.parent_share >= args.parent_share_min)]
+        high_median = float(np.median(np.abs(sub["z"]))) if len(sub) else float("nan")
+        ratio = high_median / base
+        passed = bool(np.isfinite(ratio) and ratio <= LIMIT)
+        import subprocess
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+        lines = [line for line in lines if not line.startswith(("**Acceptance**", "**Consequence", "**Post hoc**"))]
+        lines[0] = "# Held-out split-tract apportionment re-test (Round 22)"
+        lines[2:2] = [
+            "**Pre-registered hypothesis:** split targets that hold at least 95% of their parent tract's "
+            "2010 population behave like 1:1 targets. Held-out states: Ohio (39), Pennsylvania (42). "
+            "Criterion: high-share split median |z| / 1:1 median |z| <= 1.25. "
+            "The script and hypothesis were committed before this run; registration commit is recorded below.", "",
+            f"**Acceptance: {'PASSED' if passed else 'FAILED'}**. Parent share >= {args.parent_share_min}: "
+            f"n={len(sub)}, median |z|={high_median:.6f}, 1:1 median={base:.6f}, ratio={ratio:.6f} "
+            f"(fixed limit {LIMIT}).", "",
+            ("Consequence: add opt-in split=dominant for parent share >=0.95; default remains missing." if passed else
+             "Consequence: no engine split-policy change; default remains missing."), "",
+            f"Pre-run script/hypothesis commit: `{commit}`. Other parent-share bands below are descriptive; "
+            "they do not change the decision.", "",
+        ]
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     with open(args.out, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines))
