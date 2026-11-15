@@ -218,9 +218,13 @@ Validated in `docs/audits/inference_validation.md` by simulation with known trut
 
 For CHR 2025 `v037` low birth weight (direct NCHS natality 2017–2023), use
 `fit_replicate` with `model: "binomial"`, proportion outcome `<name>`,
-`trials: "<name>_denominator"` and `scale: "X2"` (Pearson quasi-binomial).
+`trials: "<name>_denominator"` and `scale: "robust"` (HC3 sandwich SEs).
 For counts use `<name>_numerator` as the Poisson outcome and
-`exposure: "<name>_denominator"`, `scale: "X2"`. Effective-trials fallback,
+`exposure: "<name>_denominator"`, `scale: "robust"`. Do not use `scale: "X2"`:
+Pearson quasi-likelihood SEs under-cover (0.69–0.79 at nominal 0.90) when areas
+differ beyond binomial/Poisson chance, and new manifests with it are refused
+(docs/audits/robust_se_validation.md; HC3 covered 0.879–0.897). Robust SEs treat
+areas as independent; report residual Moran's I as a limitation. Effective-trials fallback,
 external negative-binomial/WLS outcomes and count columns in other formula roles
 are refused. Suppressed outcomes stay missing; unreliable small counts are
 retained and reported. Replicate SEs describe ACS covariate sampling error,

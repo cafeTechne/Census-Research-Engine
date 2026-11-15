@@ -442,7 +442,7 @@
             "boundary_year": 2022,
             "files": [
               {
-                "cache_path": "/home/hobo/Projects/US-Census-5-Year-ACS-Data-Batch-Downloader/.cache/geo/2022/cb_2022_us_county_500k.zip",
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
                 "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
                 "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
               }
@@ -593,7 +593,7 @@
             "boundary_year": 2022,
             "files": [
               {
-                "cache_path": "/home/hobo/Projects/US-Census-5-Year-ACS-Data-Batch-Downloader/.cache/geo/2022/cb_2022_us_county_500k.zip",
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
                 "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
                 "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
               }
@@ -744,7 +744,7 @@
             "boundary_year": 2022,
             "files": [
               {
-                "cache_path": "/home/hobo/Projects/US-Census-5-Year-ACS-Data-Batch-Downloader/.cache/geo/2022/cb_2022_us_county_500k.zip",
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
                 "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
                 "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
               }
@@ -966,7 +966,7 @@
             "boundary_year": 2022,
             "files": [
               {
-                "cache_path": "/home/hobo/Projects/US-Census-5-Year-ACS-Data-Batch-Downloader/.cache/geo/2022/cb_2022_us_county_500k.zip",
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
                 "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
                 "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
               }
@@ -1188,7 +1188,7 @@
             "boundary_year": 2022,
             "files": [
               {
-                "cache_path": "/home/hobo/Projects/US-Census-5-Year-ACS-Data-Batch-Downloader/.cache/geo/2022/cb_2022_us_county_500k.zip",
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
                 "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
                 "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
               }
@@ -1410,7 +1410,7 @@
             "boundary_year": 2022,
             "files": [
               {
-                "cache_path": "/home/hobo/Projects/US-Census-5-Year-ACS-Data-Batch-Downloader/.cache/geo/2022/cb_2022_us_county_500k.zip",
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
                 "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
                 "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
               }
@@ -2439,7 +2439,7 @@
         "files": [
           {
             "downloaded_at": "2026-11-15T16:42:29Z",
-            "path": "/home/hobo/Projects/US-Census-5-Year-ACS-Data-Batch-Downloader/.cache/health/chr/2025/analytic_data2025_v2.csv",
+            "path": ".cache/health/chr/2025/analytic_data2025_v2.csv",
             "sha256": "fe94ca504dd8688d55429b908540241bc420466ebc5556cbe27e84adf7aefbcf",
             "size_bytes": 13085361,
             "source_url": "https://www.countyhealthrankings.org/sites/default/files/media/document/analytic_data2025_v2.csv"

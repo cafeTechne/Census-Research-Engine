@@ -112,11 +112,11 @@ def count_manifest(model='binomial'):
     m = _manifest(geography={'level':'county','state':'26'})
     m['external'] = [{'name':'lbw','source':'chr','release':2025,'measure':'v037'}]
     m['analyses'] = [{'id':'m1','method':'fit_replicate','formula':'lbw ~ pov_rate',
-                      'args':{'model':model,'scale':'X2','trials':'lbw_denominator'}}]
+                      'args':{'model':model,'scale':'robust','trials':'lbw_denominator'}}]
     m['hypotheses'][0]['term']='pov_rate'
     if model=='poisson':
         m['analyses'][0].update(formula='lbw_numerator ~ pov_rate',
-                               args={'model':'poisson','scale':'X2','exposure':'lbw_denominator'})
+                               args={'model':'poisson','scale':'robust','exposure':'lbw_denominator'})
     return m
 
 
@@ -211,7 +211,7 @@ class TestCountOutcomes:
             out=run_manifest(m,tmp_path/'run',client=CountyClient(),use_cache=False,replicates=reps)
         assert out['success'],out.get('deviations')
         assert 'odds_ratio' in out['hypotheses']
-        assert 'quasi-binomial regression' in (tmp_path/'run/bundle/methods.md').read_text()
+        assert 'HC3 sandwich estimates' in (tmp_path/'run/bundle/methods.md').read_text()
         assert '1 counties had fewer than 20' in (tmp_path/'run/bundle/methods.md').read_text()
         from census.manifest import run_variant
         coords = out['frame'][['GEOID']].assign(lon=np.linspace(-95,-75,len(out['frame'])),lat=40.)
@@ -239,3 +239,67 @@ class TestCoordinates:
                 unit_coordinates(['01003'],'county',2020)
         with pytest.raises(ValueError):
             unit_coordinates(['01'],'state',2020)
+
+
+class TestRobustSE:
+    def _data(self, seed=7, n=120):
+        rng = np.random.default_rng(seed)
+        x = rng.normal(size=n)
+        t = rng.integers(200, 8000, n).astype(float)
+        p = 1/(1+np.exp(2.6-.3*x-.3*rng.normal(size=n)))
+        return pd.DataFrame({'GEOID':[str(i) for i in range(n)],'x':x,'y':rng.binomial(t.astype(int),p)/t,'t':t,
+                             'c':rng.poisson(t*np.exp(-2.6+.3*x)).astype(float)})
+
+    def test_binomial_matches_helper_and_keeps_estimates(self):
+        from census.models import glm_robust_covariance
+        import statsmodels.api as sm
+        d = self._data()
+        a = fit_replicate('y ~ x',d,model='binomial',trials='t')
+        r = fit_replicate('y ~ x',d,model='binomial',trials='t',scale='robust')
+        np.testing.assert_allclose(a.coefficients.estimate,r.coefficients.estimate,atol=1e-12)
+        X = np.column_stack((np.ones(len(d)),d.x))
+        f = sm.GLM(d.y,X,family=sm.families.Binomial(),var_weights=d.t).fit()
+        cov,_ = glm_robust_covariance(X,d.y.to_numpy(),f.fittedvalues,'binomial',d.t.to_numpy())
+        np.testing.assert_allclose(r.coefficients.se_model.to_numpy(),np.sqrt(np.diag(cov)),rtol=1e-9)
+        assert r.diagnostics['robust_se']['estimator']=='HC3'
+        assert any('HC3' in n for n in r.notes)
+        assert not any('model SEs assume no overdispersion' in n for n in r.notes)
+
+    def test_hc3_exceeds_hc0(self):
+        from census.models import glm_robust_covariance
+        import statsmodels.api as sm
+        d = self._data(11)
+        X = np.column_stack((np.ones(len(d)),d.x))
+        f = sm.GLM(d.c,X,family=sm.families.Poisson(),exposure=d.t).fit()
+        cov,info = glm_robust_covariance(X,d.c.to_numpy(),f.fittedvalues,'poisson')
+        hc0 = sm.GLM(d.c,X,family=sm.families.Poisson(),exposure=d.t).fit(cov_type='HC0').bse.to_numpy()
+        assert (np.sqrt(np.diag(cov)) > hc0).all() and 0 < info['max_leverage'] < 1
+
+    def test_poisson_robust_fit(self):
+        r = fit_replicate('c ~ x',self._data(),model='poisson',exposure='t',scale='robust')
+        assert np.isfinite(r.coefficients.se_model).all()
+
+    def test_refusals(self):
+        d = self._data()
+        with pytest.raises(ValueError):
+            fit_replicate('y ~ x',d,scale='robust')
+        with pytest.raises(ValueError):
+            fit_replicate('y ~ x',d,model='binomial',trials='t',scale='HC0')
+        with pytest.raises(ValueError):
+            fit_replicate('y ~ x',d,model='binomial',trials='t',scale='robust',spatial_se={'cutoff_km':50},
+                          coords=pd.DataFrame())
+
+    def test_manifest_x2_refused_for_new_external_count(self):
+        for model in ('binomial','poisson'):
+            m = count_manifest(model)
+            m['analyses'][0]['args']['scale'] = 'X2'
+            assert any("scale 'X2' refused" in e for e in validate_manifest(m,resolve=False))
+
+    def test_registered_r22_manifests_still_valid(self):
+        import os
+        from census.manifest import load_manifest, LEGACY_X2_MANIFESTS, manifest_hash
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        for f in ('r22_mi_ny_county_low_birth_weight','r22_x1_without_nyc','r22_x2_race_composition'):
+            m = load_manifest(os.path.join(root,'examples','manifests',f+'.json'))
+            assert manifest_hash(m) in LEGACY_X2_MANIFESTS
+            assert not any("scale 'X2' refused" in e for e in validate_manifest(m,resolve=False))

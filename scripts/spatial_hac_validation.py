@@ -22,6 +22,7 @@ def main():
     if len(geoids) != 145:
         raise ValueError(f'expected 145 MI/NY counties, got {len(geoids)}')
     coords, provenance = unit_coordinates(geoids,'county',2020)
+    provenance = json.loads(json.dumps(provenance).replace(str(Path.cwd())+'/', ''))  # no local home paths
     dist = haversine_matrix(coords.lon,coords.lat)
     n = len(dist)
     rows = []

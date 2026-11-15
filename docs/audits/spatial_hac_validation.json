@@ -6,7 +6,7 @@
     "boundary_year": 2020,
     "files": [
       {
-        "cache_path": "/home/hobo/Projects/US-Census-5-Year-ACS-Data-Batch-Downloader/.cache/geo/2020/cb_2020_us_county_500k.zip",
+        "cache_path": ".cache/geo/2020/cb_2020_us_county_500k.zip",
         "source_url": "https://www2.census.gov/geo/tiger/GENZ2020/shp/cb_2020_us_county_500k.zip",
         "sha256": "1a45c87a5a0c322514c9d5c9ebcba5eb9df313bd38962f6db56107ba0ccacc6f"
       }

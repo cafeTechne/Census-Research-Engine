@@ -23,8 +23,8 @@ robust evidence of a causal or specification-independent relationship.
 **Post hoc caution on H2 (added in the planner's review; see section 6, X6).** The registered quasi-binomial
 SEs assume the overdispersion is proportional to binomial variance. The study's own spatial validation
 shows they covered only 0.728 of nominal 90% intervals when it is not, even without spatial correlation.
-Heteroskedasticity-robust SEs are 1.8–2.6 times larger. With them, H1 stays supported (Holm p 0.003),
-but H2 would not be supported (Holm p 0.117). The registered H2 result stands as registered, but it
+Heteroskedasticity-robust SEs are 1.8–3.3 times larger. With them, H1 stays supported (Holm p 0.003 with
+HC0, 0.049 with the engine's validated HC3 option), but H2 would not be supported (Holm p 0.117 / 0.320). The registered H2 result stands as registered, but it
 rests on that weighting assumption and should be read as fragile.
 
 ## 1. Question and hypotheses
@@ -203,6 +203,21 @@ is unchanged, but the size depends on weighting. Reading: poverty (H1) holds und
 This check is post hoc, so it does not overturn the registered result. Future manifests should register
 robust SEs for overdispersed county outcomes (friction F6).
 
+**Follow-up in the same review (engine option `scale: "robust"`).** HC3 SEs were then added to the engine and
+validated with a fixed, pre-registered design ([robust_se_validation.md](../audits/robust_se_validation.md):
+HC3 covered 0.879–0.897 in all four cells; X2 0.689–0.899; HC0 with n/(n−k) 0.843–0.886). `run_variant` with
+`args={"scale": "robust"}` on the registered run gives (exploratory; [posthoc_robust_hc3.json](r22/posthoc_robust_hc3.json)):
+
+| Hypothesis | Term | Estimate | HC3 SE | Ratio to registered | One-sided p | Holm p | Supported (HC3) |
+| :--- | :--- | ---: | ---: | ---: | ---: | ---: | :--- |
+| H1 | pov_rate | 0.014654 | 0.006847 | 3.30 | 0.0162 | 0.0485 | yes |
+| H2 | cost_burden | 0.006124 | 0.006154 | 2.82 | 0.160 | 0.320 | no |
+| H3 | no_vehicle | −0.001432 | 0.004035 | 4.03 | 0.639 | 0.639 | no |
+
+HC3 is wider than HC0 here because a few large-birth counties have high leverage (maximum 0.44 in m1, 0.67 in
+m2). New manifests with external count outcomes must use `scale: "robust"`; `X2` is refused except for the three
+Round 22 manifests registered before the rule.
+
 ## 7. Interpretation
 
 Under the registered specification, poverty in the state-intercept model and housing costs in the
@@ -223,7 +238,7 @@ mechanism. A county with a higher percentage can differ in many other respects f
   `se_sampling` propagates ACS uncertainty only. Registered tests target the population model SE.
 - **Variance model (post hoc finding, X6):** quasi-binomial SEs assume overdispersion proportional to
   binomial variance; the study's own simulation shows they under-cover when it is not (0.728 at nominal 0.90).
-  Robust SEs would not support H2 after Holm correction.
+  Robust SEs (HC0 or the validated HC3) would not support H2 after Holm correction.
 - **Spatial dependence:** the main SEs assume spatial independence. Residual Moran's I is positive;
   the prescribed Conley validation failed. Pearson scaling handles overdispersion, not arbitrary
   cross-county dependence. Reported p-values/support remain conditional on the independence assumption.
@@ -278,7 +293,7 @@ records the current execution checkout and must not alter its fixed criterion or
 | F3 | Response residuals are not an exposed fitted-model artifact. The script reconstructs them from the saved coefficients and patsy design, after verifying analysed-input hashes. | Backlog; reproduction is explicit in `scripts/r22_exploratory.py` |
 | F4 | The diverging map legend displays a floating-point value very close to zero rather than a rounded zero. | Backlog: display-only formatting; no map redesign/formatting sweep |
 | F5 | Exploratory status, explicit count roles and count-model dispersion were missing from the prior engine path. | Fixed in A1/A3, with offline regressions |
-| F6 | Quasi-binomial (X2) SEs under-cover when overdispersion is between-area rather than binomial-proportional (A2 validation, range 0: 0.728). The plan prescribed X2 as sufficient; it is not. Found in the planner's review (X6). | Backlog: a robust (HC) `se` option for external count GLMs, validated with the A2 binomial design and required by manifests for overdispersed outcomes |
+| F6 | Quasi-binomial (X2) SEs under-cover when overdispersion is between-area rather than binomial-proportional (A2 validation, range 0: 0.728). The plan prescribed X2 as sufficient; it is not. Found in the planner's review (X6). | Fixed in this round: `scale: "robust"` (HC3), validated (docs/audits/robust_se_validation.md, PASSED) and required for new external count manifests |
 
 ## 11. Review (author self-review at the owner's request, not independent)
 

@@ -41,6 +41,6 @@ The linear estimator calls the internal sandwich directly: fit_eiv requires ACS 
 | binomial | 100 | 150 | 0.7285 | 0.0099 | 0.6893 | 0.0000 | 0 |
 | binomial | 100 | 200 | 0.7290 | 0.0099 | 0.6945 | 0.0000 | 0 |
 
-Boundary provenance: `{"boundary_year": 2020, "files": [{"cache_path": "/home/hobo/Projects/US-Census-5-Year-ACS-Data-Batch-Downloader/.cache/geo/2020/cb_2020_us_county_500k.zip", "sha256": "1a45c87a5a0c322514c9d5c9ebcba5eb9df313bd38962f6db56107ba0ccacc6f", "source_url": "https://www2.census.gov/geo/tiger/GENZ2020/shp/cb_2020_us_county_500k.zip"}], "level": "county"}`.
+Boundary provenance: `{"boundary_year": 2020, "files": [{"cache_path": ".cache/geo/2020/cb_2020_us_county_500k.zip", "sha256": "1a45c87a5a0c322514c9d5c9ebcba5eb9df313bd38962f6db56107ba0ccacc6f", "source_url": "https://www2.census.gov/geo/tiger/GENZ2020/shp/cb_2020_us_county_500k.zip"}], "level": "county"}`.
 
 Reproduce: `OPENBLAS_NUM_THREADS=1 .venv/bin/python scripts/spatial_hac_validation.py`.

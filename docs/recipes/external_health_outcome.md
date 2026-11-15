@@ -21,12 +21,12 @@ Count example (CHR 2025 direct natality outcome; ACS determinants are predeclare
 
 ```json
 {"id":"m1","method":"fit_replicate","formula":"lbw ~ pov_rate + C(GEOID.str[:2])",
- "args":{"model":"binomial","trials":"lbw_denominator","scale":"X2","target":"population"}}
+ "args":{"model":"binomial","trials":"lbw_denominator","scale":"robust","target":"population"}}
 ```
 
 Declare `{"name":"lbw","source":"chr","release":2025,"measure":"v037"}` in
 `external`. Use proportions, not percentages. Poisson cross-checks use
-`lbw_numerator` with `exposure: "lbw_denominator"` and `scale: "X2"`.
+`lbw_numerator` with `exposure: "lbw_denominator"` and `scale: "robust"`.
 Spatial HAC failed its fixed validation and is exploratory only. To register an
 exploratory study, set top-level `exploratory: true`; it remains exploratory even
 when deviations block parts of the analysis. USALEEP may opt into `split: "dominant"`

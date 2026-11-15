@@ -1,0 +1,37 @@
+{
+  "status": "exploratory (post hoc)",
+  "method": "run_variant(studies_output/r22/confirmatory, args={'scale': 'robust'}) for m1 and m2; one-sided p from estimate/se_model; Holm over H1-H3",
+  "rows": [
+    {
+      "hypothesis": "H1",
+      "term": "pov_rate",
+      "estimate": 0.014654289992351396,
+      "se_hc3": 0.006847444760381526,
+      "p": 0.016172909647105306,
+      "holm": 0.04851872894131592,
+      "supported": true
+    },
+    {
+      "hypothesis": "H2",
+      "term": "cost_burden",
+      "estimate": 0.006123565469654729,
+      "se_hc3": 0.006154472082631256,
+      "p": 0.15987343693087974,
+      "holm": 0.3197468738617595,
+      "supported": false
+    },
+    {
+      "hypothesis": "H3",
+      "term": "no_vehicle",
+      "estimate": -0.0014324667178952089,
+      "se_hc3": 0.004034973745319173,
+      "p": 0.638709942422953,
+      "holm": 0.638709942422953,
+      "supported": false
+    }
+  ],
+  "max_leverage": {
+    "m1": 0.4435813979261265,
+    "m2": 0.6746792768840495
+  }
+}

@@ -12,13 +12,17 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
   fixed coverage validation FAILED, so spatial SEs remain exploratory only.
 - Support external count/proportion outcomes with explicit trials/exposure,
   Pearson dispersion scaling and binomial odds ratios; register CHR v037.
+- `fit_replicate(scale="robust")`: HC3 sandwich SEs for binomial/Poisson GLMs, valid under between-area
+  overdispersion. Fixed pre-registered validation PASSED (coverage 0.879-0.897 at nominal 0.90; Pearson X2
+  0.689-0.899). Manifests with external count outcomes now require `scale: "robust"`; `"X2"` is refused except
+  for the three registered Round 22 manifests (`LEGACY_X2_MANIFESTS`).
 - Held-out OH/PA apportionment re-test PASSED (ratio 0.9128); add opt-in dominant
   parent share >=0.95, preserving the missing default.
 - Study: `docs/studies/r22_mi_ny_county_low_birth_weight.md`, MI/NY county low birth weight (CHR&R 2025,
   NCHS natality 2017-2023) against the Round 20 determinants. As registered: poverty (H1) and cost burden (H2)
   supported, no vehicle (H3) not supported. Post hoc (X6): robust SEs are 1.8-2.6x the quasi-binomial ones,
   which the study's own simulation shows under-cover. With robust SEs H1 holds and H2 would not
-  (Holm p 0.117). Exploratory: without NYC, no vehicle turns positive; with race composition, cost burden turns negative.
+  (Holm p 0.117; 0.320 with the validated HC3 option, under which H1 still holds at 0.049). Exploratory: without NYC, no vehicle turns positive; with race composition, cost burden turns negative.
 
 ## 0.20.0 (Round 21): external health outcomes (Step 2)
 

@@ -273,6 +273,15 @@ def canonical_json(manifest: Mapping[str, Any]) -> str:
     return json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
+# Manifests registered with scale 'X2' for an external count outcome before the robust-SE rule
+# (Round 22: main study, X1, X2). They stay valid so the registered runs reproduce; new ones are refused.
+LEGACY_X2_MANIFESTS = frozenset({
+    "10c46acedc6eff827d8a41df34d272f839ed0d75804666e81b77ca75eab83ea6",
+    "0d5e657b1bd86658ed950fd32eda96832614ae0e2ad1932cf1eddd6daeeaeba9",
+    "9e83d6a0f361496ded30a95c8373f61fa924875ca62bd2252242312c8e8f6a79",
+})
+
+
 def manifest_hash(manifest: Mapping[str, Any]) -> str:
     """SHA-256 (hex) of :func:`canonical_json`."""
     return hashlib.sha256(canonical_json(manifest).encode("utf-8")).hexdigest()
@@ -991,8 +1000,11 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
             if unknown:
                 errors.append(f"fit_replicate does not take args {unknown}")
             glm = aargs.get("model", "ols")
-            if aargs.get("scale") is not None and (aargs["scale"] != "X2" or glm not in ("binomial", "poisson")):
-                errors.append("scale must be X2 for binomial or poisson models only")
+            if aargs.get("scale") is not None and (aargs["scale"] not in ("X2", "robust")
+                                                    or glm not in ("binomial", "poisson")):
+                errors.append("scale must be 'robust' or 'X2' for binomial or poisson models only")
+            if aargs.get("scale") == "robust" and aargs.get("spatial_se") is not None:
+                errors.append("scale 'robust' and spatial_se are alternatives; choose one")
             parent = outcome_name if outcome_name in ext_names else count_outcome[:-10] if count_outcome else None
             if parent is not None:
                 if glm not in ("ols", "binomial", "poisson"):
@@ -1001,8 +1013,13 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
                     errors.append(f"external binomial outcome requires trials '{parent}_denominator'; effective trials refused")
                 if glm == "poisson" and (count_outcome is None or aargs.get("exposure") != parent + "_denominator"):
                     errors.append(f"external poisson needs {parent}_numerator outcome and exposure '{parent}_denominator'")
-                if glm in ("binomial", "poisson") and aargs.get("scale") != "X2" and aargs.get("spatial_se") is None:
-                    errors.append("overdispersion would be ignored: set scale 'X2' or spatial_se")
+                if glm in ("binomial", "poisson") and aargs.get("scale") is None and aargs.get("spatial_se") is None:
+                    errors.append("overdispersion would be ignored: set scale 'robust'")
+                elif (glm in ("binomial", "poisson") and aargs.get("scale") == "X2"
+                      and manifest_hash(manifest) not in LEGACY_X2_MANIFESTS):
+                    errors.append("external count outcome with scale 'X2' refused: Pearson X2 SEs under-cover when "
+                                  "areas differ beyond binomial/Poisson chance (validated coverage 0.69-0.79 at "
+                                  "nominal 0.90, docs/audits/robust_se_validation.md); set scale 'robust' (HC3)")
             for role in ("weights", "exposure", "trials"):
                 column = aargs.get(role)
                 valid_count = parent and ((glm == "binomial" and role == "trials") or
@@ -1580,6 +1597,8 @@ def run_variant(
         a["formula"] = formula
     if args:
         a["args"] = {**(a.get("args") or {}), **dict(args)}
+        if dict(args).get("spatial_se") is not None and a["args"].get("scale") == "robust" and "scale" not in args:
+            a["args"].pop("scale")   # spatial (Conley) SEs replace the registered robust SEs in this variant
     frame, reps = data["analysis_frame"], data.get("replicates")
     mask = np.ones(len(frame), bool)
     if keep_prefixes:
@@ -2918,6 +2937,12 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                          "Coefficients and intervals are on the logit scale; odds ratios exponentiate them.")
             elif args["model"] == "poisson" and args.get("scale") == "X2":
                 text += " Coefficients were estimated by quasi-Poisson regression of counts with the denominator as exposure."
+            elif args.get("scale") == "robust":
+                text += (" Coefficients were estimated by " + ("binomial regression (logit link) with the denominator "
+                         "as trials" if args["model"] == "binomial" else "Poisson regression (log link) with the "
+                         "denominator as exposure") + "; standard errors are HC3 sandwich estimates, robust to "
+                         "between-area overdispersion (validated coverage 0.879-0.897 at nominal 0.90, "
+                         "docs/audits/robust_se_validation.md) but treating areas as independent.")
         if a.get("replicate_scope") == "covariates_only":
             held = _formula_names(str(a.get("formula", "")).split("~")[0])
             had = ((rep_info or {}).get("covariates_only_outcome_had_replicates") or {}).get(a["id"])

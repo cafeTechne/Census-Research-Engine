@@ -454,8 +454,10 @@ def fit_replicate(
     if spatial_se is not None and coords is None:
         raise ValueError("spatial_se requires coords")
     model = model.lower()
-    if scale is not None and (scale != "X2" or model not in ("binomial", "poisson")):
-        raise ValueError("scale must be X2 for binomial or poisson models only")
+    if scale is not None and (scale not in SCALES or model not in ("binomial", "poisson")):
+        raise ValueError(f"scale must be one of {SCALES} for binomial or poisson models only")
+    if scale == "robust" and spatial_se is not None:
+        raise ValueError("scale='robust' and spatial_se are alternatives; choose one")
     check_replicate_policy(replicate_policy)
     if target not in INTERVAL_TARGETS:
         raise ValueError(f"target must be one of {INTERVAL_TARGETS}")
@@ -464,7 +466,8 @@ def fit_replicate(
     if model not in MODELS:
         raise ValueError(f"unknown model {model!r}; expected one of {MODELS}")
     data, n_trials, notes = _prepare(frame, formula, model, weights, exposure, trials)
-    full = _fit(formula, data, model, weights, exposure, n_trials, scale)
+    fit_scale = "X2" if scale == "X2" else None   # 'robust' changes the covariance, not the fit
+    full = _fit(formula, data, model, weights, exposure, n_trials, fit_scale)
     rows = np.asarray(full.model.data.row_labels if full.model.data.row_labels is not None else data.index)
     if len(rows) != len(data):
         notes.append(f"{len(data) - len(rows)} row(s) dropped by the formula (non-finite transforms)")
@@ -475,8 +478,21 @@ def fit_replicate(
         dispersion = float(full.pearson_chi2 / full.df_resid) if full.df_resid > 0 else float("nan")
         diagnostics["pearson_dispersion"] = dispersion
         diagnostics["scale"] = scale
-        if dispersion > 1.5 and scale != "X2" and spatial_se is None:
-            notes.append(f"Pearson dispersion {dispersion:.6g}: model SEs assume no overdispersion; use scale='X2'")
+        if dispersion > 1.5 and scale is None and spatial_se is None:
+            notes.append(f"Pearson dispersion {dispersion:.6g}: model SEs assume no overdispersion; use "
+                         "scale='robust'")
+        elif dispersion > 1.5 and scale == "X2":
+            notes.append(f"Pearson dispersion {dispersion:.6g} with scale='X2': X2 SEs under-cover when the "
+                         "overdispersion is between-area variation (validated coverage 0.69-0.79 at nominal 0.90, "
+                         "docs/audits/robust_se_validation.md); prefer scale='robust'")
+        if scale == "robust":
+            t_rows = np.asarray(n_trials, float)[rows] if model == "binomial" else None
+            cov, info = glm_robust_covariance(np.asarray(full.model.exog, float), np.asarray(full.model.endog, float),
+                                              np.asarray(full.fittedvalues, float), model, t_rows)
+            diagnostics["se_model_unadjusted"] = dict(zip(params.index, map(float, bse)))
+            diagnostics["robust_se"] = info
+            bse = pd.Series(np.sqrt(np.diag(cov)), index=params.index)
+            notes.append(ROBUST_SE_NOTE)
     provenance: Dict[str, Any] = {"model_library": "statsmodels", "rows_used": int(len(rows))}
     se_sampling = pd.Series(np.nan, index=params.index)
     sources = [SOURCE_MODEL]
@@ -500,7 +516,7 @@ def fit_replicate(
             for v, m in mats.items():
                 d[v] = m[:, r]
             try:
-                res = _fit(formula, d, model, weights, exposure, n_trials, scale)
+                res = _fit(formula, d, model, weights, exposure, n_trials, fit_scale)
                 b = res.params.reindex(params.index).to_numpy(float)
                 if not np.isfinite(b).all():
                     raise ValueError("non-finite coefficients")
