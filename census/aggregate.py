@@ -43,6 +43,7 @@ from .derived import (
     _choose_op,
     _clean_estimate,
     _clean_moe,
+    _spec_codes,
     derive_entry,
 )
 from .panel import infer_unit
@@ -678,15 +679,12 @@ def aggregate_then_derive(
     names = {str(e.get("name")) for e in spec}
     referenced: List[str] = []
     for entry in spec:
-        for key in ("num", "den"):
-            if entry.get(key) is None:
+        for ref in _spec_codes(entry):  # num/den and age_standardized groups
+            if ref in names:
                 continue
-            for ref in _as_list(entry[key]):
-                if ref in names:
-                    continue
-                base = _base(ref)
-                if base not in referenced:
-                    referenced.append(base)
+            base = _base(ref)
+            if base not in referenced:
+                referenced.append(base)
     cols = list(dict.fromkeys([_base(c) for c in (estimate_cols or [])] + referenced))
     if not cols:
         raise ValueError("spec references no estimate codes")

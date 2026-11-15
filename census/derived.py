@@ -678,7 +678,9 @@ def subset_relationship(
 # ---------------------------------------------------------------------------
 
 DERIVED_FIELDS = ("estimate", "moe", "se", "cv_percent", "method", "notes")
-SPEC_OPS = ("proportion", "ratio", "auto", "difference", "product", "sum", "percent_change", "scale")
+SPEC_OPS = ("proportion", "ratio", "auto", "difference", "product", "sum", "percent_change", "scale",
+            "age_standardized")
+METHOD_AGE_STANDARDIZED = "age_standardized"
 
 
 def resolve_columns(df: pd.DataFrame, ref: str) -> Tuple[str, str]:
@@ -715,7 +717,33 @@ def _spec_codes(entry: Mapping[str, Any]) -> List[str]:
     for key in ("num", "den"):
         if entry.get(key) is not None:
             codes += _as_list(entry[key])
+    for g in entry.get("groups") or []:
+        for key in ("num", "den"):
+            if isinstance(g, Mapping) and g.get(key) is not None:
+                codes += _as_list(g[key])
     return codes
+
+
+def standardization_weights(entry: Mapping[str, Any]) -> List[float]:
+    """Weights of an ``age_standardized`` spec entry: its ``weights`` when given (one per
+    group, summing to 1), else computed from ``standard`` and ``bands``
+    (census.standardize.standard_weights)."""
+    groups = entry.get("groups")
+    if not isinstance(groups, (list, tuple)) or not groups:
+        raise ValueError(f"spec entry {entry.get('name')!r}: op='age_standardized' needs 'groups' "
+                         "(one {num, den} per age band)")
+    w = entry.get("weights")
+    if w is None:
+        from .standardize import standard_weights
+        if entry.get("standard") in (None, "custom") or entry.get("bands") is None:
+            raise ValueError(f"spec entry {entry.get('name')!r}: give 'weights', or 'standard' and 'bands'")
+        w = standard_weights(entry["bands"], str(entry["standard"]))
+    w = [float(x) for x in w]
+    if len(w) != len(groups):
+        raise ValueError(f"spec entry {entry.get('name')!r}: {len(w)} weights for {len(groups)} groups")
+    if any(not math.isfinite(x) or x < 0 for x in w) or abs(sum(w) - 1.0) > 1e-9:
+        raise ValueError(f"spec entry {entry.get('name')!r}: weights must be non-negative and sum to 1")
+    return w
 
 
 def _choose_op(entry: Mapping[str, Any], metadata: Optional[Mapping[str, Mapping[str, Any]]]) -> str:
@@ -758,6 +786,8 @@ def derive_entry(
         est = df[[c[0] for c in cols]]
         moe = df[[c[1] for c in cols]]
         return sum_estimates(est, moe, zero_estimate_rule=zero_estimate_rule, names=refs)  # type: ignore[return-value]
+    if op == "age_standardized":
+        return _age_standardized_entry(df, entry, zero_estimate_rule)
     if op == "scale":
         x, mx = pair(_as_list(entry["num"])[0])
         if "k" not in entry:
@@ -790,6 +820,40 @@ def derive_entry(
     else:  # percent_change
         result = percent_change(x, mx, y, my, entry.get("year_current"), entry.get("year_prior"))
     return result  # type: ignore[return-value]
+
+
+def _age_standardized_entry(df: pd.DataFrame, entry: Mapping[str, Any], zero_estimate_rule: str) -> pd.DataFrame:
+    """sum_a w_a * num_a / den_a, each band a proportion; MOE sqrt(sum w_a^2 MOE_a^2) (the band
+    proportions' Census MOEs, covariance between bands ignored; replicates give the exact SE).
+    A band with zero population leaves the rate undefined (NaN, with a note)."""
+    weights = standardization_weights(entry)
+    as_percent = bool(entry.get("as_percent", False))
+    est = None
+    var = None
+    notes: List[List[str]] = [[] for _ in range(len(df))]
+    for k, (g, w) in enumerate(zip(entry["groups"], weights)):
+        parts = []
+        for key in ("num", "den"):
+            refs = _as_list(g[key])
+            cols = [resolve_columns(df, r) for r in refs]
+            if len(cols) == 1:
+                parts.append((df[cols[0][0]], df[cols[0][1]]))
+            else:
+                s = sum_estimates(df[[c[0] for c in cols]], df[[c[1] for c in cols]],
+                                  zero_estimate_rule=zero_estimate_rule, names=refs)
+                parts.append((s["estimate"], s["moe"]))  # type: ignore[index]
+        p = proportion(parts[0][0], parts[0][1], parts[1][0], parts[1][1])
+        pe, pm = p["estimate"].to_numpy(float), p["moe"].to_numpy(float)  # type: ignore[index]
+        for i in np.flatnonzero(~np.isfinite(pe)):
+            notes[i].append(f"age band {k + 1} has no population: standardized rate undefined")
+        est = w * pe if est is None else est + w * pe
+        var = (w * pm) ** 2 if var is None else var + (w * pm) ** 2
+    scale_k = 100.0 if as_percent else 1.0
+    for n in notes:
+        n.append("direct age standardization; MOE ignores covariance between age bands (use replicates for "
+                 "the exact SE)")
+    return _finish(np.asarray(est) * scale_k, np.sqrt(np.asarray(var)) * scale_k, METHOD_AGE_STANDARDIZED,
+                   notes, False, df.index)  # type: ignore[return-value]
 
 
 def derive_columns(

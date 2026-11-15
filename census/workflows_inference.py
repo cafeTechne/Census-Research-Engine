@@ -28,7 +28,7 @@ except ImportError:  # pragma: no cover
 _INPUT_ERRORS = (FileNotFoundError, OSError, KeyError, ValueError, TypeError, RuntimeError,
                  ZeroDivisionError, np.linalg.LinAlgError, _PatsyError)
 
-_MODEL_METHODS = ("replicate", "regression_calibration", "simex", "fay_herriot")
+_MODEL_METHODS = ("replicate", "eiv", "regression_calibration", "simex", "fay_herriot")
 _FIGURE_KINDS = ("estimates", "forest", "trend")
 
 
@@ -199,7 +199,9 @@ def fit_model(
     Args:
         input_path: Analysis frame from build_analysis_frame.
         formula: e.g. "poverty_rate ~ median_rent + unemployment_rate".
-        method: "replicate" (refit on Census replicates), "regression_calibration"
+        method: "replicate" (refit on Census replicates), "eiv" (predictors and outcome
+            measured with ACS error; corrects attenuation and correlated errors from the
+            replicates; needs replicates_path; model ols or wls), "regression_calibration"
             (predictors measured with error; corrects attenuation), "simex" (not
             validated for confirmatory use), "fay_herriot" (outcome with known SE in se_col).
         target: "population" (default: the general relationship, model SE),
@@ -234,7 +236,16 @@ def fit_model(
     extra = {"weights": weights, "exposure": exposure, "trials": trials}
     try:
         frame = _load_frame(input_path)
-        if method == "replicate":
+        if method == "eiv":
+            if not replicates_path:
+                return _fail(errors.INVALID_INPUT, "method='eiv' needs replicates_path (from build_analysis_frame).",
+                             "call build_analysis_frame with use_replicates, then fit_model with replicates_path")
+            if exposure or trials or model not in ("ols", "wls"):
+                return _fail(errors.INVALID_INPUT, "method='eiv' supports model 'ols' or 'wls' only.",
+                             "call fit_model again with model='ols' (or 'wls' and weights)")
+            result = models.fit_eiv(formula, frame, _read_replicates(replicates_path), model=model,
+                                    weights=weights, confidence_level=confidence_level)
+        elif method == "replicate":
             result = models.fit_replicate(formula, frame, _read_replicates(replicates_path), model=model,
                                           confidence_level=confidence_level, target=target, **extra)
         elif method in ("regression_calibration", "simex"):

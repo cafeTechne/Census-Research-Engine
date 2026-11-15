@@ -41,6 +41,8 @@ docs/audits/*.csv
 !data/geo_crosswalks/*.csv
 !tests/fixtures/**/*.csv
 !data/price_parities/*.csv
+!data/standard_populations/*.csv
+!data/standard_populations/source/*.csv
 
 # Agent git worktrees (local only)
 .claude/worktrees/
