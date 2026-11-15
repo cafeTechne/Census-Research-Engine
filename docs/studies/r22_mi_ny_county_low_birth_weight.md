@@ -20,6 +20,13 @@ is 0.184 (999 permutations, p_sim=0.003), and the prescribed spatial-HAC coverag
 Consequently the registered SEs assume spatial independence; support under that assumption is not
 robust evidence of a causal or specification-independent relationship.
 
+**Post hoc caution on H2 (added in the planner's review; see section 6, X6).** The registered quasi-binomial
+SEs assume the overdispersion is proportional to binomial variance. The study's own spatial validation
+shows they covered only 0.728 of nominal 90% intervals when it is not, even without spatial correlation.
+Heteroskedasticity-robust SEs are 1.8–2.6 times larger. With them, H1 stays supported (Holm p 0.003),
+but H2 would not be supported (Holm p 0.117). The registered H2 result stands as registered, but it
+rests on that weighting assumption and should be read as fragile.
+
 ## 1. Question and hypotheses
 
 Does the CHR&R 2025 low-birth-weight proportion vary with the ACS determinants studied in Round 20,
@@ -174,6 +181,28 @@ and no-vehicle −0.001301 (−0.002807 to 0.000205). These log-rate coefficient
 registered logit coefficients (+0.011994, +0.006124, −0.001432), as expected for a relatively rare
 outcome. Their coefficients are log rate ratios, not odds ratios. This is an exploratory cross-check.
 
+### X6: robust standard errors (post hoc, not pre-registered)
+
+Added during the planner's review, after the results were known. Motivation: in the A2 validation's binomial
+design with **no** spatial correlation (range 0), the quasi-binomial Pearson-X2 SE covered 0.728, while the
+sandwich at a 50 km cutoff (near its independence limit) covered 0.857. There the extra-binomial variation is
+between counties on the logit scale, so it does not shrink with births. Births-proportional weights are then
+misspecified, and a single dispersion factor does not repair the SE. This study's dispersion is 22.
+`scripts/r22_posthoc_robust_se.py` refits m1 and m2 on the saved analysed frame with HC0 sandwich SEs times
+sqrt(n/(n−k)). Output: [posthoc_robust_se.json](r22/posthoc_robust_se.json).
+
+| Hypothesis | Term | Estimate | Registered SE | Robust SE | Ratio | Holm p registered | Holm p robust | Supported (robust) |
+| :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: | :--- |
+| H1 | pov_rate | 0.014654 | 0.002078 | 0.004764 | 2.29 | 2.65e-12 | 0.0032 | yes |
+| H2 | cost_burden | 0.006124 | 0.002181 | 0.003904 | 1.79 | 0.0050 | 0.117 | no |
+| H3 | no_vehicle | −0.001432 | 0.001002 | 0.002573 | 2.57 | 0.924 | 0.711 | no |
+
+An equal-weight quasi-binomial fit (not births-weighted) gives cost burden +0.0113 (SE 0.0035). The direction
+is unchanged, but the size depends on weighting. Reading: poverty (H1) holds under every check. Cost burden
+(H2) is positive in every fit, but its registered support depends on the quasi-binomial weighting assumption.
+This check is post hoc, so it does not overturn the registered result. Future manifests should register
+robust SEs for overdispersed county outcomes (friction F6).
+
 ## 7. Interpretation
 
 Under the registered specification, poverty in the state-intercept model and housing costs in the
@@ -192,6 +221,9 @@ mechanism. A county with a higher percentage can differ in many other respects f
   cross-sectional county summaries, not longitudinal or difference-in-differences estimates.
 - **Covariate measurement error:** there is no EIV/corrected-score correction for these GLMs. Replicate
   `se_sampling` propagates ACS uncertainty only. Registered tests target the population model SE.
+- **Variance model (post hoc finding, X6):** quasi-binomial SEs assume overdispersion proportional to
+  binomial variance; the study's own simulation shows they under-cover when it is not (0.728 at nominal 0.90).
+  Robust SEs would not support H2 after Holm correction.
 - **Spatial dependence:** the main SEs assume spatial independence. Residual Moran's I is positive;
   the prescribed Conley validation failed. Pearson scaling handles overdispersion, not arbitrary
   cross-county dependence. Reported p-values/support remain conditional on the independence assumption.
@@ -246,6 +278,7 @@ records the current execution checkout and must not alter its fixed criterion or
 | F3 | Response residuals are not an exposed fitted-model artifact. The script reconstructs them from the saved coefficients and patsy design, after verifying analysed-input hashes. | Backlog; reproduction is explicit in `scripts/r22_exploratory.py` |
 | F4 | The diverging map legend displays a floating-point value very close to zero rather than a rounded zero. | Backlog: display-only formatting; no map redesign/formatting sweep |
 | F5 | Exploratory status, explicit count roles and count-model dispersion were missing from the prior engine path. | Fixed in A1/A3, with offline regressions |
+| F6 | Quasi-binomial (X2) SEs under-cover when overdispersion is between-area rather than binomial-proportional (A2 validation, range 0: 0.728). The plan prescribed X2 as sufficient; it is not. Found in the planner's review (X6). | Backlog: a robust (HC) `se` option for external count GLMs, validated with the A2 binomial design and required by manifests for overdispersed outcomes |
 
 ## 11. Review (author self-review at the owner's request, not independent)
 

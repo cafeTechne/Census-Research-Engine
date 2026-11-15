@@ -14,8 +14,11 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
   Pearson dispersion scaling and binomial odds ratios; register CHR v037.
 - Held-out OH/PA apportionment re-test PASSED (ratio 0.9128); add opt-in dominant
   parent share >=0.95, preserving the missing default.
-- Pre-register and report the MI/NY county low birth weight study and labelled
-  exploratory checks, retaining unsupported hypotheses and study limitations.
+- Study: `docs/studies/r22_mi_ny_county_low_birth_weight.md`, MI/NY county low birth weight (CHR&R 2025,
+  NCHS natality 2017-2023) against the Round 20 determinants. As registered: poverty (H1) and cost burden (H2)
+  supported, no vehicle (H3) not supported. Post hoc (X6): robust SEs are 1.8-2.6x the quasi-binomial ones,
+  which the study's own simulation shows under-cover. With robust SEs H1 holds and H2 would not
+  (Holm p 0.117). Exploratory: without NYC, no vehicle turns positive; with race composition, cost burden turns negative.
 
 ## 0.20.0 (Round 21): external health outcomes (Step 2)
 

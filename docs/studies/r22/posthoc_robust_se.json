@@ -1,0 +1,53 @@
+{
+  "status": "exploratory (post hoc)",
+  "rows": [
+    {
+      "hypothesis": "H1",
+      "term": "pov_rate",
+      "n": 144,
+      "estimate": 0.014654289992351327,
+      "se_registered_x2": 0.002078120260008837,
+      "se_hc0_nk": 0.0047644124828462725,
+      "se_ratio": 2.292654845117583,
+      "equal_weight_estimate": 0.014285778676336236,
+      "equal_weight_se_x2": 0.0037427424324982645,
+      "p_registered": 8.836961507143072e-13,
+      "holm_registered": 2.6510884521429213e-12,
+      "p_robust": 0.0010497595104878475,
+      "holm_robust": 0.0031492785314635426,
+      "supported_robust": true
+    },
+    {
+      "hypothesis": "H2",
+      "term": "cost_burden",
+      "n": 144,
+      "estimate": 0.006123565469654806,
+      "se_registered_x2": 0.0021806815986956767,
+      "se_hc0_nk": 0.003904258915569502,
+      "se_ratio": 1.7903846750964205,
+      "equal_weight_estimate": 0.011300780833775673,
+      "equal_weight_se_x2": 0.003549178812318566,
+      "p_registered": 0.002491760624257877,
+      "holm_registered": 0.004983521248515754,
+      "p_robust": 0.05839014858377819,
+      "holm_robust": 0.11678029716755638,
+      "supported_robust": false
+    },
+    {
+      "hypothesis": "H3",
+      "term": "no_vehicle",
+      "n": 144,
+      "estimate": -0.0014324667178951846,
+      "se_registered_x2": 0.001002004140398395,
+      "se_hc0_nk": 0.002572762262926964,
+      "se_ratio": 2.567616399173798,
+      "equal_weight_estimate": -0.00011494459150985376,
+      "equal_weight_se_x2": 0.0019081149768430353,
+      "p_registered": 0.9235843013288011,
+      "holm_registered": 0.9235843013288011,
+      "p_robust": 0.7111616753781188,
+      "holm_robust": 0.7111616753781188,
+      "supported_robust": false
+    }
+  ]
+}
