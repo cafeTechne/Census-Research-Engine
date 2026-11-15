@@ -709,6 +709,41 @@ def _design_deviations(formula: str, data: pd.DataFrame, mats: Mapping[str, np.n
 CLUSTER_PREFIX_RE = re.compile(r"^GEOID\.str\[:(\d+)\]$")
 
 
+def _cluster_jackknife(X: np.ndarray, y: np.ndarray, w: np.ndarray, D: np.ndarray, e: np.ndarray,
+                       inv: np.ndarray, G: int, f: float) -> np.ndarray:
+    """Delete-one-cluster jackknife covariance of the fit_eiv moment estimator (CR3)."""
+    k = X.shape[1]
+    M_g = np.zeros((G, k, k))
+    r_g = np.zeros((G, k))
+    for g in range(G):
+        idx = np.flatnonzero(inv == g)
+        Xg, wg = X[idx], w[idx]
+        Dg, eg = D[:, idx], e[:, idx]
+        M_g[g] = Xg.T @ (wg[:, None] * Xg) - f * np.einsum("rnj,n,rnl->jl", Dg, wg, Dg)
+        r_g[g] = Xg.T @ (wg * y[idx]) - f * np.einsum("rnj,n,rn->j", Dg, wg, eg)
+    M, r = M_g.sum(axis=0), r_g.sum(axis=0)
+    present = np.zeros((G, k))
+    np.add.at(present, inv, (X != 0).astype(float))
+    total_nz = present.sum(axis=0)
+    B = np.full((G, k), np.nan)
+    for g in range(G):
+        keep = (total_nz - present[g]) > 0
+        Mk = (M - M_g[g])[np.ix_(keep, keep)]
+        try:
+            B[g, keep] = np.linalg.solve(Mk, (r - r_g[g])[keep])
+        except np.linalg.LinAlgError:
+            continue
+    ok = np.isfinite(B)
+    if not ok.any(axis=0).all():
+        raise ValueError("fit_eiv jackknife: some term is not estimable in any delete-one-cluster refit")
+    mean = np.nanmean(B, axis=0)
+    dev = np.where(ok, B - mean, 0.0)
+    cnt = ok.sum(axis=0).astype(float)
+    V = dev.T @ dev
+    scale = np.sqrt((cnt - 1) / cnt)
+    return V * np.outer(scale, scale)
+
+
 def cluster_labels(data: pd.DataFrame, cluster: str) -> np.ndarray:
     """Cluster labels from a column, or from a GEOID prefix written ``GEOID.str[:N]``."""
     m = CLUSTER_PREFIX_RE.match(str(cluster))
@@ -730,6 +765,7 @@ def fit_eiv(
     replicate_policy: str = "flag",
     cluster: Optional[str] = None,
     fixed_variables: Sequence[str] = (),
+    cluster_se: str = "cr1",
 ) -> ModelResult:
     """Least squares corrected for ACS sampling error in covariates and outcome (PLAN_ROUND_20 A2).
 
@@ -767,6 +803,12 @@ def fit_eiv(
     G/(G-1) * (n-1)/(n-k) small-sample factor. Needs at least 20 clusters. ``GEOID.str[:N]``
     (e.g. ``GEOID.str[:5]``, counties of tracts) clusters by a GEOID prefix without a column.
     Validated by simulation in docs/audits/eiv_cluster_validation.md (PLAN_ROUND_21 B1).
+    ``cluster_se="jackknife"`` uses the delete-one-cluster jackknife (CR3) instead:
+    V = (G-1)/G sum_g (b_(g) - mean b_(g))(...)', each b_(g) the moment estimator from the
+    other clusters' sums (exact; the error covariances are not re-estimated). A term whose
+    column is all zero without cluster g (that cluster's own fixed effect) is left out of
+    that refit, and its variance uses the other refits. Less anti-conservative than CR1 with
+    few or unequal clusters (PLAN_ROUND_21 Part 2, C5).
 
     ``fixed_variables``: variables whose error is independent of the ACS sampling error and
     which have no replicates (external outcomes, e.g. CDC PLACES; PLAN_ROUND_21 B3). They are
@@ -779,6 +821,10 @@ def fit_eiv(
 
     model = model.lower()
     check_replicate_policy(replicate_policy)
+    if cluster_se not in ("cr1", "jackknife"):
+        raise ValueError("cluster_se must be 'cr1' or 'jackknife'")
+    if cluster_se == "jackknife" and not cluster:
+        raise ValueError("cluster_se='jackknife' needs cluster")
     if model not in EIV_MODELS:
         raise ValueError(f"fit_eiv supports models {EIV_MODELS}; got {model!r}")
     if model == "wls" and not weights:
@@ -868,10 +914,15 @@ def fit_eiv(
         np.add.at(psi_g, inv, psi)
         V = Minv @ (psi_g.T @ psi_g) @ Minv * (G / (G - 1)) * ((n - 1) / (n - k))
         V_ind = Minv @ (psi.T @ psi) @ Minv * n / (n - k)
-        diagnostics["clusters"] = {"column": cluster, "groups": int(G)}
+        diagnostics["clusters"] = {"column": cluster, "groups": int(G), "se": cluster_se}
+        if cluster_se == "jackknife":
+            diagnostics["se_total_cr1"] = dict(zip(map(str, X_df.columns),
+                                                   map(float, np.sqrt(np.maximum(np.diag(V), 0.0)))))
+            V = _cluster_jackknife(X, y, w, D, e, inv, G, f)
         diagnostics["se_total_independent"] = dict(zip(map(str, X_df.columns),
                                                        map(float, np.sqrt(np.maximum(np.diag(V_ind), 0.0)))))
-        notes.append(f"se_total clustered by {cluster!r} ({G} clusters)")
+        notes.append(f"se_total clustered by {cluster!r} ({G} clusters, "
+                     + ("delete-one-cluster jackknife" if cluster_se == "jackknife" else "CR1") + ")")
     else:
         V = Minv @ (psi.T @ psi) @ Minv * n / (n - k)
     se_total = pd.Series(np.sqrt(np.maximum(np.diag(V), 0.0)), index=terms)

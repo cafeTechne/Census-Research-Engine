@@ -144,7 +144,8 @@ def make_map(
             "significance" (increase / decrease / no significant change).
         se_col or moe_col: Standard error or 90% MOE column for reliability.
         scheme: "quantiles" (default, research standard), "natural_breaks",
-            "equal_interval", or "separability".
+            "equal_interval", "separability", or "diverging" (signed values such as
+            residuals or gaps: equal classes symmetric about 0, red-blue).
         label: Readable variable name for the legend and caption (default: column).
     Example: make_map("frame.parquet", "poverty_rate", "tract", 2023, se_col="poverty_rate_se")
     """

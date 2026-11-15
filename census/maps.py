@@ -69,9 +69,11 @@ from .figures import (DEFAULT_FORMATS, JOURNAL_WIDTHS, OKABE_ITO, STYLE, FigureO
                       _finish, _level, _pct, _provenance, _zcrit)
 from .variance import Z90
 
-SCHEMES = ("quantiles", "natural_breaks", "equal_interval", "separability")
+SCHEMES = ("quantiles", "natural_breaks", "equal_interval", "separability", "diverging")
 SCHEME_LABELS = {"quantiles": "quantiles", "natural_breaks": "natural breaks (Fisher-Jenks)",
-                 "equal_interval": "equal intervals", "separability": "class-separability breaks"}
+                 "equal_interval": "equal intervals", "separability": "class-separability breaks",
+                 "diverging": "diverging, equal intervals symmetric about the center"}
+DIVERGING_CMAP = "RdBu_r"  # ColorBrewer RdBu reversed: blue below the center, red above; colorblind-safe
 CV_CLASSES = (12.0, 30.0)
 NO_DATA_COLOR = "#D9D9D9"
 HATCH_LOW = "////"
@@ -177,10 +179,28 @@ def separability_breaks(est: Sequence[float], se: Sequence[float], k: int = 5,
     return np.array([xs[b - 1] for b in breaks] + [xs[-1]], dtype=float)
 
 
+def diverging_breaks(est: Sequence[float], k: int = 5, center: float = 0.0, clip_quantile: float = 0.98) -> np.ndarray:
+    """Upper bounds of ``k`` equal-width classes symmetric about ``center`` for signed values
+    (residuals, gaps). The half-width is the ``clip_quantile`` of |x - center|, so a few extreme
+    values fall into the end classes instead of compressing the rest; with odd ``k`` the middle
+    class straddles the center."""
+    y = np.asarray(est, float)
+    y = y[np.isfinite(y)]
+    if y.size == 0:
+        raise ValueError("no finite estimates to classify")
+    if k < 2:
+        raise ValueError("diverging maps need k >= 2")
+    half = float(np.quantile(np.abs(y - center), clip_quantile)) or float(np.max(np.abs(y - center))) or 1.0
+    bins = center - half + 2 * half * np.arange(1, k + 1) / k
+    bins[-1] = max(bins[-1], float(y.max()))
+    return bins
+
+
 def class_breaks(est: Sequence[float], scheme: str = "quantiles", k: int = 5,
-                 se: Optional[Sequence[float]] = None, confidence_level: float = 0.90) -> np.ndarray:
+                 se: Optional[Sequence[float]] = None, confidence_level: float = 0.90,
+                 center: float = 0.0) -> np.ndarray:
     """Upper class bounds for ``scheme`` (``mapclassify`` for quantiles,
-    Fisher-Jenks natural breaks and equal interval)."""
+    Fisher-Jenks natural breaks and equal interval; ``diverging`` for signed values)."""
     import mapclassify
 
     if scheme not in SCHEMES:
@@ -189,6 +209,8 @@ def class_breaks(est: Sequence[float], scheme: str = "quantiles", k: int = 5,
     y = y[np.isfinite(y)]
     if y.size == 0:
         raise ValueError("no finite estimates to classify")
+    if scheme == "diverging":
+        return diverging_breaks(y, k, center)
     if scheme == "separability":
         if se is None:
             raise ValueError("separability breaks need standard errors")
@@ -426,11 +448,12 @@ def choropleth(
     width: Union[str, float] = "two", height: Optional[float] = None,
     formats: Sequence[str] = DEFAULT_FORMATS, dpi: int = 300, data_source: str = "",
     result_id: Optional[str] = None, manifest_hash: Optional[str] = None,
-    provenance: Optional[Mapping[str, Any]] = None,
+    provenance: Optional[Mapping[str, Any]] = None, center: float = 0.0,
 ) -> FigureOutput:
     """Choropleth of ``column`` classed by ``scheme`` (``quantiles``,
-    ``natural_breaks``, ``equal_interval`` or ``separability``) into ``k``
-    classes. The legend states the method and class separability (module
+    ``natural_breaks``, ``equal_interval``, ``separability``, or ``diverging``
+    for signed values: equal classes symmetric about ``center`` in a red-blue
+    palette) into ``k`` classes. The legend states the method and class separability (module
     docstring); areas with CV > ``cv_threshold`` percent are hatched and
     flagged in the values file."""
     level = _level(confidence_level)
@@ -441,12 +464,17 @@ def choropleth(
     # without SE/MOE the map shows estimates only: no hatching, separability n/a
     se = _se(g, se_col, moe_col) if has_se else np.full(len(est), np.nan)
     cv = _cv(est, se)
-    bins = class_breaks(est, scheme, k, se=se if has_se else None, confidence_level=level)
+    bins = class_breaks(est, scheme, k, se=se if has_se else None, confidence_level=level, center=center)
     kk = len(bins)
     cls = assign_classes(est, bins)
     sep = (class_separability(est, se, np.where(cls >= 0, cls, np.nan), kk, level) if has_se
            else {"separability": float("nan")})
-    colors = sequential_colors(kk, cmap)
+    if scheme == "diverging":
+        cmap = DIVERGING_CMAP if cmap == "YlGnBu" else cmap
+        cm = matplotlib.colormaps[cmap]
+        colors = [matplotlib.colors.to_hex(cm(x)) for x in np.linspace(0.08, 0.92, kk)]
+    else:
+        colors = sequential_colors(kk, cmap)
     low = np.isfinite(cv) & (cv > cv_threshold)
     finite = est[np.isfinite(est)]
     lowers = np.concatenate([[finite.min()], bins[:-1]])
@@ -494,6 +522,7 @@ def choropleth(
     prov = _provenance("choropleth", data_source, level, result_id, manifest_hash,
                        dict(provenance or {}, column=column, se_col=se_col, moe_col=moe_col, scheme=scheme,
                             k=kk, bins=list(bins), separability=sep, cv_threshold=cv_threshold,
+                            center=center if scheme == "diverging" else None,
                             n_low_reliability=int(low.sum()), cmap=cmap, crs=crs_used,
                             boundaries=binfo))
     return _render(fig, name, out_dir, values, caption, prov, formats, dpi, notes)

@@ -11,11 +11,13 @@ synthetic replicates (as in scripts/eiv_validation.py). The outcome is either
 - "external": a model-based outcome (e.g. CDC PLACES) with independent error that itself has a
   cluster-shared part (a county random-effect draw) and no replicates, held fixed
   (fixed_variables).
-Each fit reports the clustered se_total (cluster = GEOID.str[:5]) and the independence sandwich
-(diagnostics["se_total_independent"]). Coefficient of x, true value 2.
+Each fit (cluster = GEOID.str[:5], cluster_se="jackknife") reports the delete-one-cluster
+jackknife se_total (CR3), the CR1 sandwich (diagnostics["se_total_cr1"]) and the independence
+sandwich (diagnostics["se_total_independent"]). Coefficient of x, true value 2.
 
-Acceptance (PLAN_ROUND_21 B1): clustered 90% coverage 0.87-0.93 for G >= 60 in every cell; bias
-below 10% of the naive bias (or |bias| < 0.01). G = 30 is reported.
+Acceptance (PLAN_ROUND_21 B1, Part 2 C5): CR1 and jackknife 90% coverage 0.87-0.93 for G >= 60 in
+every cell; jackknife mean coverage at G = 30 at least CR1's; bias below 10% of the naive bias (or
+|bias| < 0.01).
 
 Usage: python scripts/eiv_cluster_validation.py [--sims 500] [--n 3000] [--workers 12]
 """
@@ -76,16 +78,19 @@ def simulate(seed, n, G, icc, outcome):
 def run_cell(cell):
     G, icc, outcome, sims, n = cell
     warnings.simplefilter("ignore")
-    est, naive, se_c, se_i, cov_c, cov_i = [], [], [], [], [], []
+    est, naive, se_c, se_i, cov_c, cov_i, se_j, cov_j = [], [], [], [], [], [], [], []
     for s in range(sims):
         frame, reps = simulate(7919 * s + 13 * G + int(100 * icc) + (0 if outcome == "acs" else 1), n, G, icc,
                                outcome)
         res = fit_eiv("y ~ x", frame, reps, cluster="GEOID.str[:5]", replicate_policy="strict",
-                      fixed_variables=["y"] if outcome == "external" else ())
+                      fixed_variables=["y"] if outcome == "external" else (), cluster_se="jackknife")
         row = res.coefficients.set_index("term").loc["x"]
-        e, sc = float(row["estimate"]), float(row["se_total"])
+        e, sj = float(row["estimate"]), float(row["se_total"])
+        sc = float(res.diagnostics["se_total_cr1"]["x"])
         si = float(res.diagnostics["se_total_independent"]["x"])
-        z = float(row["ci_upper"] - row["estimate"]) / sc  # the interval's own critical value
+        z = float(row["ci_upper"] - row["estimate"]) / sj  # the interval's own critical value
+        se_j.append(sj)
+        cov_j.append(abs(e - BETA) <= z * sj)
         est.append(e)
         naive.append(float(row["naive_estimate"]))
         se_c.append(sc)
@@ -96,7 +101,8 @@ def run_cell(cell):
     return {"G": G, "icc": icc, "outcome": outcome, "sims": sims, "naive_bias": nbias, "bias": bias,
             "bias_share": abs(bias / nbias) if nbias else float("nan"), "sd": float(np.std(est, ddof=1)),
             "mean_se_clustered": float(np.mean(se_c)), "mean_se_independent": float(np.mean(se_i)),
-            "coverage_clustered": float(np.mean(cov_c)), "coverage_independent": float(np.mean(cov_i))}
+            "coverage_clustered": float(np.mean(cov_c)), "coverage_independent": float(np.mean(cov_i)),
+            "mean_se_jackknife": float(np.mean(se_j)), "coverage_jackknife": float(np.mean(cov_j))}
 
 
 def main(argv=None) -> int:
@@ -114,7 +120,10 @@ def main(argv=None) -> int:
         print(r, flush=True)
     df = pd.DataFrame(rows)
     big = df[df.G >= 60]
+    small = df[df.G < 60]
     passed = bool(big.coverage_clustered.between(0.87, 0.93).all()
+                  and big.coverage_jackknife.between(0.87, 0.93).all()
+                  and small.coverage_jackknife.mean() >= small.coverage_clustered.mean()
                   and ((df.bias_share < 0.10) | (df.bias.abs() < 0.01)).all())
     mc = 1.645 * np.sqrt(0.9 * 0.1 / args.sims)
     lines = [
@@ -122,35 +131,39 @@ def main(argv=None) -> int:
         "",
         f"Generated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')} UTC by "
         f"`scripts/eiv_cluster_validation.py` ({args.sims} simulated data sets per cell, n = {args.n} units, "
-        f"{time.time() - t0:.0f} s). PLAN_ROUND_21 B1 (Round 20 friction F6).",
+        f"{time.time() - t0:.0f} s). PLAN_ROUND_21 B1 (Round 20 friction F6) and Part 2 C5 (jackknife).",
         "",
         "Design: G clusters of n/G units; the true covariate and the model error share a cluster component with "
         "intra-cluster correlation `icc`; y = 1 + 2x + error. The covariate carries heteroscedastic ACS-type "
         "sampling error (reliability 0.8) with synthetic replicates. Outcome `acs`: ACS-type error correlated 0.5 "
         "with the covariate's, with replicates. Outcome `external`: a model-based outcome (as CDC PLACES) with "
         "independent error that has a shared cluster draw, no replicates, held fixed (`fixed_variables`). "
-        "Clustered = `cluster=\"GEOID.str[:5]\"` (CR1: G/(G-1) x (n-1)/(n-k)); independent = the independence "
-        "sandwich of the same fit. Coefficient of x, true value 2.",
+        "Clustered = `cluster=\"GEOID.str[:5]\"` (CR1: G/(G-1) x (n-1)/(n-k)); jackknife = "
+        "`cluster_se=\"jackknife\"` (delete-one-cluster, CR3); independent = the independence sandwich of the "
+        "same fit. Coefficient of x, true value 2.",
         "",
         "| G | icc | outcome | naive bias | fit_eiv bias | SD | mean SE clustered | mean SE independent | "
-        "coverage clustered | coverage independent |",
-        "| ---: | ---: | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "mean SE jackknife | coverage clustered (CR1) | coverage jackknife | coverage independent |",
+        "| ---: | ---: | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for r in rows:
         lines.append(f"| {r['G']} | {r['icc']} | {r['outcome']} | {r['naive_bias']:+.4f} | {r['bias']:+.4f} | "
                      f"{r['sd']:.4f} | {r['mean_se_clustered']:.4f} | {r['mean_se_independent']:.4f} | "
-                     f"{r['coverage_clustered']:.3f} | {r['coverage_independent']:.3f} |")
+                     f"{r['mean_se_jackknife']:.4f} | {r['coverage_clustered']:.3f} | {r['coverage_jackknife']:.3f} | "
+                     f"{r['coverage_independent']:.3f} |")
     lines += [
         "",
         f"Monte Carlo 90% band for a true coverage of 0.90 with {args.sims} simulations: +/- {mc:.3f}.",
         "",
-        f"**Acceptance** (G >= 60: clustered coverage 0.87-0.93 in every cell; bias < 10% of the naive bias or "
-        f"|bias| < 0.01 everywhere): **{'PASSED' if passed else 'FAILED'}**.",
+        f"**Acceptance** (G >= 60: CR1 and jackknife coverage 0.87-0.93 in every cell; G = 30: jackknife mean "
+        f"coverage {small.coverage_jackknife.mean():.3f} >= CR1's {small.coverage_clustered.mean():.3f}; bias < 10% "
+        f"of the naive bias or |bias| < 0.01 everywhere): **{'PASSED' if passed else 'FAILED'}**.",
         "",
         "Reading: with no clustering (icc 0) both sandwiches cover. When the covariate and the errors share "
         "cluster components, the independence sandwich understates the SE and under-covers, increasingly with "
         "icc and cluster size; the clustered sandwich restores coverage. With few clusters (G = 30) CR1 tends to "
-        "be slightly liberal, the known small-G behaviour (Cameron & Miller 2015); prefer G >= 50.",
+        "be slightly liberal, the known small-G behaviour (Cameron & Miller 2015); prefer G >= 50. The "
+        "delete-one-cluster jackknife (CR3) is the conservative alternative (MacKinnon, Nielsen & Webb 2023).",
         "",
     ]
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)

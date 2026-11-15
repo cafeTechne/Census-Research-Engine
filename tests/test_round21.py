@@ -159,7 +159,7 @@ class TestPlacesConnector(HealthCase):
             ([dict(ok[0], extra=1)], geo, [2024], "unknown keys"),
             ([dict(ok[0], name="x")], geo, [2024], "already a variable"),
             (ok, {"level": "block group", "states": ["26"]}, [2024], "no dataset for geography level"),
-            (ok, geo, [2019], "uses 2020 tracts"),
+            (ok, geo, [2019], "values are on 2020 tracts"),
             (ok, {"level": "tract", "state": "all"}, [2024], "needs geography.state"),
             (ok, dict(geo, harmonize_tracts_to=2010), [2024], "harmonize_tracts_to is 2010"),
             (ok, dict(geo, harmonize_tracts_to=2020), [2019, 2024], "single ACS release"),
@@ -178,10 +178,11 @@ class TestPlacesConnector(HealthCase):
         self.assertIn("B17001", hit["poverty (county level in the model)"])
 
 
-def _ext_manifest(formula="places_dis ~ pov_rate", **over):
+def _ext_manifest(formula="places_dis ~ asr + pov_rate", measure="DIABETES", term=None, **over):
     m = _manifest(**over)
-    m["external"] = [{"name": "places_dis", "source": "places", "release": 2025, "measure": "DISABILITY"}]
+    m["external"] = [{"name": "places_dis", "source": "places", "release": 2025, "measure": measure}]
     m["analyses"] = [{"id": "m1", "method": "fit_eiv", "formula": formula, "replicates": "required"}]
+    m["hypotheses"][0]["term"] = term or formula.split("~")[1].split("+")[0].strip()
     return m
 
 
@@ -217,13 +218,50 @@ class TestManifestExternal(HealthCase):
         self.assertEqual(validate_manifest(m, resolve=False), [])
 
     def test_create_notes_circularity(self):
+        # a control from the model's inputs: allowed, noted
         res = create_manifest(_ext_manifest(), resolve=False)
         self.assertTrue(res["valid"], res["errors"])
         self.assertTrue(any("CIRCULARITY" in n and "B17001" in n for n in res["notes"]), res["notes"])
+        self.assertTrue(any("measures the ACS lacks" in n for n in res["notes"]))
         m = _ext_manifest("places_dis ~ asr")  # B18101 measures disability, not composition: generic note only
         res = create_manifest(m, resolve=False)
         self.assertFalse(any("CIRCULARITY" in n for n in res["notes"]), res["notes"])
         self.assertTrue(any("model-based" in n and "only through their correlation" in n for n in res["notes"]))
+
+    def test_rule_r2_tested_model_input(self):
+        m = _ext_manifest(term="pov_rate")
+        errs = validate_manifest(m, resolve=False)
+        self.assertTrue(any("CIRCULARITY R2" in e and "B17001" in e for e in errs), errs)
+        m["hypotheses"][0]["circularity_justification"] = "short"
+        self.assertTrue(any("CIRCULARITY R2" in e for e in validate_manifest(m, resolve=False)))
+        m["hypotheses"][0]["circularity_justification"] = "Testing how far CDC's model reproduces the poverty gradient."
+        res = create_manifest(m, resolve=False)
+        self.assertTrue(res["valid"], res["errors"])
+        self.assertTrue(any("given for ['H1']" in n for n in res["notes"]), res["notes"])
+        from census.manifest import methods_section
+        self.assertIn("Circularity justification (pre-registered)", methods_section(m))
+
+    def test_rule_r1_same_construct(self):
+        # PLACES disability as the outcome of a determinant model: refused, with the rule's text
+        m = _ext_manifest("places_dis ~ pov_rate", measure="DISABILITY")
+        errs = validate_manifest(m, resolve=False)
+        self.assertTrue(any("CIRCULARITY R1" in e and "B18101" in e and "such as diabetes" in e for e in errs), errs)
+        # a comparison with the ACS measure, testing only it: allowed (Part 1's design)
+        ok = _ext_manifest("places_dis ~ asr + pov_rate", measure="DISABILITY")
+        res = create_manifest(ok, resolve=False)
+        self.assertTrue(res["valid"], res["errors"])
+        self.assertTrue(any("MEASUREMENT COMPARISON" in n for n in res["notes"]), res["notes"])
+        # ... but a determinant tested inside the comparison model is refused
+        bad = _ext_manifest("places_dis ~ asr + pov_rate", measure="DISABILITY", term="pov_rate")
+        errs = validate_manifest(bad, resolve=False)
+        self.assertTrue(any("CIRCULARITY R1" in e and "only that comparison" in e for e in errs), errs)
+
+    def test_part1_study_manifest_still_valid(self):
+        path = os.path.join(os.path.dirname(__file__), "..", "examples", "manifests",
+                            "r21_mi_ny_places_disability_validation.json")
+        with open(path, encoding="utf-8") as f:
+            m = json.load(f)
+        self.assertEqual(validate_manifest(m, resolve=False), [])
 
     def _run(self, m, fetch, name="run"):
         os.environ["CENSUS_HEALTH_DIR"] = os.path.join(self.dir, "health_" + name)  # restored by setUp's patch
@@ -235,7 +273,7 @@ class TestManifestExternal(HealthCase):
                             external_fetch=fetch)
 
     def test_run_end_to_end(self):
-        res = self._run(_ext_manifest(), FakeFetch())
+        res = self._run(_ext_manifest(), FakeFetch(measure="DIABETES"))
         self.assertTrue(res["success"], res["deviations"])
         ext = res["external"]
         self.assertEqual(ext["join"]["matched_units"], N)
@@ -259,10 +297,10 @@ class TestManifestExternal(HealthCase):
             self.assertIn("places_dis_se", frame.columns)
 
     def test_join_failure_and_download_failure_block(self):
-        res = self._run(_ext_manifest(), FakeFetch(geoids=TRACTS[: N // 2]), name="half")
+        res = self._run(_ext_manifest(), FakeFetch(geoids=TRACTS[: N // 2], measure="DIABETES"), name="half")
         self.assertFalse(res["success"])
         self.assertIn("external_join_failed", [d["kind"] for d in res["deviations"]])
-        res = self._run(_ext_manifest(), FakeFetch(fail=True), name="fail")
+        res = self._run(_ext_manifest(), FakeFetch(fail=True, measure="DIABETES"), name="fail")
         kinds = [d["kind"] for d in res["deviations"]]
         self.assertIn("external_unavailable", kinds)
         self.assertIn("analysis_not_run", kinds)
