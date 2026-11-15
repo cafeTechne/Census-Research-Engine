@@ -1,0 +1,396 @@
+{
+  "analysis_status": "exploratory",
+  "related_manifest_hash": "8f205f51a3de3b29e5f8713fcf7a26fba85ca1bd977adf660e69dd30033fb126",
+  "exploratory_reason": "pre-specified exploratory analyses (PLAN_ROUND_19 E1-E4); not confirmatory",
+  "inputs": {
+    "analysis_frame": {
+      "path": "analysed/analysis_frame.parquet",
+      "rows": 16795,
+      "sha256": "3cb181645e485f3abd7e14851126f7318acf1ea89fe139914106b918f4568aec"
+    },
+    "replicates": {
+      "path": "analysed/replicates.parquet",
+      "rows": 217367,
+      "sha256": "aa9b5534a6d9ee36bb6e88420709d1ab5fe93468795b5262df0e19eb31b98105"
+    }
+  },
+  "panel": {
+    "tracts": 8179,
+    "both_periods": 8074,
+    "one_period": 105
+  },
+  "change": {
+    "tracts": 8074,
+    "tracts_with_change_se": 8074,
+    "median_change_cv": 118.5583222717517,
+    "mean": 3479.387719936971,
+    "median": 2214.4372023891337,
+    "share_positive": 0.5572207084468664,
+    "share_distinguishable_from_zero_90": 0.18045578399801834,
+    "share_up_distinguishable": 0.11010651473866732,
+    "share_down_distinguishable": 0.070349269259351,
+    "median_change_se": 12756.84946558789,
+    "by_state": {
+      "Michigan": {
+        "tracts": 2874,
+        "mean": 948.7525673427236,
+        "median": 635.2048025652184,
+        "share_positive": 0.5160055671537926
+      },
+      "New York": {
+        "tracts": 5200,
+        "mean": 4878.05030235156,
+        "median": 3336.609888826737,
+        "share_positive": 0.58
+      }
+    },
+    "path": "studies_output/r19/exploratory/tract_change.parquet",
+    "sha256": "a518c3cc4c69441db33f37e38c8834be8523df59c139347e591963de65644be9"
+  },
+  "sensitivity": {
+    "registered": {
+      "H1": {
+        "estimate": 3468.7002964373482,
+        "se": 221.808570799694,
+        "ci_lower": 3103.8576642685493,
+        "ci_upper": 3833.542928606147,
+        "n": 16253
+      },
+      "H2": {
+        "estimate": -64.80146300688642,
+        "se": 34.709888619767256,
+        "ci_lower": -121.89414919419222,
+        "ci_upper": -7.7087768195806206,
+        "n": 16253
+      },
+      "H3": {
+        "estimate": 3894.5510802932504,
+        "se": 386.4411810618991,
+        "ci_lower": 3258.911902020175,
+        "ci_upper": 4530.190258566326,
+        "n": 16253
+      }
+    },
+    "drop_cv_flagged_tracts": {
+      "H1": {
+        "estimate": 3092.6226160569126,
+        "se": 223.09508316169607,
+        "ci_lower": 2725.6638593633566,
+        "ci_upper": 3459.5813727504687,
+        "n": 16041
+      },
+      "H2": {
+        "estimate": -73.2861049954625,
+        "se": 34.20359841163077,
+        "ci_lower": -129.54601789762498,
+        "ci_upper": -17.026192093300004,
+        "n": 16041
+      },
+      "H3": {
+        "estimate": 3594.1339203379275,
+        "se": 363.961488308221,
+        "ci_lower": 2995.4705462234942,
+        "ci_upper": 4192.797294452361,
+        "n": 16041
+      }
+    },
+    "balanced_panel": {
+      "H1": {
+        "estimate": 3479.3877199366507,
+        "se": 223.12365227509966,
+        "ci_lower": 3112.381971233294,
+        "ci_upper": 3846.3934686400075,
+        "n": 16148
+      },
+      "H2": {
+        "estimate": -66.24072825353574,
+        "se": 34.854343928119,
+        "ci_lower": -123.5710222787163,
+        "ci_upper": -8.910434228355172,
+        "n": 16148
+      },
+      "H3": {
+        "estimate": 3929.29773501031,
+        "se": 389.13067188200813,
+        "ci_lower": 3289.234738007126,
+        "ci_upper": 4569.360732013494,
+        "n": 16148
+      }
+    },
+    "household_weighted_wls": {
+      "H1": {
+        "estimate": 3255.7358438187134,
+        "se": 244.04261590364965,
+        "ci_lower": 2854.32146191887,
+        "ci_upper": 3657.1502257185566,
+        "n": 16253
+      },
+      "H2": {
+        "estimate": -62.00110399099037,
+        "se": 35.26338766035648,
+        "ci_lower": -120.00421508272352,
+        "ci_upper": -3.997992899257227,
+        "n": 16253
+      },
+      "H3": {
+        "estimate": 3097.0286020201706,
+        "se": 447.16796905194434,
+        "ci_lower": 2361.502746268556,
+        "ci_upper": 3832.554457771785,
+        "n": 16253
+      }
+    },
+    "state_rpp_areas": {
+      "H1": {
+        "estimate": 3367.280052541747,
+        "se": 224.18843015734146,
+        "ci_lower": 2998.522900076887,
+        "ci_upper": 3736.037205006607,
+        "n": 16253
+      },
+      "H2": {
+        "estimate": -79.2314669767908,
+        "se": 36.502056143330215,
+        "ci_lower": -139.27200641533378,
+        "ci_upper": -19.190927538247827,
+        "n": 16253
+      },
+      "H3": {
+        "estimate": 3643.7404012582742,
+        "se": 391.52787925291216,
+        "ci_lower": 2999.7343490165035,
+        "ci_upper": 4287.7464535000445,
+        "n": 16253
+      }
+    },
+    "nominal_dollars": {
+      "H1": {
+        "estimate": 23662.234112475555,
+        "se": 219.9262230187715,
+        "ci_lower": 23300.48766688139,
+        "ci_upper": 24023.98055806972,
+        "n": 16253
+      },
+      "H2": {
+        "estimate": 344.6214176268828,
+        "se": 38.09897615266456,
+        "ci_lower": 281.9541785190349,
+        "ci_upper": 407.28865673473075,
+        "n": 16253
+      },
+      "H3": {
+        "estimate": 6620.803298127272,
+        "se": 379.6048255842238,
+        "ci_lower": 5996.40892395678,
+        "ci_upper": 7245.197672297763,
+        "n": 16253
+      }
+    }
+  },
+  "gradient_by_period": {
+    "2019": {
+      "estimate": 2112.0951477374438,
+      "se": 34.214076911956475,
+      "ci_lower": 2055.8179992360156,
+      "ci_upper": 2168.372296238872,
+      "n": 8140
+    },
+    "2024": {
+      "estimate": 2031.7811886187937,
+      "se": 43.75471832094345,
+      "ci_lower": 1959.8110814923498,
+      "ci_upper": 2103.7512957452377,
+      "n": 8113
+    }
+  },
+  "replicate_vs_independence_se_2019": {
+    "agg_income": {
+      "merged (second source >= 10% of the tract)": {
+        "tracts": 114,
+        "median_ratio": 1.0007442703303804,
+        "p05": 0.9450536562909883,
+        "p95": 1.0607425580826937,
+        "share_rep_se_larger_by_10pct": 0.008771929824561403
+      },
+      "part of a split 2010 tract (or slivers < 10%)": {
+        "tracts": 1764,
+        "median_ratio": 0.9999999997579008,
+        "p05": 0.9999503231667869,
+        "p95": 1.0000955906671425,
+        "share_rep_se_larger_by_10pct": 0.0
+      },
+      "same tract (weight 1)": {
+        "tracts": 6262,
+        "median_ratio": 1.0000000004825045,
+        "p05": 0.9999998508974574,
+        "p95": 1.0000001805266312,
+        "share_rep_se_larger_by_10pct": 0.0
+      }
+    },
+    "households": {
+      "merged (second source >= 10% of the tract)": {
+        "tracts": 114,
+        "median_ratio": 1.004305467064945,
+        "p05": 0.9301560438785079,
+        "p95": 1.0700586728442802,
+        "share_rep_se_larger_by_10pct": 0.03508771929824561
+      },
+      "part of a split 2010 tract (or slivers < 10%)": {
+        "tracts": 1764,
+        "median_ratio": 1.0001157060957362,
+        "p05": 0.9952984513262958,
+        "p95": 1.0049565469164818,
+        "share_rep_se_larger_by_10pct": 0.0005668934240362812
+      },
+      "same tract (weight 1)": {
+        "tracts": 6262,
+        "median_ratio": 1.000099963252797,
+        "p05": 0.9936927092994561,
+        "p95": 1.0063716013124475,
+        "share_rep_se_larger_by_10pct": 0.0
+      }
+    }
+  },
+  "maps": {
+    "Michigan": {
+      "success": true,
+      "summary": "Wrote estimate map of change (2874 areas).",
+      "paths": null,
+      "error": null
+    },
+    "Michigan significance": {
+      "success": true,
+      "error": null,
+      "increase_bh": 8,
+      "decrease_bh": 18,
+      "tested": 2874
+    },
+    "New York": {
+      "success": true,
+      "summary": "Wrote estimate map of change (5200 areas).",
+      "paths": null,
+      "error": null
+    },
+    "New York significance": {
+      "success": true,
+      "error": null,
+      "increase_bh": 31,
+      "decrease_bh": 23,
+      "tested": 5200
+    }
+  },
+  "lisa": {
+    "Michigan": {
+      "global": {
+        "variable": "change",
+        "I": 0.053518055156248114,
+        "expected_I": -0.0003480682213713888,
+        "p_norm": 8.692869950238589e-07,
+        "p_sim": 0.001,
+        "z_sim": 4.848604757277484,
+        "permutations": 999,
+        "se_replicate": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "confidence_level": 0.9,
+        "replicate_I": null,
+        "n": 2874,
+        "notes": [
+          "1 island(s) (no neighbors) contribute zero spatial lag"
+        ],
+        "provenance": {
+          "library": "esda.Moran",
+          "weights": {
+            "n": 2874,
+            "transform": "R",
+            "n_islands": 1,
+            "islands": [
+              "26029000500"
+            ],
+            "islands_truncated": false,
+            "neighbors_min": 0,
+            "neighbors_mean": 6.228253305497565,
+            "neighbors_max": 16,
+            "n_components": 3,
+            "pct_nonzero": 0.2167102750695047,
+            "kind": "queen",
+            "params": {},
+            "crs": "EPSG:4269",
+            "cache": "off",
+            "cache_key": null,
+            "id_col": "GEOID"
+          },
+          "seed": 12345
+        }
+      },
+      "notes": [
+        "two-sided p_value = min(1, 2 p_sim) from 9999 conditional permutations (minimum attainable p_sim 0.0001), adjusted with 'bh' across 2874 local tests, significant at p_adjusted <= 0.1",
+        "islands (no neighbors) have Ii = 0 and are never significant",
+        "Caveat (simulation 'local_morans_size', 144-area lattice): the default reading (two-sided p_value = min(1, 2 p_sim), 9999 permutations, BH at alpha 0.10) kept the per-area rate of p_value <= 0.10 at 0.099 and the family-wise rate (= FDR) at 0.088 under spatial randomness. It has little power: 1.1% of areas in a 4x4 hot spot raised by 1.5 SD were flagged, so no significant cluster is not evidence of no clustering. Spatially heterogeneous but independent sampling errors (CVs varying smoothly across the map) gave at least one significant area in 38% of maps (0.5% of areas); that study did not test spatially correlated sampling errors (see docs/audits/lisa_validation.md). replicate_quadrant_share is a stability check, not a probability that a cluster is real. p_sim is esda's folded (one-sided, observed-direction) pseudo p-value; sided='folded' with permutations=999 is the pre-Round 15 default (per-area rate of p_sim <= 0.10: 0.196)"
+      ],
+      "error": null,
+      "significant_by_quadrant": {},
+      "tracts": 2874
+    },
+    "New York": {
+      "global": {
+        "variable": "change",
+        "I": 0.07905361440302536,
+        "expected_I": -0.00019234468166955183,
+        "p_norm": 1.5549088611727914e-21,
+        "p_sim": 0.001,
+        "z_sim": 9.339406487200222,
+        "permutations": 999,
+        "se_replicate": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "confidence_level": 0.9,
+        "replicate_I": null,
+        "n": 5200,
+        "notes": [
+          "4 island(s) (no neighbors) contribute zero spatial lag"
+        ],
+        "provenance": {
+          "library": "esda.Moran",
+          "weights": {
+            "n": 5200,
+            "transform": "R",
+            "n_islands": 4,
+            "islands": [
+              "36005051601",
+              "36081091603",
+              "36081107201",
+              "36103201008"
+            ],
+            "islands_truncated": false,
+            "neighbors_min": 0,
+            "neighbors_mean": 5.928461538461539,
+            "neighbors_max": 22,
+            "n_components": 6,
+            "pct_nonzero": 0.11400887573964497,
+            "kind": "queen",
+            "params": {},
+            "crs": "EPSG:4269",
+            "cache": "off",
+            "cache_key": null,
+            "id_col": "GEOID"
+          },
+          "seed": 12345
+        }
+      },
+      "notes": [
+        "two-sided p_value = min(1, 2 p_sim) from 9999 conditional permutations (minimum attainable p_sim 0.0001), adjusted with 'bh' across 5200 local tests, significant at p_adjusted <= 0.1",
+        "islands (no neighbors) have Ii = 0 and are never significant",
+        "Caveat (simulation 'local_morans_size', 144-area lattice): the default reading (two-sided p_value = min(1, 2 p_sim), 9999 permutations, BH at alpha 0.10) kept the per-area rate of p_value <= 0.10 at 0.099 and the family-wise rate (= FDR) at 0.088 under spatial randomness. It has little power: 1.1% of areas in a 4x4 hot spot raised by 1.5 SD were flagged, so no significant cluster is not evidence of no clustering. Spatially heterogeneous but independent sampling errors (CVs varying smoothly across the map) gave at least one significant area in 38% of maps (0.5% of areas); that study did not test spatially correlated sampling errors (see docs/audits/lisa_validation.md). replicate_quadrant_share is a stability check, not a probability that a cluster is real. p_sim is esda's folded (one-sided, observed-direction) pseudo p-value; sided='folded' with permutations=999 is the pre-Round 15 default (per-area rate of p_sim <= 0.10: 0.196)"
+      ],
+      "error": null,
+      "significant_by_quadrant": {
+        "LL": 9,
+        "HH": 9,
+        "LH": 3,
+        "HL": 3
+      },
+      "tracts": 5200
+    }
+  }
+}

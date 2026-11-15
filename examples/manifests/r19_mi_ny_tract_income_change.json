@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "title": "Real household income change and the income-education gradient across Michigan and New York census tracts, ACS 2015-2019 vs 2020-2024",
+  "authors": ["agent:claude"],
+  "created": "2026-11-14T00:00:00Z",
+  "releases": [2019, 2024],
+  "geography": {"level": "tract", "states": ["26", "36"], "harmonize_tracts_to": 2020},
+  "variables": [
+    {"name": "agg_income", "ref": "2024:B19025_001"},
+    {"name": "households", "ref": "2024:B19001_001"},
+    {"name": "ed_total", "ref": "2024:B15002_001"},
+    {"name": "ba_male", "ref": "2024:B15002_015"},
+    {"name": "ma_male", "ref": "2024:B15002_016"},
+    {"name": "prof_male", "ref": "2024:B15002_017"},
+    {"name": "phd_male", "ref": "2024:B15002_018"},
+    {"name": "ba_female", "ref": "2024:B15002_032"},
+    {"name": "ma_female", "ref": "2024:B15002_033"},
+    {"name": "prof_female", "ref": "2024:B15002_034"},
+    {"name": "phd_female", "ref": "2024:B15002_035"}
+  ],
+  "derivations": [
+    {"name": "mean_hh_income", "op": "ratio", "num": "agg_income", "den": "households"},
+    {"name": "pct_bachelors", "op": "proportion", "as_percent": true,
+     "num": ["ba_male", "ma_male", "prof_male", "phd_male", "ba_female", "ma_female", "prof_female", "phd_female"],
+     "den": "ed_total"}
+  ],
+  "adjustments": [
+    {"type": "rpp", "variables": ["mean_hh_income"], "areas": "county_metro",
+     "dollar_year": 2024, "price_index": "r-cpi-u-rs", "rpp_years": {"2019": 2019, "2024": 2024}}
+  ],
+  "replicates": {"source": "census_vre"},
+  "exclusions": [
+    {"rule": "cv_screen", "threshold": 30, "variables": ["mean_hh_income"], "action": "flag"}
+  ],
+  "missing": "complete_case",
+  "confidence_level": 0.90,
+  "correction": {"method": "holm", "family": "all"},
+  "analyses": [
+    {"id": "m1", "method": "fit_replicate", "formula": "mean_hh_income ~ C(Year)",
+     "args": {"model": "ols", "target": "these_areas"}},
+    {"id": "m2", "method": "fit_replicate", "formula": "mean_hh_income ~ C(Year) * pct_bachelors + C(GEOID.str[:2])",
+     "args": {"model": "ols", "target": "conservative"}},
+    {"id": "m3", "method": "fit_replicate", "formula": "mean_hh_income ~ C(Year) * C(GEOID.str[:2])",
+     "args": {"model": "ols", "target": "these_areas"}}
+  ],
+  "hypotheses": [
+    {"id": "H1", "statement": "Across Michigan and New York census tracts (2020 geography), mean household income in 2024 dollars, adjusted for the price level of each tract's county area (RPP of the release's own year), was higher in 2020-2024 than in 2015-2019 (unweighted mean of tract changes).",
+     "analysis": "m1", "statistic": "coefficient", "term": "C(Year)[T.2024]", "direction": "greater"},
+    {"id": "H2", "statement": "The cross-tract slope of real mean household income on the percentage of adults 25+ with a bachelor's degree or higher was steeper in 2020-2024 than in 2015-2019 (state intercepts held fixed).",
+     "analysis": "m2", "statistic": "coefficient", "term": "C(Year)[T.2024]:pct_bachelors", "direction": "greater"},
+    {"id": "H3", "statement": "The mean tract change in real mean household income differed between New York and Michigan tracts.",
+     "analysis": "m3", "statistic": "coefficient", "term": "C(Year)[T.2024]:C(GEOID.str[:2])[T.36]", "direction": "two-sided"}
+  ]
+}

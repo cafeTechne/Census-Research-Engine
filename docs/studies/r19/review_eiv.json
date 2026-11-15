@@ -1,0 +1,27 @@
+{
+  "label": "exploratory review check, not confirmatory",
+  "replicates_sha256": "aa9b5534a6d9ee36bb6e88420709d1ab5fe93468795b5262df0e19eb31b98105",
+  "periods": {
+    "2019": {
+      "n": 8142,
+      "var_x_within_state": 345.6639566323305,
+      "mean_error_var_x": 13.054439835237758,
+      "reliability_x": 0.9622337256032648,
+      "mean_error_cov_xy": 8075.709356832889,
+      "slope_naive": 2111.9178434205924,
+      "slope_corrected": 2170.5276969653382
+    },
+    "2024": {
+      "n": 8113,
+      "var_x_within_state": 372.4272407071315,
+      "mean_error_var_x": 22.228083193598753,
+      "reliability_x": 0.940315635474478,
+      "mean_error_cov_xy": 15134.988801780564,
+      "slope_naive": 2031.7811886187963,
+      "slope_corrected": 2117.525576764181
+    }
+  },
+  "slope_change_naive": -80.13665480179611,
+  "slope_change_corrected": -53.00212020115714,
+  "share_of_naive_change_from_measurement_error": 0.3386032854472334
+}
