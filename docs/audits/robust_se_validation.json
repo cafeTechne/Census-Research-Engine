@@ -1,0 +1,138 @@
+{
+  "passed": true,
+  "criterion": "HC3 coverage >= 0.86 in all four cells",
+  "rows": [
+    {
+      "model": "binomial",
+      "sd_u": 0.0,
+      "estimator": "HC3",
+      "sims": 2000,
+      "seed": 20261115,
+      "coverage": 0.897,
+      "mc_se": 0.006796727153564427,
+      "mean_se_over_empirical_sd": 1.0121858630379086,
+      "failed": 0
+    },
+    {
+      "model": "binomial",
+      "sd_u": 0.0,
+      "estimator": "HC0_nk",
+      "sims": 2000,
+      "seed": 20261115,
+      "coverage": 0.8855,
+      "mc_se": 0.007120033356663438,
+      "mean_se_over_empirical_sd": 0.9662284101886978,
+      "failed": 0
+    },
+    {
+      "model": "binomial",
+      "sd_u": 0.0,
+      "estimator": "X2",
+      "sims": 2000,
+      "seed": 20261115,
+      "coverage": 0.899,
+      "mc_se": 0.006737915107805974,
+      "mean_se_over_empirical_sd": 0.9895881695888359,
+      "failed": 0
+    },
+    {
+      "model": "binomial",
+      "sd_u": 0.15,
+      "estimator": "HC3",
+      "sims": 2000,
+      "seed": 20261116,
+      "coverage": 0.8925,
+      "mc_se": 0.006926173185822025,
+      "mean_se_over_empirical_sd": 0.9905665480254017,
+      "failed": 0
+    },
+    {
+      "model": "binomial",
+      "sd_u": 0.15,
+      "estimator": "HC0_nk",
+      "sims": 2000,
+      "seed": 20261116,
+      "coverage": 0.8695,
+      "mc_se": 0.00753225563825339,
+      "mean_se_over_empirical_sd": 0.9286387304230552,
+      "failed": 0
+    },
+    {
+      "model": "binomial",
+      "sd_u": 0.15,
+      "estimator": "X2",
+      "sims": 2000,
+      "seed": 20261116,
+      "coverage": 0.79,
+      "mc_se": 0.00910768905925098,
+      "mean_se_over_empirical_sd": 0.7555923691417658,
+      "failed": 0
+    },
+    {
+      "model": "binomial",
+      "sd_u": 0.3,
+      "estimator": "HC3",
+      "sims": 2000,
+      "seed": 20261117,
+      "coverage": 0.88,
+      "mc_se": 0.0072663608498339805,
+      "mean_se_over_empirical_sd": 0.9718111996473543,
+      "failed": 0
+    },
+    {
+      "model": "binomial",
+      "sd_u": 0.3,
+      "estimator": "HC0_nk",
+      "sims": 2000,
+      "seed": 20261117,
+      "coverage": 0.8465,
+      "mc_se": 0.00806032722660811,
+      "mean_se_over_empirical_sd": 0.8813470536382575,
+      "failed": 0
+    },
+    {
+      "model": "binomial",
+      "sd_u": 0.3,
+      "estimator": "X2",
+      "sims": 2000,
+      "seed": 20261117,
+      "coverage": 0.697,
+      "mc_se": 0.010275967107771414,
+      "mean_se_over_empirical_sd": 0.6270024537308674,
+      "failed": 0
+    },
+    {
+      "model": "poisson",
+      "sd_u": 0.15,
+      "estimator": "HC3",
+      "sims": 2000,
+      "seed": 20261118,
+      "coverage": 0.879,
+      "mc_se": 0.007292427579345577,
+      "mean_se_over_empirical_sd": 0.9786700152875298,
+      "failed": 0
+    },
+    {
+      "model": "poisson",
+      "sd_u": 0.15,
+      "estimator": "HC0_nk",
+      "sims": 2000,
+      "seed": 20261118,
+      "coverage": 0.8425,
+      "mc_se": 0.00814535910810567,
+      "mean_se_over_empirical_sd": 0.8737686976439758,
+      "failed": 0
+    },
+    {
+      "model": "poisson",
+      "sd_u": 0.15,
+      "estimator": "X2",
+      "sims": 2000,
+      "seed": 20261118,
+      "coverage": 0.689,
+      "mc_se": 0.010350821223458553,
+      "mean_se_over_empirical_sd": 0.6107971767339939,
+      "failed": 0
+    }
+  ]
+}

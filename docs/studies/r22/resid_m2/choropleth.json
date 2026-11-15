@@ -1,0 +1,51 @@
+{
+  "confidence_level": 0.9,
+  "data_source": "Exploratory; CHR&R 2025 natality 2017\u20132023; ACS 2018\u20132022; manifest 10c46acedc6e",
+  "figure": "choropleth",
+  "files": {
+    "choropleth.caption.txt": "a4d343156c0502191179ddee5340b4c8d626b1e50aaee9b3220a444ea7b0e5f2",
+    "choropleth.csv": "08638bfbbe5c6ce42d2fc2501c020f21290a447070eef45a04c7b58c39a991d0",
+    "choropleth.eps": "c5ec0b785b131fbaf05a8a900703e3090ee46ec683e121c50fd74d8938c2971f",
+    "choropleth.pdf": "b73b18fa3c3cc5b57977e728eace30cbed39bffe8f215873748b24de26f182dc",
+    "choropleth.png": "3166ac6cc897d89deb16b7fabd11fc6bb407c17f51c61ccc73c1686d207e2277",
+    "choropleth.svg": "b374dc31188cfcc5765539710b2a563745d7119ef7e6240ad67835fec2ccb3f7"
+  },
+  "inputs": {
+    "bins": [
+      -0.01984983760417095,
+      -0.009924918802085476,
+      -3.469446951953614e-18,
+      0.009924918802085472,
+      0.01984983760417095,
+      0.029774756406256417
+    ],
+    "boundaries": {
+      "description": "Census 2022 cartographic boundary file (1:500,000), county",
+      "detail": "cb",
+      "level": "county",
+      "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58",
+      "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
+      "year": 2022
+    },
+    "center": 0.0,
+    "cmap": "RdBu_r",
+    "column": "resid_m2",
+    "crs": [
+      "EPSG:5070"
+    ],
+    "cv_threshold": 30.0,
+    "k": 6,
+    "moe_col": null,
+    "n_low_reliability": 0,
+    "scheme": "diverging",
+    "se_col": null,
+    "separability": {
+      "separability": null
+    }
+  },
+  "kind": "choropleth",
+  "manifest_hash": null,
+  "matplotlib_version": "3.11.2",
+  "notes": [],
+  "result_id": null
+}

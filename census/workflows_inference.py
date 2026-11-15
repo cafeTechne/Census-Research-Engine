@@ -758,6 +758,9 @@ def run_variant(
     hash-checked analysed data, without writing Python. The output is labelled
     exploratory with the manifest hash; confirmatory results are never changed.
 
+    Spatial_se={"cutoff_km":150} is exploratory only (failed spatial HAC validation).
+    Binomial count proportions use trials=<name>_denominator, scale:"X2".
+
     Args:
         run_dir: The run_manifest output folder (holds manifest.json and bundle/).
         analysis: Analysis id in the manifest, e.g. "m2".
@@ -786,6 +789,8 @@ def run_variant(
 def create_manifest(manifest_path: str) -> Dict[str, Any]:
     """Validate a pre-registration manifest (JSON) and return its SHA-256 hash.
     Commit the manifest and hash BEFORE pulling data; then call run_manifest.
+    exploratory:true labels the run exploratory. Spatial_se failed validation: exploratory only.
+    Binomial external outcomes need trials=<name>_denominator and scale:"X2".
     Several states: geography {"level": "county", "states": ["26", "36"]}; a price
     adjustment: "adjustments": [{"type": "rpp", "variables": ["income"], "rpp_year": 2024}]
     (rpp_year is required; when omitted, the latest RPP year is filled in before

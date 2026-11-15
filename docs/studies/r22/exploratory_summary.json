@@ -1,0 +1,2503 @@
+{
+  "analysis_status": "exploratory",
+  "related_manifest_hash": "10c46acedc6eff827d8a41df34d272f839ed0d75804666e81b77ca75eab83ea6",
+  "note": "X1–X5 are exploratory; spatial HAC failed validation and is not validated.",
+  "confirmatory": {
+    "analysis_status": "confirmatory",
+    "manifest_hash": "10c46acedc6eff827d8a41df34d272f839ed0d75804666e81b77ca75eab83ea6",
+    "n_units": 145,
+    "deviations": [],
+    "hypotheses": [
+      {
+        "analysis": "m1",
+        "ci_lower": 0.011236086345434455,
+        "ci_upper": 0.0180724936392682,
+        "direction": "greater",
+        "estimate": 0.014654289992351327,
+        "family": "primary",
+        "id": "H1",
+        "manifest_hash": "10c46acedc6eff827d8a41df34d272f839ed0d75804666e81b77ca75eab83ea6",
+        "odds_ratio": 1.0147621905242235,
+        "odds_ratio_lower": 1.011299448254537,
+        "odds_ratio_upper": 1.018236789404775,
+        "p_adjusted": 2.6510884521429213e-12,
+        "p_two_sided": 1.7673923014286143e-12,
+        "p_value": 8.836961507143072e-13,
+        "se": 0.002078120260008837,
+        "se_basis": "se_model",
+        "significant": true,
+        "statement": "Across Michigan and New York counties, the County Health Rankings & Roadmaps 2025 low birth weight proportion (v037: live births under 2,500 g; NCHS natality 2017–2023) is higher where the ACS 2018–2022 poverty rate is higher, with state intercepts (quasi-binomial regression, logit link, live births as trials).",
+        "statistic": "coefficient",
+        "status": "tested"
+      },
+      {
+        "analysis": "m2",
+        "ci_lower": 0.002536663432813887,
+        "ci_upper": 0.009710467506495724,
+        "direction": "greater",
+        "estimate": 0.006123565469654806,
+        "family": "primary",
+        "id": "H2",
+        "manifest_hash": "10c46acedc6eff827d8a41df34d272f839ed0d75804666e81b77ca75eab83ea6",
+        "odds_ratio": 1.006142352825643,
+        "odds_ratio_lower": 1.002539883485654,
+        "odds_ratio_upper": 1.0097577670724227,
+        "p_adjusted": 0.004983521248515754,
+        "p_two_sided": 0.004983521248515754,
+        "p_value": 0.002491760624257877,
+        "se": 0.0021806815986956767,
+        "se_basis": "se_model",
+        "significant": true,
+        "statement": "Conditional on the poverty rate, the bachelor's share, the no-vehicle share and state, the county low birth weight proportion is higher where a larger share of households spends 30% or more of income on housing costs.",
+        "statistic": "coefficient",
+        "status": "tested"
+      },
+      {
+        "analysis": "m2",
+        "ci_lower": -0.0030806168624498767,
+        "ci_upper": 0.0002156834266595078,
+        "direction": "greater",
+        "estimate": -0.0014324667178951846,
+        "family": "primary",
+        "id": "H3",
+        "manifest_hash": "10c46acedc6eff827d8a41df34d272f839ed0d75804666e81b77ca75eab83ea6",
+        "odds_ratio": 0.9985685587728349,
+        "odds_ratio_lower": 0.9969241233688153,
+        "odds_ratio_upper": 1.0002157066880022,
+        "p_adjusted": 0.9235843013288011,
+        "p_two_sided": 0.15283139734239773,
+        "p_value": 0.9235843013288011,
+        "se": 0.001002004140398395,
+        "se_basis": "se_model",
+        "significant": false,
+        "statement": "Conditional on the poverty rate, the bachelor's share, the cost-burden share and state, the county low birth weight proportion is higher where a larger share of occupied housing units has no vehicle available.",
+        "statistic": "coefficient",
+        "status": "tested"
+      }
+    ],
+    "analysed_data": {
+      "analysis_frame": "41d25c232e2cbf4964d98988994152742cebe045f927091f925dd048d1dd0576",
+      "replicates": "7d292744191cca5e83b652229716d9b3dd209c75c6ed04f0c0e0e58dcbb7e140"
+    },
+    "models": {
+      "m1": {
+        "n_obs": 144,
+        "formula": "lbw ~ pov_rate + C(GEOID.str[:2])",
+        "coefficients": [
+          {
+            "ci_lower": -2.5830244510349267,
+            "ci_upper": -2.4702177985834552,
+            "estimate": -2.526621124809191,
+            "p_value": 0.0,
+            "se_model": 0.03429078752148433,
+            "se_sampling": 0.004688686598342713,
+            "se_total": 0.03460985251140294,
+            "term": "Intercept"
+          },
+          {
+            "ci_lower": -0.12888773707439025,
+            "ci_upper": -0.05081471991466949,
+            "estimate": -0.08985122849452987,
+            "p_value": 0.0001530932890695607,
+            "se_model": 0.02373251208510851,
+            "se_sampling": 0.0015101876349513674,
+            "se_total": 0.023780512958356922,
+            "term": "C(GEOID.str[:2])[T.36]"
+          },
+          {
+            "ci_lower": 0.011236086345434455,
+            "ci_upper": 0.0180724936392682,
+            "estimate": 0.014654289992351327,
+            "p_value": 1.7673923014286143e-12,
+            "se_model": 0.002078120260008837,
+            "se_sampling": 0.00031532638471429075,
+            "se_total": 0.002101907358557028,
+            "term": "pov_rate"
+          }
+        ],
+        "diagnostics": {
+          "covariate_reliability": {
+            "by_group": {
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.9489286733997295
+                }
+              }
+            },
+            "covariates": {
+              "pov_rate": 0.9330082844241049
+            },
+            "low": [],
+            "uneven": [
+              "pov_rate"
+            ]
+          },
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          },
+          "interval_target": "population",
+          "pearson_dispersion": 21.99258015474053,
+          "reliability_screen": {
+            "n_flags": 0,
+            "rows_flagged_by_variable": {},
+            "threshold_cv_percent": 30.0
+          },
+          "replicate_failures": 0,
+          "replicate_stability": {
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.0007596841105957517,
+              "share_same_sign": 1.0
+            },
+            "Intercept": {
+              "sd": 0.00234070648021496,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.00015862737119275776,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "scale": "X2"
+        }
+      },
+      "m2": {
+        "n_obs": 144,
+        "formula": "lbw ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])",
+        "coefficients": [
+          {
+            "ci_lower": -2.7630788461416635,
+            "ci_upper": -2.4615750895191315,
+            "estimate": -2.6123269678303975,
+            "p_value": 1.0723273633943462e-178,
+            "se_model": 0.09165063434286591,
+            "se_sampling": 0.02099641249645771,
+            "se_total": 0.09402493346539054,
+            "term": "Intercept"
+          },
+          {
+            "ci_lower": -0.17609031620817242,
+            "ci_upper": -0.0706331680136458,
+            "estimate": -0.12336174211090911,
+            "p_value": 0.00011897130493601555,
+            "se_model": 0.032056696859397174,
+            "se_sampling": 0.0033424960776009477,
+            "se_total": 0.032230483917621566,
+            "term": "C(GEOID.str[:2])[T.36]"
+          },
+          {
+            "ci_lower": 0.006160168151938057,
+            "ci_upper": 0.017828196454039123,
+            "estimate": 0.01199418230298859,
+            "p_value": 0.0007204827290728859,
+            "se_model": 0.0035468287606011113,
+            "se_sampling": 0.0008274452185569684,
+            "se_total": 0.003642068072776785,
+            "term": "pov_rate"
+          },
+          {
+            "ci_lower": -0.0033573940414217485,
+            "ci_upper": 0.0011376797093703645,
+            "estimate": -0.001109857166025692,
+            "p_value": 0.41665055354899383,
+            "se_model": 0.001366405398370663,
+            "se_sampling": 0.000247960960380405,
+            "se_total": 0.0013887218406035324,
+            "term": "pct_bachelors"
+          },
+          {
+            "ci_lower": -0.0030806168624498767,
+            "ci_upper": 0.0002156834266595078,
+            "estimate": -0.0014324667178951846,
+            "p_value": 0.15283139734239773,
+            "se_model": 0.001002004140398395,
+            "se_sampling": 0.00022443489229168203,
+            "se_total": 0.0010268316893500635,
+            "term": "no_vehicle"
+          },
+          {
+            "ci_lower": 0.002536663432813887,
+            "ci_upper": 0.009710467506495724,
+            "estimate": 0.006123565469654806,
+            "p_value": 0.004983521248515754,
+            "se_model": 0.0021806815986956767,
+            "se_sampling": 0.0004143041769554486,
+            "se_total": 0.0022196892093112185,
+            "term": "cost_burden"
+          }
+        ],
+        "diagnostics": {
+          "covariate_reliability": {
+            "by_group": {
+              "cost_burden": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8351515246128571,
+                  "36": 0.9766565792816062
+                }
+              },
+              "no_vehicle": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8349112063428686,
+                  "36": 0.9971981964498811
+                }
+              },
+              "pct_bachelors": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9898661730921562,
+                  "36": 0.9924185282250646
+                }
+              },
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.9489286733997295
+                }
+              }
+            },
+            "covariates": {
+              "cost_burden": 0.9601029862732191,
+              "no_vehicle": 0.9936046989254389,
+              "pct_bachelors": 0.9919471742860829,
+              "pov_rate": 0.9330082844241049
+            },
+            "low": [],
+            "uneven": [
+              "pov_rate",
+              "no_vehicle",
+              "cost_burden"
+            ]
+          },
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          },
+          "interval_target": "population",
+          "pearson_dispersion": 21.018752495679326,
+          "reliability_screen": {
+            "n_flags": 0,
+            "rows_flagged_by_variable": {},
+            "threshold_cv_percent": 30.0
+          },
+          "replicate_failures": 0,
+          "replicate_stability": {
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.001668750331112123,
+              "share_same_sign": 1.0
+            },
+            "Intercept": {
+              "sd": 0.010472639297459108,
+              "share_same_sign": 1.0
+            },
+            "cost_burden": {
+              "sd": 0.0002074727186254582,
+              "share_same_sign": 1.0
+            },
+            "no_vehicle": {
+              "sd": 0.00011264857475398254,
+              "share_same_sign": 1.0
+            },
+            "pct_bachelors": {
+              "sd": 0.00012435097490775241,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.0004162580298871579,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "scale": "X2"
+        }
+      }
+    }
+  },
+  "X3": [
+    {
+      "analysis": "m1",
+      "cutoff_km": 50,
+      "validation_status": "not validated",
+      "units": 145,
+      "result": {
+        "model_type": "binomial",
+        "formula": "lbw ~ pov_rate + C(GEOID.str[:2])",
+        "n_obs": 144,
+        "coefficients": [
+          {
+            "term": "Intercept",
+            "estimate": -2.526621124809191,
+            "se_model": 0.049796050825206,
+            "se_sampling": 0.004688686598342713,
+            "se_total": 0.05001630194050714,
+            "ci_lower": -2.608528339616891,
+            "ci_upper": -2.444713910001491,
+            "p_value": 0.0
+          },
+          {
+            "term": "C(GEOID.str[:2])[T.36]",
+            "estimate": -0.08985122849452987,
+            "se_model": 0.05195503298133488,
+            "se_sampling": 0.0015101876349513674,
+            "se_total": 0.051976976814589314,
+            "ci_lower": -0.17530965293226192,
+            "ci_upper": -0.0043928040567978305,
+            "p_value": 0.08373686062644099
+          },
+          {
+            "term": "pov_rate",
+            "estimate": 0.014654289992351327,
+            "se_model": 0.004637426314802122,
+            "se_sampling": 0.00031532638471429075,
+            "se_total": 0.004648134416528439,
+            "ci_lower": 0.007026402498728857,
+            "ci_upper": 0.022282177485973796,
+            "p_value": 0.0015776647223634795
+          }
+        ],
+        "method": "replicate_refit",
+        "uncertainty_sources": [
+          "model",
+          "sampling_replicate"
+        ],
+        "confidence_level": 0.9,
+        "notes": [
+          "COVARIATE MEASUREMENT ERROR: reliability differs by more than 0.02 between groups of ['pov_rate']. Replicate refits widen intervals for this noise but do not remove the bias it causes (attenuation, uneven across groups); fit_eiv supports ols/wls only; for this binomial model, regression_calibration corrects the attenuation approximately (not the outcome-covariate error correlation)",
+          "DECLARED COVARIATE-ONLY REPLICATES: ['lbw'] held at their estimates in every refit as pre-declared; se_sampling covers the sampling error of ['pov_rate'] only, not of ['lbw']",
+          "se_total = sqrt(se_model^2 + se_sampling^2) is reported but conservative (validated coverage 0.961 at nominal 0.90): the model residual already absorbs outcome sampling error",
+          "Spatial HAC (Conley) SEs, Bartlett kernel, cutoff 50 km",
+          "intervals and p-values use the 'population' target (se_model)"
+        ],
+        "diagnostics": {
+          "reliability_screen": {
+            "threshold_cv_percent": 30.0,
+            "rows_flagged_by_variable": {},
+            "n_flags": 0
+          },
+          "pearson_dispersion": 21.99258015474053,
+          "scale": "X2",
+          "replicate_stability": {
+            "Intercept": {
+              "sd": 0.00234070648021496,
+              "share_same_sign": 1.0
+            },
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.0007596841105957517,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.00015862737119275776,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicate_failures": 0,
+          "covariate_reliability": {
+            "covariates": {
+              "pov_rate": 0.9330082844241049
+            },
+            "by_group": {
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.9489286733997295
+                }
+              }
+            },
+            "low": [],
+            "uneven": [
+              "pov_rate"
+            ]
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "se_model_unadjusted": {
+            "Intercept": 0.03429078752148433,
+            "C(GEOID.str[:2])[T.36]": 0.02373251208510851,
+            "pov_rate": 0.002078120260008837
+          },
+          "spatial_se": {
+            "kernel": "bartlett",
+            "cutoff_km": 50.0,
+            "n": 144,
+            "mean_neighbours": 3.1666666666666665,
+            "min_eigenvalue": 1.8742817149765531e-06,
+            "psd": true
+          },
+          "interval_target": "population",
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          }
+        },
+        "provenance": {
+          "model_library": "statsmodels",
+          "rows_used": 144,
+          "replicate_variables": [
+            "pov_rate"
+          ],
+          "spatial_coordinates": {
+            "level": "county",
+            "boundary_year": 2022,
+            "files": [
+              {
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
+                "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
+                "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
+              }
+            ]
+          }
+        },
+        "interval_se_column": "se_model",
+        "interval": {
+          "target": "population",
+          "basis_column": "se_model",
+          "level": 0.9,
+          "distribution": "normal",
+          "df": null,
+          "basis_sources": [
+            "model"
+          ],
+          "estimand": "the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect",
+          "undefined_terms": [],
+          "replicates_incomplete": false,
+          "text": "90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+        },
+        "summary": "binomial 'lbw ~ pov_rate + C(GEOID.str[:2])', n=144, method=replicate_refit, SEs include: model, sampling_replicate; 90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+      }
+    },
+    {
+      "analysis": "m1",
+      "cutoff_km": 100,
+      "validation_status": "not validated",
+      "units": 145,
+      "result": {
+        "model_type": "binomial",
+        "formula": "lbw ~ pov_rate + C(GEOID.str[:2])",
+        "n_obs": 144,
+        "coefficients": [
+          {
+            "term": "Intercept",
+            "estimate": -2.526621124809191,
+            "se_model": 0.05313884614188505,
+            "se_sampling": 0.004688686598342713,
+            "se_total": 0.05334529736826303,
+            "ci_lower": -2.614026748617687,
+            "ci_upper": -2.439215501000695,
+            "p_value": 0.0
+          },
+          {
+            "term": "C(GEOID.str[:2])[T.36]",
+            "estimate": -0.08985122849452987,
+            "se_model": 0.05177668923239337,
+            "se_sampling": 0.0015101876349513674,
+            "se_total": 0.05179870861865766,
+            "ci_lower": -0.17501630356997133,
+            "ci_upper": -0.004686153419088401,
+            "p_value": 0.0826769473404444
+          },
+          {
+            "term": "pov_rate",
+            "estimate": 0.014654289992351327,
+            "se_model": 0.004818444344206156,
+            "se_sampling": 0.00031532638471429075,
+            "se_total": 0.004828751042154614,
+            "ci_lower": 0.006728654336520024,
+            "ci_upper": 0.02257992564818263,
+            "p_value": 0.0023556627343847246
+          }
+        ],
+        "method": "replicate_refit",
+        "uncertainty_sources": [
+          "model",
+          "sampling_replicate"
+        ],
+        "confidence_level": 0.9,
+        "notes": [
+          "COVARIATE MEASUREMENT ERROR: reliability differs by more than 0.02 between groups of ['pov_rate']. Replicate refits widen intervals for this noise but do not remove the bias it causes (attenuation, uneven across groups); fit_eiv supports ols/wls only; for this binomial model, regression_calibration corrects the attenuation approximately (not the outcome-covariate error correlation)",
+          "DECLARED COVARIATE-ONLY REPLICATES: ['lbw'] held at their estimates in every refit as pre-declared; se_sampling covers the sampling error of ['pov_rate'] only, not of ['lbw']",
+          "se_total = sqrt(se_model^2 + se_sampling^2) is reported but conservative (validated coverage 0.961 at nominal 0.90): the model residual already absorbs outcome sampling error",
+          "Spatial HAC (Conley) SEs, Bartlett kernel, cutoff 100 km",
+          "intervals and p-values use the 'population' target (se_model)"
+        ],
+        "diagnostics": {
+          "reliability_screen": {
+            "threshold_cv_percent": 30.0,
+            "rows_flagged_by_variable": {},
+            "n_flags": 0
+          },
+          "pearson_dispersion": 21.99258015474053,
+          "scale": "X2",
+          "replicate_stability": {
+            "Intercept": {
+              "sd": 0.00234070648021496,
+              "share_same_sign": 1.0
+            },
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.0007596841105957517,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.00015862737119275776,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicate_failures": 0,
+          "covariate_reliability": {
+            "covariates": {
+              "pov_rate": 0.9330082844241049
+            },
+            "by_group": {
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.9489286733997295
+                }
+              }
+            },
+            "low": [],
+            "uneven": [
+              "pov_rate"
+            ]
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "se_model_unadjusted": {
+            "Intercept": 0.03429078752148433,
+            "C(GEOID.str[:2])[T.36]": 0.02373251208510851,
+            "pov_rate": 0.002078120260008837
+          },
+          "spatial_se": {
+            "kernel": "bartlett",
+            "cutoff_km": 100.0,
+            "n": 144,
+            "mean_neighbours": 11.61111111111111,
+            "min_eigenvalue": 1.569541249661522e-06,
+            "psd": true
+          },
+          "interval_target": "population",
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          }
+        },
+        "provenance": {
+          "model_library": "statsmodels",
+          "rows_used": 144,
+          "replicate_variables": [
+            "pov_rate"
+          ],
+          "spatial_coordinates": {
+            "level": "county",
+            "boundary_year": 2022,
+            "files": [
+              {
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
+                "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
+                "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
+              }
+            ]
+          }
+        },
+        "interval_se_column": "se_model",
+        "interval": {
+          "target": "population",
+          "basis_column": "se_model",
+          "level": 0.9,
+          "distribution": "normal",
+          "df": null,
+          "basis_sources": [
+            "model"
+          ],
+          "estimand": "the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect",
+          "undefined_terms": [],
+          "replicates_incomplete": false,
+          "text": "90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+        },
+        "summary": "binomial 'lbw ~ pov_rate + C(GEOID.str[:2])', n=144, method=replicate_refit, SEs include: model, sampling_replicate; 90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+      }
+    },
+    {
+      "analysis": "m1",
+      "cutoff_km": 200,
+      "validation_status": "not validated",
+      "units": 145,
+      "result": {
+        "model_type": "binomial",
+        "formula": "lbw ~ pov_rate + C(GEOID.str[:2])",
+        "n_obs": 144,
+        "coefficients": [
+          {
+            "term": "Intercept",
+            "estimate": -2.526621124809191,
+            "se_model": 0.05965846191387153,
+            "se_sampling": 0.004688686598342713,
+            "se_total": 0.059842425251207344,
+            "ci_lower": -2.624750562266569,
+            "ci_upper": -2.428491687351813,
+            "p_value": 0.0
+          },
+          {
+            "term": "C(GEOID.str[:2])[T.36]",
+            "estimate": -0.08985122849452987,
+            "se_model": 0.050823874988552974,
+            "se_sampling": 0.0015101876349513674,
+            "se_total": 0.05084630700006462,
+            "ci_lower": -0.17344906360517942,
+            "ci_upper": -0.0062533933838802985,
+            "p_value": 0.07707861011920002
+          },
+          {
+            "term": "pov_rate",
+            "estimate": 0.014654289992351327,
+            "se_model": 0.005131977153386863,
+            "se_sampling": 0.00031532638471429075,
+            "se_total": 0.0051416553979999205,
+            "ci_lower": 0.006212938758170854,
+            "ci_upper": 0.0230956412265318,
+            "p_value": 0.004297098889060839
+          }
+        ],
+        "method": "replicate_refit",
+        "uncertainty_sources": [
+          "model",
+          "sampling_replicate"
+        ],
+        "confidence_level": 0.9,
+        "notes": [
+          "COVARIATE MEASUREMENT ERROR: reliability differs by more than 0.02 between groups of ['pov_rate']. Replicate refits widen intervals for this noise but do not remove the bias it causes (attenuation, uneven across groups); fit_eiv supports ols/wls only; for this binomial model, regression_calibration corrects the attenuation approximately (not the outcome-covariate error correlation)",
+          "DECLARED COVARIATE-ONLY REPLICATES: ['lbw'] held at their estimates in every refit as pre-declared; se_sampling covers the sampling error of ['pov_rate'] only, not of ['lbw']",
+          "se_total = sqrt(se_model^2 + se_sampling^2) is reported but conservative (validated coverage 0.961 at nominal 0.90): the model residual already absorbs outcome sampling error",
+          "Spatial HAC (Conley) SEs, Bartlett kernel, cutoff 200 km",
+          "intervals and p-values use the 'population' target (se_model)"
+        ],
+        "diagnostics": {
+          "reliability_screen": {
+            "threshold_cv_percent": 30.0,
+            "rows_flagged_by_variable": {},
+            "n_flags": 0
+          },
+          "pearson_dispersion": 21.99258015474053,
+          "scale": "X2",
+          "replicate_stability": {
+            "Intercept": {
+              "sd": 0.00234070648021496,
+              "share_same_sign": 1.0
+            },
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.0007596841105957517,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.00015862737119275776,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicate_failures": 0,
+          "covariate_reliability": {
+            "covariates": {
+              "pov_rate": 0.9330082844241049
+            },
+            "by_group": {
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.9489286733997295
+                }
+              }
+            },
+            "low": [],
+            "uneven": [
+              "pov_rate"
+            ]
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "se_model_unadjusted": {
+            "Intercept": 0.03429078752148433,
+            "C(GEOID.str[:2])[T.36]": 0.02373251208510851,
+            "pov_rate": 0.002078120260008837
+          },
+          "spatial_se": {
+            "kernel": "bartlett",
+            "cutoff_km": 200.0,
+            "n": 144,
+            "mean_neighbours": 33.041666666666664,
+            "min_eigenvalue": 1.082823843241037e-06,
+            "psd": true
+          },
+          "interval_target": "population",
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          }
+        },
+        "provenance": {
+          "model_library": "statsmodels",
+          "rows_used": 144,
+          "replicate_variables": [
+            "pov_rate"
+          ],
+          "spatial_coordinates": {
+            "level": "county",
+            "boundary_year": 2022,
+            "files": [
+              {
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
+                "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
+                "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
+              }
+            ]
+          }
+        },
+        "interval_se_column": "se_model",
+        "interval": {
+          "target": "population",
+          "basis_column": "se_model",
+          "level": 0.9,
+          "distribution": "normal",
+          "df": null,
+          "basis_sources": [
+            "model"
+          ],
+          "estimand": "the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect",
+          "undefined_terms": [],
+          "replicates_incomplete": false,
+          "text": "90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+        },
+        "summary": "binomial 'lbw ~ pov_rate + C(GEOID.str[:2])', n=144, method=replicate_refit, SEs include: model, sampling_replicate; 90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+      }
+    },
+    {
+      "analysis": "m2",
+      "cutoff_km": 50,
+      "validation_status": "not validated",
+      "units": 145,
+      "result": {
+        "model_type": "binomial",
+        "formula": "lbw ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])",
+        "n_obs": 144,
+        "coefficients": [
+          {
+            "term": "Intercept",
+            "estimate": -2.6123269678303975,
+            "se_model": 0.20018499611683932,
+            "se_sampling": 0.02099641249645771,
+            "se_total": 0.2012830892251517,
+            "ci_lower": -2.9416019847544472,
+            "ci_upper": -2.283051950906348,
+            "p_value": 6.391190433312331e-39
+          },
+          {
+            "term": "C(GEOID.str[:2])[T.36]",
+            "estimate": -0.12336174211090911,
+            "se_model": 0.05347501727722669,
+            "se_sampling": 0.0033424960776009477,
+            "se_total": 0.053579378055633224,
+            "ci_lower": -0.21132031823064806,
+            "ci_upper": -0.035403165991170146,
+            "p_value": 0.0210601611793969
+          },
+          {
+            "term": "pov_rate",
+            "estimate": 0.01199418230298859,
+            "se_model": 0.008757918462237717,
+            "se_sampling": 0.0008274452185569684,
+            "se_total": 0.008796919994004553,
+            "ci_lower": -0.0024113116441683794,
+            "ci_upper": 0.02639967625014556,
+            "p_value": 0.1708354388539981
+          },
+          {
+            "term": "pct_bachelors",
+            "estimate": -0.001109857166025692,
+            "se_model": 0.0022878418979430065,
+            "se_sampling": 0.000247960960380405,
+            "se_total": 0.0023012399240097134,
+            "ci_lower": -0.004873022209748786,
+            "ci_upper": 0.0026533078776974023,
+            "p_value": 0.6275976421281388
+          },
+          {
+            "term": "no_vehicle",
+            "estimate": -0.0014324667178951846,
+            "se_model": 0.002533862026022128,
+            "se_sampling": 0.00022443489229168203,
+            "se_total": 0.0025437821816725863,
+            "ci_lower": -0.005600298861592287,
+            "ci_upper": 0.002735365425801918,
+            "p_value": 0.5718497299832693
+          },
+          {
+            "term": "cost_burden",
+            "estimate": 0.006123565469654806,
+            "se_model": 0.0038458699392496295,
+            "se_sampling": 0.0004143041769554486,
+            "se_total": 0.0038681214485414856,
+            "ci_lower": -0.00020232764870358518,
+            "ci_upper": 0.012449458588013197,
+            "p_value": 0.1113297656423509
+          }
+        ],
+        "method": "replicate_refit",
+        "uncertainty_sources": [
+          "model",
+          "sampling_replicate"
+        ],
+        "confidence_level": 0.9,
+        "notes": [
+          "COVARIATE MEASUREMENT ERROR: reliability differs by more than 0.02 between groups of ['pov_rate', 'no_vehicle', 'cost_burden']. Replicate refits widen intervals for this noise but do not remove the bias it causes (attenuation, uneven across groups); fit_eiv supports ols/wls only; for this binomial model, regression_calibration corrects the attenuation approximately (not the outcome-covariate error correlation)",
+          "DECLARED COVARIATE-ONLY REPLICATES: ['lbw'] held at their estimates in every refit as pre-declared; se_sampling covers the sampling error of ['cost_burden', 'no_vehicle', 'pct_bachelors', 'pov_rate'] only, not of ['lbw']",
+          "se_total = sqrt(se_model^2 + se_sampling^2) is reported but conservative (validated coverage 0.961 at nominal 0.90): the model residual already absorbs outcome sampling error",
+          "Spatial HAC (Conley) SEs, Bartlett kernel, cutoff 50 km",
+          "intervals and p-values use the 'population' target (se_model)"
+        ],
+        "diagnostics": {
+          "reliability_screen": {
+            "threshold_cv_percent": 30.0,
+            "rows_flagged_by_variable": {},
+            "n_flags": 0
+          },
+          "pearson_dispersion": 21.018752495679326,
+          "scale": "X2",
+          "replicate_stability": {
+            "Intercept": {
+              "sd": 0.010472639297459108,
+              "share_same_sign": 1.0
+            },
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.001668750331112123,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.0004162580298871579,
+              "share_same_sign": 1.0
+            },
+            "pct_bachelors": {
+              "sd": 0.00012435097490775241,
+              "share_same_sign": 1.0
+            },
+            "no_vehicle": {
+              "sd": 0.00011264857475398254,
+              "share_same_sign": 1.0
+            },
+            "cost_burden": {
+              "sd": 0.0002074727186254582,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicate_failures": 0,
+          "covariate_reliability": {
+            "covariates": {
+              "pov_rate": 0.9330082844241049,
+              "pct_bachelors": 0.9919471742860829,
+              "no_vehicle": 0.9936046989254389,
+              "cost_burden": 0.9601029862732191
+            },
+            "by_group": {
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.9489286733997295
+                }
+              },
+              "pct_bachelors": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9898661730921562,
+                  "36": 0.9924185282250646
+                }
+              },
+              "no_vehicle": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8349112063428686,
+                  "36": 0.9971981964498811
+                }
+              },
+              "cost_burden": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8351515246128571,
+                  "36": 0.9766565792816062
+                }
+              }
+            },
+            "low": [],
+            "uneven": [
+              "pov_rate",
+              "no_vehicle",
+              "cost_burden"
+            ]
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "se_model_unadjusted": {
+            "Intercept": 0.09165063434286591,
+            "C(GEOID.str[:2])[T.36]": 0.032056696859397174,
+            "pov_rate": 0.0035468287606011113,
+            "pct_bachelors": 0.001366405398370663,
+            "no_vehicle": 0.001002004140398395,
+            "cost_burden": 0.0021806815986956767
+          },
+          "spatial_se": {
+            "kernel": "bartlett",
+            "cutoff_km": 50.0,
+            "n": 144,
+            "mean_neighbours": 3.1666666666666665,
+            "min_eigenvalue": 6.286496646866041e-08,
+            "psd": true
+          },
+          "interval_target": "population",
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          }
+        },
+        "provenance": {
+          "model_library": "statsmodels",
+          "rows_used": 144,
+          "replicate_variables": [
+            "cost_burden",
+            "no_vehicle",
+            "pct_bachelors",
+            "pov_rate"
+          ],
+          "spatial_coordinates": {
+            "level": "county",
+            "boundary_year": 2022,
+            "files": [
+              {
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
+                "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
+                "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
+              }
+            ]
+          }
+        },
+        "interval_se_column": "se_model",
+        "interval": {
+          "target": "population",
+          "basis_column": "se_model",
+          "level": 0.9,
+          "distribution": "normal",
+          "df": null,
+          "basis_sources": [
+            "model"
+          ],
+          "estimand": "the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect",
+          "undefined_terms": [],
+          "replicates_incomplete": false,
+          "text": "90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+        },
+        "summary": "binomial 'lbw ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])', n=144, method=replicate_refit, SEs include: model, sampling_replicate; 90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+      }
+    },
+    {
+      "analysis": "m2",
+      "cutoff_km": 100,
+      "validation_status": "not validated",
+      "units": 145,
+      "result": {
+        "model_type": "binomial",
+        "formula": "lbw ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])",
+        "n_obs": 144,
+        "coefficients": [
+          {
+            "term": "Intercept",
+            "estimate": -2.6123269678303975,
+            "se_model": 0.2190548874562114,
+            "se_sampling": 0.02099641249645771,
+            "se_total": 0.22005883998643375,
+            "ci_lower": -2.9726401939641933,
+            "ci_upper": -2.2520137416966017,
+            "p_value": 8.72169461077215e-33
+          },
+          {
+            "term": "C(GEOID.str[:2])[T.36]",
+            "estimate": -0.12336174211090911,
+            "se_model": 0.05524531734622758,
+            "se_sampling": 0.0033424960776009477,
+            "se_total": 0.05534634015645634,
+            "ci_lower": -0.21423220271993665,
+            "ci_upper": -0.03249128150188159,
+            "p_value": 0.025550199571947204
+          },
+          {
+            "term": "pov_rate",
+            "estimate": 0.01199418230298859,
+            "se_model": 0.00945781966323576,
+            "se_sampling": 0.0008274452185569684,
+            "se_total": 0.00949394640663206,
+            "ci_lower": -0.0035625466731377016,
+            "ci_upper": 0.02755091127911488,
+            "p_value": 0.20473501534605443
+          },
+          {
+            "term": "pct_bachelors",
+            "estimate": -0.001109857166025692,
+            "se_model": 0.002368932606266671,
+            "se_sampling": 0.000247960960380405,
+            "se_total": 0.002381874541386715,
+            "ci_lower": -0.005006404555447029,
+            "ci_upper": 0.0027866902233956454,
+            "p_value": 0.6394233769179345
+          },
+          {
+            "term": "no_vehicle",
+            "estimate": -0.0014324667178951846,
+            "se_model": 0.002669159014198064,
+            "se_sampling": 0.00022443489229168203,
+            "se_total": 0.0026785781422151494,
+            "ci_lower": -0.005822842603309087,
+            "ci_upper": 0.0029579091675187175,
+            "p_value": 0.5914932138037023
+          },
+          {
+            "term": "cost_burden",
+            "estimate": 0.006123565469654806,
+            "se_model": 0.0037993560573289006,
+            "se_sampling": 0.0004143041769554486,
+            "se_total": 0.003821878386527303,
+            "ci_lower": -0.00012581912132268204,
+            "ci_upper": 0.012372950060632293,
+            "p_value": 0.10701902580717415
+          }
+        ],
+        "method": "replicate_refit",
+        "uncertainty_sources": [
+          "model",
+          "sampling_replicate"
+        ],
+        "confidence_level": 0.9,
+        "notes": [
+          "COVARIATE MEASUREMENT ERROR: reliability differs by more than 0.02 between groups of ['pov_rate', 'no_vehicle', 'cost_burden']. Replicate refits widen intervals for this noise but do not remove the bias it causes (attenuation, uneven across groups); fit_eiv supports ols/wls only; for this binomial model, regression_calibration corrects the attenuation approximately (not the outcome-covariate error correlation)",
+          "DECLARED COVARIATE-ONLY REPLICATES: ['lbw'] held at their estimates in every refit as pre-declared; se_sampling covers the sampling error of ['cost_burden', 'no_vehicle', 'pct_bachelors', 'pov_rate'] only, not of ['lbw']",
+          "se_total = sqrt(se_model^2 + se_sampling^2) is reported but conservative (validated coverage 0.961 at nominal 0.90): the model residual already absorbs outcome sampling error",
+          "Spatial HAC (Conley) SEs, Bartlett kernel, cutoff 100 km",
+          "intervals and p-values use the 'population' target (se_model)"
+        ],
+        "diagnostics": {
+          "reliability_screen": {
+            "threshold_cv_percent": 30.0,
+            "rows_flagged_by_variable": {},
+            "n_flags": 0
+          },
+          "pearson_dispersion": 21.018752495679326,
+          "scale": "X2",
+          "replicate_stability": {
+            "Intercept": {
+              "sd": 0.010472639297459108,
+              "share_same_sign": 1.0
+            },
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.001668750331112123,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.0004162580298871579,
+              "share_same_sign": 1.0
+            },
+            "pct_bachelors": {
+              "sd": 0.00012435097490775241,
+              "share_same_sign": 1.0
+            },
+            "no_vehicle": {
+              "sd": 0.00011264857475398254,
+              "share_same_sign": 1.0
+            },
+            "cost_burden": {
+              "sd": 0.0002074727186254582,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicate_failures": 0,
+          "covariate_reliability": {
+            "covariates": {
+              "pov_rate": 0.9330082844241049,
+              "pct_bachelors": 0.9919471742860829,
+              "no_vehicle": 0.9936046989254389,
+              "cost_burden": 0.9601029862732191
+            },
+            "by_group": {
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.9489286733997295
+                }
+              },
+              "pct_bachelors": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9898661730921562,
+                  "36": 0.9924185282250646
+                }
+              },
+              "no_vehicle": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8349112063428686,
+                  "36": 0.9971981964498811
+                }
+              },
+              "cost_burden": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8351515246128571,
+                  "36": 0.9766565792816062
+                }
+              }
+            },
+            "low": [],
+            "uneven": [
+              "pov_rate",
+              "no_vehicle",
+              "cost_burden"
+            ]
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "se_model_unadjusted": {
+            "Intercept": 0.09165063434286591,
+            "C(GEOID.str[:2])[T.36]": 0.032056696859397174,
+            "pov_rate": 0.0035468287606011113,
+            "pct_bachelors": 0.001366405398370663,
+            "no_vehicle": 0.001002004140398395,
+            "cost_burden": 0.0021806815986956767
+          },
+          "spatial_se": {
+            "kernel": "bartlett",
+            "cutoff_km": 100.0,
+            "n": 144,
+            "mean_neighbours": 11.61111111111111,
+            "min_eigenvalue": 3.8293952603700925e-08,
+            "psd": true
+          },
+          "interval_target": "population",
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          }
+        },
+        "provenance": {
+          "model_library": "statsmodels",
+          "rows_used": 144,
+          "replicate_variables": [
+            "cost_burden",
+            "no_vehicle",
+            "pct_bachelors",
+            "pov_rate"
+          ],
+          "spatial_coordinates": {
+            "level": "county",
+            "boundary_year": 2022,
+            "files": [
+              {
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
+                "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
+                "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
+              }
+            ]
+          }
+        },
+        "interval_se_column": "se_model",
+        "interval": {
+          "target": "population",
+          "basis_column": "se_model",
+          "level": 0.9,
+          "distribution": "normal",
+          "df": null,
+          "basis_sources": [
+            "model"
+          ],
+          "estimand": "the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect",
+          "undefined_terms": [],
+          "replicates_incomplete": false,
+          "text": "90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+        },
+        "summary": "binomial 'lbw ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])', n=144, method=replicate_refit, SEs include: model, sampling_replicate; 90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+      }
+    },
+    {
+      "analysis": "m2",
+      "cutoff_km": 200,
+      "validation_status": "not validated",
+      "units": 145,
+      "result": {
+        "model_type": "binomial",
+        "formula": "lbw ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])",
+        "n_obs": 144,
+        "coefficients": [
+          {
+            "term": "Intercept",
+            "estimate": -2.6123269678303975,
+            "se_model": 0.2404437426387932,
+            "se_sampling": 0.02099641249645771,
+            "se_total": 0.24135874277073874,
+            "ci_lower": -3.0078217299876027,
+            "ci_upper": -2.2168322056731924,
+            "p_value": 1.6995179698225862e-27
+          },
+          {
+            "term": "C(GEOID.str[:2])[T.36]",
+            "estimate": -0.12336174211090911,
+            "se_model": 0.056820970541600575,
+            "se_sampling": 0.0033424960776009477,
+            "se_total": 0.056919196878717625,
+            "ci_lower": -0.21682392159316358,
+            "ci_upper": -0.029899562628654647,
+            "p_value": 0.029926629460784553
+          },
+          {
+            "term": "pov_rate",
+            "estimate": 0.01199418230298859,
+            "se_model": 0.01048542631457697,
+            "se_sampling": 0.0008274452185569684,
+            "se_total": 0.010518024081933638,
+            "ci_lower": -0.005252809200675746,
+            "ci_upper": 0.029241173806652927,
+            "p_value": 0.2526689424242735
+          },
+          {
+            "term": "pct_bachelors",
+            "estimate": -0.001109857166025692,
+            "se_model": 0.002542760987677615,
+            "se_sampling": 0.000247960960380405,
+            "se_total": 0.002554822514056116,
+            "ci_lower": -0.0052923267990779245,
+            "ci_upper": 0.0030726124670265404,
+            "p_value": 0.6624905466074293
+          },
+          {
+            "term": "no_vehicle",
+            "estimate": -0.0014324667178951846,
+            "se_model": 0.0027312583225135127,
+            "se_sampling": 0.00022443489229168203,
+            "se_total": 0.0027404640200479383,
+            "ci_lower": -0.00592498687582293,
+            "ci_upper": 0.003060053440032561,
+            "p_value": 0.5999507472362788
+          },
+          {
+            "term": "cost_burden",
+            "estimate": 0.006123565469654806,
+            "se_model": 0.0034476342688978035,
+            "se_sampling": 0.0004143041769554486,
+            "se_total": 0.0034724386248170354,
+            "ci_lower": 0.0004527117380560665,
+            "ci_upper": 0.011794419201253546,
+            "p_value": 0.07570581372628811
+          }
+        ],
+        "method": "replicate_refit",
+        "uncertainty_sources": [
+          "model",
+          "sampling_replicate"
+        ],
+        "confidence_level": 0.9,
+        "notes": [
+          "COVARIATE MEASUREMENT ERROR: reliability differs by more than 0.02 between groups of ['pov_rate', 'no_vehicle', 'cost_burden']. Replicate refits widen intervals for this noise but do not remove the bias it causes (attenuation, uneven across groups); fit_eiv supports ols/wls only; for this binomial model, regression_calibration corrects the attenuation approximately (not the outcome-covariate error correlation)",
+          "DECLARED COVARIATE-ONLY REPLICATES: ['lbw'] held at their estimates in every refit as pre-declared; se_sampling covers the sampling error of ['cost_burden', 'no_vehicle', 'pct_bachelors', 'pov_rate'] only, not of ['lbw']",
+          "se_total = sqrt(se_model^2 + se_sampling^2) is reported but conservative (validated coverage 0.961 at nominal 0.90): the model residual already absorbs outcome sampling error",
+          "Spatial HAC (Conley) SEs, Bartlett kernel, cutoff 200 km",
+          "intervals and p-values use the 'population' target (se_model)"
+        ],
+        "diagnostics": {
+          "reliability_screen": {
+            "threshold_cv_percent": 30.0,
+            "rows_flagged_by_variable": {},
+            "n_flags": 0
+          },
+          "pearson_dispersion": 21.018752495679326,
+          "scale": "X2",
+          "replicate_stability": {
+            "Intercept": {
+              "sd": 0.010472639297459108,
+              "share_same_sign": 1.0
+            },
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.001668750331112123,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.0004162580298871579,
+              "share_same_sign": 1.0
+            },
+            "pct_bachelors": {
+              "sd": 0.00012435097490775241,
+              "share_same_sign": 1.0
+            },
+            "no_vehicle": {
+              "sd": 0.00011264857475398254,
+              "share_same_sign": 1.0
+            },
+            "cost_burden": {
+              "sd": 0.0002074727186254582,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicate_failures": 0,
+          "covariate_reliability": {
+            "covariates": {
+              "pov_rate": 0.9330082844241049,
+              "pct_bachelors": 0.9919471742860829,
+              "no_vehicle": 0.9936046989254389,
+              "cost_burden": 0.9601029862732191
+            },
+            "by_group": {
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.9489286733997295
+                }
+              },
+              "pct_bachelors": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9898661730921562,
+                  "36": 0.9924185282250646
+                }
+              },
+              "no_vehicle": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8349112063428686,
+                  "36": 0.9971981964498811
+                }
+              },
+              "cost_burden": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8351515246128571,
+                  "36": 0.9766565792816062
+                }
+              }
+            },
+            "low": [],
+            "uneven": [
+              "pov_rate",
+              "no_vehicle",
+              "cost_burden"
+            ]
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "se_model_unadjusted": {
+            "Intercept": 0.09165063434286591,
+            "C(GEOID.str[:2])[T.36]": 0.032056696859397174,
+            "pov_rate": 0.0035468287606011113,
+            "pct_bachelors": 0.001366405398370663,
+            "no_vehicle": 0.001002004140398395,
+            "cost_burden": 0.0021806815986956767
+          },
+          "spatial_se": {
+            "kernel": "bartlett",
+            "cutoff_km": 200.0,
+            "n": 144,
+            "mean_neighbours": 33.041666666666664,
+            "min_eigenvalue": 2.0732289213246946e-08,
+            "psd": true
+          },
+          "interval_target": "population",
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          }
+        },
+        "provenance": {
+          "model_library": "statsmodels",
+          "rows_used": 144,
+          "replicate_variables": [
+            "cost_burden",
+            "no_vehicle",
+            "pct_bachelors",
+            "pov_rate"
+          ],
+          "spatial_coordinates": {
+            "level": "county",
+            "boundary_year": 2022,
+            "files": [
+              {
+                "cache_path": ".cache/geo/2022/cb_2022_us_county_500k.zip",
+                "source_url": "https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip",
+                "sha256": "4a2c23c5486916115137fed7e84a32a4dcfeae453d02840d3e3f1fd8efc3ba58"
+              }
+            ]
+          }
+        },
+        "interval_se_column": "se_model",
+        "interval": {
+          "target": "population",
+          "basis_column": "se_model",
+          "level": 0.9,
+          "distribution": "normal",
+          "df": null,
+          "basis_sources": [
+            "model"
+          ],
+          "estimand": "the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect",
+          "undefined_terms": [],
+          "replicates_incomplete": false,
+          "text": "90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+        },
+        "summary": "binomial 'lbw ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])', n=144, method=replicate_refit, SEs include: model, sampling_replicate; 90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw with the predictors among areas (area level, not individuals); an association, not a causal effect"
+      }
+    }
+  ],
+  "x1_without_nyc": {
+    "analysis_status": "exploratory",
+    "manifest_hash": "0d5e657b1bd86658ed950fd32eda96832614ae0e2ad1932cf1eddd6daeeaeba9",
+    "n_units": 140,
+    "deviations": [],
+    "hypotheses": [
+      {
+        "analysis": "m1",
+        "analysis_status": "exploratory",
+        "ci_lower": 0.01357155307236987,
+        "ci_upper": 0.023163864087495923,
+        "direction": "greater",
+        "estimate": 0.018367708579932897,
+        "family": "primary",
+        "id": "H1",
+        "manifest_hash": "0d5e657b1bd86658ed950fd32eda96832614ae0e2ad1932cf1eddd6daeeaeba9",
+        "odds_ratio": 1.0185374324931242,
+        "odds_ratio_lower": 1.0136640646335433,
+        "odds_ratio_upper": 1.0234342299238255,
+        "p_adjusted": 4.4862817096943205e-10,
+        "p_two_sided": 2.990854473129547e-10,
+        "p_value": 1.4954272365647735e-10,
+        "se": 0.0029158555077342012,
+        "se_basis": "se_model",
+        "significant": true,
+        "statement": "Across Michigan and New York counties, the County Health Rankings & Roadmaps 2025 low birth weight proportion (v037: live births under 2,500 g; NCHS natality 2017–2023) is higher where the ACS 2018–2022 poverty rate is higher, with state intercepts (quasi-binomial regression, logit link, live births as trials).",
+        "statistic": "coefficient",
+        "status": "tested"
+      },
+      {
+        "analysis": "m2",
+        "analysis_status": "exploratory",
+        "ci_lower": 0.002303550216160079,
+        "ci_upper": 0.010797150325107146,
+        "direction": "greater",
+        "estimate": 0.006550350270633613,
+        "family": "primary",
+        "id": "H2",
+        "manifest_hash": "0d5e657b1bd86658ed950fd32eda96832614ae0e2ad1932cf1eddd6daeeaeba9",
+        "odds_ratio": 1.0065718507345207,
+        "odds_ratio_lower": 1.0023062054263712,
+        "odds_ratio_upper": 1.0108556499060268,
+        "p_adjusted": 0.00558946163742139,
+        "p_two_sided": 0.01117892327484278,
+        "p_value": 0.00558946163742139,
+        "se": 0.002581871106880458,
+        "se_basis": "se_model",
+        "significant": true,
+        "statement": "Conditional on the poverty rate, the bachelor's share, the no-vehicle share and state, the county low birth weight proportion is higher where a larger share of households spends 30% or more of income on housing costs.",
+        "statistic": "coefficient",
+        "status": "tested"
+      },
+      {
+        "analysis": "m2",
+        "analysis_status": "exploratory",
+        "ci_lower": 0.022657569546199782,
+        "ci_upper": 0.044207698419167066,
+        "direction": "greater",
+        "estimate": 0.033432633982683424,
+        "family": "primary",
+        "id": "H3",
+        "manifest_hash": "0d5e657b1bd86658ed950fd32eda96832614ae0e2ad1932cf1eddd6daeeaeba9",
+        "odds_ratio": 1.0339977850672974,
+        "odds_ratio_lower": 1.0229162019082834,
+        "odds_ratio_upper": 1.0451994186127274,
+        "p_adjusted": 3.332244227114643e-07,
+        "p_two_sided": 3.332244227114643e-07,
+        "p_value": 1.6661221135573214e-07,
+        "se": 0.006550774038449767,
+        "se_basis": "se_model",
+        "significant": true,
+        "statement": "Conditional on the poverty rate, the bachelor's share, the cost-burden share and state, the county low birth weight proportion is higher where a larger share of occupied housing units has no vehicle available.",
+        "statistic": "coefficient",
+        "status": "tested"
+      }
+    ],
+    "analysed_data": {
+      "analysis_frame": "9b571c5211f7064bd4e141d876eaabbee42e6647ea156d01fa21f5d59ad8b20f",
+      "replicates": "7d292744191cca5e83b652229716d9b3dd209c75c6ed04f0c0e0e58dcbb7e140"
+    },
+    "models": {
+      "m1": {
+        "n_obs": 139,
+        "formula": "lbw ~ pov_rate + C(GEOID.str[:2])",
+        "coefficients": [
+          {
+            "ci_lower": -2.6494161758513135,
+            "ci_upper": -2.505665866500645,
+            "estimate": -2.5775410211759793,
+            "p_value": 0.0,
+            "se_model": 0.04369699132958458,
+            "se_sampling": 0.00843111643970997,
+            "se_total": 0.04450292996733741,
+            "term": "Intercept"
+          },
+          {
+            "ci_lower": -0.12345570723526576,
+            "ci_upper": -0.038509794986392024,
+            "estimate": -0.0809827511108289,
+            "p_value": 0.0017113750760389139,
+            "se_model": 0.02582172384734021,
+            "se_sampling": 0.002526412667132978,
+            "se_total": 0.02594502232438716,
+            "term": "C(GEOID.str[:2])[T.36]"
+          },
+          {
+            "ci_lower": 0.01357155307236987,
+            "ci_upper": 0.023163864087495923,
+            "estimate": 0.018367708579932897,
+            "p_value": 2.990854473129547e-10,
+            "se_model": 0.0029158555077342012,
+            "se_sampling": 0.0005976456755117925,
+            "se_total": 0.002976473365485037,
+            "term": "pov_rate"
+          }
+        ],
+        "diagnostics": {
+          "covariate_reliability": {
+            "by_group": {
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.925302756307435
+                }
+              }
+            },
+            "covariates": {
+              "pov_rate": 0.9226388701618254
+            },
+            "low": [],
+            "uneven": []
+          },
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          },
+          "interval_target": "population",
+          "pearson_dispersion": 18.121928123438607,
+          "reliability_screen": {
+            "n_flags": 0,
+            "rows_flagged_by_variable": {},
+            "threshold_cv_percent": 30.0
+          },
+          "replicate_failures": 0,
+          "replicate_stability": {
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.001271144371451188,
+              "share_same_sign": 1.0
+            },
+            "Intercept": {
+              "sd": 0.00419413255471179,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.00030030524877473156,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "scale": "X2"
+        }
+      },
+      "m2": {
+        "n_obs": 139,
+        "formula": "lbw ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])",
+        "coefficients": [
+          {
+            "ci_lower": -2.7463638938859707,
+            "ci_upper": -2.470020338284517,
+            "estimate": -2.608192116085244,
+            "p_value": 1.1772091972155026e-211,
+            "se_model": 0.08400247629134676,
+            "se_sampling": 0.02590603731881179,
+            "se_total": 0.0879064206565251,
+            "term": "Intercept"
+          },
+          {
+            "ci_lower": -0.26200260933726016,
+            "ci_upper": -0.15601957967192134,
+            "estimate": -0.20901109450459077,
+            "p_value": 8.716090249747105e-11,
+            "se_model": 0.03221655347587522,
+            "se_sampling": 0.01079502768425197,
+            "se_total": 0.033977035488219016,
+            "term": "C(GEOID.str[:2])[T.36]"
+          },
+          {
+            "ci_lower": -0.011480795428751845,
+            "ci_upper": 0.005538732863774532,
+            "estimate": -0.0029710312824886564,
+            "p_value": 0.5657843654477344,
+            "se_model": 0.0051735692506785285,
+            "se_sampling": 0.0027856434144649745,
+            "se_total": 0.005875851259529846,
+            "term": "pov_rate"
+          },
+          {
+            "ci_lower": -0.006268461371038042,
+            "ci_upper": -0.0008137759049473467,
+            "estimate": -0.0035411186379926945,
+            "p_value": 0.03270878035665427,
+            "se_model": 0.0016581066475198354,
+            "se_sampling": 0.0006290730826544859,
+            "se_total": 0.001773429050700897,
+            "term": "pct_bachelors"
+          },
+          {
+            "ci_lower": 0.022657569546199782,
+            "ci_upper": 0.044207698419167066,
+            "estimate": 0.033432633982683424,
+            "p_value": 3.332244227114643e-07,
+            "se_model": 0.006550774038449767,
+            "se_sampling": 0.003594113419903734,
+            "se_total": 0.007471967062157032,
+            "term": "no_vehicle"
+          },
+          {
+            "ci_lower": 0.002303550216160079,
+            "ci_upper": 0.010797150325107146,
+            "estimate": 0.006550350270633613,
+            "p_value": 0.01117892327484278,
+            "se_model": 0.002581871106880458,
+            "se_sampling": 0.0006879885477817713,
+            "se_total": 0.002671963071306,
+            "term": "cost_burden"
+          }
+        ],
+        "diagnostics": {
+          "covariate_reliability": {
+            "by_group": {
+              "cost_burden": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8351515246128571,
+                  "36": 0.9510906850050048
+                }
+              },
+              "no_vehicle": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8349112063428686,
+                  "36": 0.9235638405229984
+                }
+              },
+              "pct_bachelors": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9898661730921562,
+                  "36": 0.9903492810850181
+                }
+              },
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.925302756307435
+                }
+              }
+            },
+            "covariates": {
+              "cost_burden": 0.9295008103195077,
+              "no_vehicle": 0.9157929669600879,
+              "pct_bachelors": 0.990898010575128,
+              "pov_rate": 0.9226388701618254
+            },
+            "low": [],
+            "uneven": [
+              "no_vehicle",
+              "cost_burden"
+            ]
+          },
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          },
+          "interval_target": "population",
+          "pearson_dispersion": 14.787633442248563,
+          "reliability_screen": {
+            "n_flags": 0,
+            "rows_flagged_by_variable": {},
+            "threshold_cv_percent": 30.0
+          },
+          "replicate_failures": 0,
+          "replicate_stability": {
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.005149412012829717,
+              "share_same_sign": 1.0
+            },
+            "Intercept": {
+              "sd": 0.012950420524595945,
+              "share_same_sign": 1.0
+            },
+            "cost_burden": {
+              "sd": 0.00034246058519453985,
+              "share_same_sign": 1.0
+            },
+            "no_vehicle": {
+              "sd": 0.0017459128597205628,
+              "share_same_sign": 1.0
+            },
+            "pct_bachelors": {
+              "sd": 0.0003056554434943921,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.0013659812926561947,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "scale": "X2"
+        }
+      }
+    }
+  },
+  "x2_race_composition": {
+    "analysis_status": "exploratory",
+    "manifest_hash": "9e83d6a0f361496ded30a95c8373f61fa924875ca62bd2252242312c8e8f6a79",
+    "n_units": 145,
+    "deviations": [],
+    "hypotheses": [
+      {
+        "analysis": "m1",
+        "analysis_status": "exploratory",
+        "ci_lower": 0.011236086345434455,
+        "ci_upper": 0.0180724936392682,
+        "direction": "greater",
+        "estimate": 0.014654289992351327,
+        "family": "primary",
+        "id": "H1",
+        "manifest_hash": "9e83d6a0f361496ded30a95c8373f61fa924875ca62bd2252242312c8e8f6a79",
+        "odds_ratio": 1.0147621905242235,
+        "odds_ratio_lower": 1.011299448254537,
+        "odds_ratio_upper": 1.018236789404775,
+        "p_adjusted": 2.6510884521429213e-12,
+        "p_two_sided": 1.7673923014286143e-12,
+        "p_value": 8.836961507143072e-13,
+        "se": 0.002078120260008837,
+        "se_basis": "se_model",
+        "significant": true,
+        "statement": "Across Michigan and New York counties, the County Health Rankings & Roadmaps 2025 low birth weight proportion (v037: live births under 2,500 g; NCHS natality 2017–2023) is higher where the ACS 2018–2022 poverty rate is higher, with state intercepts (quasi-binomial regression, logit link, live births as trials).",
+        "statistic": "coefficient",
+        "status": "tested"
+      },
+      {
+        "analysis": "m2",
+        "analysis_status": "exploratory",
+        "ci_lower": -0.007490817622806723,
+        "ci_upper": -0.0001638070871067504,
+        "direction": "greater",
+        "estimate": -0.003827312354956737,
+        "family": "primary",
+        "id": "H2",
+        "manifest_hash": "9e83d6a0f361496ded30a95c8373f61fa924875ca62bd2252242312c8e8f6a79",
+        "odds_ratio": 0.996180002469959,
+        "odds_ratio_lower": 0.9925371686279558,
+        "odds_ratio_upper": 0.9998362063285416,
+        "p_adjusted": 0.9571381885881678,
+        "p_two_sided": 0.08572362282366452,
+        "p_value": 0.9571381885881678,
+        "se": 0.002227253056334155,
+        "se_basis": "se_model",
+        "significant": false,
+        "statement": "Conditional on the poverty rate, the bachelor's share, the no-vehicle share and state, the county low birth weight proportion is higher where a larger share of households spends 30% or more of income on housing costs.",
+        "statistic": "coefficient",
+        "status": "tested"
+      },
+      {
+        "analysis": "m2",
+        "analysis_status": "exploratory",
+        "ci_lower": -0.001110485741385419,
+        "ci_upper": 0.001802782909835806,
+        "direction": "greater",
+        "estimate": 0.0003461485842251935,
+        "family": "primary",
+        "id": "H3",
+        "manifest_hash": "9e83d6a0f361496ded30a95c8373f61fa924875ca62bd2252242312c8e8f6a79",
+        "odds_ratio": 1.0003462085005594,
+        "odds_ratio_lower": 0.998890130619731,
+        "odds_ratio_upper": 1.0018044088999014,
+        "p_adjusted": 0.6958887143046393,
+        "p_two_sided": 0.6958887143046393,
+        "p_value": 0.34794435715231964,
+        "se": 0.0008855707898521644,
+        "se_basis": "se_model",
+        "significant": false,
+        "statement": "Conditional on the poverty rate, the bachelor's share, the cost-burden share and state, the county low birth weight proportion is higher where a larger share of occupied housing units has no vehicle available.",
+        "statistic": "coefficient",
+        "status": "tested"
+      }
+    ],
+    "analysed_data": {
+      "analysis_frame": "ce1963b12d60655a42115a97e547923cfe99c18bc9d536f78f6a2c8df8acb6bc",
+      "replicates": "96f66e35efa3272523a0937c5d1a1a5a588877bc9243f4faa546d8f9b4d5306f"
+    },
+    "models": {
+      "m1": {
+        "n_obs": 144,
+        "formula": "lbw ~ pov_rate + C(GEOID.str[:2])",
+        "coefficients": [
+          {
+            "ci_lower": -2.5830244510349267,
+            "ci_upper": -2.4702177985834552,
+            "estimate": -2.526621124809191,
+            "p_value": 0.0,
+            "se_model": 0.03429078752148433,
+            "se_sampling": 0.004688686598342713,
+            "se_total": 0.03460985251140294,
+            "term": "Intercept"
+          },
+          {
+            "ci_lower": -0.12888773707439025,
+            "ci_upper": -0.05081471991466949,
+            "estimate": -0.08985122849452987,
+            "p_value": 0.0001530932890695607,
+            "se_model": 0.02373251208510851,
+            "se_sampling": 0.0015101876349513674,
+            "se_total": 0.023780512958356922,
+            "term": "C(GEOID.str[:2])[T.36]"
+          },
+          {
+            "ci_lower": 0.011236086345434455,
+            "ci_upper": 0.0180724936392682,
+            "estimate": 0.014654289992351327,
+            "p_value": 1.7673923014286143e-12,
+            "se_model": 0.002078120260008837,
+            "se_sampling": 0.00031532638471429075,
+            "se_total": 0.002101907358557028,
+            "term": "pov_rate"
+          }
+        ],
+        "diagnostics": {
+          "covariate_reliability": {
+            "by_group": {
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.9489286733997295
+                }
+              }
+            },
+            "covariates": {
+              "pov_rate": 0.9330082844241049
+            },
+            "low": [],
+            "uneven": [
+              "pov_rate"
+            ]
+          },
+          "high_cv_influence": {
+            "n_high_cv_rows": 0
+          },
+          "interval_target": "population",
+          "pearson_dispersion": 21.99258015474053,
+          "reliability_screen": {
+            "n_flags": 0,
+            "rows_flagged_by_variable": {},
+            "threshold_cv_percent": 30.0
+          },
+          "replicate_failures": 0,
+          "replicate_stability": {
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.0007596841105957517,
+              "share_same_sign": 1.0
+            },
+            "Intercept": {
+              "sd": 0.00234070648021496,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.00015862737119275776,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "scale": "X2"
+        }
+      },
+      "m2": {
+        "n_obs": 144,
+        "formula": "lbw ~ pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2]) + pct_nh_black",
+        "coefficients": [
+          {
+            "ci_lower": -2.410889509854178,
+            "ci_upper": -2.113714100072784,
+            "estimate": -2.262301804963481,
+            "p_value": 2.0553533700844767e-138,
+            "se_model": 0.0903349103263891,
+            "se_sampling": 0.025879493714601652,
+            "se_total": 0.09396884706433759,
+            "term": "Intercept"
+          },
+          {
+            "ci_lower": -0.06097217351185237,
+            "ci_upper": 0.03886098582255583,
+            "estimate": -0.01105559384464827,
+            "p_value": 0.7156306543323065,
+            "se_model": 0.030347125634344836,
+            "se_sampling": 0.004620045823910624,
+            "se_total": 0.030696789045138638,
+            "term": "C(GEOID.str[:2])[T.36]"
+          },
+          {
+            "ci_lower": -0.008262500498033211,
+            "ci_upper": 0.0033565478430603894,
+            "estimate": -0.002452976327486411,
+            "p_value": 0.4873608803069567,
+            "se_model": 0.0035319399096404814,
+            "se_sampling": 0.0010770451611647248,
+            "se_total": 0.0036925094183359315,
+            "term": "pov_rate"
+          },
+          {
+            "ci_lower": -0.005743630907159724,
+            "ci_upper": -0.0017438471926534125,
+            "estimate": -0.003743739049906568,
+            "p_value": 0.0020761452290944302,
+            "se_model": 0.0012158479177017724,
+            "se_sampling": 0.0002711199364429916,
+            "se_total": 0.0012457095082388139,
+            "term": "pct_bachelors"
+          },
+          {
+            "ci_lower": -0.001110485741385419,
+            "ci_upper": 0.001802782909835806,
+            "estimate": 0.0003461485842251935,
+            "p_value": 0.6958887143046393,
+            "se_model": 0.0008855707898521644,
+            "se_sampling": 0.00020812431034594302,
+            "se_total": 0.0009096984953248855,
+            "term": "no_vehicle"
+          },
+          {
+            "ci_lower": -0.007490817622806723,
+            "ci_upper": -0.0001638070871067504,
+            "estimate": -0.003827312354956737,
+            "p_value": 0.08572362282366452,
+            "se_model": 0.002227253056334155,
+            "se_sampling": 0.0005408480664800382,
+            "se_total": 0.0022919801063632796,
+            "term": "cost_burden"
+          },
+          {
+            "ci_lower": 0.00967374745023148,
+            "ci_upper": 0.014728123797158342,
+            "estimate": 0.012200935623694911,
+            "p_value": 2.003326030866955e-15,
+            "se_model": 0.0015364213155837183,
+            "se_sampling": 0.0003612293034034444,
+            "se_total": 0.0015783146291590093,
+            "term": "pct_nh_black"
+          }
+        ],
+        "diagnostics": {
+          "covariate_reliability": {
+            "by_group": {
+              "cost_burden": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8351515246128571,
+                  "36": 0.9766565792816062
+                }
+              },
+              "no_vehicle": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.8349112063428686,
+                  "36": 0.9971981964498811
+                }
+              },
+              "pct_bachelors": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9898661730921562,
+                  "36": 0.9924185282250646
+                }
+              },
+              "pct_nh_black": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9983649005513678,
+                  "36": 0.9990318178306671
+                }
+              },
+              "pov_rate": {
+                "C(GEOID.str[:2])": {
+                  "26": 0.9208394291153716,
+                  "36": 0.9489286733997295
+                }
+              }
+            },
+            "covariates": {
+              "cost_burden": 0.9601029862732191,
+              "no_vehicle": 0.9936046989254389,
+              "pct_bachelors": 0.9919471742860829,
+              "pct_nh_black": 0.9986705692217795,
+              "pov_rate": 0.9330082844241049
+            },
+            "low": [],
+            "uneven": [
+              "pov_rate",
+              "no_vehicle",
+              "cost_burden"
+            ]
+          },
+          "high_cv_influence": {
+            "coef_shift_in_se_total_without_high_cv": {
+              "C(GEOID.str[:2])[T.36]": 0.014492052399907963,
+              "Intercept": 0.107810692139169,
+              "cost_burden": -0.06630152427296977,
+              "no_vehicle": 0.06669050294833923,
+              "pct_bachelors": -0.09633034524001796,
+              "pct_nh_black": -0.10184191298362064,
+              "pov_rate": 0.025762226924389946
+            },
+            "n_high_cv_rows": 11
+          },
+          "interval_target": "population",
+          "pearson_dispersion": 14.660533887014456,
+          "reliability_screen": {
+            "n_flags": 11,
+            "rows_flagged_by_variable": {
+              "pct_nh_black": 11
+            },
+            "threshold_cv_percent": 30.0
+          },
+          "replicate_failures": 0,
+          "replicate_stability": {
+            "C(GEOID.str[:2])[T.36]": {
+              "sd": 0.002322712216098852,
+              "share_same_sign": 1.0
+            },
+            "Intercept": {
+              "sd": 0.012960983088102226,
+              "share_same_sign": 1.0
+            },
+            "cost_burden": {
+              "sd": 0.00027164412220377675,
+              "share_same_sign": 1.0
+            },
+            "no_vehicle": {
+              "sd": 0.00010406182497616459,
+              "share_same_sign": 1.0
+            },
+            "pct_bachelors": {
+              "sd": 0.00013559314297990655,
+              "share_same_sign": 1.0
+            },
+            "pct_nh_black": {
+              "sd": 0.00018113220093413218,
+              "share_same_sign": 1.0
+            },
+            "pov_rate": {
+              "sd": 0.0005397408690915334,
+              "share_same_sign": 1.0
+            }
+          },
+          "replicates_declared_fixed": [
+            "lbw"
+          ],
+          "scale": "X2"
+        }
+      }
+    }
+  },
+  "X5": {
+    "analysis_status": "exploratory",
+    "units": 145,
+    "result": {
+      "model_type": "poisson",
+      "formula": "lbw_numerator ~  pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])",
+      "n_obs": 144,
+      "coefficients": [
+        {
+          "term": "Intercept",
+          "estimate": -2.6803069606434207,
+          "se_model": 0.08367495303985756,
+          "se_sampling": 0.01915057145948176,
+          "se_total": 0.08583846546535583,
+          "ci_lower": -2.8179400106360246,
+          "ci_upper": -2.5426739106508167,
+          "p_value": 3.8644054163717237e-225
+        },
+        {
+          "term": "C(GEOID.str[:2])[T.36]",
+          "estimate": -0.11284141441867301,
+          "se_model": 0.02931170627767292,
+          "se_sampling": 0.0030720340794737734,
+          "se_total": 0.029472249969997512,
+          "ci_lower": -0.16105488080163954,
+          "ci_upper": -0.06462794803570648,
+          "p_value": 0.00011826029876411942
+        },
+        {
+          "term": "pov_rate",
+          "estimate": 0.01092373973252603,
+          "se_model": 0.003237301759722701,
+          "se_sampling": 0.0007545426881584392,
+          "se_total": 0.003324072404710382,
+          "ci_lower": 0.005598852191509761,
+          "ci_upper": 0.016248627273542298,
+          "p_value": 0.0007399433477343839
+        },
+        {
+          "term": "pct_bachelors",
+          "estimate": -0.0010166388605354418,
+          "se_model": 0.0012476665323656563,
+          "se_sampling": 0.00022645240186114148,
+          "se_total": 0.0012680506560441586,
+          "ci_lower": -0.003068867681523058,
+          "ci_upper": 0.0010355899604521743,
+          "p_value": 0.41516836890301567
+        },
+        {
+          "term": "no_vehicle",
+          "estimate": -0.0013014463910391919,
+          "se_model": 0.0009155656937971095,
+          "se_sampling": 0.00020476655687304128,
+          "se_total": 0.0009381843542032786,
+          "ci_lower": -0.0028074179431937085,
+          "ci_upper": 0.00020452516111532475,
+          "p_value": 0.15518104978908123
+        },
+        {
+          "term": "cost_burden",
+          "estimate": 0.005585999213339375,
+          "se_model": 0.0019951316646026705,
+          "se_sampling": 0.0003794160714689761,
+          "se_total": 0.0020308882082451444,
+          "ci_lower": 0.0023042996585719445,
+          "ci_upper": 0.008867698768106806,
+          "p_value": 0.005113192900833118
+        }
+      ],
+      "method": "replicate_refit",
+      "uncertainty_sources": [
+        "model",
+        "sampling_replicate"
+      ],
+      "confidence_level": 0.9,
+      "notes": [
+        "COVARIATE MEASUREMENT ERROR: reliability differs by more than 0.02 between groups of ['pov_rate', 'no_vehicle', 'cost_burden']. Replicate refits widen intervals for this noise but do not remove the bias it causes (attenuation, uneven across groups); fit_eiv supports ols/wls only; for this poisson model, regression_calibration corrects the attenuation approximately (not the outcome-covariate error correlation)",
+        "DECLARED COVARIATE-ONLY REPLICATES: ['lbw_numerator'] held at their estimates in every refit as pre-declared; se_sampling covers the sampling error of ['cost_burden', 'no_vehicle', 'pct_bachelors', 'pov_rate'] only, not of ['lbw_numerator']",
+        "se_total = sqrt(se_model^2 + se_sampling^2) is reported but conservative (validated coverage 0.961 at nominal 0.90): the model residual already absorbs outcome sampling error",
+        "intervals and p-values use the 'population' target (se_model)"
+      ],
+      "diagnostics": {
+        "reliability_screen": {
+          "threshold_cv_percent": 30.0,
+          "rows_flagged_by_variable": {},
+          "n_flags": 0
+        },
+        "pearson_dispersion": 19.15472061804722,
+        "scale": "X2",
+        "replicate_stability": {
+          "Intercept": {
+            "sd": 0.009552840844519912,
+            "share_same_sign": 1.0
+          },
+          "C(GEOID.str[:2])[T.36]": {
+            "sd": 0.0015338872099188129,
+            "share_same_sign": 1.0
+          },
+          "pov_rate": {
+            "sd": 0.00037958794088387604,
+            "share_same_sign": 1.0
+          },
+          "pct_bachelors": {
+            "sd": 0.00011356956693614539,
+            "share_same_sign": 1.0
+          },
+          "no_vehicle": {
+            "sd": 0.000102779586724058,
+            "share_same_sign": 1.0
+          },
+          "cost_burden": {
+            "sd": 0.00019001536678598215,
+            "share_same_sign": 1.0
+          }
+        },
+        "replicate_failures": 0,
+        "covariate_reliability": {
+          "covariates": {
+            "pov_rate": 0.9330082844241049,
+            "pct_bachelors": 0.9919471742860829,
+            "no_vehicle": 0.9936046989254389,
+            "cost_burden": 0.9601029862732191
+          },
+          "by_group": {
+            "pov_rate": {
+              "C(GEOID.str[:2])": {
+                "26": 0.9208394291153716,
+                "36": 0.9489286733997295
+              }
+            },
+            "pct_bachelors": {
+              "C(GEOID.str[:2])": {
+                "26": 0.9898661730921562,
+                "36": 0.9924185282250646
+              }
+            },
+            "no_vehicle": {
+              "C(GEOID.str[:2])": {
+                "26": 0.8349112063428686,
+                "36": 0.9971981964498811
+              }
+            },
+            "cost_burden": {
+              "C(GEOID.str[:2])": {
+                "26": 0.8351515246128571,
+                "36": 0.9766565792816062
+              }
+            }
+          },
+          "low": [],
+          "uneven": [
+            "pov_rate",
+            "no_vehicle",
+            "cost_burden"
+          ]
+        },
+        "replicates_declared_fixed": [
+          "lbw_numerator"
+        ],
+        "interval_target": "population",
+        "high_cv_influence": {
+          "n_high_cv_rows": 0
+        }
+      },
+      "provenance": {
+        "model_library": "statsmodels",
+        "rows_used": 144,
+        "replicate_variables": [
+          "cost_burden",
+          "no_vehicle",
+          "pct_bachelors",
+          "pov_rate"
+        ]
+      },
+      "interval_se_column": "se_model",
+      "interval": {
+        "target": "population",
+        "basis_column": "se_model",
+        "level": 0.9,
+        "distribution": "normal",
+        "df": null,
+        "basis_sources": [
+          "model"
+        ],
+        "estimand": "the population (superpopulation) association of lbw_numerator with the predictors among areas (area level, not individuals); an association, not a causal effect",
+        "undefined_terms": [],
+        "replicates_incomplete": false,
+        "text": "90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw_numerator with the predictors among areas (area level, not individuals); an association, not a causal effect"
+      },
+      "summary": "poisson 'lbw_numerator ~  pov_rate + pct_bachelors + no_vehicle + cost_burden + C(GEOID.str[:2])', n=144, method=replicate_refit, SEs include: model, sampling_replicate; 90% normal intervals and p-values from se_model (includes model), population target; estimand: the population (superpopulation) association of lbw_numerator with the predictors among areas (area level, not individuals); an association, not a causal effect"
+    }
+  },
+  "X4_map": {
+    "success": true,
+    "paths": null,
+    "error": null
+  },
+  "X4_moran": {
+    "variable": "resid_m2",
+    "I": 0.18355181190146572,
+    "expected_I": -0.006993006993006993,
+    "p_norm": 0.0005773117162154451,
+    "p_sim": 0.003,
+    "z_sim": 3.40005003537247,
+    "permutations": 999,
+    "se_replicate": null,
+    "ci_lower": null,
+    "ci_upper": null,
+    "confidence_level": 0.9,
+    "replicate_I": null,
+    "n": 144,
+    "notes": [
+      "1 island(s) (no neighbors) contribute zero spatial lag"
+    ],
+    "provenance": {
+      "library": "esda.Moran",
+      "weights": {
+        "n": 144,
+        "transform": "R",
+        "n_islands": 1,
+        "islands": [
+          "36085"
+        ],
+        "islands_truncated": false,
+        "neighbors_min": 0,
+        "neighbors_mean": 4.847222222222222,
+        "neighbors_max": 8,
+        "n_components": 4,
+        "pct_nonzero": 3.3661265432098766,
+        "kind": "queen",
+        "params": {},
+        "crs": "EPSG:4269",
+        "cache": "off",
+        "cache_key": null,
+        "id_col": "GEOID"
+      },
+      "seed": 20261122
+    }
+  },
+  "X4_residuals": {
+    "kind": "response residuals, observed minus fitted probability",
+    "n": 144,
+    "sha256": "dda01e2c41bf3daa871d9646558bc4789f8ad716a97553ab98d45e15d3e7a197",
+    "permutations": 999,
+    "seed": 20261122
+  },
+  "descriptives": {
+    "lbw": {
+      "count": 144.0,
+      "mean": 0.07585530331736111,
+      "std": 0.011729480655410894,
+      "min": 0.039250669,
+      "25%": 0.068614101825,
+      "50%": 0.07504388584999999,
+      "75%": 0.082169486175,
+      "max": 0.113370838
+    },
+    "lbw_denominator": {
+      "count": 144.0,
+      "mean": 15592.965277777777,
+      "std": 34719.09063039502,
+      "min": 176.0,
+      "25%": 1834.25,
+      "50%": 3917.0,
+      "75%": 10548.75,
+      "max": 249552.0
+    },
+    "pov_rate": {
+      "count": 145.0,
+      "mean": 13.089681464564057,
+      "std": 3.5337031887835,
+      "min": 4.857169539186287,
+      "25%": 10.665755407252552,
+      "50%": 13.037564943013354,
+      "75%": 15.110829120530505,
+      "max": 26.91498993322348
+    },
+    "pct_bachelors": {
+      "count": 145.0,
+      "mean": 26.768482544531167,
+      "std": 9.967783294190323,
+      "min": 12.15515453225472,
+      "25%": 19.69981238273921,
+      "50%": 23.878794244302068,
+      "75%": 33.69587314494816,
+      "max": 62.750487129525176
+    },
+    "no_vehicle": {
+      "count": 145.0,
+      "mean": 8.745430799100948,
+      "std": 8.977901121029742,
+      "min": 2.15962441314554,
+      "25%": 5.6174334140435835,
+      "50%": 7.188607728213947,
+      "75%": 9.110403984504705,
+      "max": 77.86956009634987
+    },
+    "cost_burden": {
+      "count": 145.0,
+      "mean": 26.29345725793532,
+      "std": 5.803142795315289,
+      "min": 16.447485338546294,
+      "25%": 22.67267267267267,
+      "50%": 24.765494137353432,
+      "75%": 27.60209189868564,
+      "max": 54.939539943738694
+    }
+  },
+  "external": {
+    "join": {
+      "complete_acs_units": 145,
+      "complete_units_without_external": 1,
+      "examples_without_external": [
+        "26083"
+      ],
+      "frame_units": 145,
+      "matched_units": 144,
+      "missing_limit": {
+        "lbw": 0.05
+      },
+      "missing_share": 0.006896551724137931,
+      "missing_share_by_variable": {
+        "lbw": 0.006896551724137931
+      },
+      "source_units_outside_frame": 0
+    },
+    "low_count_kept": {
+      "lbw": 2
+    },
+    "required_acs_variables": [
+      "cost_burden",
+      "no_vehicle",
+      "pct_bachelors",
+      "pov_rate"
+    ],
+    "sources": [
+      {
+        "citation": "University of Wisconsin Population Health Institute. County Health Rankings & Roadmaps 2025. www.countyhealthrankings.org (data: analytic_data2025_v2.csv).",
+        "dataset": "analytic_data2025_v2.csv",
+        "files": [
+          {
+            "downloaded_at": "2026-11-15T16:42:29Z",
+            "path": ".cache/health/chr/2025/analytic_data2025_v2.csv",
+            "sha256": "fe94ca504dd8688d55429b908540241bc420466ebc5556cbe27e84adf7aefbcf",
+            "size_bytes": 13085361,
+            "source_url": "https://www.countyhealthrankings.org/sites/default/files/media/document/analytic_data2025_v2.csv"
+          }
+        ],
+        "kinds": {
+          "v037": "direct"
+        },
+        "level": "county",
+        "licence": "CHR&R terms of use: personal or non-profit (educational, research, public health) use; not for commercial use; cite the source; no affiliation or endorsement implied. The engine caches the file and does not redistribute it",
+        "measures": {
+          "v037": "lbw"
+        },
+        "model": "mortality measures: NCHS death records by county of residence, Census Population Estimates denominators, missing for fewer than 20 deaths; BRFSS measures: CDC PLACES model estimates (multilevel logistic regression and post-stratification (MRP) of BRFSS responses: individual age, sex, race/ethnicity and education; county share of adults below 150% of the poverty line (ACS 5-year); state and county random effects; applied to census block population counts and aggregated to tracts. Within a county a tract's estimate varies only with its age, sex, race/ethnicity and education composition: the model has no tract-level health information)",
+        "release": 2025,
+        "rows_updated_at": null,
+        "source": "chr",
+        "uncertainty": "published 95% interval; SE = (upper - lower) / (2 x 1.96)",
+        "units": 145
+      }
+    ],
+    "variables": [
+      {
+        "measure": "v037",
+        "name": "lbw",
+        "release": 2025,
+        "source": "chr"
+      }
+    ]
+  },
+  "figures": [
+    {
+      "path": "docs/studies/r22/resid_m2/choropleth.caption.txt",
+      "sha256": "a4d343156c0502191179ddee5340b4c8d626b1e50aaee9b3220a444ea7b0e5f2"
+    },
+    {
+      "path": "docs/studies/r22/resid_m2/choropleth.csv",
+      "sha256": "08638bfbbe5c6ce42d2fc2501c020f21290a447070eef45a04c7b58c39a991d0"
+    },
+    {
+      "path": "docs/studies/r22/resid_m2/choropleth.eps",
+      "sha256": "c5ec0b785b131fbaf05a8a900703e3090ee46ec683e121c50fd74d8938c2971f"
+    },
+    {
+      "path": "docs/studies/r22/resid_m2/choropleth.json",
+      "sha256": "40686db44655e869ff07ef3802a70d5b2becb75493c5e40941528809829b0519"
+    },
+    {
+      "path": "docs/studies/r22/resid_m2/choropleth.pdf",
+      "sha256": "b73b18fa3c3cc5b57977e728eace30cbed39bffe8f215873748b24de26f182dc"
+    },
+    {
+      "path": "docs/studies/r22/resid_m2/choropleth.png",
+      "sha256": "3166ac6cc897d89deb16b7fabd11fc6bb407c17f51c61ccc73c1686d207e2277"
+    },
+    {
+      "path": "docs/studies/r22/resid_m2/choropleth.svg",
+      "sha256": "b374dc31188cfcc5765539710b2a563745d7119ef7e6240ad67835fec2ccb3f7"
+    }
+  ]
+}

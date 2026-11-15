@@ -197,10 +197,10 @@ python scripts/r21b_exploratory.py studies_output/r21b/confirmatory studies_outp
 | :--- | :--- | :--- |
 | F1 | The CHR&R methods text described both the direct mortality source and the PLACES model for a direct measure (source-level text) | Fixed after the run: per-measure source text. The committed run's methods.md keeps the old wording |
 | F2 | USALEEP New York City is a separate file (`NYC_A.CSV`); the registry also wrongly marked Maine and Wisconsin missing | Fixed during X4 (exploratory), before any coefficient was read |
-| F3 | No valid clustering level for a two-state county study; Moran's I 0.195 | Backlog: spatial HAC (Conley) SEs for `fit_eiv` (Part 1 F4) |
+| F3 | No valid clustering level for a two-state county study; Moran's I 0.195 | Addressed in Round 22 (see PLAN_ROUND_22.md): A2 FAILED; exploratory only |
 | F4 | Leverage of five NYC counties on vehicle access | Design note for future manifests: register the transit-dense exclusion rule, or use tracts within counties |
-| F5 | `run_manifest` labels an exploratory manifest's run "confirmatory" | Backlog: a manifest flag `"exploratory": true` that labels the run |
-| F6 | Rate apportionment of split tracts failed validation | Default leaves them missing. A post hoc result (children holding 95% or more of the parent's population behave like 1:1) is a candidate for a pre-registered re-test |
+| F5 | `run_manifest` labels an exploratory manifest's run "confirmatory" | Addressed in Round 22 (see PLAN_ROUND_22.md): exploratory flag implemented |
+| F6 | Rate apportionment of split tracts failed validation | Addressed in Round 22 (see PLAN_ROUND_22.md): held-out A4 PASSED; dominant opt-in, default missing |
 
 ## 11. Review (author self-review at the owner's request, not independent)
 

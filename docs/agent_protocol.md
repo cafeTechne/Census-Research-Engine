@@ -212,3 +212,28 @@ Validated in `docs/audits/inference_validation.md` by simulation with known trut
 - **Sources** (`list_health_sources`): PLACES (tract and county, model-based, no key); USALEEP (tract life expectancy 2010-2015 on 2010 tracts, partly model-based, flag-2 tracts dropped by default, `apportion_to: 2020` for 2020 tracts); County Health Rankings 2025 (county; mortality measures are direct NCHS records; its BRFSS measures are PLACES estimates; non-commercial research use); WONDER (user-exported files pinned by SHA-256; suppressed counts censored, never zero).
 - **Use:** external variables are outcomes only (`fit_eiv`, `fit_replicate`, `fh_regression`), held fixed in replicate refits; cluster PLACES tract models by county (`"cluster": "GEOID.str[:5]"`, validated in `docs/audits/eiv_cluster_validation.md`).
 - **Report:** the source's model and uncertainty (methods.md), join counts (`run.json` `external`), and, for model-based outcomes, that associations with covariates outside the model arise only through their correlation with its inputs. Recipe: `get_recipe(name="external_health_outcome")`.
+
+
+### Count and proportion outcomes
+
+For CHR 2025 `v037` low birth weight (direct NCHS natality 2017–2023), use
+`fit_replicate` with `model: "binomial"`, proportion outcome `<name>`,
+`trials: "<name>_denominator"` and `scale: "robust"` (HC3 sandwich SEs).
+For counts use `<name>_numerator` as the Poisson outcome and
+`exposure: "<name>_denominator"`, `scale: "robust"`. Do not use `scale: "X2"`:
+Pearson quasi-likelihood SEs under-cover (0.69–0.79 at nominal 0.90) when areas
+differ beyond binomial/Poisson chance, and new manifests with it are refused
+(docs/audits/robust_se_validation.md; HC3 covered 0.879–0.897). Robust SEs treat
+areas as independent; report residual Moran's I as a limitation. Effective-trials fallback,
+external negative-binomial/WLS outcomes and count columns in other formula roles
+are refused. Suppressed outcomes stay missing; unreliable small counts are
+retained and reported. Replicate SEs describe ACS covariate sampling error,
+not a GLM measurement-error correction. Binomial hypothesis tables include odds
+ratios and their intervals. `exploratory: true` labels the entire registered run
+and its analyses exploratory, preserving any blocking deviations.
+
+Spatial standard errors use Bartlett Conley HAC and great-circle distances between
+TIGER representative points. The pre-set Round 22 simulation **failed** its
+coverage criterion (`docs/audits/spatial_hac_validation.md`): `spatial_se` is
+available only in exploratory manifests, direct fits and `run_variant`, never
+confirmatory manifests. `cluster` and `spatial_se` are mutually exclusive.

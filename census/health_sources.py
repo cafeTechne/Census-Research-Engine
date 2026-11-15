@@ -101,6 +101,10 @@ _PLACES_MODEL_TEXT = (
 # NCHS vital records with Census Population Estimates denominators; the BRFSS measures are CDC PLACES
 # model estimates. Columns CHR&R takes from the ACS are not registered (use the ACS table).
 _CHR_MEASURES = {
+    "v037": {"label": "Low birth weight: share of live births under 2,500 grams", "kind": "direct",
+             "unit": "proportion of live births (0-1)", "count": {"numerator": "low birth weight births",
+             "denominator": "live births"},
+             "data_source": "National Center for Health Statistics, Natality files (NVSS), 2017–2023"},
     "v001": {"label": "Premature death: years of potential life lost before age 75 per 100,000 (age-adjusted)",
              "kind": "direct", "unit": "YPLL per 100,000 population"},
     "v127": {"label": "Premature age-adjusted mortality: deaths under age 75 per 100,000 (age-adjusted)",
@@ -318,6 +322,8 @@ def source_text(source: str, measure: Any) -> str:
     source's model text."""
     info = source_info(source)
     if source == "chr":
+        if measure == "v037":
+            return _CHR_MEASURES["v037"]["data_source"]
         try:
             kind = measure_kind(source, measure)
         except ValueError:
@@ -774,7 +780,7 @@ def parse_usaleep(rows: pd.DataFrame, name: str, include_predicted: bool = False
     return out, record
 
 
-SPLIT_POLICIES = ("missing", "inherit")
+SPLIT_POLICIES = ("missing", "inherit", "dominant")
 
 
 def apportion_rates(values: pd.DataFrame, name: str, crosswalk: pd.DataFrame,
@@ -818,16 +824,29 @@ def apportion_rates(values: pd.DataFrame, name: str, crosswalk: pd.DataFrame,
     is_split = out["GEOID"].isin(split_targets).to_numpy()
     if split == "missing":
         out.loc[is_split, [name, f"{name}_se"]] = np.nan
+    dominant_missing = np.zeros(len(out), dtype=bool)
+    if split == "dominant":
+        parent_mass = cw.groupby("source_geoid")["mass"].transform("sum")
+        pieces = cw.assign(parent_share=cw["mass"] / parent_mass)
+        share = pieces.groupby(["source_geoid", "target_geoid"])["parent_share"].sum().groupby("target_geoid").max()
+        dominant_missing = is_split & (out["GEOID"].map(share).fillna(0).to_numpy() < .95)
+        out.loc[dominant_missing, [name, f"{name}_se"]] = np.nan
+
     record = {"method": "population-mass-weighted mean of source tract values (2010 block population), SE from "
                         "independent source SEs; life expectancy is not additive, so this is an approximation"
                         + (" (a split tract inherits its parent's value, NOT validated)" if split == "inherit" else
                            " (a target whose only source is split across several targets is left missing)"),
               "min_coverage": float(min_coverage), "targets": int(len(out)), "split_policy": split,
               "split_targets": int(is_split.sum()),
-              "split_targets_left_missing": int(is_split.sum()) if split == "missing" else 0,
+              "split_targets_left_missing": int(is_split.sum()) if split == "missing" else int(dominant_missing.sum()),
               "targets_below_coverage": int(low.sum()),
               "targets_from_several_sources": int((nsrc > 1).sum()),
               "sources_split_across_targets": int((ntgt > 1).sum())}
+    if split == "dominant":
+        record["method"] = ("population-mass-weighted mean; split children inherit their parent only at parent "
+                            "population share >=0.95, otherwise missing; validated on held-out OH/PA, "
+                            "docs/audits/rate_apportionment_retest.md; life expectancy remains an approximation")
+        record["parent_share_min"] = .95
     return out.reset_index(drop=True), record
 
 

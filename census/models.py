@@ -88,6 +88,42 @@ FH_POINTER = (
     "for an outcome with known sampling variance use census.sae.fh_regression "
     "(Fay-Herriot weights 1/(sigma_u^2 + s_i^2))"
 )
+SCALES = ("X2", "robust")
+ROBUST_SE_NOTE = (
+    "Robust (HC3 sandwich) SEs for the binomial/Poisson GLM: valid under extra-binomial or extra-Poisson "
+    "variation between areas, which Pearson X2 scaling does not repair when the overdispersion does not "
+    "shrink with the denominator (validated, docs/audits/robust_se_validation.md). Units are treated as "
+    "independent: spatial dependence in the residuals is not covered."
+)
+
+
+def glm_robust_covariance(X: np.ndarray, y: np.ndarray, mu: np.ndarray, model: str,
+                          trials: Optional[np.ndarray] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """HC3 sandwich covariance of a canonical-link binomial or Poisson GLM.
+
+    Binomial: ``y`` and ``mu`` are proportions, ``trials`` the denominators
+    (the GLM's var_weights); score_i = x_i t_i (y_i - mu_i), weight t_i mu_i (1 - mu_i).
+    Poisson: ``y`` and ``mu`` are counts; score_i = x_i (y_i - mu_i), weight mu_i.
+    Bread B = (X'WX)^-1, leverage h_i = w_i x_i'B x_i, meat sum s_i s_i' / (1 - h_i)^2.
+    Returns the covariance and ``{"estimator": "HC3", "max_leverage": ...}``.
+    """
+    X = np.asarray(X, float)
+    y, mu = np.asarray(y, float), np.asarray(mu, float)
+    if model == "binomial":
+        if trials is None:
+            raise ValueError("binomial robust covariance needs trials")
+        t = np.asarray(trials, float)
+        resid, w = t * (y - mu), t * mu * (1 - mu)
+    elif model == "poisson":
+        resid, w = y - mu, mu
+    else:
+        raise ValueError("robust GLM covariance supports binomial and poisson")
+    bread = np.linalg.inv(X.T @ (w[:, None] * X))
+    h = w * np.einsum("ij,jk,ik->i", X, bread, X)
+    if np.any(h >= 1 - 1e-12):
+        raise ValueError("a unit has leverage 1; HC3 is undefined (drop or merge that unit)")
+    s = X * (resid / (1 - h))[:, None]
+    return bread @ (s.T @ s) @ bread, {"estimator": "HC3", "max_leverage": float(h.max())}
 
 
 # ---------------------------------------------------------------------------
@@ -106,6 +142,7 @@ def _fit(
     weights: Optional[str] = None,
     exposure: Optional[str] = None,
     trials: Optional[np.ndarray] = None,
+    scale: Optional[str] = None,
 ) -> Any:
     model = model.lower()
     with warnings.catch_warnings():
@@ -120,10 +157,10 @@ def _fit(
             if trials is None:
                 raise ValueError("model='binomial' needs trials")
             return smf.glm(formula, data, family=sm.families.Binomial(),
-                           var_weights=np.asarray(trials, float), missing="drop").fit()
+                           var_weights=np.asarray(trials, float), missing="drop").fit(**({"scale": scale} if scale else {}))
         expo = data[exposure].to_numpy(float) if exposure else None
         if model == "poisson":
-            return smf.glm(formula, data, family=sm.families.Poisson(), exposure=expo, missing="drop").fit()
+            return smf.glm(formula, data, family=sm.families.Poisson(), exposure=expo, missing="drop").fit(**({"scale": scale} if scale else {}))
         if model == "negbin":
             return smf.negativebinomial(formula, data, exposure=expo, missing="drop").fit(disp=0, maxiter=200)
     raise ValueError(f"unknown model {model!r}; expected one of {MODELS}")
@@ -382,6 +419,9 @@ def fit_replicate(
     target: str = "population",
     replicate_policy: str = "flag",
     fixed_variables: Sequence[str] = (),
+    scale: Optional[str] = None,
+    spatial_se: Optional[Mapping] = None,
+    coords: Optional[pd.DataFrame] = None,
 ) -> ModelResult:
     """Fit a statsmodels formula model with ACS replicate sampling SEs.
 
@@ -409,7 +449,15 @@ def fit_replicate(
     (diagnostics["replicates_declared_fixed"], a note): se_sampling then excludes
     their sampling error.
     """
+    if spatial_se is not None and model.lower() not in ("binomial", "poisson"):
+        raise ValueError("spatial_se is supported for binomial and poisson models")
+    if spatial_se is not None and coords is None:
+        raise ValueError("spatial_se requires coords")
     model = model.lower()
+    if scale is not None and (scale not in SCALES or model not in ("binomial", "poisson")):
+        raise ValueError(f"scale must be one of {SCALES} for binomial or poisson models only")
+    if scale == "robust" and spatial_se is not None:
+        raise ValueError("scale='robust' and spatial_se are alternatives; choose one")
     check_replicate_policy(replicate_policy)
     if target not in INTERVAL_TARGETS:
         raise ValueError(f"target must be one of {INTERVAL_TARGETS}")
@@ -418,13 +466,33 @@ def fit_replicate(
     if model not in MODELS:
         raise ValueError(f"unknown model {model!r}; expected one of {MODELS}")
     data, n_trials, notes = _prepare(frame, formula, model, weights, exposure, trials)
-    full = _fit(formula, data, model, weights, exposure, n_trials)
+    fit_scale = "X2" if scale == "X2" else None   # 'robust' changes the covariance, not the fit
+    full = _fit(formula, data, model, weights, exposure, n_trials, fit_scale)
     rows = np.asarray(full.model.data.row_labels if full.model.data.row_labels is not None else data.index)
     if len(rows) != len(data):
         notes.append(f"{len(data) - len(rows)} row(s) dropped by the formula (non-finite transforms)")
     params, bse = full.params, full.bse
     used = formula_variables(formula, data)
     diagnostics: Dict[str, Any] = {"reliability_screen": _screen_summary(data, formula, cv_threshold)}
+    if model in ("binomial", "poisson"):
+        dispersion = float(full.pearson_chi2 / full.df_resid) if full.df_resid > 0 else float("nan")
+        diagnostics["pearson_dispersion"] = dispersion
+        diagnostics["scale"] = scale
+        if dispersion > 1.5 and scale is None and spatial_se is None:
+            notes.append(f"Pearson dispersion {dispersion:.6g}: model SEs assume no overdispersion; use "
+                         "scale='robust'")
+        elif dispersion > 1.5 and scale == "X2":
+            notes.append(f"Pearson dispersion {dispersion:.6g} with scale='X2': X2 SEs under-cover when the "
+                         "overdispersion is between-area variation (validated coverage 0.69-0.79 at nominal 0.90, "
+                         "docs/audits/robust_se_validation.md); prefer scale='robust'")
+        if scale == "robust":
+            t_rows = np.asarray(n_trials, float)[rows] if model == "binomial" else None
+            cov, info = glm_robust_covariance(np.asarray(full.model.exog, float), np.asarray(full.model.endog, float),
+                                              np.asarray(full.fittedvalues, float), model, t_rows)
+            diagnostics["se_model_unadjusted"] = dict(zip(params.index, map(float, bse)))
+            diagnostics["robust_se"] = info
+            bse = pd.Series(np.sqrt(np.diag(cov)), index=params.index)
+            notes.append(ROBUST_SE_NOTE)
     provenance: Dict[str, Any] = {"model_library": "statsmodels", "rows_used": int(len(rows))}
     se_sampling = pd.Series(np.nan, index=params.index)
     sources = [SOURCE_MODEL]
@@ -448,7 +516,7 @@ def fit_replicate(
             for v, m in mats.items():
                 d[v] = m[:, r]
             try:
-                res = _fit(formula, d, model, weights, exposure, n_trials)
+                res = _fit(formula, d, model, weights, exposure, n_trials, fit_scale)
                 b = res.params.reindex(params.index).to_numpy(float)
                 if not np.isfinite(b).all():
                     raise ValueError("non-finite coefficients")
@@ -501,6 +569,20 @@ def fit_replicate(
         notes.append("no replicates: SEs reflect model error only, not ACS sampling error of inputs; use "
                      "replicates, regression_calibration/simex for noisy covariates, or " + FH_POINTER)
 
+    if spatial_se is not None:
+        from .spatial_hac import conley_covariance, coordinate_distances
+        X = np.asarray(full.model.exog, float)
+        mu = np.asarray(full.fittedvalues, float)
+        y = np.asarray(full.model.endog, float)
+        t = np.asarray(n_trials, float)[rows] if model == "binomial" else np.ones(len(mu))
+        scores = X * (t * (y - mu))[:, None]
+        weights_h = t * mu * (1 - mu) if model == "binomial" else mu
+        bread = np.linalg.inv(X.T @ (weights_h[:, None] * X))
+        cov, info = conley_covariance(scores, bread, coordinate_distances(data.loc[rows], coords), spatial_se["cutoff_km"])
+        diagnostics["se_model_unadjusted"] = dict(zip(params.index, map(float, bse)))
+        diagnostics["spatial_se"] = info
+        bse = pd.Series(np.sqrt(np.diag(cov)), index=params.index)
+        notes.append(f"Spatial HAC (Conley) SEs, Bartlett kernel, cutoff {spatial_se['cutoff_km']} km")
     table = _table(params, bse, se_sampling, confidence_level, target)
     notes.append(f"intervals and p-values use the '{target}' target ({TARGET_SE[target]})")
     diagnostics["interval_target"] = target
@@ -788,6 +870,8 @@ def fit_eiv(
     cluster: Optional[str] = None,
     fixed_variables: Sequence[str] = (),
     cluster_se: str = "cr1",
+    spatial_se: Optional[Mapping] = None,
+    coords: Optional[pd.DataFrame] = None,
 ) -> ModelResult:
     """Least squares corrected for ACS sampling error in covariates and outcome (PLAN_ROUND_20 A2).
 
@@ -841,6 +925,10 @@ def fit_eiv(
     """
     import scipy.linalg as sla
 
+    if spatial_se is not None and cluster:
+        raise ValueError("spatial_se and cluster are mutually exclusive")
+    if spatial_se is not None and coords is None:
+        raise ValueError("spatial_se requires coords")
     model = model.lower()
     check_replicate_policy(replicate_policy)
     if cluster_se not in ("cr1", "jackknife"):
@@ -947,6 +1035,12 @@ def fit_eiv(
                      + ("delete-one-cluster jackknife" if cluster_se == "jackknife" else "CR1") + ")")
     else:
         V = Minv @ (psi.T @ psi) @ Minv * n / (n - k)
+    if spatial_se is not None:
+        from .spatial_hac import conley_covariance, coordinate_distances
+        diagnostics["se_independent"] = dict(zip(terms, map(float, np.sqrt(np.diag(V)))))
+        V, info = conley_covariance(psi, Minv, coordinate_distances(used_data, coords), spatial_se["cutoff_km"])
+        diagnostics["spatial_se"] = info
+        notes.append(f"Spatial HAC (Conley) SEs, Bartlett kernel, cutoff {spatial_se['cutoff_km']} km")
     se_total = pd.Series(np.sqrt(np.maximum(np.diag(V), 0.0)), index=terms)
 
     naive = _fit(formula, used_data, model, weights if model == "wls" else None, None, None)

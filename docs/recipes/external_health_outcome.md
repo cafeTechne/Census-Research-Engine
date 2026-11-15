@@ -15,3 +15,20 @@ Goal: a pre-registered study whose outcome comes from outside the ACS, without c
 3. Use the external variable only as the outcome of `fit_eiv` (held fixed; ACS covariates corrected for sampling error), `fit_replicate` or `fh_regression`. For tract PLACES outcomes, cluster by county: `"args": {"cluster": "GEOID.str[:5]"}` (PLACES shares county random effects).
 4. `create_manifest`: errors **R1** (same construct as an ACS measure) and **R2** (tested term from the model's inputs) block. Read the notes: they list overlapping controls and the rule. Commit the manifest alone, then `run_manifest`.
 5. In the report, state the source's model (methods.md does), its uncertainty type, the join counts in `run.json` (`external`), and that within-county PLACES variation is composition only.
+
+
+Count example (CHR 2025 direct natality outcome; ACS determinants are predeclared):
+
+```json
+{"id":"m1","method":"fit_replicate","formula":"lbw ~ pov_rate + C(GEOID.str[:2])",
+ "args":{"model":"binomial","trials":"lbw_denominator","scale":"robust","target":"population"}}
+```
+
+Declare `{"name":"lbw","source":"chr","release":2025,"measure":"v037"}` in
+`external`. Use proportions, not percentages. Poisson cross-checks use
+`lbw_numerator` with `exposure: "lbw_denominator"` and `scale: "robust"`.
+Spatial HAC failed its fixed validation and is exploratory only. To register an
+exploratory study, set top-level `exploratory: true`; it remains exploratory even
+when deviations block parts of the analysis. USALEEP may opt into `split: "dominant"`
+for children holding >=95% of parent population (held-out OH/PA validation passed);
+the split default stays `missing`.

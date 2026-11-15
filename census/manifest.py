@@ -273,6 +273,15 @@ def canonical_json(manifest: Mapping[str, Any]) -> str:
     return json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
+# Manifests registered with scale 'X2' for an external count outcome before the robust-SE rule
+# (Round 22: main study, X1, X2). They stay valid so the registered runs reproduce; new ones are refused.
+LEGACY_X2_MANIFESTS = frozenset({
+    "10c46acedc6eff827d8a41df34d272f839ed0d75804666e81b77ca75eab83ea6",
+    "0d5e657b1bd86658ed950fd32eda96832614ae0e2ad1932cf1eddd6daeeaeba9",
+    "9e83d6a0f361496ded30a95c8373f61fa924875ca62bd2252242312c8e8f6a79",
+})
+
+
 def manifest_hash(manifest: Mapping[str, Any]) -> str:
     """SHA-256 (hex) of :func:`canonical_json`."""
     return hashlib.sha256(canonical_json(manifest).encode("utf-8")).hexdigest()
@@ -819,6 +828,8 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
     and the concordance (no network when the archive covers the releases).
     """
     errors: List[str] = []
+    if "exploratory" in manifest and type(manifest["exploratory"]) is not bool:
+        errors.append("exploratory must be true or false")
     if manifest.get("schema_version") != SCHEMA_VERSION:
         errors.append(f"schema_version must be {SCHEMA_VERSION}")
     if not str(manifest.get("title", "")).strip():
@@ -958,10 +969,16 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
         for key in ("variable", "variable_1", "variable_2"):
             if a.get(key):
                 used.append(a[key])
+        aargs = a.get("args") or {}
+        outcome_name = str(a.get("formula", "")).split("~")[0].strip()
+        count_outcome = (outcome_name if method == "fit_replicate" and aargs.get("model") == "poisson"
+                         and outcome_name.endswith("_numerator") and outcome_name[:-10] in ext_names else None)
+        if count_outcome and count_outcome in _formula_names(str(a.get("formula", "")).split("~", 1)[1]):
+            errors.append("external count columns are allowed as the Poisson outcome only")
         for u in used:
-            if u not in names and u not in ext_names:
+            if u not in names and u not in ext_names and u != count_outcome:
                 errors.append(f"analyses[{i}] ({a.get('id')}): {u!r} is not a manifest variable")
-        ext_used = [u for u in used if u in ext_names]
+        ext_used = [u for u in used if u in ext_names or u == count_outcome]
         if ext_used:
             from .health_sources import EXTERNAL_OUTCOME_METHODS
             outcome = _formula_names(str(a.get("formula", "")).split("~")[0]) if "~" in str(a.get("formula", "")) \
@@ -976,9 +993,57 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
                 errors.append(f"analyses[{i}] ({a.get('id')}): an external outcome is held fixed in the refits, so "
                               "target 'these_areas' (replicate SE alone) is refused; use 'population' or "
                               "'conservative'")
+        if method == "fit_replicate":
+            allowed = {"model", "weights", "exposure", "trials", "cv_threshold", "max_failed_replicates",
+                       "target", "scale", "spatial_se"}
+            unknown = sorted(set(aargs) - allowed)
+            if unknown:
+                errors.append(f"fit_replicate does not take args {unknown}")
+            glm = aargs.get("model", "ols")
+            if aargs.get("scale") is not None and (aargs["scale"] not in ("X2", "robust")
+                                                    or glm not in ("binomial", "poisson")):
+                errors.append("scale must be 'robust' or 'X2' for binomial or poisson models only")
+            if aargs.get("scale") == "robust" and aargs.get("spatial_se") is not None:
+                errors.append("scale 'robust' and spatial_se are alternatives; choose one")
+            parent = outcome_name if outcome_name in ext_names else count_outcome[:-10] if count_outcome else None
+            if parent is not None:
+                if glm not in ("ols", "binomial", "poisson"):
+                    errors.append(f"{glm} not validated for external outcomes (PLAN_ROUND_22 out of scope)")
+                if glm == "binomial" and aargs.get("trials") != parent + "_denominator":
+                    errors.append(f"external binomial outcome requires trials '{parent}_denominator'; effective trials refused")
+                if glm == "poisson" and (count_outcome is None or aargs.get("exposure") != parent + "_denominator"):
+                    errors.append(f"external poisson needs {parent}_numerator outcome and exposure '{parent}_denominator'")
+                if glm in ("binomial", "poisson") and aargs.get("scale") is None and aargs.get("spatial_se") is None:
+                    errors.append("overdispersion would be ignored: set scale 'robust'")
+                elif (glm in ("binomial", "poisson") and aargs.get("scale") == "X2"
+                      and manifest_hash(manifest) not in LEGACY_X2_MANIFESTS):
+                    errors.append("external count outcome with scale 'X2' refused: Pearson X2 SEs under-cover when "
+                                  "areas differ beyond binomial/Poisson chance (validated coverage 0.69-0.79 at "
+                                  "nominal 0.90, docs/audits/robust_se_validation.md); set scale 'robust' (HC3)")
+            for role in ("weights", "exposure", "trials"):
+                column = aargs.get(role)
+                valid_count = parent and ((glm == "binomial" and role == "trials") or
+                                          (glm == "poisson" and role == "exposure")) and column == parent+"_denominator"
+                if column is not None and column not in names and column not in FORMULA_ID_COLUMNS and not valid_count:
+                    errors.append(f"fit_replicate {role} {column!r} is not a manifest variable in this role")
+        spatial = (a.get("args") or {}).get("spatial_se")
+        if spatial is not None:
+            valid_spatial = (isinstance(spatial, Mapping) and set(spatial) == {"cutoff_km"}
+                             and type(spatial["cutoff_km"]) in (int, float)
+                             and np.isfinite(spatial["cutoff_km"]) and spatial["cutoff_km"] > 0)
+            if not valid_spatial:
+                errors.append("spatial_se must be an object with exactly cutoff_km (finite number > 0)")
+            from .spatial_hac import SPATIAL_HAC_VALIDATED
+            if not SPATIAL_HAC_VALIDATED and not manifest.get("exploratory", False):
+                errors.append("spatial_se failed its validation (docs/audits/spatial_hac_validation.md); exploratory only")
+            if (a.get("args") or {}).get("cluster"):
+                errors.append("spatial_se and cluster are mutually exclusive")
+            if method not in ("fit_eiv", "fit_replicate") or (method == "fit_replicate" and
+                    (a.get("args") or {}).get("model", "ols") not in ("binomial", "poisson")):
+                errors.append("spatial_se is supported for fit_eiv and fit_replicate binomial/poisson")
         if method == "fit_eiv":
             eargs = a.get("args") or {}
-            unknown = sorted(set(eargs) - {"model", "weights", "cv_threshold", "target", "cluster", "cluster_se"})
+            unknown = sorted(set(eargs) - {"model", "weights", "cv_threshold", "target", "cluster", "cluster_se", "spatial_se"})
             if unknown:
                 errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv does not take args {unknown} (allowed: "
                               "model, weights, cv_threshold, cluster, cluster_se)")
@@ -1077,7 +1142,8 @@ def external_circularity(manifest: Mapping[str, Any]) -> List[Dict[str, Any]]:
         if not isinstance(a, Mapping) or "~" not in str(a.get("formula", "")):
             continue
         lhs, rhs = str(a["formula"]).split("~", 1)
-        ys = [y for y in _formula_names(lhs) if y in ext]
+        ys = [y if y in ext else y[:-10] for y in _formula_names(lhs)
+              if y in ext or (y.endswith("_numerator") and y[:-10] in ext)]
         if not ys:
             continue
         covs = [c for c in _formula_names(rhs) if c in tables]
@@ -1309,6 +1375,8 @@ def create_manifest(
                              "correlation with the model's inputs")
         if manifest.get("external"):
             notes.append("external outcomes: " + CIRCULARITY_RULE)
+    if manifest.get("exploratory"):
+        notes.append("registered as exploratory")
     out = {"hash": manifest_hash(manifest), "path": out_path, "errors": errors, "valid": not errors,
            "notes": notes, "filled": filled}
     if filled:
@@ -1391,7 +1459,7 @@ def _one_sided(p: float, estimate: float, direction: str) -> float:
 
 
 def _run_analysis(a: Mapping[str, Any], frame: pd.DataFrame, level: float, replicates: Any,
-                  correction: str, external: Sequence[str] = ()) -> Any:
+                  correction: str, external: Sequence[str] = (), coords=None) -> Any:
     from . import correlation, models, multitest, sae, trends
     a = _normalize_analysis(a)
     method, args = a["method"], dict(a.get("args") or {})
@@ -1402,7 +1470,9 @@ def _run_analysis(a: Mapping[str, Any], frame: pd.DataFrame, level: float, repli
         # Confirmatory runs refuse incomplete replicates (PLAN_ROUND_11 Q2/D7);
         # the failure is recorded as a "replicates_incomplete" deviation.
         args["replicate_policy"] = CONFIRMATORY_REPLICATE_POLICY
-    held_external = [v for v in _formula_names(str(a.get("formula", "")).split("~")[0]) if v in set(external)]
+    if args.get("spatial_se") is not None:
+        args["coords"] = coords
+    held_external = [v for v in _formula_names(str(a.get("formula", "")).split("~")[0]) if v in set(external) or (v.endswith("_numerator") and v[:-10] in set(external))]
     if method == "fit_replicate":
         fixed_vars = list(held_external)
         if a.get("replicate_scope") == "covariates_only":  # pre-registered: the outcome is held fixed
@@ -1527,6 +1597,8 @@ def run_variant(
         a["formula"] = formula
     if args:
         a["args"] = {**(a.get("args") or {}), **dict(args)}
+        if dict(args).get("spatial_se") is not None and a["args"].get("scale") == "robust" and "scale" not in args:
+            a["args"].pop("scale")   # spatial (Conley) SEs replace the registered robust SEs in this variant
     frame, reps = data["analysis_frame"], data.get("replicates")
     mask = np.ones(len(frame), bool)
     if keep_prefixes:
@@ -1537,7 +1609,14 @@ def run_variant(
     if reps is not None:
         reps = reps[reps["GEOID"].isin(set(frame["GEOID"]))].reset_index(drop=True)
     corr = (m.get("correction") or {}).get("method", "holm")
-    res = _run_analysis(a, frame, float(m.get("confidence_level", 0.90)), reps, corr, external=external_names(m))
+    coords, spatial_info = None, None
+    if (a.get("args") or {}).get("spatial_se") is not None:
+        from .spatial_hac import unit_coordinates
+        coords, spatial_info = unit_coordinates(frame["GEOID"], m["geography"]["level"], max(m["releases"]))
+    res = _run_analysis(a, frame, float(m.get("confidence_level", 0.90)), reps, corr,
+                        external=external_names(m), coords=coords)
+    if spatial_info is not None:
+        res.provenance["spatial_coordinates"] = spatial_info
     variant = {"analysis": analysis, "formula": a.get("formula"), "keep_prefixes": list(keep_prefixes or []),
                "drop_prefixes": list(drop_prefixes or []), "args": a.get("args") or {}}
     if label is not None and (not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", str(label)) or not str(label).strip(".")):
@@ -1765,13 +1844,17 @@ def run_manifest(
     if frame is not None and m.get("external"):
         from . import health_sources as hs
         ext_names = external_names(m)
+        ext_columns = set(ext_names) | {n + "_numerator" for n in ext_names}
         required = sorted({v for a in m["analyses"] for v in _formula_names(str(_normalize_analysis(a).get("formula", "")))
-                           if set(_formula_names(str(_normalize_analysis(a).get("formula", "")))) & set(ext_names)}
-                          - set(ext_names))
+                           if set(_formula_names(str(_normalize_analysis(a).get("formula", "")))) & ext_columns}
+                          - ext_columns)
         try:
             ext_wide, ext_prov = hs.load_external(m["external"], str(geo["level"]),
                                                   [s for s in manifest_states(geo) if s], fetch=external_fetch)
             frame, join = hs.join_external(frame, ext_wide, ext_names, required=required)
+            for name in ext_names:
+                if name + "_numerator" in frame:
+                    frame.loc[frame[name].isna(), name + "_numerator"] = np.nan
             joined_external = ext_names
             external_info = {"variables": m["external"], "sources": ext_prov, "join": join,
                              "required_acs_variables": required}
@@ -1825,8 +1908,21 @@ def run_manifest(
         counts = {name: _replicate_rows(frame, name) for name in derived_on_replicates}
         derived_on_replicates = {k: v for k, v in counts.items() if v["rows_replicate"]}
 
+    if frame is not None and external_info is not None:
+        external_info["low_count_kept"] = {
+            e["name"]: int((frame[e["name"] + "_numerator"] < 20).sum())
+            for e in m.get("external", []) if e.get("source") == "chr" and e.get("measure") == "v037"
+            and e["name"] + "_numerator" in frame
+        }
+    coords, spatial_info = None, None
+    if frame is not None and any((_normalize_analysis(a).get("args") or {}).get("spatial_se") is not None
+                                 for a in m["analyses"]):
+        from .spatial_hac import unit_coordinates
+        coords, spatial_info = unit_coordinates(frame["GEOID"], geo["level"], max(releases))
+
     # 5. analyses
     available = set(columns) | {str(d["name"]) for d in m.get("derivations") or []} | set(joined_external)
+    available |= {n + "_numerator" for n in joined_external}
     results: Dict[str, Any] = {}
     # caller-supplied replicates of overlapping releases: refused (census_vre is refused at validation)
     rep_overlap = _replicate_overlap(replicates) if replicates is not None and not census_vre_source(m) else None
@@ -1862,7 +1958,7 @@ def run_manifest(
             if had:
                 fixed_had_replicates[aid] = had
         try:
-            results[aid] = _run_analysis(a, frame, level, work_reps, corr_method, external=joined_external)
+            results[aid] = _run_analysis(a, frame, level, work_reps, corr_method, external=joined_external, coords=coords)
         except Exception as exc:
             kind = "replicates_incomplete" if isinstance(exc, IncompleteReplicatesError) else "analysis_failed"
             deviations.append({"kind": kind, "analysis": aid, "detail": f"{type(exc).__name__}: {exc}"})
@@ -1892,6 +1988,11 @@ def run_manifest(
             except Exception as exc:
                 row.update(status="not_tested", estimate=None, p_value=None)
                 deviations.append({"kind": "hypothesis_not_tested", "hypothesis": hyp["id"], "detail": str(exc)})
+        spec = next(_normalize_analysis(a) for a in m["analyses"] if a["id"] == hyp["analysis"])
+        if spec["method"] == "fit_replicate" and (spec.get("args") or {}).get("model") == "binomial":
+            for source_key, target in (("estimate", "odds_ratio"), ("ci_lower", "odds_ratio_lower"),
+                                   ("ci_upper", "odds_ratio_upper")):
+                row[target] = float(np.exp(row[source_key])) if row.get(source_key) is not None else None
         rows.append(row)
     hyp_df = pd.DataFrame(rows)
     hyp_df["p_adjusted"] = np.nan
@@ -1905,7 +2006,10 @@ def run_manifest(
 
     # 7. bundle
     complete = not any(d["kind"] in BLOCKING_DEVIATIONS for d in deviations)
-    status = STATUS_CONFIRMATORY if complete else STATUS_CONFIRMATORY_INCOMPLETE
+    status = (STATUS_EXPLORATORY if m.get("exploratory", False) else
+              STATUS_CONFIRMATORY if complete else STATUS_CONFIRMATORY_INCOMPLETE)
+    if m.get("exploratory"):
+        hyp_df["analysis_status"] = status
     rep_info = None
     if vre_info is not None:
         rep_info = dict(vre_info)
@@ -1949,6 +2053,8 @@ def run_manifest(
     run_info = {"manifest_hash": h, "analysis_status": status, "deviations": deviations,
                 "exclusions": exclusion_log, "extraction": extraction, "n_units": None if frame is None
                 else int(len(frame)), "title": m.get("title"), "data_source": source, "replicates": rep_info}
+    if spatial_info is not None:
+        run_info["spatial_coordinates"] = spatial_info
     if m.get("adjustments"):
         run_info["adjustments"] = adjustment_log
     if harmonization is not None:
@@ -2466,9 +2572,12 @@ def _write_bundle(folder: Path, m, h, results, hyp_df, run_info, citation) -> Di
             figures_[f"shrinkage_{aid}"] = (figs.shrinkage_plot, {"result": r, "manifest_hash": h,
                                                                   "data_source": fig_source})
     cols = ["id", "statistic", "direction", "estimate", "p_value", "p_adjusted", "significant", "status"]
+    cols += [c for c in ("odds_ratio", "odds_ratio_lower", "odds_ratio_upper") if c in hyp_df]
+    if m.get("exploratory"):
+        cols.append("analysis_status")
     show = hyp_df.reindex(columns=cols)
     tables["hypotheses"] = ReportTable(
-        title="Pre-registered hypotheses", display=show.astype(object).where(show.notna(), "").astype(str),
+        title="Exploratory hypotheses" if m.get("exploratory") else "Pre-registered hypotheses", display=show.astype(object).where(show.notna(), "").astype(str),
         data=hyp_df, notes=[note, f"p-values adjusted by {(m.get('correction') or {}).get('method', 'holm')} "
                                   f"(family: {(m.get('correction') or {}).get('family', 'all')})."])
     payload = dict(results)
@@ -2623,6 +2732,8 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
     cites: List[str] = ["acs"]
     lines = [f"## Methods", "", f"*Pre-registered analysis \"{m.get('title', '')}\"; manifest SHA-256 `{h}`, "
              f"created {m.get('created')} by {', '.join(m.get('authors', []))}.*", ""]
+    if m.get("exploratory"):
+        lines.insert(0, "This analysis was registered as exploratory (manifest flag `exploratory: true`); its results are not confirmatory.")
     if results is not None:
         status = results.get("analysis_status", STATUS_CONFIRMATORY)
         lines += [f"**Analysis status: {status}**"
@@ -2689,6 +2800,9 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                              + (f"{ap['split_targets_left_missing']} split tracts left missing (inheriting the parent's "
                                 "value failed validation, docs/audits/rate_apportionment_validation.md)."
                                 if ap.get("split_policy", "missing") == "missing" else
+                                f"Dominant split policy: parent share >=0.95, validated on held-out OH/PA "
+                                "(docs/audits/rate_apportionment_retest.md); other split targets left missing."
+                                if ap.get("split_policy") == "dominant" else
                                 f"{ap.get('split_targets', 0)} split tracts inherit their parent's value (NOT validated: "
                                 "docs/audits/rate_apportionment_validation.md)."))
             if src_run.get("export"):
@@ -2700,6 +2814,9 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
         if join:
             lines.append(f"  {join['matched_units']} of {join['complete_acs_units']} units with complete ACS data had "
                          f"an external value; files and SHA-256 in run.json (external).")
+        for name, count in ext_run.get("low_count_kept", {}).items():
+            lines.append(f"{count} counties had fewer than 20 low-weight births (flagged unreliable by CHR&R); "
+                         "they were kept, weighted by their births.")
         for c in external_circularity(m):
             if c["overlap"] and c["kind"] != "direct":
                 lines.append(f"  Circularity: in {c['analysis']}, covariates {sorted(c['overlap'])} measure inputs of "
@@ -2813,6 +2930,19 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
         elif ext_out and a["method"] == "fh_regression":
             text += (f" The outcome ({', '.join(ext_out)}) is {ext_kind}; its published "
                      "interval-derived SE was used as the known sampling variance of the Fay-Herriot model.")
+        if a["method"] == "fit_replicate" and args.get("model") in ("binomial", "poisson"):
+            if args["model"] == "binomial" and args.get("scale") == "X2" and ext_out:
+                text += (" Coefficients were estimated by quasi-binomial regression (logit link, statsmodels GLM, "
+                         "dispersion from Pearson χ²) of the low birth weight proportion with live births as trials. "
+                         "Coefficients and intervals are on the logit scale; odds ratios exponentiate them.")
+            elif args["model"] == "poisson" and args.get("scale") == "X2":
+                text += " Coefficients were estimated by quasi-Poisson regression of counts with the denominator as exposure."
+            elif args.get("scale") == "robust":
+                text += (" Coefficients were estimated by " + ("binomial regression (logit link) with the denominator "
+                         "as trials" if args["model"] == "binomial" else "Poisson regression (log link) with the "
+                         "denominator as exposure") + "; standard errors are HC3 sandwich estimates, robust to "
+                         "between-area overdispersion (validated coverage 0.879-0.897 at nominal 0.90, "
+                         "docs/audits/robust_se_validation.md) but treating areas as independent.")
         if a.get("replicate_scope") == "covariates_only":
             held = _formula_names(str(a.get("formula", "")).split("~")[0])
             had = ((rep_info or {}).get("covariates_only_outcome_had_replicates") or {}).get(a["id"])
@@ -2835,6 +2965,18 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
         target = a.get("formula") or a.get("variables") or a.get("variable")
         lines.append(f"- **{a['id']}** (`{target}`): {text}")
         cites += refs
+        if args.get("spatial_se") is not None:
+            from .boundaries import boundary_vintage
+            lines.append("Standard errors are spatial HAC (Conley 1999) with a Bartlett kernel and a "
+                         f"{args['spatial_se']['cutoff_km']} km cutoff, using great-circle distances between unit "
+                         f"representative points (TIGER/Line cartographic boundaries, year "
+                         f"{boundary_vintage(max(m['releases']), m['geography']['level'])}); validated in "
+                         "docs/audits/spatial_hac_validation.md. Conley, T. G. (1999). GMM estimation with cross "
+                         "sectional dependence. Journal of Econometrics, 92(1), 1–45.")
+            from .spatial_hac import SPATIAL_HAC_VALIDATED
+            if not SPATIAL_HAC_VALIDATED:
+                lines.append("The pre-set spatial HAC coverage validation FAILED; these standard errors are "
+                             "exploratory and not validated for confirmatory use.")
         if a["method"] == "fit_eiv" and args.get("cluster"):
             cites.append("cluster")
     lines += ["", "### Hypotheses and multiple comparisons", ""]
