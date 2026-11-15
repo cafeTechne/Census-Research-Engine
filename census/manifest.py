@@ -565,16 +565,10 @@ def _check_replicates(manifest: Mapping[str, Any], errors: List[str]) -> None:
 
 
 def _derivation_refs(d: Mapping[str, Any]) -> List[str]:
-    """Every input name of a derivation: ``num``/``den`` and, for ``age_standardized``, each
-    group's ``num``/``den``."""
-    def listed(v: Any) -> List[Any]:
-        return list(v) if isinstance(v, list) else [v] if v is not None else []
-    refs = [r for part in ("num", "den") for r in listed(d.get(part))]
-    groups = d.get("groups")
-    for g in groups if isinstance(groups, list) else []:
-        if isinstance(g, Mapping):
-            refs += [r for part in ("num", "den") for r in listed(g.get(part))]
-    return [str(r) for r in refs]
+    """Every input name of a derivation (num/den and age_standardized groups;
+    census.derived._spec_codes, the one shared walk)."""
+    from .derived import _spec_codes
+    return _spec_codes(d)
 
 
 def _age_standardized_errors(d: Mapping[str, Any], errors: List[str]) -> None:
@@ -865,9 +859,6 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
             continue
         if d.get("op") == "age_standardized":
             _age_standardized_errors(d, errors)
-            if manifest.get("aggregation") is not None:
-                errors.append(f"derivation {d.get('name')!r}: age_standardized cannot be combined with "
-                              "aggregation (aggregate the band counts in a separate step)")
         for r in _derivation_refs(d):
             if r not in names:
                 errors.append(f"derivation {d.get('name')!r}: input {r!r} is not an earlier variable name")
@@ -939,6 +930,10 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
                 errors.append(f"analyses[{i}] ({a.get('id')}): {u!r} is not a manifest variable")
         if method == "fit_eiv":
             eargs = a.get("args") or {}
+            unknown = sorted(set(eargs) - {"model", "weights", "cv_threshold", "target"})
+            if unknown:
+                errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv does not take args {unknown} (allowed: "
+                              "model, weights, cv_threshold)")
             if "target" in eargs:
                 errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv takes no 'target': its intervals use the "
                               "sandwich se_total (a measurement-error correction is a claim about the population "
@@ -2365,6 +2360,8 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
             se_text = "; MOE by the ACS approximation formulas (Handbook ch. 8)"
         if d.get("op") == "age_standardized":
             lines.append(_age_standardized_text(d) + se_text + ".")
+            if d.get("standard") == "us2000" and "standard_pop" not in cites:
+                cites.append("standard_pop")
             continue
         lines.append(f"- `{d['name']}` = {d.get('op', 'auto')} of {d.get('num')}"
                      + (f" over {d['den']}" if d.get("den") is not None else "") + se_text + ".")

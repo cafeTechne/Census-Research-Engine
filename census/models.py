@@ -285,15 +285,62 @@ RELIABILITY_NOTE_THRESHOLD = 0.9
 RELIABILITY_GROUP_SPREAD = 0.02
 
 
+def _factor_expressions(formula: str) -> List[str]:
+    """The expressions inside every C(...) of a formula, with balanced parentheses
+    (``C(GEOID.str[:2])`` -> ``GEOID.str[:2]``; contrast arguments are dropped)."""
+    out: List[str] = []
+    i = 0
+    while True:
+        j = formula.find("C(", i)
+        if j < 0:
+            return out
+        if j > 0 and (formula[j - 1].isalnum() or formula[j - 1] == "_"):
+            i = j + 2
+            continue
+        depth, k = 1, j + 2
+        while k < len(formula) and depth:
+            depth += {"(": 1, ")": -1}.get(formula[k], 0)
+            k += 1
+        inner = formula[j + 2:k - 1]
+        # drop a contrast argument at depth 0 (C(x, Treatment))
+        d, cut = 0, len(inner)
+        for pos, ch in enumerate(inner):
+            d += {"(": 1, "[": 1, ")": -1, "]": -1}.get(ch, 0)
+            if ch == "," and d == 0:
+                cut = pos
+                break
+        expr = inner[:cut].strip()
+        if expr and expr not in out:
+            out.append(expr)
+        i = k
+
+
+def _factor_groups(formula: str, data: pd.DataFrame, max_groups: int = 50) -> Dict[str, np.ndarray]:
+    """Group labels of every factor C(<expr>) in the formula, evaluated by patsy on ``data``
+    (so C(GEOID.str[:2]) groups by state, not by tract). Factors with more than ``max_groups``
+    levels (unit identifiers) or that fail to evaluate are skipped."""
+    import patsy
+    out: Dict[str, np.ndarray] = {}
+    for expr in _factor_expressions(formula):
+        try:
+            dm = patsy.dmatrix(f"C({expr}) - 1", data, return_type="dataframe", NA_action="raise")
+        except Exception:  # noqa: BLE001 - a diagnostic never fails the fit
+            continue
+        if dm.shape[1] < 2 or dm.shape[1] > max_groups or len(dm) != len(data):
+            continue
+        labels = np.asarray(dm.columns)[dm.to_numpy().argmax(axis=1)]
+        out[f"C({expr})"] = np.array([str(c).rsplit("[", 1)[-1][:-1] for c in labels])
+    return out
+
+
 def covariate_reliability(formula: str, data: pd.DataFrame, mats: Mapping[str, np.ndarray]) -> Dict[str, Any]:
     """Replicate reliability 1 - mean(SE^2) / Var(x) of each numeric covariate with replicates
     (PLAN_ROUND_20 A3), overall and within each group of every factor named as C(<column>) in the
     formula. ``low``: covariates below RELIABILITY_NOTE_THRESHOLD; ``uneven``: covariates whose
     group reliabilities differ by more than RELIABILITY_GROUP_SPREAD (a slope comparison
     between those groups is then biased by measurement error alone)."""
-    import re as _re
     y = _outcome(formula)
-    factors = [c for c in _re.findall(r"C\(\s*([A-Za-z_][A-Za-z0-9_]*)", formula) if c in data.columns]
+    factors = _factor_groups(formula, data)
     out: Dict[str, Any] = {"covariates": {}, "by_group": {}, "low": [], "uneven": []}
 
     def rel_of(x: np.ndarray, m: np.ndarray) -> float:
@@ -311,8 +358,7 @@ def covariate_reliability(formula: str, data: pd.DataFrame, mats: Mapping[str, n
         out["covariates"][v] = r
         if np.isfinite(r) and r < RELIABILITY_NOTE_THRESHOLD:
             out["low"].append(v)
-        for fcol in factors:
-            groups = data[fcol].astype(str).to_numpy()
+        for fcol, groups in factors.items():
             per = {g: rel_of(x[groups == g], m[groups == g]) for g in sorted(set(groups))}
             out["by_group"].setdefault(v, {})[fcol] = per
             vals = [q for q in per.values() if np.isfinite(q)]
@@ -436,8 +482,12 @@ def fit_replicate(
                              + (f"reliability differs by more than {RELIABILITY_GROUP_SPREAD} between groups of "
                                 f"{rel['uneven']}" if rel["uneven"] else "")
                              + ". Replicate refits widen intervals for this noise but do not remove the bias it "
-                             "causes (attenuation, uneven across groups); use fit_eiv (census.models.fit_eiv, "
-                             "fit_model method='eiv') for the corrected coefficients")
+                             "causes (attenuation, uneven across groups); "
+                             + ("use fit_eiv (census.models.fit_eiv, fit_model method='eiv') for the corrected "
+                                "coefficients" if model in EIV_MODELS else
+                                f"fit_eiv supports ols/wls only; for this {model} model, regression_calibration "
+                                "corrects the attenuation approximately (not the outcome-covariate error "
+                                "correlation)"))
         provenance["replicate_variables"] = sorted(mats)
         if declared:
             diagnostics["replicates_declared_fixed"] = declared
@@ -635,7 +685,9 @@ def _design_deviations(formula: str, data: pd.DataFrame, mats: Mapping[str, np.n
     import patsy
     y_df, X_df = patsy.dmatrices(formula, data, return_type="dataframe", NA_action="drop")
     rows = np.asarray(X_df.index)
-    sub = data.loc[rows].reset_index(drop=True)
+    cols = list(dict.fromkeys([c for c in ("GEOID", "Year") if c in data.columns] + formula_variables(formula, data)))
+    sub = data.loc[rows, cols].reset_index(drop=True)
+    keep_nan = patsy.NAAction(NA_types=[])  # undefined replicate values stay NaN (handled by the caller)
     y = y_df.iloc[:, 0].to_numpy(float)
     X = X_df.to_numpy(float)
     R = REPLICATE_COUNT
@@ -646,8 +698,8 @@ def _design_deviations(formula: str, data: pd.DataFrame, mats: Mapping[str, np.n
         d = sub.copy()
         for v, m in mats.items():
             d[v] = m[pos, r]
-        Xr = np.asarray(patsy.build_design_matrices([X_df.design_info], d, NA_action="raise")[0], float)
-        yr = np.asarray(patsy.build_design_matrices([y_df.design_info], d, NA_action="raise")[0], float)[:, 0]
+        Xr = np.asarray(patsy.build_design_matrices([X_df.design_info], d, NA_action=keep_nan)[0], float)
+        yr = np.asarray(patsy.build_design_matrices([y_df.design_info], d, NA_action=keep_nan)[0], float)[:, 0]
         D[r] = Xr - X
         e[r] = yr - y
     return y, X_df, D, e, rows
@@ -722,6 +774,18 @@ def fit_eiv(
 
     y, X_df, D, e, rows = _design_deviations(formula, data, mats)
     used_data = data.loc[rows].reset_index(drop=True)
+    with np.errstate(invalid="ignore"):
+        bad = ~(np.isfinite(D).all(axis=(0, 2)) & np.isfinite(e).all(axis=0))
+    if bad.any():
+        # a transform undefined on some replicate (e.g. log of a replicate 0): those units' error
+        # covariance is undefined; strict refuses, flag drops them and records it
+        replicate_completeness(replicate_policy, rows_held_fixed={"undefined transformed replicate": int(bad.sum())},
+                               context="fit_eiv", diagnostics=diagnostics, notes=notes,
+                               rows_label="units dropped (a formula term is undefined on some replicate)")
+        keep = ~bad
+        y, D, e = y[keep], D[:, keep], e[:, keep]
+        X_df = X_df.iloc[np.flatnonzero(keep)]
+        used_data = used_data.loc[keep].reset_index(drop=True)
     n, k = X_df.shape
     if n <= k:
         raise ValueError(f"fit_eiv: {n} rows for {k} coefficients")

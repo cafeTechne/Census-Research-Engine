@@ -248,8 +248,9 @@ class TestManifestRound20(unittest.TestCase):
         m = _manifest()
         m["derivations"][0].update(standard="custom", weights=[0.4, 0.6])
         self.assertEqual(validate_manifest(m, resolve=False), [])
+        # aggregation aggregates the band counts first (review fix): allowed
         m = _manifest(aggregation={"mapping": {"26001000100": "a"}})
-        self.assertTrue(any("cannot be combined with aggregation" in e for e in validate_manifest(m, resolve=False)))
+        self.assertFalse(any("age_standardized" in e for e in validate_manifest(m, resolve=False)))
 
     def test_fit_eiv_validation(self):
         m = _manifest()
@@ -389,9 +390,72 @@ class TestReliabilityNote(unittest.TestCase):
                 .to_numpy(float)}
         rel = covariate_reliability("y ~ x * C(g)", frame, mats)
         self.assertIn("x", rel["uneven"])
-        g = rel["by_group"]["x"]["g"]
+        g = rel["by_group"]["x"]["C(g)"]
         self.assertGreater(g["0"] - g["1"], 0.1)
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestReviewFixes(unittest.TestCase):
+    def test_state_factor_groups_by_state_not_tract(self):
+        frame, reps = _sim(n=400, rel=0.99)
+        frame["GEOID"] = ["26" + g[2:] if i % 2 else "36" + g[2:] for i, g in enumerate(frame["GEOID"])]
+        reps = reps.copy()
+        reps["GEOID"] = reps["GEOID"].map(dict(zip([f"{i:011d}" for i in range(400)], frame["GEOID"])))
+        ny = reps["GEOID"].str[:2].eq("36") & reps["variable"].eq("x")
+        dev = reps.loc[ny, REPLICATE_COLUMNS].to_numpy() - reps.loc[ny, ["estimate"]].to_numpy()
+        reps.loc[ny, REPLICATE_COLUMNS] = reps.loc[ny, ["estimate"]].to_numpy() + 8 * dev
+        res = fit_replicate("y ~ x + C(GEOID.str[:2])", frame, reps)
+        rel = res.diagnostics["covariate_reliability"]
+        groups = rel["by_group"]["x"]["C(GEOID.str[:2])"]
+        self.assertEqual(set(groups), {"26", "36"})
+        self.assertIn("x", rel["uneven"])
+
+    def test_undefined_transformed_replicate(self):
+        frame, reps = _sim(n=300, rel=0.95)
+        frame["x"] = frame["x"].abs() + 1
+        sel = reps["variable"] == "x"
+        reps.loc[sel, "estimate"] = frame["x"].to_numpy()
+        reps.loc[sel, REPLICATE_COLUMNS] = np.abs(reps.loc[sel, REPLICATE_COLUMNS].to_numpy()) + 1
+        first = reps.index[sel][0]
+        reps.loc[first, "rep_4"] = -1.0
+        with self.assertRaises(IncompleteReplicatesError):
+            fit_eiv("y ~ np.log(x)", frame, reps, replicate_policy="strict")
+        res = fit_eiv("y ~ np.log(x)", frame, reps)
+        self.assertEqual(res.n_obs, 299)
+        self.assertIn("replicates_incomplete", res.diagnostics)
+
+    def test_poisson_note_does_not_point_to_fit_eiv(self):
+        frame, reps = _sim(n=400, rel=0.7)
+        frame["cnt"] = np.random.default_rng(1).poisson(5, len(frame))
+        frame["expo"] = 1.0
+        res = fit_replicate("cnt ~ x", frame, reps, model="poisson", exposure="expo")
+        note = next(n for n in res.notes if "COVARIATE MEASUREMENT ERROR" in n)
+        self.assertIn("regression_calibration", note)
+        self.assertNotIn("fit_model method='eiv'", note)
+
+    def test_fit_eiv_unknown_args_refused(self):
+        m = _manifest()
+        m["analyses"][0]["args"] = {"model": "ols", "max_failed_replicates": 2}
+        self.assertTrue(any("does not take args ['max_failed_replicates']" in e
+                            for e in validate_manifest(m, resolve=False)))
+
+    def test_aggregate_then_derive_collects_group_codes(self):
+        from census.aggregate import aggregate_then_derive
+        df = _band_frame(n=6)
+        df["GEOID"] = [f"260010{i:05d}" for i in range(6)]
+        spec = [{"name": "asr", "op": "age_standardized", "weights": [0.3, 0.7],
+                 "groups": [{"num": "B18101_004", "den": "B18101_003"},
+                            {"num": "B18101_006", "den": "B18101_005"}]}]
+        out = aggregate_then_derive(df, {g: ("a" if i < 3 else "b") for i, g in enumerate(df["GEOID"])}, spec)
+        a = df.iloc[:3]
+        exp = 0.3 * a["B18101_004E"].sum() / a["B18101_003E"].sum() + 0.7 * a["B18101_006E"].sum() / a["B18101_005E"].sum()
+        self.assertAlmostEqual(float(out.set_index(out.columns[0]).loc["a", "asr_estimate"]), exp)
+
+    def test_standard_population_files_are_tracked(self):
+        import subprocess
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ignored = subprocess.run(["git", "check-ignore", "-q", "data/standard_populations/us2000.csv"], cwd=root)
+        self.assertNotEqual(ignored.returncode, 0, "us2000.csv is git-ignored")
