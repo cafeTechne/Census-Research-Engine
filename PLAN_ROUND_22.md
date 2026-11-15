@@ -1,6 +1,6 @@
 # Round 22: Count outcomes, spatial standard errors and a low birth weight study
 
-Status: **implemented; local validation complete; PR handoff in progress** (written 2026-11-15, after v0.20.0 / DOI 10.5281/zenodo.24260044).
+Status: **implemented and locally validated; PR creation blocked by connected GitHub integration permissions (403)** (written 2026-11-15, after v0.20.0 / DOI 10.5281/zenodo.24260044).
 Implementer: an external agent. This plan is written to be followed literally: do what it says, in the order
 it says, and nothing else. Where a decision is not covered here, choose the smallest change that satisfies
 the acceptance criteria, and record the decision in section 9 (implementation status). Do not redesign
@@ -545,6 +545,7 @@ PLAN_ROUND_22.md)", adding the A2/A4 result in a few words. Change nothing else 
 | Study results | Complete, confirmatory; no blocking deviations | 144/145 counties used. H1 poverty supported (Holm p=2.65109e-12); H2 cost burden supported (p=0.00498352); H3 no-vehicle not supported (p=0.923584). Pearson dispersion 21.99/21.02. Independence SEs, as A2 requires. |
 | Exploratory X1–X5 | Complete, labelled exploratory | X1 without NYC n=139; X2 composition n=144; X3 all six cutoff refits not validated; X4 residual Moran I=0.183552, p_sim=0.003, 999 permutations, seed 20261122; X5 Poisson n=144. Report and hashed summary in docs/studies/r22*. |
 | Test suite counts | 1,628 passed; 37 skipped; 0 failed; 48 subtests passed | Full local project-venv suite, 555.84 seconds, Python 3.14 / SciPy 1.18.1. Final invalid-cutoff focused check: 15 passed. All 11 current example manifests validate; all 8 baseline examples validated before implementation. No GitHub CI. |
+| PR handoff | Blocked externally, not created | Branch pushed. GitHub create_pull_request returned 403 Resource not accessible by integration. No terminal API credentials/gh configuration available. Prepared description: /tmp/round22-pr-body.md; compare defaultBranch...phase22/count-outcomes. No merge/tag/release/CI performed. |
 
 
 ### Decisions and execution record
@@ -599,4 +600,10 @@ PLAN_ROUND_22.md)", adding the A2/A4 result in a few words. Change nothing else 
   cached CHR file is not redistributed. MCP tool count verified as 63.
 - Every new commit carries `[skip ci]`, including the final handoff. The default
   branch, existing tags and releases remain unchanged. One PR is the remaining
-  external handoff; no merge is authorized or attempted.
+  external handoff; no merge is authorized or attempted. GitHub rejected the PR
+  creation with HTTP 403 (`Resource not accessible by integration`). Terminal
+  SSH push succeeded, but that does not grant REST pull-request permissions.
+  The current connection cannot create the PR, and no terminal GitHub API
+  credentials are configured. The complete proposed PR text is retained at
+  `/tmp/round22-pr-body.md`; no PR was fabricated or reported as created.
+  [Manual compare/create route](https://github.com/cafeTechne/Census-Research-Engine/compare/defaultBranch...phase22/count-outcomes?expand=1).
