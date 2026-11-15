@@ -279,6 +279,11 @@ Health outcomes the ACS lacks come from registered external sources (`list_healt
 
 **Circularity rule (enforced by `create_manifest`):** determinant studies keep using the ACS's own measure as the outcome (for disability: B18101), and use external sources for measures the ACS lacks, such as diabetes. A model-based outcome is never tested against its model's own inputs.
 
+- **Count outcomes:** external binomial proportions use denominator trials and Pearson `scale: "X2"`;
+  Poisson counts use denominator exposure. CHR 2025 low birth weight (`v037`) is registered.
+- **Spatial SEs:** Bartlett Conley HAC is available for exploratory fits only; the fixed Round 22
+  coverage validation failed. See `docs/audits/spatial_hac_validation.md`.
+
 ## 2020 Decennial Census
 
 The 2020 Census P.L. 94-171 redistricting data (`dec/pl`) and the Demographic and Housing Characteristics File (`dec/dhc`) use the same client, cache, extraction pipeline, output formats, codebook and replay as the ACS: pass `dataset="dec/dhc"` (or `"dec/pl"`), or `product="decennial"`, to `plan_extraction`, `batch_download`, `download_table`, `run_batch` or `python -m census extract --product decennial`, with `years=[2020]`. Geography levels are nation, state, county, tract, block group, place and block (block only for P.L. 94-171 and the invariant DHC `H1` housing-unit count). Variable metadata for both files is archived in `metadata/dec/`.

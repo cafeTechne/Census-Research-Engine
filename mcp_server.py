@@ -123,6 +123,10 @@ race/ethnicity and education composition, so never test a PLACES outcome against
 (it recovers CDC's model, not the world). USALEEP life expectancy is partly modelled on
 income, race/ethnicity and education. County Health Rankings mortality and WONDER exports
 are direct death records. create_manifest refuses violations (CIRCULARITY R1/R2).
+Use exploratory:true to label an exploratory manifest; deviations remain recorded.
+Spatial_se (Bartlett Conley) failed validation: exploratory only, including run_variant.
+Count outcomes: binomial trials=<name>_denominator and scale:"X2"; Poisson counts use exposure.
+
 
 Inflation: default index is R-CPI-U-RS (the Census Bureau's ACS index); 'c-cpi-u'
 matches CPS ASEC income reports. Never pass guessed values via cpi_table.

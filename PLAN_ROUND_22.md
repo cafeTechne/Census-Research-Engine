@@ -1,6 +1,6 @@
 # Round 22: Count outcomes, spatial standard errors and a low birth weight study
 
-Status: **planned, not started** (written 2026-11-15, after v0.20.0 / DOI 10.5281/zenodo.24260044).
+Status: **implementation in progress** (written 2026-11-15, after v0.20.0 / DOI 10.5281/zenodo.24260044).
 Implementer: an external agent. This plan is written to be followed literally: do what it says, in the order
 it says, and nothing else. Where a decision is not covered here, choose the smallest change that satisfies
 the acceptance criteria, and record the decision in section 9 (implementation status). Do not redesign
@@ -534,14 +534,34 @@ PLAN_ROUND_22.md)", adding the A2/A4 result in a few words. Change nothing else 
 
 | Item | Result | Notes (decisions, deviations, file:line) |
 | :--- | :--- | :--- |
-| A1 | | |
-| A2 code | | |
-| A2 validation | | |
-| A3 | | |
-| A4 | | |
-| Docs/MCP | | |
-| Self-review findings | | |
+| A1 | Implemented; focused tests passed | Boolean-only exploratory flag; retained blocking deviations and tagged hypotheses/analyses. |
+| A2 code | Implemented; identity tests passed | census/spatial_hac.py; EIV moment scores and full-fit GLM scores; cached boundary hashes; confirmatory guard. |
+| A2 validation | FAILED | 2,000 draws per cell, fixed seeds; 150-km coverages linear 0.8735/0.8170/0.7070, binomial 0.8345/0.7835/0.7285. Exploratory only; study omits spatial_se. |
+| A3 | Implemented; focused tests passed | CHR page confirms 2025 release uses 2017–2023; dictionary confirms proportion/count columns and unreliable flag. Explicit trials/exposure and Pearson scale; numerator aliases preserve R1/R2. |
+| A4 | PASSED | OH/PA held out; preregistration d8ad360; 499 high-share split targets, ratio 0.912797 <=1.25. dominant opt-in only; default missing. |
+| Docs/MCP | Updated | Version 0.21.0; no added tools; no circularity text weakened; no CI, tags or releases. |
+| Self-review findings | Reviewed before study registration | Fixed an OR-loop name shadowing the data-source record, a misplaced dominant annotation caught by USALEEP regressions, count outcomes in RHS roles, and moved unreliable-count reporting after exclusions. Scores use trials-weighted binomial residuals / exposure-adjusted Poisson mu; n/(n-k) only; coordinate rows align to actual fit rows. |
 | Study registration (hash, commit) | | |
 | Study results | | |
 | Exploratory X1–X5 | | |
-| Test suite counts | | |
+| Test suite counts | In progress | Baseline: 8/8 example manifests valid on the code shared with defaultBranch. Focused 41 passed; final new Round 22 tests 15 passed. Full offline suite running on the project venv. |
+
+
+### Decisions and execution record
+
+- No preregistration association has been inspected. Synthetic-data tests and the
+  prescribed spatial simulation do not use the real low-birth-weight outcome.
+- A2 simulation uses the explicit internal OLS sandwich because fit_eiv requires
+  replicates even for zero measurement error; binomial fits are computed once per
+  draw, then the exact tested score/bread feed every cutoff. No fitted covariance
+  failure is dropped from the coverage denominator. Criteria and seeds unchanged.
+- A4 script/hypothesis were committed before the held-out run. Its network-bound
+  validation overlapped the final offline A3 checks; no study association was read.
+- New manifest allowed arguments were checked against existing fit_replicate uses
+  and all eight pre-existing example manifests. No dependencies or venvs added.
+- Validation output key scan: zero occurrences of the configured Census key.
+  Commit markers suppress GitHub CI as required by ground rule 0.8.
+- Source confirmation: [CHR measure page](https://www.countyhealthrankings.org/health-data/population-health-and-well-being/quality-of-life/physical-health/low-birth-weight)
+  explicitly identifies 2017–2023 for the 2025 release; [2025 dictionary](https://www.countyhealthrankings.org/sites/default/files/media/document/DataDictionary_2025.pdf)
+  lists v037 raw proportion, numerator, denominator and unreliability indicator.
+  No different years were documented in the cached analytic CSV.

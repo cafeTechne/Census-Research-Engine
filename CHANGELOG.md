@@ -5,6 +5,18 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.21.0 (Round 22): count outcomes and spatial standard errors
+
+- Label registered exploratory manifests and their analysis provenance explicitly.
+- Add Bartlett Conley standard errors for EIV and binomial/Poisson replicate GLMs;
+  fixed coverage validation FAILED, so spatial SEs remain exploratory only.
+- Support external count/proportion outcomes with explicit trials/exposure,
+  Pearson dispersion scaling and binomial odds ratios; register CHR v037.
+- Held-out OH/PA apportionment re-test PASSED (ratio 0.9128); add opt-in dominant
+  parent share >=0.95, preserving the missing default.
+- Pre-register and report the MI/NY county low birth weight study and labelled
+  exploratory checks, retaining unsupported hypotheses and study limitations.
+
 ## 0.20.0 (Round 21): external health outcomes (Step 2)
 
 - `census.health_sources`: registry of external health sources and the CDC PLACES connector (2025 release,

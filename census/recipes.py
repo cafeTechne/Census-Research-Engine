@@ -16,7 +16,7 @@ RECIPES: Dict[str, str] = {
     "preregistered": "Pre-registered (manifest) confirmatory analysis",
     "decennial_counts": "Use 2020 Census counts (P.L. 94-171, DHC) without inventing margins of error",
     "external_health_outcome": "Health outcome from CDC PLACES, USALEEP, County Health Rankings or WONDER, "
-                               "without circularity",
+                               "without circularity; binomial counts with denominator trials and Pearson X2 scale",
 }
 
 RecipeName = Literal[
