@@ -1481,7 +1481,6 @@ def _tag(result: Any, h: str, analysis_id: str, status: str = STATUS_CONFIRMATOR
     return result
 
 
-@integrity_errors
 def run_variant(
     run_dir: Union[str, Path],
     analysis: str,
@@ -1557,6 +1556,7 @@ def run_variant(
     return out
 
 
+@integrity_errors
 def run_manifest(
     manifest: Union[str, Path, Mapping[str, Any]], output_dir: Union[str, Path], client: Any = None,
     replicates: Any = None, use_cache: bool = True, replicates_synthetic: Optional[bool] = None,
