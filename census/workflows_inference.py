@@ -727,7 +727,11 @@ def create_manifest(manifest_path: str) -> Dict[str, Any]:
     Several releases: the adjustment also needs "dollar_year", "price_index"
     and "rpp_years" ({"2019": 2019, "2024": 2024}); omitted ones are filled the same
     way. "replicates": {"source": "census_vre"} makes run_manifest fetch Census
-    replicates; the notes list variables that have none.
+    replicates; the notes list variables that have none. External health outcomes
+    (no key): "external": [{"name": "places_dis", "source": "places", "release": 2025,
+    "measure": "DISABILITY"}], usable only as the outcome of fit_eiv/fit_replicate/
+    fh_regression; the notes flag covariates that are inputs of the source's model.
+    fit_eiv "args": {"cluster": "GEOID.str[:5]"} clusters SEs by county.
 
     The schema is documented in census/manifest.py and examples/manifests/.
     Example: create_manifest("examples/manifests/income_population_tracts.json")
@@ -793,6 +797,8 @@ def run_manifest(manifest_path: str, output_dir: Optional[str] = None,
     }
     if "adjustments" in res:
         out["adjustments"] = res["adjustments"]
+    if "external" in res:
+        out["external"] = res["external"]
     payload = _jsonable(out)
     if not res.get("success"):
         kinds = sorted({str(d.get("kind")) for d in devs})

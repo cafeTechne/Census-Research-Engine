@@ -55,6 +55,7 @@ B4. Numeric diagnostics: share of residual variance attributable to known
 """
 
 import math
+import re
 import warnings
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
@@ -705,6 +706,19 @@ def _design_deviations(formula: str, data: pd.DataFrame, mats: Mapping[str, np.n
     return y, X_df, D, e, rows
 
 
+CLUSTER_PREFIX_RE = re.compile(r"^GEOID\.str\[:(\d+)\]$")
+
+
+def cluster_labels(data: pd.DataFrame, cluster: str) -> np.ndarray:
+    """Cluster labels from a column, or from a GEOID prefix written ``GEOID.str[:N]``."""
+    m = CLUSTER_PREFIX_RE.match(str(cluster))
+    if m:
+        return data["GEOID"].astype(str).str[: int(m.group(1))].to_numpy()
+    if cluster not in data.columns:
+        raise ValueError(f"cluster {cluster!r} is neither a frame column nor GEOID.str[:N]")
+    return data[cluster].astype(str).to_numpy()
+
+
 def fit_eiv(
     formula: str,
     frame: pd.DataFrame,
@@ -715,6 +729,7 @@ def fit_eiv(
     cv_threshold: float = DEFAULT_CV_THRESHOLD,
     replicate_policy: str = "flag",
     cluster: Optional[str] = None,
+    fixed_variables: Sequence[str] = (),
 ) -> ModelResult:
     """Least squares corrected for ACS sampling error in covariates and outcome (PLAN_ROUND_20 A2).
 
@@ -749,7 +764,16 @@ def fit_eiv(
 
     ``cluster``: a column naming groups (e.g. county) whose units may be correlated (spatially
     autocorrelated model errors); the sandwich then sums psi within clusters, with the
-    G/(G-1) * (n-1)/(n-k) small-sample factor. Needs at least 20 clusters.
+    G/(G-1) * (n-1)/(n-k) small-sample factor. Needs at least 20 clusters. ``GEOID.str[:N]``
+    (e.g. ``GEOID.str[:5]``, counties of tracts) clusters by a GEOID prefix without a column.
+    Validated by simulation in docs/audits/eiv_cluster_validation.md (PLAN_ROUND_21 B1).
+
+    ``fixed_variables``: variables whose error is independent of the ACS sampling error and
+    which have no replicates (external outcomes, e.g. CDC PLACES; PLAN_ROUND_21 B3). They are
+    held at their estimates in every replicate design row (zero deviation, so s_i has no term
+    from them) and are not counted as missing replicates; as an outcome their error enters the
+    residual, which the sandwich covers. Only the outcome may be fixed: a fixed covariate's
+    error would go uncorrected.
     """
     import scipy.linalg as sla
 
@@ -766,10 +790,17 @@ def fit_eiv(
     if weights and model == "wls":
         if weights in set(replicates["variable"].astype(str)) or weights in used:
             raise ValueError(f"weights column {weights!r} must be error-free (not a replicated or formula variable)")
-    mats, fixed = _replicate_matrices(data, replicates, used)
+    declared = [v for v in used if v in set(fixed_variables)]
+    if declared:
+        outcome_vars = set(formula_variables(formula.split("~")[0] + "~ 1", data))
+        bad_fixed = [v for v in declared if v not in outcome_vars]
+        if bad_fixed:
+            raise ValueError(f"fixed_variables {bad_fixed} are covariates; only the outcome may be held fixed (a "
+                             "covariate's error would go uncorrected)")
+    mats, fixed = _replicate_matrices(data, replicates, [v for v in used if v not in declared])
     if not mats:
         raise ValueError("no formula variable has replicates in the replicate frame")
-    missing = [v for v in used if v not in mats]
+    missing = [v for v in used if v not in mats and v not in declared]
     stoch_missing = stochastic_variables(frame, missing)
     precheck_replicates(replicate_policy, rows_held_fixed=fixed, variables_without_replicates=stoch_missing,
                         context="fit_eiv")
@@ -828,9 +859,7 @@ def fit_eiv(
     psi = w[:, None] * (X * resid[:, None] - (s_i - Sb_i))
     Minv = np.linalg.inv(M)
     if cluster:
-        if cluster not in used_data.columns:
-            raise ValueError(f"cluster column {cluster!r} not in the frame")
-        groups = used_data[cluster].astype(str).to_numpy()
+        groups = cluster_labels(used_data, cluster)
         codes, inv = np.unique(groups, return_inverse=True)
         G = len(codes)
         if G < 20:
@@ -838,7 +867,10 @@ def fit_eiv(
         psi_g = np.zeros((G, k))
         np.add.at(psi_g, inv, psi)
         V = Minv @ (psi_g.T @ psi_g) @ Minv * (G / (G - 1)) * ((n - 1) / (n - k))
+        V_ind = Minv @ (psi.T @ psi) @ Minv * n / (n - k)
         diagnostics["clusters"] = {"column": cluster, "groups": int(G)}
+        diagnostics["se_total_independent"] = dict(zip(map(str, X_df.columns),
+                                                       map(float, np.sqrt(np.maximum(np.diag(V_ind), 0.0)))))
         notes.append(f"se_total clustered by {cluster!r} ({G} clusters)")
     else:
         V = Minv @ (psi.T @ psi) @ Minv * n / (n - k)
@@ -874,6 +906,10 @@ def fit_eiv(
     if low:
         notes.append(f"LOW RELIABILITY: {low} have reliability below {EIV_LOW_RELIABILITY}; moment corrections are "
                      "unstable there (large variance, possible sign changes)")
+    if declared:
+        diagnostics["replicates_declared_fixed"] = declared
+        notes.append(f"{declared} held fixed in the replicate design rows (declared: error independent of the ACS "
+                     "sampling error, no replicates); their error enters the residual and the sandwich")
     notes.append("fit_eiv: moment-corrected least squares (Fuller 1987) with per-unit error covariances, including "
                  "the outcome-covariate error covariance, from the ACS replicates; sandwich se_total (units "
                  "independent) is the basis of intervals and p-values")
