@@ -10,7 +10,7 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 
 | Path | What |
 | :--- | :--- |
-| `census/` | Library. `manifest/` (being split into a package in Round 23; pre-registered studies: validate, create, run, methods text), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
+| `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run`, `methods_text`, plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
 | `mcp_server.py` | MCP server (63 tools; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
@@ -68,7 +68,7 @@ manifests refuse them in confirmatory analyses.
    Candidates: spatial random effects or a spatial block bootstrap, tested on the Round 22 design.
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 3. Replication of the county findings in held-out states (OH/PA).
-4. `run_manifest` (445 lines) to be split into stages after Round 23's package split.
+4. Split `run_manifest` into stages (Round 23 recorded them in `PLAN_ROUND_23.md` section 7).
 5. A per-method registry so a new analysis method is defined in one place (today: validation args,
    `_run_analysis`, methods text, recipes, agent protocol).
 

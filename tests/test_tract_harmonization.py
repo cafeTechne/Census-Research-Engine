@@ -252,8 +252,9 @@ class TestManifestRun(unittest.TestCase):
 
     def test_analysed_data_failure_does_not_lose_the_run(self):
         from census import manifest as mf
-        with mock.patch.object(mf, "_write_analysed_data", side_effect=OSError("disk full")):
+        with mock.patch.object(mf.run, "_write_analysed_data", side_effect=OSError("disk full")) as write:
             res = self.run_m(manifest())
+        self.assertTrue(write.called)  # the fault was injected where run_manifest looks the name up
         self.assertEqual(res["analysis_status"], "confirmatory", res["deviations"])
         self.assertTrue(os.path.exists(os.path.join(self.dir, "run", "bundle", "methods.md")))
 
