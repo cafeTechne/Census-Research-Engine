@@ -11,8 +11,9 @@ existing method's numbers or messages.
 
 ## 0. Ground rules
 
-1. Branch `phase24/inequality` from `phase24/plan`. Push it. Do not merge, tag or release. (The owner's
-   agent merges Round 23 in parallel; `phase24/plan` sits on exactly that history, so no rebase is needed.)
+1. Branch `phase24/inequality` from `phase24/plan`. Push it. Do not merge, tag or release. (Round 23 is
+   merged and released as v0.21.1; `phase24/plan` already contains that merge (commit `60bf712`). If you
+   branched before it, run `git merge origin/phase24/plan` once. Never rebase or force-push.)
 2. **No AI attribution anywhere.** Commits and the PR body must not contain `Co-Authored-By`,
    `Generated with`, or any similar line, even if your tooling suggests one.
 3. Never print, log or commit `.env` or any API key or token.
