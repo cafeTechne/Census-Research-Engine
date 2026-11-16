@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.22.1 (Round 25, unreleased): staged manifest execution
+
+- Split `run_manifest` into a 7-line driver over named stages sharing a typed `RunState`,
+  retaining stage functions and monkeypatch lookups in `census.manifest.run`. The longest
+  stage is 77 lines; `run.py` remains 896 lines. Public signature/docstring and `run_variant`
+  are unchanged; no statistical method, test file, dependency or MCP change.
+- Capture offline execution before refactoring: 29 deterministic run-golden scenarios,
+  returned results and normalised text-artifact SHA-256s, covering all 19 blocking
+  deviation kinds. Both this corpus and the 516 schema snapshots remain byte-identical.
+  Execution-build stamps, output paths and wall-clock creation times are documented
+  exclusions; scientific values and registered manifest hashes are retained.
+- Full suite unchanged: 1703 passed, 37 skipped, 49 subtests. Existing suppression/join
+  and saturated-fit plotting observations are recorded in the plan, without fixes.
+
 ## 0.22.0 (Round 24): method registry and public-health inequality
 
 - Centralize manifest execution, method-specific validation, statistics and methods text in

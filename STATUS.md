@@ -3,22 +3,23 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.22.0 (Round 24: method registry, inequality indices, indirect SMR). All versions: concept record
+**Current release:** v0.22.0 (Round 24: method registry, inequality indices, indirect SMR; DOI 10.5281/zenodo.24268731). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
 
 | Path | What |
 | :--- | :--- |
-| `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run`, `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
+| `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
 | `mcp_server.py` | MCP server (63 tools; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | Only the current round's plan. Older plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (26–29). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
-**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`. Code and docs still cite
+**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`, `PLAN_ROUND_25` at `v0.22.1`. Code and docs still cite
 them as labels (for example "PLAN_ROUND_16 A2"). To read one: `git show v0.21.0:PLAN_ROUND_16.md` (or the later tag), or
 `https://github.com/cafeTechne/Census-Research-Engine/blob/v0.21.0/PLAN_ROUND_16.md`.
 
@@ -52,6 +53,9 @@ concentration index; ridits least to most deprived, positive = worse in more dep
 (combined interval drives tests; fixed-E Garwood limits reported only). Both assume independent areas.
 Exploratory example: `docs/studies/r24_lbw_inequality_example.md`. Suite: 1703 passed, 37 skipped.
 
+**Round 25 (v0.22.1):** `run_manifest` drives typed `RunState` stages in `run.py`.
+Both offline goldens are required for manifest refactors; suite unchanged at 1703 passed / 37 skipped.
+
 ## Standing rules
 
 - **Circularity (enforced, R1/R2):** determinant studies use the ACS's own measure (disability: B18101).
@@ -78,13 +82,19 @@ Exploratory example: `docs/studies/r24_lbw_inequality_example.md`. Suite: 1703 p
 ## Open backlog
 
 1. Spatial dependence: residual Moran's I is about 0.18–0.20 in both county studies; Conley failed.
-   Candidates: spatial random effects or a spatial block bootstrap, tested on the Round 22 design.
+   Round 26 tests large-spatial-cluster methods on the Round 22 design; spatial random effects if they fail.
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
-3. Replication of the county findings in held-out states (OH/PA).
-4. Split `run_manifest` into stages (listed in `PLAN_ROUND_23.md` section 7, at tag `v0.21.1`).
+3. Replication of the county findings in held-out states (OH/PA): Round 29 (needs the owner's WONDER exports).
+4. Further methods: empirical-Bayes rate smoothing, splines and joint Wald tests (Round 27); segregation
+   indices and SMR reference-rate uncertainty (Round 28). Not yet planned: microdata inequality measures.
+5. Saturated-model results bundles (Round 25 observation): a two-observation, two-coefficient OLS
+   fit can crash while plotting the bundle (`ValueError: arange: cannot compute length`). Preserve
+   estimable coefficients, explicitly mark unavailable uncertainty when residual degrees of freedom
+   are zero, and skip or adapt plots requiring finite intervals. Add a regression ensuring the bundle
+   completes without inventing SEs, confidence intervals or p-values.
 
 ## Plan format (keeps agent context small)
 
-A round plan stays under about 15 KB: goal, ground rules, exact names and files, fixed acceptance checks,
+Plans may be queued ahead; agents implement only the lowest-numbered one. A round plan stays under about 15 KB: goal, ground rules, exact names and files, fixed acceptance checks,
 and a short status table. When the round merges, add its outcome here in a few lines, then delete the plan
 from the tree (it stays at its release tag).

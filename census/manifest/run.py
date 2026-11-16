@@ -2,16 +2,20 @@
 """Manifest run definitions."""
 
 from census.data_integrity import integrity_errors
+from dataclasses import dataclass, field
 import hashlib
 import json
 import re
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 import numpy as np
 import pandas as pd
+if TYPE_CHECKING:
+    from ..pipeline import ResearchOptions
+
 from ..results import IncompleteReplicatesError, ModelResult
 from .adjustments import (
-    _apply_adjustments,
+    _apply_adjustments as _apply_adjustment_values,
 )
 from .datasource import (
     resolve_data_source,
@@ -25,7 +29,7 @@ from .methods_text import (
 from .replicates import (
     _census_vre_replicates,
     _declared_covariates_only,
-    _derive_replicates,
+    _derive_replicates as _derive_replicate_values,
     _has_replicate_rows,
     _replicate_overlap,
     _replicate_rows,
@@ -247,40 +251,56 @@ def run_variant(
     return out
 
 
-@integrity_errors
-def run_manifest(
-    manifest: Union[str, Path, Mapping[str, Any]], output_dir: Union[str, Path], client: Any = None,
-    replicates: Any = None, use_cache: bool = True, replicates_synthetic: Optional[bool] = None,
-    external_fetch: Optional[Callable[[str], bytes]] = None,
-) -> Dict[str, Any]:
-    """Execute a manifest exactly: plan -> extraction -> analysis frame ->
-    derivations on replicates -> exclusions -> adjustments -> analyses -> hypothesis tests with the pre-registered
-    correction -> results bundle (tables, figures, methods.md).
+@dataclass
+class RunState:
+    """Values shared by the ordered stages; temporary variables stay stage-local.
 
-    ``replicates``: optional pre-fetched replicate long frame (from
-    :func:`census.analysis.attach_replicates`) used by ``fit_replicate`` and
-    ``correlation_matrix``; without it those report model-based SEs and a
-    deviation is recorded when the analysis sets ``"replicates": "required"``.
-    Replicate analyses run with ``replicate_policy="strict"`` (confirmatory):
-    failed refits, rows held fixed, or stochastic variables without replicates
-    stop the analysis and record a ``replicates_incomplete`` deviation.
-    Supplied replicates are recorded as caller-supplied (not fetched from
-    Census VRE files by this function) with the SHA-256 of their canonical form
-    (:func:`replicates_sha256`); ``replicates_synthetic`` (default: the data
-    source's synthetic flag, or ``replicates.attrs["synthetic"]``) marks them
-    synthetic in the methods text.
-    A manifest with ``"replicates": {"source": "census_vre"}`` fetches the
-    Census VRE files itself (:func:`census.replicate.fetch_vre` and its cache)
-    for its tables, geography and releases; the run records each file's URL and
-    SHA-256 and the variables without published replicates
-    (``replicates.unavailable``). Passing ``replicates`` as well is an error.
-    ``analysis_status`` is ``"confirmatory"`` only without blocking deviations,
-    else ``"confirmatory_incomplete"`` (see the module docstring).
-    Never raises on data problems; returns ``success``, ``deviations``,
-    ``hypotheses`` and the bundle manifest. The manifest hash is written into
-    every output (results JSON, tables, figure sidecars, methods.md, bundle.json).
-    ``external_fetch(url) -> bytes`` replaces the HTTP client of external sources (tests).
+    Only _prepare returns early (validation/output errors). Other stages record
+    deviations and finish; no unused result sentinel is needed in the driver.
     """
+    m: Dict[str, Any]
+    h: str
+    out: Path
+    client: Any
+    use_cache: bool
+    replicates: Any
+    external_fetch: Optional[Callable[[str], bytes]]
+    replicates_synthetic: Optional[bool]
+    level: float
+    corr: Dict[str, Any]
+    corr_method: str
+    releases: List[int]
+    geo: Dict[str, Any]
+    entities: List[Any]
+    opts: "ResearchOptions"
+    source: Dict[str, Any]
+    deviations: List[Dict[str, Any]] = field(default_factory=list)
+    columns: Dict[str, Tuple[str, str, str]] = field(default_factory=dict)
+    panels: List[pd.DataFrame] = field(default_factory=list)
+    extraction: Dict[str, Any] = field(default_factory=dict)
+    codes_by_year: Dict[str, Dict[int, str]] = field(default_factory=dict)
+    frame: Optional[pd.DataFrame] = None
+    harmonization: Optional[Dict[str, Any]] = None
+    crosswalk_by_name: Dict[str, pd.DataFrame] = field(default_factory=dict)
+    vre_info: Optional[Dict[str, Any]] = None
+    work_reps: Any = None
+    derived_on_replicates: Dict[str, Dict[str, int]] = field(default_factory=dict)
+    external_info: Optional[Dict[str, Any]] = None
+    joined_external: List[str] = field(default_factory=list)
+    exclusion_log: List[Dict[str, Any]] = field(default_factory=list)
+    adjustment_log: List[Dict[str, Any]] = field(default_factory=list)
+    coords: Optional[pd.DataFrame] = None
+    spatial_info: Optional[Dict[str, Any]] = None
+    results: Dict[str, Any] = field(default_factory=dict)
+    declared_fixed: Dict[str, List[str]] = field(default_factory=dict)
+    fixed_had_replicates: Dict[str, List[str]] = field(default_factory=dict)
+    analysed_data: Dict[str, Any] = field(default_factory=dict)
+    hyp_df: Optional[pd.DataFrame] = None
+
+
+def _prepare(manifest: Union[str, Path, Mapping[str, Any]], output_dir: Union[str, Path],
+             client: Any, replicates: Any, use_cache: bool, replicates_synthetic: Optional[bool],
+             external_fetch: Optional[Callable[[str], bytes]]) -> Union[RunState, Dict[str, Any]]:
     from ..analysis import analysis_frame
     from ..multitest import adjust_pvalues
     from ..pipeline import ResearchOptions, plan_extraction, run_batch
@@ -315,34 +335,57 @@ def run_manifest(
     opts = ResearchOptions(use_cache=use_cache, include_codebook=True,
                            concordance_mode=m.get("concordance_mode", "fail"))
 
+    return RunState(
+        m=m,
+        h=h,
+        out=out,
+        client=client,
+        use_cache=use_cache,
+        replicates=replicates,
+        external_fetch=external_fetch,
+        replicates_synthetic=replicates_synthetic,
+        level=level,
+        corr=corr,
+        corr_method=corr_method,
+        releases=releases,
+        geo=geo,
+        entities=entities,
+        opts=opts,
+        source=source,
+        deviations=deviations,
+    )
+
+
+def _extract(state: RunState) -> None:
+    from ..pipeline import plan_extraction, run_batch
     # 1-2. plan and extraction, one table at a time
-    columns: Dict[str, Tuple[str, str, str]] = {}
-    panels: List[pd.DataFrame] = []
-    extraction: Dict[str, Any] = {}
-    name_of = {str(v["ref"]): str(v["name"]) for v in m["variables"]}
-    codes_by_year: Dict[str, Dict[int, str]] = {}  # manifest name -> {release: ACS base code} (VRE rows)
-    for table, refs in tables_and_refs(m).items():
-        plan = plan_extraction(table, entities, releases, "panel", opts, variables=refs, client=client)
+    state.columns: Dict[str, Tuple[str, str, str]] = {}
+    state.panels: List[pd.DataFrame] = []
+    state.extraction: Dict[str, Any] = {}
+    name_of = {str(v["ref"]): str(v["name"]) for v in state.m["variables"]}
+    state.codes_by_year: Dict[str, Dict[int, str]] = {}  # manifest name -> {release: ACS base code} (VRE rows)
+    for table, refs in tables_and_refs(state.m).items():
+        plan = plan_extraction(table, state.entities, state.releases, "panel", state.opts, variables=refs, client=state.client)
         plan_pub = {k: v for k, v in plan.items() if not k.startswith("_")}
-        extraction[table] = {"plan": plan_pub}
-        if geo.get("states") is not None:  # one request set per state, stacked into one panel
-            extraction[table]["states"] = manifest_states(geo)
+        state.extraction[table] = {"plan": plan_pub}
+        if state.geo.get("states") is not None:  # one request set per state, stacked into one panel
+            state.extraction[table]["states"] = manifest_states(state.geo)
         if not plan.get("success"):
-            deviations.append({"kind": "blocked_variable", "table": table, "variables": refs,
+            state.deviations.append({"kind": "blocked_variable", "table": table, "variables": refs,
                                "detail": plan.get("message") or plan.get("error_code")})
             continue
-        res = run_batch(table, entities, releases, str(out / "extraction" / table), "panel", opts,
-                        client=client, variables=refs)
-        extraction[table]["run"] = {k: res.get(k) for k in ("success", "failed_calls", "successful_calls",
+        res = run_batch(table, state.entities, state.releases, str(state.out / "extraction" / table), "panel", state.opts,
+                        client=state.client, variables=refs)
+        state.extraction[table]["run"] = {k: res.get(k) for k in ("success", "failed_calls", "successful_calls",
                                                              "metadata_path", "panel_path", "advisories")}
         if not res.get("success"):
-            deviations.append({"kind": "extraction_failed", "table": table, "variables": refs,
+            state.deviations.append({"kind": "extraction_failed", "table": table, "variables": refs,
                                "detail": res.get("message") or res.get("error_code")})
             continue
         if res.get("failed_calls"):
-            deviations.append({"kind": "failed_calls", "table": table, "detail": res["failed_calls"]})
+            state.deviations.append({"kind": "failed_calls", "table": table, "detail": res["failed_calls"]})
         if not res.get("panel_path") or not res.get("codebook_path"):
-            deviations.append({"kind": "extraction_failed", "table": table, "variables": refs,
+            state.deviations.append({"kind": "extraction_failed", "table": table, "variables": refs,
                                "detail": "no data returned (every call failed)"})
             continue
         codebook = pd.read_csv(res["codebook_path"], dtype=str)
@@ -351,246 +394,264 @@ def run_manifest(
         for ref in refs:
             concept = getattr(conc, "concepts", {}).get(cid_of.get(ref, ref))
             if concept is not None:
-                codes_by_year[name_of[ref]] = {int(y): str(c) for y, c in concept.codes.items()}
+                state.codes_by_year[name_of[ref]] = {int(y): str(c) for y, c in concept.codes.items()}
         tcols = {}
         for ref in refs:
             cols = _codebook_columns(codebook, cid_of.get(ref, ref))
             if cols is None:
-                deviations.append({"kind": "variable_missing_from_extraction", "table": table, "variable": ref})
+                state.deviations.append({"kind": "variable_missing_from_extraction", "table": table, "variable": ref})
             else:
                 tcols[name_of[ref]] = cols
         panel = pd.read_csv(res["panel_path"], dtype={"geoid": str}) if str(res["panel_path"]).endswith(".csv") \
             else pd.read_parquet(res["panel_path"])
-        panels.append(_wide_from_panel(panel, tcols))
-        columns.update(tcols)
+        state.panels.append(_wide_from_panel(panel, tcols))
+        state.columns.update(tcols)
 
+
+def _build_frame(state: RunState) -> None:
+    from ..analysis import analysis_frame
     # 3. analysis frame (tract harmonization, or optional aggregation, first)
-    frame = None
-    harmonization: Optional[Dict[str, Any]] = None
-    crosswalk_by_name: Dict[str, pd.DataFrame] = {}
-    if panels:
-        wide = panels[0]
-        for p in panels[1:]:
+    state.frame = None
+    state.harmonization: Optional[Dict[str, Any]] = None
+    state.crosswalk_by_name: Dict[str, pd.DataFrame] = {}
+    if state.panels:
+        wide = state.panels[0]
+        for p in state.panels[1:]:
             wide = wide.merge(p.drop(columns=[c for c in ("NAME",) if c in p.columns]), on=["GEOID", "Year"],
                               how="outer")
         refs_by_name = {}
-        for name, (_, _, code) in columns.items():
+        for name, (_, _, code) in state.columns.items():
             refs_by_name[name] = code
-        if geo.get("harmonize_tracts_to") is not None:
+        if state.geo.get("harmonize_tracts_to") is not None:
             from .. import tract_harmonization as th
             from ..pipeline import expand_states
             from ..stats import parse_variable_code
-            target = int(geo["harmonize_tracts_to"])
+            target = int(state.geo["harmonize_tracts_to"])
             try:
-                h_states = sorted({s for st in manifest_states(geo) if st for s in expand_states(st)})
+                h_states = sorted({s for st in manifest_states(state.geo) if st for s in expand_states(st)})
                 bases = {n: (parse_variable_code(c) or (c.rstrip("E"), "E"))[0] for n, c in refs_by_name.items()}
                 tract_crosswalks = th.crosswalks(target, h_states, [th.weight_kind(c) for c in bases.values()],
-                                                 releases=releases) \
-                    if th.releases_to_apportion(releases, target) else {}  # nothing to apportion: no downloads
-                crosswalk_by_name = {n: tract_crosswalks[th.weight_kind(c)] for n, c in bases.items()
+                                                 releases=state.releases) \
+                    if th.releases_to_apportion(state.releases, target) else {}  # nothing to apportion: no downloads
+                state.crosswalk_by_name = {n: tract_crosswalks[th.weight_kind(c)] for n, c in bases.items()
                                      if th.weight_kind(c) in tract_crosswalks}
-                wide, harmonization = th.harmonize_wide(wide, bases, target, tract_crosswalks)
-                if harmonization.get("unmatched_source_tracts"):
-                    deviations.append({"kind": "harmonization_incomplete", "detail": (
-                        f"{len(harmonization['unmatched_source_tracts'])} source tract(s) are not in the tract "
+                wide, state.harmonization = th.harmonize_wide(wide, bases, target, tract_crosswalks)
+                if state.harmonization.get("unmatched_source_tracts"):
+                    state.deviations.append({"kind": "harmonization_incomplete", "detail": (
+                        f"{len(state.harmonization['unmatched_source_tracts'])} source tract(s) are not in the tract "
                         "relationship file, so their values were not apportioned: "
-                        + ", ".join(harmonization["unmatched_source_tracts"][:20]))})
+                        + ", ".join(state.harmonization["unmatched_source_tracts"][:20]))})
             except Exception as exc:  # noqa: BLE001 - recorded as a blocking deviation, never substituted
-                deviations.append({"kind": "harmonization_failed", "detail": f"{type(exc).__name__}: {exc}"})
-                harmonization = {"target_vintage": target, "error": f"{type(exc).__name__}: {exc}"}
+                state.deviations.append({"kind": "harmonization_failed", "detail": f"{type(exc).__name__}: {exc}"})
+                state.harmonization = {"target_vintage": target, "error": f"{type(exc).__name__}: {exc}"}
                 wide = None
-        if wide is not None and m.get("aggregation"):
+        if wide is not None and state.m.get("aggregation"):
             from ..aggregate import aggregate_geographies
             try:
                 parts = []
                 for year, sub in wide.groupby("Year"):
-                    agg = aggregate_geographies(sub.drop(columns=["Year"]), m["aggregation"]["mapping"],
+                    agg = aggregate_geographies(sub.drop(columns=["Year"]), state.m["aggregation"]["mapping"],
                                                 estimate_cols=list(refs_by_name.values()))
                     agg["Year"] = year
                     parts.append(agg)
                 wide = pd.concat(parts, ignore_index=True)
             except Exception as exc:
-                deviations.append({"kind": "aggregation_failed", "detail": str(exc)})
+                state.deviations.append({"kind": "aggregation_failed", "detail": str(exc)})
                 wide = None
         if wide is not None:
             try:
-                frame = analysis_frame(wide, variables=refs_by_name, derive=m.get("derivations") or None)
+                state.frame = analysis_frame(wide, variables=refs_by_name, derive=state.m.get("derivations") or None)
             except Exception as exc:
-                deviations.append({"kind": "analysis_frame_failed", "detail": str(exc)})
+                state.deviations.append({"kind": "analysis_frame_failed", "detail": str(exc)})
 
+
+def _fetch_vre(state: RunState) -> None:
     # 3a. Census VRE replicates fetched for the manifest (replicates.source census_vre)
-    vre_info: Optional[Dict[str, Any]] = None
-    if census_vre_source(m) and frame is not None:
+    state.vre_info: Optional[Dict[str, Any]] = None
+    if census_vre_source(state.m) and state.frame is not None:
         try:
-            replicates, vre_info = _census_vre_replicates(m, frame, codes_by_year, client,
-                                                          crosswalk_by_name=crosswalk_by_name)
+            state.replicates, state.vre_info = _census_vre_replicates(state.m, state.frame, state.codes_by_year, state.client,
+                                                          crosswalk_by_name=state.crosswalk_by_name)
         except Exception as exc:  # noqa: BLE001 - recorded as a blocking deviation, never substituted
-            deviations.append({"kind": "replicates_unavailable",
+            state.deviations.append({"kind": "replicates_unavailable",
                                "detail": f"Census VRE replicates could not be fetched: {type(exc).__name__}: {exc}"})
-            vre_info = {"source": "census_vre", "error": f"{type(exc).__name__}: {exc}"}
-            replicates = None
+            state.vre_info = {"source": "census_vre", "error": f"{type(exc).__name__}: {exc}"}
+            state.replicates = None
 
-    check = (vre_info or {}).get("apportioned_estimate_check") or {}
+    check = (state.vre_info or {}).get("apportioned_estimate_check") or {}
     bad = {n: c for n, c in check.items() if c.get("max_rel_diff") is not None and c["max_rel_diff"] > 1e-6}
     if bad:
-        deviations.append({"kind": "harmonization_mismatch", "detail": (
+        state.deviations.append({"kind": "harmonization_mismatch", "detail": (
             "apportioned Census VRE estimates differ from the apportioned published estimates for "
             + ", ".join(f"{n} (max relative difference {c['max_rel_diff']:.3g})" for n, c in sorted(bad.items()))
             + "; the replicate SEs may not belong to the analysed values")})
 
+
+def _derive_replicates(state: RunState) -> None:
     # 3b. derivations on supplied replicates
-    work_reps = replicates
-    derived_on_replicates: Dict[str, Dict[str, int]] = {}
-    if frame is not None and replicates is not None and m.get("derivations"):
+    state.work_reps = state.replicates
+    state.derived_on_replicates: Dict[str, Dict[str, int]] = {}
+    if state.frame is not None and state.replicates is not None and state.m.get("derivations"):
         try:
-            frame, work_reps, derived_on_replicates = _derive_replicates(frame, replicates, m)
+            state.frame, state.work_reps, state.derived_on_replicates = _derive_replicate_values(state.frame, state.replicates, state.m)
         except Exception as exc:  # noqa: BLE001 - data problems are deviations; run_manifest never raises on them
             # replicate SEs of the derivations are unavailable: blocking, as when a strict replicate
             # analysis meets them; the analyses run on the published SEs and record their own outcome
-            deviations.append({"kind": "replicates_incomplete", "detail": "derivations on replicates failed: "
+            state.deviations.append({"kind": "replicates_incomplete", "detail": "derivations on replicates failed: "
                                f"{type(exc).__name__}: {exc}"})
 
+
+def _join_external(state: RunState) -> None:
     # 3c. external variables (PLAN_ROUND_21 B3), joined on GEOID after the ACS frame
-    external_info: Optional[Dict[str, Any]] = None
-    joined_external: List[str] = []
-    if frame is not None and m.get("external"):
+    state.external_info: Optional[Dict[str, Any]] = None
+    state.joined_external: List[str] = []
+    if state.frame is not None and state.m.get("external"):
         from .. import health_sources as hs
-        ext_names = external_names(m)
+        ext_names = external_names(state.m)
         ext_columns = set(ext_names) | {n + "_numerator" for n in ext_names}
-        required = sorted({v for a in m["analyses"] for v in _formula_names(str(_normalize_analysis(a).get("formula", "")))
+        required = sorted({v for a in state.m["analyses"] for v in _formula_names(str(_normalize_analysis(a).get("formula", "")))
                            if set(_formula_names(str(_normalize_analysis(a).get("formula", "")))) & ext_columns}
                           - ext_columns)
         try:
-            ext_wide, ext_prov = hs.load_external(m["external"], str(geo["level"]),
-                                                  [s for s in manifest_states(geo) if s], fetch=external_fetch)
-            frame, join = hs.join_external(frame, ext_wide, ext_names, required=required)
+            ext_wide, ext_prov = hs.load_external(state.m["external"], str(state.geo["level"]),
+                                                  [s for s in manifest_states(state.geo) if s], fetch=state.external_fetch)
+            state.frame, join = hs.join_external(state.frame, ext_wide, ext_names, required=required)
             for name in ext_names:
-                if name + "_numerator" in frame:
-                    frame.loc[frame[name].isna(), name + "_numerator"] = np.nan
-            joined_external = ext_names
-            external_info = {"variables": m["external"], "sources": ext_prov, "join": join,
+                if name + "_numerator" in state.frame:
+                    state.frame.loc[state.frame[name].isna(), name + "_numerator"] = np.nan
+            state.joined_external = ext_names
+            state.external_info = {"variables": state.m["external"], "sources": ext_prov, "join": join,
                              "required_acs_variables": required}
-            limits = hs.join_limit(m["external"])
+            limits = hs.join_limit(state.m["external"])
             join["missing_limit"] = limits
             over = {n: s for n, s in join["missing_share_by_variable"].items()
                     if not s <= limits.get(n, hs.JOIN_MISSING_LIMIT)}
             if over:
-                deviations.append({"kind": "external_join_failed", "detail": (
+                state.deviations.append({"kind": "external_join_failed", "detail": (
                     "; ".join(f"{n}: {s:.1%} of {join['complete_acs_units']} units with complete ACS data have no "
                               f"value (> {limits.get(n, hs.JOIN_MISSING_LIMIT):.0%})" for n, s in over.items())
                     + "; a geography-vintage mismatch is likely. Examples: "
                     + ", ".join(join["examples_without_external"][:5]))})
         except Exception as exc:  # noqa: BLE001 - recorded as a blocking deviation, never substituted
-            deviations.append({"kind": "external_unavailable", "detail": f"{type(exc).__name__}: {exc}"})
-            external_info = {"variables": m["external"], "error": f"{type(exc).__name__}: {exc}"}
+            state.deviations.append({"kind": "external_unavailable", "detail": f"{type(exc).__name__}: {exc}"})
+            state.external_info = {"variables": state.m["external"], "error": f"{type(exc).__name__}: {exc}"}
 
+
+def _apply_exclusions(state: RunState) -> None:
     # 4. exclusions (before adjustments: a pre-registered exclusion can remove a unit without an
     # RPP area; the CV screen gives the same rows either way, since the RPP factor leaves CVs unchanged)
-    exclusion_log: List[Dict[str, Any]] = []
-    if frame is not None:
+    state.exclusion_log: List[Dict[str, Any]] = []
+    if state.frame is not None:
         from ..models import reliability_screen
-        for ex in m.get("exclusions") or []:
+        for ex in state.m.get("exclusions") or []:
             if ex["rule"] == "geoid_exclude":
-                drop = frame["GEOID"].isin([str(g) for g in ex.get("geoids", [])])
-                frame = frame[~drop].reset_index(drop=True)
-                exclusion_log.append({"rule": "geoid_exclude", "rows_excluded": int(drop.sum())})
+                drop = state.frame["GEOID"].isin([str(g) for g in ex.get("geoids", [])])
+                state.frame = state.frame[~drop].reset_index(drop=True)
+                state.exclusion_log.append({"rule": "geoid_exclude", "rows_excluded": int(drop.sum())})
             else:
                 thr = float(ex.get("threshold", 30.0))
-                vars_ = [v for v in ex.get("variables") or [] if f"{v}_cv" in frame.columns]
-                flagged = reliability_screen(frame, vars_, threshold=thr)
+                vars_ = [v for v in ex.get("variables") or [] if f"{v}_cv" in state.frame.columns]
+                flagged = reliability_screen(state.frame, vars_, threshold=thr)
                 entry = {"rule": "cv_screen", "threshold": thr, "variables": vars_,
                          "action": ex.get("action", "flag"), "rows_flagged": int(flagged["GEOID"].nunique())
                          if len(flagged) else 0}
                 if entry["action"] == "exclude" and len(flagged):
                     keys = [k for k in ("GEOID", "Year") if k in flagged.columns]
-                    bad = frame[keys].merge(flagged[keys].drop_duplicates(), how="left", indicator=True)
+                    bad = state.frame[keys].merge(flagged[keys].drop_duplicates(), how="left", indicator=True)
                     keep = (bad["_merge"] == "left_only").to_numpy()
                     entry["rows_excluded"] = int((~keep).sum())
-                    frame = frame[keep].reset_index(drop=True)
-                exclusion_log.append(entry)
+                    state.frame = state.frame[keep].reset_index(drop=True)
+                state.exclusion_log.append(entry)
 
+
+def _apply_adjustments(state: RunState) -> None:
     # 4b. pre-registered adjustments (a unit still without an RPP area blocks: adjustment_failed)
-    adjustment_log: List[Dict[str, Any]] = []
-    if frame is not None and m.get("adjustments"):
-        frame, work_reps, adjustment_log, failure = _apply_adjustments(frame, work_reps, m, releases)
+    state.adjustment_log: List[Dict[str, Any]] = []
+    if state.frame is not None and state.m.get("adjustments"):
+        state.frame, state.work_reps, state.adjustment_log, failure = _apply_adjustment_values(state.frame, state.work_reps, state.m, state.releases)
         if failure:
-            deviations.append({"kind": "adjustment_failed", "detail": failure})
-            frame = None
-    if frame is not None:  # replicate-SE coverage of the units analysed
-        counts = {name: _replicate_rows(frame, name) for name in derived_on_replicates}
-        derived_on_replicates = {k: v for k, v in counts.items() if v["rows_replicate"]}
+            state.deviations.append({"kind": "adjustment_failed", "detail": failure})
+            state.frame = None
+    if state.frame is not None:  # replicate-SE coverage of the units analysed
+        counts = {name: _replicate_rows(state.frame, name) for name in state.derived_on_replicates}
+        state.derived_on_replicates = {k: v for k, v in counts.items() if v["rows_replicate"]}
 
-    if frame is not None and external_info is not None:
-        external_info["low_count_kept"] = {
-            e["name"]: int((frame[e["name"] + "_numerator"] < 20).sum())
-            for e in m.get("external", []) if e.get("source") == "chr" and e.get("measure") == "v037"
-            and e["name"] + "_numerator" in frame
+    if state.frame is not None and state.external_info is not None:
+        state.external_info["low_count_kept"] = {
+            e["name"]: int((state.frame[e["name"] + "_numerator"] < 20).sum())
+            for e in state.m.get("external", []) if e.get("source") == "chr" and e.get("measure") == "v037"
+            and e["name"] + "_numerator" in state.frame
         }
-    coords, spatial_info = None, None
-    if frame is not None and any((_normalize_analysis(a).get("args") or {}).get("spatial_se") is not None
-                                 for a in m["analyses"]):
+    state.coords, state.spatial_info = None, None
+    if state.frame is not None and any((_normalize_analysis(a).get("args") or {}).get("spatial_se") is not None
+                                 for a in state.m["analyses"]):
         from ..spatial_hac import unit_coordinates
-        coords, spatial_info = unit_coordinates(frame["GEOID"], geo["level"], max(releases))
+        state.coords, state.spatial_info = unit_coordinates(state.frame["GEOID"], state.geo["level"], max(state.releases))
 
+
+def _run_analyses(state: RunState) -> None:
     # 5. analyses
-    available = set(columns) | {str(d["name"]) for d in m.get("derivations") or []} | set(joined_external)
-    available |= {n + "_numerator" for n in joined_external}
-    results: Dict[str, Any] = {}
+    available = set(state.columns) | {str(d["name"]) for d in state.m.get("derivations") or []} | set(state.joined_external)
+    available |= {n + "_numerator" for n in state.joined_external}
+    state.results: Dict[str, Any] = {}
     # caller-supplied replicates of overlapping releases: refused (census_vre is refused at validation)
-    rep_overlap = _replicate_overlap(replicates) if replicates is not None and not census_vre_source(m) else None
-    declared_fixed = _declared_covariates_only(m)
-    fixed_had_replicates: Dict[str, List[str]] = {}
-    for a in m["analyses"]:
+    rep_overlap = _replicate_overlap(state.replicates) if state.replicates is not None and not census_vre_source(state.m) else None
+    state.declared_fixed = _declared_covariates_only(state.m)
+    state.fixed_had_replicates: Dict[str, List[str]] = {}
+    for a in state.m["analyses"]:
         a = _normalize_analysis(a)
         aid = a["id"]
         needed = set(_formula_names(a.get("formula", "")))
         for k in ("variables", "error_covariates"):
             needed |= set(a.get(k) or [])
         needed |= {a[k] for k in ("variable", "variable_1", "variable_2") if a.get(k)}
-        if frame is None or not needed <= available:
-            deviations.append({"kind": "analysis_not_run", "analysis": aid,
+        if state.frame is None or not needed <= available:
+            state.deviations.append({"kind": "analysis_not_run", "analysis": aid,
                                "detail": f"unavailable variables: {sorted(needed - available)}"
-                               if frame is not None else "no analysis frame"})
+                               if state.frame is not None else "no analysis frame"})
             continue
-        if a.get("replicates") == "required" and replicates is None and a["method"] in REPLICATE_METHODS:
-            deviations.append({"kind": "replicates_unavailable", "analysis": aid,
+        if a.get("replicates") == "required" and state.replicates is None and a["method"] in REPLICATE_METHODS:
+            state.deviations.append({"kind": "replicates_unavailable", "analysis": aid,
                                "detail": "manifest requires replicate SEs; none supplied, analysis not run"})
             continue
-        if census_vre_source(m) and replicates is None and a["method"] in REPLICATE_METHODS:
-            deviations.append({"kind": "replicates_unavailable", "analysis": aid,
+        if census_vre_source(state.m) and state.replicates is None and a["method"] in REPLICATE_METHODS:
+            state.deviations.append({"kind": "replicates_unavailable", "analysis": aid,
                                "detail": "manifest declares Census VRE replicates; none were fetched or published "
                                          "for its variables (see replicates.unavailable), analysis not run"})
             continue
         if rep_overlap and a["method"] in REPLICATE_METHODS:
-            deviations.append({"kind": "replicates_overlapping_releases", "analysis": aid,
+            state.deviations.append({"kind": "replicates_overlapping_releases", "analysis": aid,
                                "detail": rep_overlap + "; analysis not run"})
             continue
-        if aid in declared_fixed and work_reps is not None:
-            had = [v for v in declared_fixed[aid] if _has_replicate_rows(work_reps, v)]
+        if aid in state.declared_fixed and state.work_reps is not None:
+            had = [v for v in state.declared_fixed[aid] if _has_replicate_rows(state.work_reps, v)]
             if had:
-                fixed_had_replicates[aid] = had
+                state.fixed_had_replicates[aid] = had
         try:
-            results[aid] = _run_analysis(a, frame, level, work_reps, corr_method, external=joined_external, coords=coords)
+            state.results[aid] = _run_analysis(a, state.frame, state.level, state.work_reps, state.corr_method, external=state.joined_external, coords=state.coords)
         except Exception as exc:
             kind = "replicates_incomplete" if isinstance(exc, IncompleteReplicatesError) else "analysis_failed"
-            deviations.append({"kind": kind, "analysis": aid, "detail": f"{type(exc).__name__}: {exc}"})
+            state.deviations.append({"kind": kind, "analysis": aid, "detail": f"{type(exc).__name__}: {exc}"})
 
     # 5a. the analysed data, for follow-up (exploratory) work on exactly what the models saw
     try:
-        analysed_data = _write_analysed_data(out, frame, work_reps)
+        state.analysed_data = _write_analysed_data(state.out, state.frame, state.work_reps)
     except Exception as exc:  # noqa: BLE001 - a convenience copy must never cost the confirmatory run
-        analysed_data = {"error": f"analysed data not written: {type(exc).__name__}: {exc}"}
+        state.analysed_data = {"error": f"analysed data not written: {type(exc).__name__}: {exc}"}
 
+
+def _test_hypotheses(state: RunState) -> None:
+    from ..multitest import adjust_pvalues
     # 6. hypotheses with the pre-registered correction
     rows = []
-    for hyp in m["hypotheses"]:
+    for hyp in state.m["hypotheses"]:
         row = {"id": hyp["id"], "analysis": hyp["analysis"], "statistic": hyp["statistic"],
                "direction": hyp.get("direction", "two-sided"), "family": hyp.get("family", "primary"),
                "statement": hyp.get("statement", "")}
-        res = results.get(hyp["analysis"])
+        res = state.results.get(hyp["analysis"])
         if res is None:
             row.update(status="not_tested", estimate=None, p_value=None)
-            deviations.append({"kind": "hypothesis_not_tested", "hypothesis": hyp["id"],
+            state.deviations.append({"kind": "hypothesis_not_tested", "hypothesis": hyp["id"],
                                "detail": f"analysis {hyp['analysis']} did not run"})
         else:
             try:
@@ -599,8 +660,8 @@ def run_manifest(
                            p_value=_one_sided(s["p_two_sided"], s["estimate"], row["direction"]))
             except Exception as exc:
                 row.update(status="not_tested", estimate=None, p_value=None)
-                deviations.append({"kind": "hypothesis_not_tested", "hypothesis": hyp["id"], "detail": str(exc)})
-        spec = next(_normalize_analysis(a) for a in m["analyses"] if a["id"] == hyp["analysis"])
+                state.deviations.append({"kind": "hypothesis_not_tested", "hypothesis": hyp["id"], "detail": str(exc)})
+        spec = next(_normalize_analysis(a) for a in state.m["analyses"] if a["id"] == hyp["analysis"])
         if spec["method"] == "fit_replicate" and (spec.get("args") or {}).get("model") == "binomial":
             for source_key, target in (("estimate", "odds_ratio"), ("ci_lower", "odds_ratio_lower"),
                                    ("ci_upper", "odds_ratio_upper")):
@@ -609,91 +670,150 @@ def run_manifest(
             for source_key, target in (("estimate", "ratio"), ("ci_lower", "ratio_lower"), ("ci_upper", "ratio_upper")):
                 row[target] = float(np.exp(row[source_key])) if row.get(source_key) is not None else None
         rows.append(row)
-    hyp_df = pd.DataFrame(rows)
-    hyp_df["p_adjusted"] = np.nan
-    groups = [hyp_df.index] if corr.get("family", "all") == "all" else \
-        [g.index for _, g in hyp_df.groupby("family")]
+    state.hyp_df = pd.DataFrame(rows)
+    state.hyp_df["p_adjusted"] = np.nan
+    groups = [state.hyp_df.index] if state.corr.get("family", "all") == "all" else \
+        [g.index for _, g in state.hyp_df.groupby("family")]
     for idx in groups:
-        p = pd.to_numeric(hyp_df.loc[idx, "p_value"], errors="coerce")
-        hyp_df.loc[idx, "p_adjusted"] = np.asarray(adjust_pvalues(p.to_numpy(float), corr_method))
-    hyp_df["significant"] = hyp_df["p_adjusted"] < (1 - level)
-    hyp_df["manifest_hash"] = h
+        p = pd.to_numeric(state.hyp_df.loc[idx, "p_value"], errors="coerce")
+        state.hyp_df.loc[idx, "p_adjusted"] = np.asarray(adjust_pvalues(p.to_numpy(float), state.corr_method))
+    state.hyp_df["significant"] = state.hyp_df["p_adjusted"] < (1 - state.level)
+    state.hyp_df["manifest_hash"] = state.h
 
+
+def _bundle(state: RunState) -> Dict[str, Any]:
+    from ..report_tables import data_citation
     # 7. bundle
-    complete = not any(d["kind"] in BLOCKING_DEVIATIONS for d in deviations)
-    status = (STATUS_EXPLORATORY if m.get("exploratory", False) else
+    complete = not any(d["kind"] in BLOCKING_DEVIATIONS for d in state.deviations)
+    status = (STATUS_EXPLORATORY if state.m.get("exploratory", False) else
               STATUS_CONFIRMATORY if complete else STATUS_CONFIRMATORY_INCOMPLETE)
-    if m.get("exploratory"):
-        hyp_df["analysis_status"] = status
+    if state.m.get("exploratory"):
+        state.hyp_df["analysis_status"] = status
     rep_info = None
-    if vre_info is not None:
-        rep_info = dict(vre_info)
-        if replicates is not None:
-            digest, reason = replicates_digest(replicates)
-            rep_info.update(rows=int(len(replicates)), sha256=digest)
+    if state.vre_info is not None:
+        rep_info = dict(state.vre_info)
+        if state.replicates is not None:
+            digest, reason = replicates_digest(state.replicates)
+            rep_info.update(rows=int(len(state.replicates)), sha256=digest)
             if digest is None:
                 rep_info["sha256_unavailable"] = reason
-        if derived_on_replicates:
-            rep_info["derived_on_replicates"] = list(derived_on_replicates)
-            rep_info["derived_on_replicates_rows"] = derived_on_replicates
-        scaled = [v for a in adjustment_log for v in a["variables"]]
-        if scaled and replicates is not None:
+        if state.derived_on_replicates:
+            rep_info["derived_on_replicates"] = list(state.derived_on_replicates)
+            rep_info["derived_on_replicates_rows"] = state.derived_on_replicates
+        scaled = [v for a in state.adjustment_log for v in a["variables"]]
+        if scaled and state.replicates is not None:
             rep_info["scaled_by_adjustments"] = scaled
-    elif replicates is not None:
-        if replicates_synthetic is None:
-            attrs = getattr(replicates, "attrs", {}) or {}
-            replicates_synthetic = bool(attrs.get("synthetic", source["synthetic"]))
-        digest, reason = replicates_digest(replicates)
-        rep_info = {"source": "caller_supplied", "synthetic": bool(replicates_synthetic),
-                    "rows": int(len(replicates)), "sha256": digest}
+    elif state.replicates is not None:
+        if state.replicates_synthetic is None:
+            attrs = getattr(state.replicates, "attrs", {}) or {}
+            state.replicates_synthetic = bool(attrs.get("synthetic", state.source["synthetic"]))
+        digest, reason = replicates_digest(state.replicates)
+        rep_info = {"source": "caller_supplied", "synthetic": bool(state.replicates_synthetic),
+                    "rows": int(len(state.replicates)), "sha256": digest}
         if digest is None:
             rep_info["sha256_unavailable"] = reason
-        if derived_on_replicates:
-            rep_info["derived_on_replicates"] = list(derived_on_replicates)
-            rep_info["derived_on_replicates_rows"] = derived_on_replicates
-        scaled = [v for a in adjustment_log for v in a["variables"]]
+        if state.derived_on_replicates:
+            rep_info["derived_on_replicates"] = list(state.derived_on_replicates)
+            rep_info["derived_on_replicates_rows"] = state.derived_on_replicates
+        scaled = [v for a in state.adjustment_log for v in a["variables"]]
         if scaled:
             rep_info["scaled_by_adjustments"] = scaled
-    if rep_info is not None and declared_fixed:
-        rep_info["declared_covariates_only"] = declared_fixed
-        if fixed_had_replicates:
+    if rep_info is not None and state.declared_fixed:
+        rep_info["declared_covariates_only"] = state.declared_fixed
+        if state.fixed_had_replicates:
             # the hashed declaration governs: the outcome stays fixed although replicates were available
-            rep_info["covariates_only_outcome_had_replicates"] = fixed_had_replicates
+            rep_info["covariates_only_outcome_had_replicates"] = state.fixed_had_replicates
             rep_info.setdefault("notes", []).extend(
                 f"analysis {aid}: replicate_scope 'covariates_only' was declared and the outcome {names} was held "
                 "at its estimate in every refit as pre-registered, although replicates were available for it in "
                 "this run; se_sampling excludes the outcome's sampling error"
-                for aid, names in fixed_had_replicates.items())
-    tagged = {aid: _tag(r, h, aid, status) for aid, r in results.items()}
-    run_info = {"manifest_hash": h, "analysis_status": status, "deviations": deviations,
-                "exclusions": exclusion_log, "extraction": extraction, "n_units": None if frame is None
-                else int(len(frame)), "title": m.get("title"), "data_source": source, "replicates": rep_info}
-    if spatial_info is not None:
-        run_info["spatial_coordinates"] = spatial_info
-    if m.get("adjustments"):
-        run_info["adjustments"] = adjustment_log
-    if harmonization is not None:
-        run_info["harmonization"] = harmonization
-    if external_info is not None:
-        run_info["external"] = external_info
-    if analysed_data:
-        run_info["analysed_data"] = analysed_data
+                for aid, names in state.fixed_had_replicates.items())
+    tagged = {aid: _tag(r, state.h, aid, status) for aid, r in state.results.items()}
+    run_info = {"manifest_hash": state.h, "analysis_status": status, "deviations": state.deviations,
+                "exclusions": state.exclusion_log, "extraction": state.extraction, "n_units": None if state.frame is None
+                else int(len(state.frame)), "title": state.m.get("title"), "data_source": state.source, "replicates": rep_info}
+    if state.spatial_info is not None:
+        run_info["spatial_coordinates"] = state.spatial_info
+    if state.m.get("adjustments"):
+        run_info["adjustments"] = state.adjustment_log
+    if state.harmonization is not None:
+        run_info["harmonization"] = state.harmonization
+    if state.external_info is not None:
+        run_info["external"] = state.external_info
+    if state.analysed_data:
+        run_info["analysed_data"] = state.analysed_data
     if not complete:
         run_info["status_note"] = INCOMPLETE_STATUS_TEXT
-    tables_used = sorted(tables_and_refs(m))
-    citation = data_citation(releases, tables_used, synthetic=source["synthetic"],
-                             description=source.get("description"))
-    if external_info and external_info.get("sources"):
-        citation = citation + " External data: " + " ".join(p["citation"] for p in external_info["sources"])
-    bundle = _write_bundle(out / "bundle", m, h, tagged, hyp_df, run_info, citation)
-    out_res = {"success": complete, "analysis_status": status, "data_source": source, "replicates": rep_info,
-               "manifest_hash": h, "deviations": deviations, "hypotheses": hyp_df, "results": tagged,
-               "frame": frame, "bundle": bundle, "output_dir": str(out), "errors": []}
-    if m.get("adjustments"):
-        out_res["adjustments"] = adjustment_log
-    if external_info is not None:
-        out_res["external"] = external_info
+    tables_used = sorted(tables_and_refs(state.m))
+    citation = data_citation(state.releases, tables_used, synthetic=state.source["synthetic"],
+                             description=state.source.get("description"))
+    if state.external_info and state.external_info.get("sources"):
+        citation = citation + " External data: " + " ".join(p["citation"] for p in state.external_info["sources"])
+    bundle = _write_bundle(state.out / "bundle", state.m, state.h, tagged, state.hyp_df, run_info, citation)
+    out_res = {"success": complete, "analysis_status": status, "data_source": state.source, "replicates": rep_info,
+               "manifest_hash": state.h, "deviations": state.deviations, "hypotheses": state.hyp_df, "results": tagged,
+               "frame": state.frame, "bundle": bundle, "output_dir": str(state.out), "errors": []}
+    if state.m.get("adjustments"):
+        out_res["adjustments"] = state.adjustment_log
+    if state.external_info is not None:
+        out_res["external"] = state.external_info
     return out_res
+
+
+_STAGES = (
+    _extract,
+    _build_frame,
+    _fetch_vre,
+    _derive_replicates,
+    _join_external,
+    _apply_exclusions,
+    _apply_adjustments,
+    _run_analyses,
+    _test_hypotheses,
+)
+
+
+@integrity_errors
+def run_manifest(
+    manifest: Union[str, Path, Mapping[str, Any]], output_dir: Union[str, Path], client: Any = None,
+    replicates: Any = None, use_cache: bool = True, replicates_synthetic: Optional[bool] = None,
+    external_fetch: Optional[Callable[[str], bytes]] = None,
+) -> Dict[str, Any]:
+    """Execute a manifest exactly: plan -> extraction -> analysis frame ->
+    derivations on replicates -> exclusions -> adjustments -> analyses -> hypothesis tests with the pre-registered
+    correction -> results bundle (tables, figures, methods.md).
+
+    ``replicates``: optional pre-fetched replicate long frame (from
+    :func:`census.analysis.attach_replicates`) used by ``fit_replicate`` and
+    ``correlation_matrix``; without it those report model-based SEs and a
+    deviation is recorded when the analysis sets ``"replicates": "required"``.
+    Replicate analyses run with ``replicate_policy="strict"`` (confirmatory):
+    failed refits, rows held fixed, or stochastic variables without replicates
+    stop the analysis and record a ``replicates_incomplete`` deviation.
+    Supplied replicates are recorded as caller-supplied (not fetched from
+    Census VRE files by this function) with the SHA-256 of their canonical form
+    (:func:`replicates_sha256`); ``replicates_synthetic`` (default: the data
+    source's synthetic flag, or ``replicates.attrs["synthetic"]``) marks them
+    synthetic in the methods text.
+    A manifest with ``"replicates": {"source": "census_vre"}`` fetches the
+    Census VRE files itself (:func:`census.replicate.fetch_vre` and its cache)
+    for its tables, geography and releases; the run records each file's URL and
+    SHA-256 and the variables without published replicates
+    (``replicates.unavailable``). Passing ``replicates`` as well is an error.
+    ``analysis_status`` is ``"confirmatory"`` only without blocking deviations,
+    else ``"confirmatory_incomplete"`` (see the module docstring).
+    Never raises on data problems; returns ``success``, ``deviations``,
+    ``hypotheses`` and the bundle manifest. The manifest hash is written into
+    every output (results JSON, tables, figure sidecars, methods.md, bundle.json).
+    ``external_fetch(url) -> bytes`` replaces the HTTP client of external sources (tests).
+    """
+    state = _prepare(manifest, output_dir, client, replicates, use_cache,
+                     replicates_synthetic, external_fetch)
+    if not isinstance(state, RunState):
+        return state
+    for stage in _STAGES:
+        stage(state)
+    return _bundle(state)
 
 
 def _write_analysed_data(out: Path, frame: Optional[pd.DataFrame], replicates: Any) -> Dict[str, Any]:
