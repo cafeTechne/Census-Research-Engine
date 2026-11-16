@@ -18,9 +18,13 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
 | `PLAN_ROUND_<n>.md` | Only the current round's plan. Older plans are archived (below) |
 
-**Archived plans.** `PLAN_ROUND_1`–`22` were removed from the tree after Round 22. Code and docs still cite
-them as labels (for example "PLAN_ROUND_16 A2"). To read one: `git show v0.21.0:PLAN_ROUND_16.md`, or
+**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`. Code and docs still cite
+them as labels (for example "PLAN_ROUND_16 A2"). To read one: `git show v0.21.0:PLAN_ROUND_16.md` (or the later tag), or
 `https://github.com/cafeTechne/Census-Research-Engine/blob/v0.21.0/PLAN_ROUND_16.md`.
+
+**Round 23 (v0.21.1, internal):** `census/manifest.py` became the `census/manifest/` package with no
+behaviour change (478 golden snapshots identical; `scripts/refactor_golden.py`). `run_manifest` stages for a
+later split are listed in `PLAN_ROUND_23.md` section 7 (at `v0.21.1`).
 
 ## Methods: validation status
 
