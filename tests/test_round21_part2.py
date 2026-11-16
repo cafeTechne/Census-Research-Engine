@@ -285,7 +285,7 @@ class TestRuleAcrossSources(unittest.TestCase):
 class TestWonder(Tmp):
     def _file(self, text=WONDER):
         p = os.path.join(self.dir, "export.txt")
-        with open(p, "w", encoding="utf-8") as f:
+        with open(p, "w", encoding="utf-8", newline="") as f:  # hash the exact bytes on Windows too
             f.write(text)
         return p, hashlib.sha256(text.encode()).hexdigest()
 
