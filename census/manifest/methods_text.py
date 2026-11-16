@@ -34,35 +34,9 @@ from .schema import (
 # Methods text
 # ---------------------------------------------------------------------------
 
-_METHOD_TEXT = {
-    "fit_replicate": ("Coefficients were estimated with {model} regression (statsmodels) on the full-sample "
-                      "estimates; sampling standard errors came from refitting on each of {rep_source}, Var = 4/80 sum (b_r - b)^2, combined with the model standard error as "
-                      "se_total = sqrt(se_model^2 + se_sampling^2). Reported standard errors, intervals and p-values use "
-                      "the {target_se} ({target} target: {estimand}), with normal-theory intervals. Without "
-                      "replicates only model standard errors are reported.", ["vre", "design", "statsmodels"]),
-    "regression_calibration": ("Covariates measured with known ACS sampling error ({cov}) were corrected by "
-                               "regression calibration with heteroscedastic known error variances; standard "
-                               "errors (se_total, used for normal-theory intervals and p-values) by row bootstrap "
-                               "re-estimating the calibration. Coefficients are {estimand}.", ["carroll"]),
-    "fit_eiv": ("Coefficients were estimated by moment-corrected least squares ({model}; Fuller 1987) with "
-                "per-unit sampling-error covariances of every design column and of the outcome, including the "
-                "outcome-covariate error covariance, estimated from {rep_source} (4/80 sum over replicates). "
-                "Standard errors are {se_basis} (se_total, used for "
-                "normal-theory intervals and p-values); naive coefficients are reported alongside. Coefficients "
-                "are {estimand}.", ["fuller", "vre", "design"]),
-    "simex": ("Covariates measured with known ACS sampling error ({cov}) were corrected by "
-              "simulation-extrapolation (SIMEX, quadratic extrapolation) with the measurement-error jackknife "
-              "variance (se_total, used for normal-theory intervals and p-values). Coefficients are "
-              "{estimand}.", ["simex", "carroll"]),
-    "fh_regression": ("The outcome's known sampling variance was modelled with an area-level Fay-Herriot model "
-                      "(GLS coefficients, REML variance component).", ["fh"]),
-    "fay_herriot": ("Small-area estimates are Fay-Herriot EBLUPs (REML) with Prasad-Rao/Datta-Lahiri MSE.",
-                    ["fh"]),
-    "correlation_matrix": ("Correlations with Fisher-z intervals{rep}.", ["fisher", "vre"]),
-    "linear_trend_test": ("Linear trends across non-overlapping 5-year periods were tested by GLS with known "
-                          "sampling variances.", ["testing"]),
-    "batch_z_test": ("Differences were tested with the Census two-sample z test, SE = MOE/1.645.", ["testing"]),
-}
+from .methods import METHODS
+
+_METHOD_TEXT = {name: spec.text for name, spec in sorted(METHODS.items(), key=lambda item: {'fit_replicate': 0, 'regression_calibration': 1, 'fit_eiv': 2, 'simex': 3, 'fh_regression': 4, 'fay_herriot': 5, 'correlation_matrix': 6, 'linear_trend_test': 7, 'batch_z_test': 8}.get(item[0], len(METHODS))) if spec.text is not None}
 
 
 def _age_standardized_text(d: Mapping[str, Any]) -> str:

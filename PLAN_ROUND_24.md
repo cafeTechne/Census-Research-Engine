@@ -216,9 +216,9 @@ Rules (implement as the methods' `check` callbacks; error texts are yours, but e
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Baseline | | |
-| A: registry, golden identical | | |
-| A: remaining `method ==` lines | | |
+| Baseline | Pass | 478 snapshots; 1634 passed, 37 skipped, 48 subtests. |
+| A: registry, golden identical | Pass | 478 snapshots byte-identical; isolated full suite unchanged (1634/37). |
+| A: remaining `method ==` lines | Pass | None in run.py/validate.py. Historical public tuple/text order is retained by registry projections. |
 | B1/B2 library | | |
 | Inequality validation (criterion commit, result) | | |
 | SMR validation (criterion commit, result) | | |
@@ -226,7 +226,7 @@ Rules (implement as the methods' `check` callbacks; error texts are yours, but e
 | Golden diff after B | | |
 | C docs, example run | | |
 | Final suite | | |
-| Exceptions (0.7) | | |
+| Exceptions (0.7) | Recorded | Shared checkout switched externally during work; implementation isolated at /tmp/census-round24. Baseline repeated there. |
 
 ## 10. Deliverables
 

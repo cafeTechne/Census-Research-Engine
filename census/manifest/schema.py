@@ -34,19 +34,8 @@ BLOCKING_DEVIATIONS = ("blocked_variable", "extraction_failed", "variable_missin
 DATA_SOURCE_KEYS = ("synthetic", "description", "generator")
 STATUS_EXPLORATORY = "exploratory"
 
-# method -> (required args, statistics it supports)
-ANALYSIS_METHODS: Dict[str, Tuple[Tuple[str, ...], Tuple[str, ...]]] = {
-    "fit_replicate": (("formula",), ("coefficient",)),
-    "fit_eiv": (("formula",), ("coefficient",)),
-    "regression_calibration": (("formula", "error_covariates"), ("coefficient",)),
-    "simex": (("formula", "error_covariates"), ("coefficient",)),
-    "fh_regression": (("formula",), ("coefficient",)),
-    "fay_herriot": (("formula",), ("coefficient",)),
-    "correlation_matrix": (("variables",), ("correlation",)),
-    "linear_trend_test": (("variable", "geoid"), ("trend_slope",)),
-    "batch_z_test": (("variable_1", "variable_2"), ("z_difference",)),
-}
-STATISTICS = ("coefficient", "correlation", "trend_slope", "z_difference")
+from .methods import ANALYSIS_METHODS, STATISTICS, REPLICATE_METHODS
+
 EXCLUSION_RULES = ("cv_screen", "geoid_exclude")
 ADJUSTMENT_TYPES = ("rpp",)
 RPP_ADJUSTMENT_KEYS = ("type", "variables", "rpp_year", "areas", "rpp_years", "dollar_year", "price_index")
@@ -253,4 +242,4 @@ CONFIRMATORY_REPLICATE_POLICY = "strict"
 # Manifest methods that use replicates; each runs with replicate_policy="strict".
 # (Spatial, multilevel, DiD and PUMS analyses are not manifest methods; if added
 # they must join this set so confirmatory runs refuse incomplete replicates.)
-REPLICATE_METHODS = ("fit_replicate", "correlation_matrix", "fit_eiv")
+
