@@ -40,4 +40,4 @@ no SMR was fitted. No age-specific death counts were fabricated.
 
 Reproduction: run the manifest with the existing caches and
 `CENSUS_HEALTH_OFFLINE=1`; outputs are release artifacts, not committed datasets.
-Local output archive: `/tmp/round24-study-outputs.tar.gz` (not uploaded).
+Outputs: `r24_study_outputs.tar.gz`, attached (after a key scan) to the release that ships this round.
