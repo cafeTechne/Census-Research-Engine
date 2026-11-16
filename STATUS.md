@@ -10,7 +10,7 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 
 | Path | What |
 | :--- | :--- |
-| `census/` | Library. `manifest.py` (being split into a package in Round 23; pre-registered studies: validate, create, run, methods text), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
+| `census/` | Library. `manifest/` (being split into a package in Round 23; pre-registered studies: validate, create, run, methods text), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
 | `mcp_server.py` | MCP server (63 tools; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |

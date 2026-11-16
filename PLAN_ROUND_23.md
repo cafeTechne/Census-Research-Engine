@@ -142,17 +142,17 @@ change; golden snapshot identical)".
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Baseline suite line | | |
-| Golden snapshot count | | |
-| Unlisted definitions placed | | |
-| Packaging change | | |
-| Test patch targets changed | | |
-| Section 5: validate_manifest | | body lines |
-| Section 5: methods_section | | body lines |
-| `run_manifest` stages (for later) | | |
-| Bugs noticed (not fixed) | | |
-| Module line counts | | |
-| Final suite line | | |
+| Baseline suite line | PASS | 1634 passed, 37 skipped, 4 warnings, 48 subtests passed in 292.07s (0:04:52). Initial sandbox-only socket/MCP failures were rerun outside that restriction before code changed. |
+| Golden snapshot count | PASS | 478 snapshots from 11 manifests; baseline namespace 122 names. |
+| Unlisted definitions placed | None | All 68 original functions and 31 constants were listed; 23 imported compatibility names re-exported from schema. |
+| Packaging change | PASS; least-change exception (0.7) | pyproject packages now ["census", "census.manifest"]. Updated only the identical expected list in tests/test_packaging.py; its old hard-coded assertion conflicted with required packaging. |
+| Test patch targets changed | Three listed failures; one omitted target (0.7) | r15 latest_rpp_year -> adjustments; r12 replicates_digest -> run; r14 default_rpp_areas -> adjustments. Full suite also exposed tests/test_manifest_multistate.py::_run_analysis (omitted from section 4): retarget only its patch to run._run_analysis. Assertions unchanged. |
+| Section 5: validate_manifest | PASS | 15 body lines; six private helpers; identical ordered errors and golden snapshots; checkpoint b full suite 1634 passed / 37 skipped. |
+| Section 5: methods_section | PASS | 30 body lines; nine paragraph helpers; identical rendered bytes; post-commit checkpoint c full suite 1634 passed / 37 skipped. |
+| `run_manifest` stages (for later) | Not split | Plan/extract; harmonize/aggregate/frame; fetch/derive replicates; external join; exclusions/adjustments; fit; save analysed data; corrected hypotheses; bundle. |
+| Bugs noticed (not fixed) | Fault-injection coverage caveat | test_analysed_data_failure_does_not_lose_the_run passes without verifying its facade mock was called; after the move that mock is ineffective. Left unchanged per section 4. No production bug fix included. |
+| Module line counts | PASS | __init__ 318; schema 256; external 113; adjustments 341; derivations 79; replicates 331; datasource 74; validate 498; create 129; methods_text 480; run 824. Facade has only its unchanged docstring and explicit imports. |
+| Final suite line | PASS | 1634 passed, 37 skipped, 4 warnings, 48 subtests passed in 300.36s (0:05:00). Same pass/skip counts as baseline and a/b/c; golden byte-identical, no lost names, MCP imports, caps satisfied. |
 
 ## 8. Deliverables
 
@@ -162,3 +162,12 @@ change; golden snapshot identical)".
 2. Push the branch. If you cannot open a PR, say so. The owner's agent opens it.
 3. PR body (if you open it): what moved where (one table), the section 6 outputs pasted, the status table,
    no attribution.
+
+Notes: Section 0.7 exceptions are the single packaging assertion and the omitted
+`tests/test_manifest_multistate.py` spy target. Three listed failing targets were
+retargeted; every listed test that passed unchanged was left unchanged. No test
+assertions were weakened. Documentation was scanned for path tokens only, without
+reviewing study/audit content; only `STATUS.md` needed a source-path replacement.
+Actual `test_manifest.py` filenames remain valid and were not renamed. Checkpoints
+a/b/c retained all 478 golden snapshots (11 manifests), all 122 baseline attributes
+(the facade now has 132), MCP import and the <=900-line module cap.
