@@ -5,7 +5,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
-## 0.22.0 (Round 24, unreleased): method registry and public-health inequality
+## 0.22.0 (Round 24): method registry and public-health inequality
 
 - Centralize manifest execution, method-specific validation, statistics and methods text in
   `MethodSpec`; preserve all 478 refactor snapshots and the existing public constant ordering.
