@@ -166,3 +166,72 @@ def age_adjusted_interval(cases: Sequence[float], populations: Sequence[float], 
     vu, yu = v + wm**2, y + wm
     upper = vu / (2 * yu) * float(chi2.ppf(1 - alpha / 2, 2 * yu**2 / vu))
     return {"rate": y, "lower": lower, "upper": upper, "confidence_level": confidence_level}
+
+
+# Set only from the pre-specified simulation report.
+SMR_VALIDATED = False
+
+
+def indirect_standardize(observed, band_populations, reference_rates, band_replicates=None, level=0.90):
+    """Indirect SMR and fixed-expected Garwood / combined log-Wald intervals.
+
+    ``observed`` is a GEOID-indexed Series of nonnegative integer counts;
+    ``band_populations`` a DataFrame with exactly the same ordered index and
+    columns in reference-rate order (areas x bands). No implicit joins/drops.
+    Replicates are an array (areas, bands, 80) in that order. Positive finite
+    expected counts are required in every refit. The returned final GEOID
+    ``all`` pools counts and expected counts BEFORE computing uncertainty.
+    Rates are fixed; their uncertainty and between-area dependence are not
+    covered. At O=0 only the exact fixed-E interval is defined.
+    """
+    import pandas as pd
+    from scipy.stats import chi2, norm
+    if not isinstance(observed, pd.Series) or not isinstance(band_populations, pd.DataFrame):
+        raise ValueError("observed must be a GEOID-indexed Series; band_populations a DataFrame")
+    if (not observed.index.equals(band_populations.index) or observed.index.has_duplicates
+            or not len(observed) or observed.index.isna().any()
+            or "all" in observed.index.astype(str)):
+        raise ValueError("area indexes must match exactly, be unique/nonmissing, and exclude reserved GEOID 'all'")
+    if observed.index.astype(str).has_duplicates:
+        raise ValueError("GEOIDs collide after string conversion")
+    if not 0 < level < 1:
+        raise ValueError("level must be between zero and one")
+    o, pop, rates = observed.to_numpy(float), band_populations.to_numpy(float), np.asarray(reference_rates, float)
+    if rates.ndim != 1 or rates.size != pop.shape[1] or not rates.size or not np.isfinite(rates).all() or (rates <= 0).any():
+        raise ValueError("reference_rates must be finite positive numbers, one per population band")
+    if not np.isfinite(o).all() or (o < 0).any() or (o != np.floor(o)).any():
+        raise ValueError("observed counts must be finite nonnegative integers")
+    if not np.isfinite(pop).all() or (pop < 0).any():
+        raise ValueError("band populations must be finite and nonnegative")
+    e = pop@rates
+    if (e <= 0).any():
+        raise ValueError("expected counts must be positive")
+    notes = ["Reference rates fixed; exact Garwood interval conditions on expected counts."]
+    o, e = np.r_[o, o.sum()], np.r_[e, e.sum()]
+    ve = np.zeros(len(o))
+    if band_replicates is not None:
+        rep = np.asarray(band_replicates, float)
+        if rep.shape != (*pop.shape, 80) or not np.isfinite(rep).all() or (rep < 0).any():
+            raise ValueError("band_replicates must be finite nonnegative (areas, bands, 80)")
+        er = np.einsum("abr,b->ar", rep, rates)
+        er = np.vstack((er, er.sum(axis=0)))
+        if (er <= 0).any():
+            raise ValueError("replicate expected counts must be positive")
+        ve = .05*np.sum((np.log(er)-np.log(e[:, None]))**2, axis=1)
+    else:
+        notes.append("No band replicates: expected-count uncertainty set to zero.")
+    alpha = 1-level
+    lower = np.zeros(len(o)); positive = o > 0
+    lower[positive] = chi2.ppf(alpha/2, 2*o[positive])/(2*e[positive])
+    upper = chi2.ppf(1-alpha/2, 2*o+2)/(2*e)
+    smr = o/e
+    log, se, lo, hi, p = (np.full(len(o), np.nan) for _ in range(5))
+    log[positive] = np.log(smr[positive])
+    se[positive] = np.sqrt(1/o[positive]+ve[positive])
+    z = norm.ppf(1-alpha/2)
+    lo[positive], hi[positive] = np.exp(log[positive]-z*se[positive]), np.exp(log[positive]+z*se[positive])
+    p[positive] = 2*norm.sf(np.abs(log[positive]/se[positive]))
+    rownotes = [notes+([] if pos else ["O=0: combined log interval and Wald test undefined."]) for pos in positive]
+    return pd.DataFrame(dict(GEOID=list(observed.index.astype(str))+["all"], observed=o, expected=e,
+                             smr=smr, log_smr=log, se_log_smr=se, smr_lower=lo, smr_upper=hi,
+                             smr_exact_lower=lower, smr_exact_upper=upper, p_value=p, notes=rownotes))
