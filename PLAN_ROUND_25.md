@@ -9,8 +9,8 @@ test edits, no new dependencies, no MCP changes.
 
 ## 0. Ground rules
 
-1. Branch `phase25/run-stages` from `defaultBranch`. Push it. Do not merge, tag or release. Never rebase
-   or force-push.
+1. Branch `phase25/run-stages` from `plans/r25-r29` (it carries these plans and merges with this round). Push
+   it. Do not merge, tag or release. Never rebase or force-push.
 2. **No AI attribution anywhere.** Commits and the PR body must not contain `Co-Authored-By`,
    `Generated with` or any similar line, even if your tooling suggests one.
 3. Never print, log or commit `.env` or any API key or token. No network access is needed this round.
