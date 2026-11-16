@@ -34,34 +34,14 @@ from .schema import (
 # Methods text
 # ---------------------------------------------------------------------------
 
+from .methods import METHODS
+
+# Retain the legacy introspection order while deriving every value from its spec.
+_LEGACY_TEXT_ORDER = ("fit_replicate", "regression_calibration", "fit_eiv", "simex", "fh_regression",
+                      "fay_herriot", "correlation_matrix", "linear_trend_test", "batch_z_test")
 _METHOD_TEXT = {
-    "fit_replicate": ("Coefficients were estimated with {model} regression (statsmodels) on the full-sample "
-                      "estimates; sampling standard errors came from refitting on each of {rep_source}, Var = 4/80 sum (b_r - b)^2, combined with the model standard error as "
-                      "se_total = sqrt(se_model^2 + se_sampling^2). Reported standard errors, intervals and p-values use "
-                      "the {target_se} ({target} target: {estimand}), with normal-theory intervals. Without "
-                      "replicates only model standard errors are reported.", ["vre", "design", "statsmodels"]),
-    "regression_calibration": ("Covariates measured with known ACS sampling error ({cov}) were corrected by "
-                               "regression calibration with heteroscedastic known error variances; standard "
-                               "errors (se_total, used for normal-theory intervals and p-values) by row bootstrap "
-                               "re-estimating the calibration. Coefficients are {estimand}.", ["carroll"]),
-    "fit_eiv": ("Coefficients were estimated by moment-corrected least squares ({model}; Fuller 1987) with "
-                "per-unit sampling-error covariances of every design column and of the outcome, including the "
-                "outcome-covariate error covariance, estimated from {rep_source} (4/80 sum over replicates). "
-                "Standard errors are {se_basis} (se_total, used for "
-                "normal-theory intervals and p-values); naive coefficients are reported alongside. Coefficients "
-                "are {estimand}.", ["fuller", "vre", "design"]),
-    "simex": ("Covariates measured with known ACS sampling error ({cov}) were corrected by "
-              "simulation-extrapolation (SIMEX, quadratic extrapolation) with the measurement-error jackknife "
-              "variance (se_total, used for normal-theory intervals and p-values). Coefficients are "
-              "{estimand}.", ["simex", "carroll"]),
-    "fh_regression": ("The outcome's known sampling variance was modelled with an area-level Fay-Herriot model "
-                      "(GLS coefficients, REML variance component).", ["fh"]),
-    "fay_herriot": ("Small-area estimates are Fay-Herriot EBLUPs (REML) with Prasad-Rao/Datta-Lahiri MSE.",
-                    ["fh"]),
-    "correlation_matrix": ("Correlations with Fisher-z intervals{rep}.", ["fisher", "vre"]),
-    "linear_trend_test": ("Linear trends across non-overlapping 5-year periods were tested by GLS with known "
-                          "sampling variances.", ["testing"]),
-    "batch_z_test": ("Differences were tested with the Census two-sample z test, SE = MOE/1.645.", ["testing"]),
+    name: METHODS[name].text for name in dict.fromkeys((*_LEGACY_TEXT_ORDER, *METHODS))
+    if METHODS[name].text is not None
 }
 
 
@@ -320,14 +300,16 @@ def _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites):
         a = _normalize_analysis(a)
         text, refs = _METHOD_TEXT[a["method"]]
         args = a.get("args") or {}
-        tgt = args.get("target", "population")
+        tgt = args.get("target", METHODS[a["method"]].default_target)
         # the same interpretation contract as the fitted result (census.results.interval_description)
         probe = ModelResult(model_type="", formula=str(a.get("formula") or ""), n_obs=0,
                             coefficients=pd.DataFrame(columns=["term"]), method=a["method"], uncertainty_sources=[],
                             confidence_level=level,
-                            diagnostics={"interval_target": tgt} if a["method"] == "fit_replicate" else {})
+                            diagnostics={"interval_target": tgt} if a["method"] in ("fit_replicate", "inequality") else {})
         info = interval_description(probe)
-        text = text.format(model=args.get("model", "ols").upper(), target=tgt, estimand=info["estimand"],
+        text = text.format(reference_source=a.get("reference_source", ""),
+                           rank_direction=("higher rank values mean more deprived" if args.get("higher_is_more_deprived")
+                                           else "lower rank values mean more deprived"), model=args.get("model", "ols").upper(), target=tgt, estimand=info["estimand"],
                            target_se={"se_model": "model SE (se_model)", "se_sampling": "replicate sampling SE "
                                       "(se_sampling)", "se_total": "combined SE (se_total)"}[info["basis_column"]],
                            cov=", ".join(a.get("error_covariates") or args.get("error_covariates") or []),

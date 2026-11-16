@@ -125,7 +125,27 @@ income, race/ethnicity and education. County Health Rankings mortality and WONDE
 are direct death records. create_manifest refuses violations (CIRCULARITY R1/R2).
 Use exploratory:true to label an exploratory manifest; deviations remain recorded.
 Spatial_se (Bartlett Conley) failed validation: exploratory only, including run_variant.
-Count outcomes: binomial trials=<name>_denominator and scale:"X2"; Poisson counts use exposure.
+Count outcomes: binomial trials=<name>_denominator and scale:"robust"; Poisson counts use exposure
+and scale:"robust". New external-count manifests refuse scale:"X2" (failed coverage validation).
+
+Inequality and standardized ratios (get_recipe('health_inequality'); existing manifest tools):
+method inequality requires outcome/rank_by/positive weights and args.higher_is_more_deprived
+(boolean); hypotheses name sii/log_rii/concentration_index only, without term. Ridits run
+least to most deprived; positive indices mean higher outcomes among more deprived areas.
+Concentration has the reverse sign of the usual income-ranked convention. Default target
+conservative combines HC3 and ACS replicate SEs; median rank CV <=15% is validated, above
+which warn about rank-error attenuation. External outcomes and their denominator weights
+stay fixed; target these_areas is refused for external outcomes. R2 tests rank_by.
+method smr requires observed integer counts, distinct population_bands, positive reference_rates
+(events per person, in band order), and reference_source (hashed citation). Hypothesis log_smr
+uses geoid (one GEOID or all); pooled ratios sum observed and expected counts first.
+Log statistics test zero; ratio columns exponentiate estimates and limits. SMR target is
+conservative only: tests combine Poisson and expected-count replicate log variance; exact
+Garwood limits condition on expected counts. No replicates means zero expected uncertainty,
+noted; O=0 has only the exact fixed-E interval. Reference-rate uncertainty is excluded.
+SMR refuses negative ACS band replicates under its fixed validation domain, even with positive E.
+Area HC3 assumes independence. R1 applies to external outcomes/counts. Reused LBW associations
+are exploratory. No new tools are needed.
 
 
 Inflation: default index is R-CPI-U-RS (the Census Bureau's ACS index); 'c-cpi-u'

@@ -237,3 +237,30 @@ TIGER representative points. The pre-set Round 22 simulation **failed** its
 coverage criterion (`docs/audits/spatial_hac_validation.md`): `spatial_se` is
 available only in exploratory manifests, direct fits and `run_variant`, never
 confirmatory manifests. `cluster` and `spatial_se` are mutually exclusive.
+
+## Inequality and standardized ratios
+
+Use manifest `inequality` for area-level SII, log RII and concentration. Declare
+`outcome`, `rank_by`, positive `weights`, and the boolean
+`args.higher_is_more_deprived`; hypotheses name only `sii`, `log_rii` or
+`concentration_index` (no term). Ridits run least to most deprived: positive
+indices mean higher outcomes among more deprived areas. Concentration therefore
+has the reverse sign of the usual income-ranked convention. External outcomes
+and their `<outcome>_denominator` weights stay fixed in refits. Default target is
+`conservative` (HC3 plus ACS replicate uncertainty); median rank CV <=15% is the
+validated range. Above it, warn about attenuation from rank error. Area HC3
+assumes independent areas. Circularity R2 tests the ranking variable.
+
+Manifest `smr` requires integer `observed` counts, distinct `population_bands`,
+finite positive `reference_rates` in events per person, and a non-empty
+`reference_source` citation. Rates and source are hashed. Hypotheses use
+`log_smr`, with one `geoid` or `"all"` for pooled counts/expected counts. Log
+statistics test zero; ratio columns exponentiate estimates and limits. SMR tests
+use the combined Poisson/replicate log interval (`target: conservative` only),
+while Garwood limits condition on expected counts. Zero observed counts have
+only an exact fixed-E interval; rate uncertainty is excluded. No band replicates
+means zero expected-count uncertainty, explicitly noted. Negative ACS band
+replicates are refused under the pre-specified validation domain, even when
+total expected counts would be positive. See recipe
+`health_inequality` and the two fixed simulation audits. Reused MI/NY LBW
+associations are exploratory.

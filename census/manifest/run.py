@@ -136,70 +136,19 @@ def _run_analysis(a: Mapping[str, Any], frame: pd.DataFrame, level: float, repli
     if args.get("spatial_se") is not None:
         args["coords"] = coords
     held_external = [v for v in _formula_names(str(a.get("formula", "")).split("~")[0]) if v in set(external) or (v.endswith("_numerator") and v[:-10] in set(external))]
-    if method == "fit_replicate":
-        fixed_vars = list(held_external)
-        if a.get("replicate_scope") == "covariates_only":  # pre-registered: the outcome is held fixed
-            fixed_vars += [v for v in _formula_names(a["formula"].split("~")[0]) if v not in fixed_vars]
-        if fixed_vars:
-            args["fixed_variables"] = fixed_vars
-        return models.fit_replicate(a["formula"], frame, replicates=replicates, confidence_level=level, **args)
-    if method == "fit_eiv":
-        if held_external:
-            args["fixed_variables"] = held_external
-        return models.fit_eiv(a["formula"], frame, replicates=replicates, confidence_level=level, **args)
-    if method in ("regression_calibration", "simex"):
-        return getattr(models, method)(a["formula"], frame, confidence_level=level, **args)
-    if method in ("fay_herriot", "fh_regression"):
-        y = a["formula"].split("~")[0].strip()
-        args.setdefault("se_col", f"{y}_se")
-        return getattr(sae, method)(a["formula"], frame, confidence_level=level, **args)
-    if method == "correlation_matrix":
-        return correlation.correlation_matrix(frame, args.pop("variables"), confidence_level=level,
-                                              replicates=replicates, correction=correction, **args)
-    if method == "linear_trend_test":
-        v, g = args.pop("variable"), str(args.pop("geoid"))
-        sub = frame[frame["GEOID"] == g].sort_values("Year")
-        return trends.linear_trend_test(sub["Year"].tolist(), sub[v].tolist(), ses=sub[f"{v}_se"].tolist(),
-                                        confidence_level=level, **args)
-    if method == "batch_z_test":
-        v1, v2 = args.pop("variable_1"), args.pop("variable_2")
-        df = frame[["GEOID"]].copy()
-        for v, tag in ((v1, "1"), (v2, "2")):
-            df[f"e{tag}"] = frame[v].to_numpy(float)
-            df[f"m{tag}"] = frame[f"{v}_se"].to_numpy(float) * 1.645
-        out = multitest.batch_z_test(df, "e1", "m1", "e2", "m2", confidence_level=level,
-                                     correction=correction, **args)
-        return out
-    raise ValueError(f"unsupported method {method}")
+    from .methods import METHODS
+    if method not in METHODS:
+        raise ValueError(f"unsupported method {method}")
+    return METHODS[method].run(a, args, frame, level, replicates, correction,
+                               {"held_external": held_external, "coords": coords, "external": external})
 
 
 def _statistic(h: Mapping[str, Any], res: Any) -> Dict[str, Any]:
+    from .methods import STATISTIC_EXTRACTORS
     stat = h["statistic"]
-    if stat == "coefficient":
-        c = res.coefficients.set_index("term")
-        if h["term"] not in c.index:
-            raise KeyError(f"term {h['term']!r} not in model (terms: {list(c.index)})")
-        row = c.loc[h["term"]]
-        from ..models import interval_se_column
-        se_col = interval_se_column(res)  # the SE behind p_value and the interval
-        return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
-                "p_two_sided": float(row["p_value"]),
-                "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"])}
-    if stat == "correlation":
-        a, b = h["variables"]
-        return {"estimate": float(res.matrix.loc[a, b]), "se": None, "p_two_sided": float(res.p_values.loc[a, b]),
-                "ci_lower": float(res.ci_lower.loc[a, b]), "ci_upper": float(res.ci_upper.loc[a, b])}
-    if stat == "trend_slope":
-        return {"estimate": res["slope"], "se": res["se_slope"], "p_two_sided": res["p_value"],
-                "ci_lower": res["ci_lower"], "ci_upper": res["ci_upper"]}
-    if stat == "z_difference":
-        row = res[res["GEOID"] == str(h["geoid"])]
-        if row.empty:
-            raise KeyError(f"GEOID {h['geoid']} not in the test frame")
-        r = row.iloc[0]
-        diff = float(r.get("difference", r["e1"] - r["e2"]))
-        return {"estimate": diff, "se": None, "p_two_sided": float(r["p_value"]), "ci_lower": None, "ci_upper": None}
-    raise ValueError(stat)
+    if stat not in STATISTIC_EXTRACTORS:
+        raise ValueError(stat)
+    return STATISTIC_EXTRACTORS[stat](h, res)
 
 
 def _tag(result: Any, h: str, analysis_id: str, status: str = STATUS_CONFIRMATORY) -> Any:
@@ -656,6 +605,9 @@ def run_manifest(
             for source_key, target in (("estimate", "odds_ratio"), ("ci_lower", "odds_ratio_lower"),
                                    ("ci_upper", "odds_ratio_upper")):
                 row[target] = float(np.exp(row[source_key])) if row.get(source_key) is not None else None
+        if hyp["statistic"] in ("log_rii", "log_smr"):
+            for source_key, target in (("estimate", "ratio"), ("ci_lower", "ratio_lower"), ("ci_upper", "ratio_upper")):
+                row[target] = float(np.exp(row[source_key])) if row.get(source_key) is not None else None
         rows.append(row)
     hyp_df = pd.DataFrame(rows)
     hyp_df["p_adjusted"] = np.nan
@@ -799,7 +751,7 @@ def _write_bundle(folder: Path, m, h, results, hyp_df, run_info, citation) -> Di
             figures_[f"shrinkage_{aid}"] = (figs.shrinkage_plot, {"result": r, "manifest_hash": h,
                                                                   "data_source": fig_source})
     cols = ["id", "statistic", "direction", "estimate", "p_value", "p_adjusted", "significant", "status"]
-    cols += [c for c in ("odds_ratio", "odds_ratio_lower", "odds_ratio_upper") if c in hyp_df]
+    cols += [c for c in ("odds_ratio", "odds_ratio_lower", "odds_ratio_upper", "ratio", "ratio_lower", "ratio_upper") if c in hyp_df]
     if m.get("exploratory"):
         cols.append("analysis_status")
     show = hyp_df.reindex(columns=cols)

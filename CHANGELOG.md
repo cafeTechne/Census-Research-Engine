@@ -5,6 +5,25 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.22.0 (Round 24): method registry and public-health inequality
+
+- Centralize manifest execution, method-specific validation, statistics and methods text in
+  `MethodSpec`; preserve all 478 refactor snapshots and the existing public constant ordering.
+- Add weighted area ridits, SII, log RII and concentration with independent-area HC3 and strict
+  ACS replicate uncertainty; concentration ranks from least to most deprived (the reverse of
+  the usual income-ranked sign). Warn about rank-error attenuation above median CV 15%.
+- Add indirect SMR, pooled counts/expected counts, fixed-E Garwood intervals and combined
+  Poisson/ACS log intervals; require explicit per-person reference rates and a hashed citation.
+  Negative ACS band replicates are refused under the fixed validation domain, even with positive E.
+- Both pre-specified validations passed: inequality conservative coverage 0.876–0.905 in
+  required CV<=15% cells; SMR combined coverage 0.893–0.909. High-error inequality cells
+  remain outside the validated range (coverage as low as 0.638 at rank CV 30%).
+- Register both manifest methods without adding MCP tools (63). Extend circularity to ranked
+  external outcomes, add log-scale ratio columns, explicit complete-case exclusion records,
+  public library exports and the `health_inequality` recipe across agent guidance.
+- Cache-only exploratory MI/NY LBW example: 144 complete counties, rank CV 6.63%; all
+  conservative intervals include their null. Outputs remain a separate local archive.
+
 ## 0.21.1 (Round 23): internal package split
 
 Internal: `census.manifest` split into a package (no behaviour change; golden snapshot identical)

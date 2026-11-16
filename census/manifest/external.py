@@ -4,6 +4,7 @@
 from typing import Any, Dict, List, Mapping
 from .schema import (
     _formula_names,
+    _normalize_analysis,
     _variable_tables,
 )
 
@@ -26,9 +27,18 @@ def external_circularity(manifest: Mapping[str, Any]) -> List[Dict[str, Any]]:
     tables = _variable_tables(manifest)
     out = []
     for a in manifest.get("analyses") or []:
-        if not isinstance(a, Mapping) or "~" not in str(a.get("formula", "")):
+        if not isinstance(a, Mapping):
             continue
-        lhs, rhs = str(a["formula"]).split("~", 1)
+        if a.get("method") in ("inequality", "smr"):
+            a = _normalize_analysis(a)
+            lhs = str(a.get("outcome", a.get("observed", "")))
+            bands = a.get("population_bands")
+            rhs = str(a.get("rank_by", " ".join(v for v in bands if isinstance(v, str))
+                            if isinstance(bands, list) else ""))
+        elif "~" in str(a.get("formula", "")):
+            lhs, rhs = str(a["formula"]).split("~", 1)
+        else:
+            continue
         ys = [y if y in ext else y[:-10] for y in _formula_names(lhs)
               if y in ext or (y.endswith("_numerator") and y[:-10] in ext)]
         if not ys:
@@ -75,6 +85,9 @@ def circularity_errors(manifest: Mapping[str, Any]) -> List[str]:
     hyps = [h for h in manifest.get("hypotheses") or [] if isinstance(h, Mapping)]
     tables = _variable_tables(manifest)
     for aid, recs in by_analysis.items():
+        analysis = next(a for a in manifest["analyses"] if a.get("id") == aid)
+        if analysis.get("method") in ("inequality", "smr"):
+            analysis = _normalize_analysis(analysis)
         tested = [h for h in hyps if h.get("analysis") == aid]
         for c in recs:
             if c["has_equivalent"]:
@@ -89,23 +102,25 @@ def circularity_errors(manifest: Mapping[str, Any]) -> List[str]:
                         f"and only it may be tested). {CIRCULARITY_RULE}")
                     continue
                 for h in tested:
-                    term = [n for n in _formula_names(str(h.get("term", ""))) if n in tables] or [str(h.get("term"))]
+                    tested_term = analysis.get("rank_by") if analysis.get("method") == "inequality" else h.get("term")
+                    term = [n for n in _formula_names(str(tested_term if tested_term is not None else "")) if n in tables] or [str(tested_term)]
                     if not all(t in c["equivalent"] for t in term):
                         errors.append(
                             f"hypotheses {h.get('id')}: CIRCULARITY R1: analysis {aid} compares the external "
                             f"{c['outcome']} with its ACS equivalent {sorted(c['equivalent'])}; only that "
-                            f"comparison may be tested, not {h.get('term')!r} (a determinant study uses the ACS "
+                            f"comparison may be tested, not {tested_term!r} (a determinant study uses the ACS "
                             "measure as its outcome)")
             if c["kind"] == "direct":
                 continue
             for h in tested:
-                term = [n for n in _formula_names(str(h.get("term", ""))) if n in c["overlap"]]
+                tested_term = analysis.get("rank_by") if analysis.get("method") == "inequality" else h.get("term")
+                term = [n for n in _formula_names(str(tested_term if tested_term is not None else "")) if n in c["overlap"]]
                 just = h.get("circularity_justification")
                 if term and not (isinstance(just, str) and len(just.strip()) >= 20):
                     fams = "; ".join(f"{t}: " + ", ".join(f"{lab} {'/'.join(tabs)}" for lab, tabs in c["overlap"][t].items())
                                      for t in term)
                     errors.append(
-                        f"hypotheses {h.get('id')}: CIRCULARITY R2: the tested term {h.get('term')!r} is built from "
+                        f"hypotheses {h.get('id')}: CIRCULARITY R2: the tested term {tested_term!r} is built from "
                         f"inputs of the model that produced {c['outcome']} ({c['source']}, {c['kind']}: {fams}); "
                         "its coefficient partly recovers that model, not the world. Test a direct outcome (the "
                         "ACS measure, vital records), or add a written circularity_justification (20+ "

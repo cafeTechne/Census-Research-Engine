@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "releases": [
+    2022
+  ],
+  "geography": {
+    "level": "county",
+    "states": [
+      "26",
+      "36"
+    ]
+  },
+  "missing": "complete_case",
+  "confidence_level": 0.9,
+  "correction": {
+    "family": "all",
+    "method": "holm"
+  },
+  "external": [
+    {
+      "measure": "v037",
+      "name": "lbw",
+      "release": 2025,
+      "source": "chr"
+    }
+  ],
+  "replicates": {
+    "source": "census_vre"
+  },
+  "title": "Exploratory MI/NY county low birth weight inequality by poverty rank",
+  "authors": [
+    "human:cafeTechne"
+  ],
+  "created": "2026-11-15T00:00:00Z",
+  "exploratory": true,
+  "variables": [
+    {
+      "name": "pov_total",
+      "ref": "2022:B17001_001"
+    },
+    {
+      "name": "pov_below",
+      "ref": "2022:B17001_002"
+    }
+  ],
+  "derivations": [
+    {
+      "as_percent": true,
+      "den": "pov_total",
+      "name": "pov_rate",
+      "num": "pov_below",
+      "op": "proportion"
+    }
+  ],
+  "exclusions": [
+    {
+      "rule": "cv_screen",
+      "variables": [
+        "pov_rate"
+      ],
+      "threshold": 15,
+      "action": "flag"
+    }
+  ],
+  "analyses": [
+    {
+      "id": "ineq",
+      "method": "inequality",
+      "outcome": "lbw",
+      "rank_by": "pov_rate",
+      "weights": "lbw_denominator",
+      "args": {
+        "higher_is_more_deprived": true,
+        "target": "conservative"
+      }
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "analysis": "ineq",
+      "statistic": "sii",
+      "direction": "two-sided",
+      "statement": "Exploratory area association; prior Round 22 poverty/LBW association already examined."
+    },
+    {
+      "id": "H2",
+      "analysis": "ineq",
+      "statistic": "log_rii",
+      "direction": "two-sided",
+      "statement": "Exploratory area association; prior Round 22 poverty/LBW association already examined."
+    },
+    {
+      "id": "H3",
+      "analysis": "ineq",
+      "statistic": "concentration_index",
+      "direction": "two-sided",
+      "statement": "Exploratory area association; prior Round 22 poverty/LBW association already examined."
+    }
+  ]
+}

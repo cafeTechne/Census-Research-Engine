@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Headless Census ACS data client and processing library."""
 
-__version__ = "0.21.1"
+__version__ = "0.22.0"
 
 from census.api import (
     DATASETS,
@@ -199,7 +199,11 @@ from census.rpp import adjust_for_place, adjust_for_place_and_time
 from census.web_maps import web_choropleth
 from census.api import PRODUCTS, dataset_for_product, dataset_product
 
+from census.inequality import ridits, slope_index, concentration_index, inequality_replicate
+from census.standardize import indirect_standardize
+
 __all__ = [
+    "ridits", "slope_index", "concentration_index", "inequality_replicate", "indirect_standardize",
     # api
     "CensusAPIClient",
     "fetch_census_data",

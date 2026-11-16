@@ -1,0 +1,68 @@
+{
+  "criterion": "Combined nominal 90% interval coverage >= 0.86 in all six cells. O=0 and invalid draws count as non-coverage.",
+  "passed": true,
+  "cells": [
+    {
+      "expected": 10,
+      "band_cv": 0.05,
+      "draws": 2000,
+      "seed": 20261117,
+      "combined_coverage": 0.9095,
+      "exact_coverage": 0.9255,
+      "zero_counts": 0,
+      "invalid_draws": 0
+    },
+    {
+      "expected": 10,
+      "band_cv": 0.2,
+      "draws": 2000,
+      "seed": 20261118,
+      "combined_coverage": 0.9035,
+      "exact_coverage": 0.881,
+      "zero_counts": 0,
+      "invalid_draws": 0
+    },
+    {
+      "expected": 50,
+      "band_cv": 0.05,
+      "draws": 2000,
+      "seed": 20261119,
+      "combined_coverage": 0.893,
+      "exact_coverage": 0.8905,
+      "zero_counts": 0,
+      "invalid_draws": 0
+    },
+    {
+      "expected": 50,
+      "band_cv": 0.2,
+      "draws": 2000,
+      "seed": 20261120,
+      "combined_coverage": 0.906,
+      "exact_coverage": 0.735,
+      "zero_counts": 0,
+      "invalid_draws": 1
+    },
+    {
+      "expected": 500,
+      "band_cv": 0.05,
+      "draws": 2000,
+      "seed": 20261121,
+      "combined_coverage": 0.897,
+      "exact_coverage": 0.7765,
+      "zero_counts": 0,
+      "invalid_draws": 0
+    },
+    {
+      "expected": 500,
+      "band_cv": 0.2,
+      "draws": 2000,
+      "seed": 20261122,
+      "combined_coverage": 0.905,
+      "exact_coverage": 0.335,
+      "zero_counts": 0,
+      "invalid_draws": 0
+    }
+  ],
+  "criterion_commit": "680707e",
+  "script_sha256": "3e5d91ba54b48e14c34cbe527290df5b9a44582a06c1776d62a9dee8b1f8efa6"
+}

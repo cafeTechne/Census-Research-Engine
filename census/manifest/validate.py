@@ -5,6 +5,7 @@ from census.data_integrity import BundledDataIntegrityError
 from datetime import datetime
 from typing import Any, Dict, List, Mapping
 import numpy as np
+from .methods import METHODS
 from .adjustments import (
     _check_adjustments,
 )
@@ -315,8 +316,7 @@ def _check_analysis(i, a, manifest, names, ext_names, ids, folded_ids,
             used.append(a[key])
     aargs = a.get("args") or {}
     outcome_name = str(a.get("formula", "")).split("~")[0].strip()
-    count_outcome = (outcome_name if method == "fit_replicate" and aargs.get("model") == "poisson"
-                     and outcome_name.endswith("_numerator") and outcome_name[:-10] in ext_names else None)
+    count_outcome = METHODS[method].check("count", locals())
     if count_outcome and count_outcome in _formula_names(str(a.get("formula", "")).split("~", 1)[1]):
         errors.append("external count columns are allowed as the Poisson outcome only")
     for u in used:
@@ -333,86 +333,12 @@ def _check_analysis(i, a, manifest, names, ext_names, ids, folded_ids,
         elif [u for u in ext_used if u not in outcome] or len(outcome) != 1:
             errors.append(f"analyses[{i}] ({a.get('id')}): external variables {ext_used} may only be the outcome "
                           "(alone): as covariates their model-based error would go uncorrected")
-        elif method == "fit_replicate" and (a.get("args") or {}).get("target", "population") == "these_areas":
-            errors.append(f"analyses[{i}] ({a.get('id')}): an external outcome is held fixed in the refits, so "
-                          "target 'these_areas' (replicate SE alone) is refused; use 'population' or "
-                          "'conservative'")
-    if method == "fit_replicate":
-        allowed = {"model", "weights", "exposure", "trials", "cv_threshold", "max_failed_replicates",
-                   "target", "scale", "spatial_se"}
-        unknown = sorted(set(aargs) - allowed)
-        if unknown:
-            errors.append(f"fit_replicate does not take args {unknown}")
-        glm = aargs.get("model", "ols")
-        if aargs.get("scale") is not None and (aargs["scale"] not in ("X2", "robust")
-                                                or glm not in ("binomial", "poisson")):
-            errors.append("scale must be 'robust' or 'X2' for binomial or poisson models only")
-        if aargs.get("scale") == "robust" and aargs.get("spatial_se") is not None:
-            errors.append("scale 'robust' and spatial_se are alternatives; choose one")
-        parent = outcome_name if outcome_name in ext_names else count_outcome[:-10] if count_outcome else None
-        if parent is not None:
-            if glm not in ("ols", "binomial", "poisson"):
-                errors.append(f"{glm} not validated for external outcomes (PLAN_ROUND_22 out of scope)")
-            if glm == "binomial" and aargs.get("trials") != parent + "_denominator":
-                errors.append(f"external binomial outcome requires trials '{parent}_denominator'; effective trials refused")
-            if glm == "poisson" and (count_outcome is None or aargs.get("exposure") != parent + "_denominator"):
-                errors.append(f"external poisson needs {parent}_numerator outcome and exposure '{parent}_denominator'")
-            if glm in ("binomial", "poisson") and aargs.get("scale") is None and aargs.get("spatial_se") is None:
-                errors.append("overdispersion would be ignored: set scale 'robust'")
-            elif (glm in ("binomial", "poisson") and aargs.get("scale") == "X2"
-                  and manifest_hash(manifest) not in LEGACY_X2_MANIFESTS):
-                errors.append("external count outcome with scale 'X2' refused: Pearson X2 SEs under-cover when "
-                              "areas differ beyond binomial/Poisson chance (validated coverage 0.69-0.79 at "
-                              "nominal 0.90, docs/audits/robust_se_validation.md); set scale 'robust' (HC3)")
-        for role in ("weights", "exposure", "trials"):
-            column = aargs.get(role)
-            valid_count = parent and ((glm == "binomial" and role == "trials") or
-                                      (glm == "poisson" and role == "exposure")) and column == parent+"_denominator"
-            if column is not None and column not in names and column not in FORMULA_ID_COLUMNS and not valid_count:
-                errors.append(f"fit_replicate {role} {column!r} is not a manifest variable in this role")
+        else:
+            METHODS[method].check("external", locals())
+    METHODS[method].check("before_spatial", locals())
     spatial = (a.get("args") or {}).get("spatial_se")
-    if spatial is not None:
-        valid_spatial = (isinstance(spatial, Mapping) and set(spatial) == {"cutoff_km"}
-                         and type(spatial["cutoff_km"]) in (int, float)
-                         and np.isfinite(spatial["cutoff_km"]) and spatial["cutoff_km"] > 0)
-        if not valid_spatial:
-            errors.append("spatial_se must be an object with exactly cutoff_km (finite number > 0)")
-        from ..spatial_hac import SPATIAL_HAC_VALIDATED
-        if not SPATIAL_HAC_VALIDATED and not manifest.get("exploratory", False):
-            errors.append("spatial_se failed its validation (docs/audits/spatial_hac_validation.md); exploratory only")
-        if (a.get("args") or {}).get("cluster"):
-            errors.append("spatial_se and cluster are mutually exclusive")
-        if method not in ("fit_eiv", "fit_replicate") or (method == "fit_replicate" and
-                (a.get("args") or {}).get("model", "ols") not in ("binomial", "poisson")):
-            errors.append("spatial_se is supported for fit_eiv and fit_replicate binomial/poisson")
-    if method == "fit_eiv":
-        eargs = a.get("args") or {}
-        unknown = sorted(set(eargs) - {"model", "weights", "cv_threshold", "target", "cluster", "cluster_se", "spatial_se"})
-        if unknown:
-            errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv does not take args {unknown} (allowed: "
-                          "model, weights, cv_threshold, cluster, cluster_se)")
-        if "cluster_se" in eargs and (eargs["cluster_se"] not in ("cr1", "jackknife") or "cluster" not in eargs):
-            errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv args.cluster_se must be 'cr1' or 'jackknife' "
-                          "and needs args.cluster")
-        if "target" in eargs:
-            errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv takes no 'target': its intervals use the "
-                          "sandwich se_total (a measurement-error correction is a claim about the population "
-                          "relationship, not about these areas)")
-        if "cluster" in eargs:
-            cl = eargs["cluster"]
-            from ..models import CLUSTER_PREFIX_RE
-            mm = CLUSTER_PREFIX_RE.match(str(cl)) if isinstance(cl, str) else None
-            if not isinstance(cl, str) or not (cl in names or cl in FORMULA_ID_COLUMNS
-                                               or (mm and 1 <= int(mm.group(1)) <= 11)):
-                errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv args.cluster must be a manifest variable "
-                              "or GEOID.str[:N] (e.g. GEOID.str[:5] for counties of tracts)")
-        if str(eargs.get("model", "ols")).lower() not in ("ols", "wls"):
-            errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv supports model 'ols' or 'wls'")
-        if str(eargs.get("model", "ols")).lower() == "wls" and not eargs.get("weights"):
-            errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv with model 'wls' needs args.weights")
-        if not census_vre_source(manifest) and a.get("replicates") != "required":
-            errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv needs replicates: declare "
-                          "replicates.source 'census_vre' or \"replicates\": \"required\"")
+    METHODS[method].check("spatial", locals())
+    METHODS[method].check("after_spatial", locals())
     scope = a.get("replicate_scope", "all")
     if scope not in REPLICATE_SCOPES:
         errors.append(f"analyses[{i}] ({a.get('id')}): replicate_scope must be one of {REPLICATE_SCOPES}")
@@ -475,6 +401,8 @@ def _check_manifest_hypotheses(manifest, ids, errors):
         for k in need:
             if k not in h:
                 errors.append(f"hypotheses[{i}]: {k!r} is required for statistic {h.get('statistic')!r}")
+        METHODS[method].check("hypothesis", {**locals(), "a": next(
+            _normalize_analysis(a) for a in manifest["analyses"] if a.get("id") == h.get("analysis"))})
         just = h.get("circularity_justification")
         if just is not None and not isinstance(just, str):
             errors.append(f"hypotheses[{i}]: circularity_justification must be text")

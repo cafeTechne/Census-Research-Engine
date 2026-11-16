@@ -34,19 +34,8 @@ BLOCKING_DEVIATIONS = ("blocked_variable", "extraction_failed", "variable_missin
 DATA_SOURCE_KEYS = ("synthetic", "description", "generator")
 STATUS_EXPLORATORY = "exploratory"
 
-# method -> (required args, statistics it supports)
-ANALYSIS_METHODS: Dict[str, Tuple[Tuple[str, ...], Tuple[str, ...]]] = {
-    "fit_replicate": (("formula",), ("coefficient",)),
-    "fit_eiv": (("formula",), ("coefficient",)),
-    "regression_calibration": (("formula", "error_covariates"), ("coefficient",)),
-    "simex": (("formula", "error_covariates"), ("coefficient",)),
-    "fh_regression": (("formula",), ("coefficient",)),
-    "fay_herriot": (("formula",), ("coefficient",)),
-    "correlation_matrix": (("variables",), ("correlation",)),
-    "linear_trend_test": (("variable", "geoid"), ("trend_slope",)),
-    "batch_z_test": (("variable_1", "variable_2"), ("z_difference",)),
-}
-STATISTICS = ("coefficient", "correlation", "trend_slope", "z_difference")
+from .methods import METHODS, ANALYSIS_METHODS, STATISTICS, REPLICATE_METHODS
+
 EXCLUSION_RULES = ("cv_screen", "geoid_exclude")
 ADJUSTMENT_TYPES = ("rpp",)
 RPP_ADJUSTMENT_KEYS = ("type", "variables", "rpp_year", "areas", "rpp_years", "dollar_year", "price_index")
@@ -62,6 +51,10 @@ FIPS2_RE = re.compile(r"^\d{2}$")
 FORMULA_FUNCTIONS = {"C", "I", "np", "log", "exp", "sqrt", "center", "standardize", "scale", "Q"}
 
 REFERENCES = {
+    "pamuk": "Pamuk, E.R. (1985). Social class inequality in mortality from 1921 to 1972 in England and Wales. Population Studies 39:17-31.",
+    "kakwani": "Kakwani, N., Wagstaff, A. & van Doorslaer, E. (1997). Socioeconomic inequalities in health: measurement, computation, and statistical inference. Journal of Econometrics 77:87-103.",
+    "garwood": "Garwood, F. (1936). Fiducial limits for the Poisson distribution. Biometrika 28:437-442.",
+    "breslow": "Breslow, N.E. & Day, N.E. (1987). Statistical Methods in Cancer Research, Vol. II. IARC Scientific Publications 82.",
     "acs": "U.S. Census Bureau (2020). Understanding and Using American Community Survey Data: "
            "What All Data Users Need to Know (ACS General Handbook), ch. 7-8.",
     "vre": "U.S. Census Bureau. Variance Replicate Estimate Tables Documentation. "
@@ -216,13 +209,18 @@ def tables_and_refs(manifest: Mapping[str, Any]) -> Dict[str, List[str]]:
 _SPEC_KEYS = ("formula", "error_covariates", "variables", "variable", "geoid", "variable_1", "variable_2")
 
 
+def _spec_keys(a):
+    spec = METHODS.get(a.get("method"))
+    return tuple(dict.fromkeys(_SPEC_KEYS + (spec.required if spec else ())))
+
+
 def _normalize_analysis(a: Mapping[str, Any]) -> Dict[str, Any]:
     """Return the analysis with spec keys (formula, variables, ...) lifted from
     ``args`` to the top level, so either placement works the same way.
     Duplicates (a key both top-level and in args) are a validation error."""
     out = dict(a)
     args = dict(a.get("args") or {})
-    for k in _SPEC_KEYS:
+    for k in _spec_keys(a):
         if k in args and k not in out:
             out[k] = args.pop(k)
         elif k in args:
@@ -233,7 +231,7 @@ def _normalize_analysis(a: Mapping[str, Any]) -> Dict[str, Any]:
 
 def _duplicate_spec_keys(a: Mapping[str, Any]) -> List[str]:
     args = a.get("args") or {}
-    return [k for k in _SPEC_KEYS if k in a and k in args]
+    return [k for k in _spec_keys(a) if k in a and k in args]
 
 
 def _formula_names(formula: str) -> List[str]:
@@ -253,4 +251,3 @@ CONFIRMATORY_REPLICATE_POLICY = "strict"
 # Manifest methods that use replicates; each runs with replicate_policy="strict".
 # (Spatial, multilevel, DiD and PUMS analyses are not manifest methods; if added
 # they must join this set so confirmatory runs refuse incomplete replicates.)
-REPLICATE_METHODS = ("fit_replicate", "correlation_matrix", "fit_eiv")

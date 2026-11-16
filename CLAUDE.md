@@ -1,8 +1,8 @@
 # Agent guide
 
 Start with `STATUS.md` (current state, validated methods, rules, backlog). Then read only the current
-`PLAN_ROUND_<n>.md` if you are implementing a round. Older plans are archived at tag `v0.21.0`
-(`git show v0.21.0:PLAN_ROUND_<n>.md`); read one only when a docstring citation is not enough.
+`PLAN_ROUND_<n>.md` if you are implementing a round. Older plans are archived at their release tags
+(`git show v0.21.0:PLAN_ROUND_<n>.md` for rounds 1–22; `v0.21.1` for 23; `v0.22.0` for 24); read one only when a docstring citation is not enough.
 
 ## Commands
 
