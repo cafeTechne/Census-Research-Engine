@@ -121,16 +121,7 @@ def _multi_release_adjustment_text(m: Mapping[str, Any], adj: Mapping[str, Any],
     return text
 
 
-def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, Any]] = None) -> str:
-    """Markdown methods text matching what the manifest specifies (and, with
-    ``results`` = the run info of :func:`run_manifest`, what actually ran)."""
-    from ..report_tables import data_citation
-    from ..sae import REFERENCES as FH_REFS
-    m = manifest
-    h = manifest_hash(m)
-    run = results or {}
-    source = run.get("data_source") or effective_data_source(m)
-    rep_info = run.get("replicates")
+def _methods_replicate_source(m, results, rep_info):
     if rep_info and rep_info.get("source") == "census_vre":
         files = rep_info.get("files") or []
         tabs = sorted({f["table"] for f in files})
@@ -160,17 +151,10 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
     else:
         rep_source = "the 80 ACS replicate estimates"
         rep_short = " and replicate-based standard errors"
-    level = float(m.get("confidence_level", 0.90))
-    corr = m.get("correction") or {}
-    cites: List[str] = ["acs"]
-    lines = [f"## Methods", "", f"*Pre-registered analysis \"{m.get('title', '')}\"; manifest SHA-256 `{h}`, "
-             f"created {m.get('created')} by {', '.join(m.get('authors', []))}.*", ""]
-    if m.get("exploratory"):
-        lines.insert(0, "This analysis was registered as exploratory (manifest flag `exploratory: true`); its results are not confirmatory.")
-    if results is not None:
-        status = results.get("analysis_status", STATUS_CONFIRMATORY)
-        lines += [f"**Analysis status: {status}**"
-                  + (f": {INCOMPLETE_STATUS_TEXT}." if status == STATUS_CONFIRMATORY_INCOMPLETE else "."), ""]
+    return rep_source, rep_short
+
+
+def _methods_data(m, run, source, lines, cites, data_citation):
     lines += ["### Data", ""]
     tables = sorted(tables_and_refs(m))
     geo = m.get("geography", {})
@@ -262,6 +246,9 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                      "aggregate MOEs use replicate variance where available, else the ACS approximation "
                      "sqrt(sum MOE^2).")
         cites.append("vre")
+
+
+def _methods_derivations(m, rep_info, lines, cites):
     lines += ["", "### Measures and uncertainty", "",
               "Standard errors of published estimates are MOE/1.645 (ACS MOEs are 90% margins)."]
     rep_rows = (rep_info or {}).get("derived_on_replicates_rows") or {}
@@ -287,6 +274,9 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                          f"were {'excluded' if ex.get('action') == 'exclude' else 'kept and flagged'}.")
         else:
             lines.append(f"{len(ex.get('geoids', []))} pre-specified GEOIDs were excluded.")
+
+
+def _methods_adjustments(m, run, lines, cites):
     run_adj = {i: a for i, a in enumerate(run.get("adjustments") or [])}
     for i, adj in enumerate(m.get("adjustments") or []):
         done = run_adj.get(i)
@@ -313,12 +303,18 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                          + (f"custom {done['rpp_table'].get('path')} (SHA-256 {done['rpp_table'].get('sha256')}, "
                             "not verified)" if done["rpp_table"].get("source") == "custom"
                             else f"bundled (SHA-256 {done['rpp_table'].get('sha256')})") + ".")
+
+
+def _methods_replicates(rep_info, lines):
     if rep_info and rep_info.get("source") == "census_vre" and rep_info.get("unavailable"):
         miss = sorted({f"{u['variable']} ({u['table']})" for u in rep_info["unavailable"]})
         lines.append(f"No Census VRE replicates are published for {', '.join(miss)}; replicate analyses using "
                      "them as variables with sampling error stop under the strict confirmatory policy unless "
                      "the manifest declares otherwise (below).")
     lines.append("Rows with missing or undefined estimates were dropped analysis by analysis (complete cases).")
+
+
+def _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites):
     lines += ["", "### Analyses", ""]
     for a in m.get("analyses", []):
         a = _normalize_analysis(a)
@@ -412,6 +408,9 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                              "exploratory and not validated for confirmatory use.")
         if a["method"] == "fit_eiv" and args.get("cluster"):
             cites.append("cluster")
+
+
+def _methods_hypotheses(m, corr, level, lines, cites):
     lines += ["", "### Hypotheses and multiple comparisons", ""]
     for hyp in m.get("hypotheses", []):
         lines.append(f"- **{hyp['id']}** ({hyp.get('direction', 'two-sided')}, {hyp['statistic']}"
@@ -423,6 +422,9 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                  f"{'all hypotheses' if corr.get('family', 'all') == 'all' else 'each hypothesis family'}; "
                  f"one-sided p-values are half the two-sided value in the hypothesized direction.")
     cites.append({"benjamini-hochberg": "bh", "fdr_bh": "bh", "fdr_by": "by"}.get(cm, cm))
+
+
+def _methods_deviations(results, lines):
     if results is not None:
         devs = results.get("deviations", [])
         lines += ["", "### Deviations from the manifest", ""]
@@ -430,6 +432,9 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                   for d in devs] or ["None."]
         for e in results.get("exclusions", []):
             lines.append(f"- Exclusion {e['rule']}: " + ", ".join(f"{k}={v}" for k, v in e.items() if k != "rule"))
+
+
+def _methods_references(cites, lines, FH_REFS):
     lines += ["", "### References", ""]
     seen = []
     for c in cites:
@@ -440,4 +445,36 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
             lines += [f"- {r}" for r in FH_REFS]
         elif c in REFERENCES:
             lines.append(f"- {REFERENCES[c]}")
+
+
+def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, Any]] = None) -> str:
+    """Markdown methods text matching what the manifest specifies (and, with
+    ``results`` = the run info of :func:`run_manifest`, what actually ran)."""
+    from ..report_tables import data_citation
+    from ..sae import REFERENCES as FH_REFS
+    m = manifest
+    h = manifest_hash(m)
+    run = results or {}
+    source = run.get("data_source") or effective_data_source(m)
+    rep_info = run.get("replicates")
+    rep_source, rep_short = _methods_replicate_source(m, results, rep_info)
+    level = float(m.get("confidence_level", 0.90))
+    corr = m.get("correction") or {}
+    cites: List[str] = ["acs"]
+    lines = [f"## Methods", "", f"*Pre-registered analysis \"{m.get('title', '')}\"; manifest SHA-256 `{h}`, "
+             f"created {m.get('created')} by {', '.join(m.get('authors', []))}.*", ""]
+    if m.get("exploratory"):
+        lines.insert(0, "This analysis was registered as exploratory (manifest flag `exploratory: true`); its results are not confirmatory.")
+    if results is not None:
+        status = results.get("analysis_status", STATUS_CONFIRMATORY)
+        lines += [f"**Analysis status: {status}**"
+                  + (f": {INCOMPLETE_STATUS_TEXT}." if status == STATUS_CONFIRMATORY_INCOMPLETE else "."), ""]
+    _methods_data(m, run, source, lines, cites, data_citation)
+    _methods_derivations(m, rep_info, lines, cites)
+    _methods_adjustments(m, run, lines, cites)
+    _methods_replicates(rep_info, lines)
+    _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites)
+    _methods_hypotheses(m, corr, level, lines, cites)
+    _methods_deviations(results, lines)
+    _methods_references(cites, lines, FH_REFS)
     return "\n".join(lines) + "\n"
