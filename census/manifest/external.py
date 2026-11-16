@@ -29,14 +29,14 @@ def external_circularity(manifest: Mapping[str, Any]) -> List[Dict[str, Any]]:
     for a in manifest.get("analyses") or []:
         if not isinstance(a, Mapping):
             continue
-        if "~" in str(a.get("formula", "")):
-            lhs, rhs = str(a["formula"]).split("~", 1)
-        elif a.get("method") in ("inequality", "smr"):
+        if a.get("method") in ("inequality", "smr"):
             a = _normalize_analysis(a)
             lhs = str(a.get("outcome", a.get("observed", "")))
             bands = a.get("population_bands")
             rhs = str(a.get("rank_by", " ".join(v for v in bands if isinstance(v, str))
                             if isinstance(bands, list) else ""))
+        elif "~" in str(a.get("formula", "")):
+            lhs, rhs = str(a["formula"]).split("~", 1)
         else:
             continue
         ys = [y if y in ext else y[:-10] for y in _formula_names(lhs)

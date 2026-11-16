@@ -47,7 +47,9 @@
    only `target: "conservative"` is supported. Without replicates, expected-count
    uncertainty is zero and explicitly noted. At zero observed counts, the combined
    test is undefined; report the exact fixed-E interval only. Reference-rate
-   uncertainty is not included. No age-specific real death-count example is bundled;
+   uncertainty is not included. Negative ACS band replicates are refused under
+   the pre-specified validation domain, even if their expected total is positive.
+   No age-specific real death-count example is bundled;
    WONDER exports remain manual.
 7. Circularity R1 applies to external outcomes/counts. R2 treats `rank_by` as the
    tested term for inequality; model-input overlap requires the existing written

@@ -179,7 +179,9 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
     ``band_populations`` a DataFrame with exactly the same ordered index and
     columns in reference-rate order (areas x bands). No implicit joins/drops.
     Replicates are an array (areas, bands, 80) in that order. Positive finite
-    expected counts are required in every refit. The returned final GEOID
+    expected counts are required in every refit. This validated implementation
+    requires nonnegative band replicates; negative ACS band perturbations are
+    refused even when their total expected count would remain positive. The returned final GEOID
     ``all`` pools counts and expected counts BEFORE computing uncertainty.
     Rates are fixed; their uncertainty and between-area dependence are not
     covered. At O=0 only the exact fixed-E interval is defined.

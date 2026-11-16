@@ -373,3 +373,30 @@ def test_public_exports_and_recipe():
         assert callable(getattr(census,name)) and name in census.__all__
     recipe=get_recipe('health_inequality')
     assert recipe['success'] and 'reverse sign' in recipe['steps'] and 'reference_source' in recipe['steps']
+
+
+def test_circularity_cannot_be_bypassed_by_unused_formula():
+    from census.manifest import validate_manifest
+    m=manifest('inequality',True)
+    m['external']=[dict(name='diabetes',source='places',release=2024,measure='DIABETES')]
+    m['variables'].append(dict(name='rank',ref='2024:B17001_002'))
+    a=m['analyses'][0];a.update(outcome='diabetes',rank_by='rank',weights='pop',formula='income ~ pop')
+    assert any('CIRCULARITY R2' in e and "'rank'" in e for e in validate_manifest(m,resolve=False))
+
+
+def test_negative_replicate_bands_refused_under_preregistered_domain():
+    obs=pd.Series([10],index=['36061']);pop=pd.DataFrame([[100.,200.]],index=obs.index)
+    rep=np.repeat(pop.to_numpy()[:,:,None],80,axis=2);rep[:,0,:]=-5.
+    # ACS perturbations can be negative; this implementation's fixed validation
+    # explicitly classified such band inputs as invalid, even with E_r > 0.
+    with pytest.raises(ValueError,match='nonnegative'):
+        indirect_standardize(obs,pop,[.01,.02],rep)
+
+
+def test_rank_cv_uses_replicates_when_se_column_is_absent():
+    f,rep=frames();f=f.drop(columns='x_se')
+    # A constant scale perturbation preserves ranks but has substantial known CV.
+    rep.loc[:,REPLICATE_COLUMNS]=.8*rep[REPLICATE_COLUMNS].to_numpy()
+    result=inequality_replicate(f,'y','x','w',True,rep)
+    assert result.diagnostics['rank_cv_median']==pytest.approx(40.)
+    assert any('attenuated' in n for n in result.notes)

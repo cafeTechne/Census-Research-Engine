@@ -213,6 +213,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    Only conservative combined Poisson/replicate log intervals drive SMR tests;
    fixed-E Garwood intervals omit expected uncertainty. O=0 has only exact limits;
    absent replicates set expected uncertainty to zero, noted. Rates are fixed.
+   SMR refuses negative band replicates under its pre-specified validation domain.
    Log statistics test zero and report exponentiated ratio columns. R1 applies
    to external outcomes/counts; reused MI/NY LBW associations remain exploratory.
 """

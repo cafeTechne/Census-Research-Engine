@@ -18,3 +18,5 @@ Result: **PASS**.
 2,000 draws per cell; true SMR 1.2, five equally populated bands scaled to the target expected count.
 Gaussian population errors are not clipped/redrawn. Nonpositive/invalid populations or expected counts count as non-coverage.
 Reference-rate uncertainty, correlated band errors and spatial dependence were not simulated; rates are treated as fixed.
+
+Implementation domain: negative ACS band replicate values are refused, even when their expected total would be positive. They were classified as invalid in the pre-specified run; extending that domain requires separate validation. Final-library replay reproduced every committed cell exactly.

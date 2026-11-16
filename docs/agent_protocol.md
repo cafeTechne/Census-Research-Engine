@@ -259,6 +259,8 @@ statistics test zero; ratio columns exponentiate estimates and limits. SMR tests
 use the combined Poisson/replicate log interval (`target: conservative` only),
 while Garwood limits condition on expected counts. Zero observed counts have
 only an exact fixed-E interval; rate uncertainty is excluded. No band replicates
-means zero expected-count uncertainty, explicitly noted. See recipe
+means zero expected-count uncertainty, explicitly noted. Negative ACS band
+replicates are refused under the pre-specified validation domain, even when
+total expected counts would be positive. See recipe
 `health_inequality` and the two fixed simulation audits. Reused MI/NY LBW
 associations are exploratory.

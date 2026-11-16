@@ -217,16 +217,24 @@ Rules (implement as the methods' `check` callbacks; error texts are yours, but e
 | Item | Status | Notes |
 | :--- | :--- | :--- |
 | Baseline | Pass | 478 snapshots; 1634 passed, 37 skipped, 48 subtests. |
-| A: registry, golden identical | Pass | 478 snapshots byte-identical; isolated full suite unchanged (1634/37). |
-| A: remaining `method ==` lines | Pass | None in run.py/validate.py. Historical public tuple/text order is retained by registry projections. |
-| B1/B2 library | | |
-| Inequality validation (criterion commit, result) | | |
-| SMR validation (criterion commit, result) | | |
-| B4 manifest methods, R2 extension | | |
-| Golden diff after B | | |
-| C docs, example run | | |
-| Final suite | | |
-| Exceptions (0.7) | Recorded | Shared checkout switched externally during work; implementation isolated at /tmp/census-round24. Baseline repeated there. |
+| A: registry, golden identical | Pass | 478 byte-identical snapshots; isolated full suite 1634/37. |
+| A: remaining `method ==` lines | Pass | None in run.py/validate.py; historical tuple/text ordering preserved. |
+| B1/B2 library | Pass | Weighted indices/strict refits; keyed SMR/Garwood/combined intervals. |
+| Inequality validation (criterion commit, result) | Pass | 60330e3 pushed pre-run; required coverage 0.876–0.905; CV30% informational. |
+| SMR validation (criterion commit, result) | Pass | 680707e pushed pre-run; combined coverage 0.893–0.909. |
+| B4 manifest methods, R2 extension | Pass | Registry callbacks, rank R2/R1, ratios, failed-validation refusal tested. |
+| Golden diff after B | Pass | Legacy 478: 48 supported-method-list message leaves changed; all else identical. Final: 516 snapshots including the new example. |
+| C docs, example run | Pass | HTTP blocked; 144/145 counties, rank CV 6.63%; docs/MCP mirrored (63 tools); scanned local archive. |
+| Final suite | Pass | 1703 passed, 37 skipped, 49 subtests (69 new tests); 4 unchanged warnings. Both audit replays exact. 0.22.0 cache-only example reproduces scientific results. |
+| Exceptions (0.7) | Recorded | External branch switch required /tmp/census-round24. Registry default_target metadata added; SMR conservative only. Complete-case integration finished in commit 8; final review added three edge-case tests. |
+
+Operational choices: binomial denominators use `max(1, rint(w/50))`; SMR has equal band
+populations before scaling. Invalid draws count as non-coverage. SMR's combined-test requirement
+means conservative target only. Library inputs: matching keyed Series/DataFrame (areas x bands),
+replicates (areas, bands, 80); output includes pooled `all`. Complete-case exclusions are explicit.
+Final review covered unused-formula circularity bypass, CV from replicates when SE is absent, and
+negative ACS band replicates (refused per the pre-specified invalid-population policy,
+even with positive E). Supporting those perturbations needs separate validation. Both final-library replays exactly reproduced every committed validation cell. Seeds/designs/criteria unchanged.
 
 ## 10. Deliverables
 

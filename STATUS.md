@@ -3,14 +3,14 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.21.0 (Round 22), DOI 10.5281/zenodo.24264540. All versions: concept record
+**Current release:** v0.21.1 (Round 23, internal package split). Latest study release: v0.21.0 (Round 22), DOI 10.5281/zenodo.24264540. All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
 
 | Path | What |
 | :--- | :--- |
-| `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run`, `methods_text`, plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
+| `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run`, `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
 | `mcp_server.py` | MCP server (63 tools; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
@@ -38,11 +38,19 @@ manifests refuse them in confirmatory analyses.
 | `fit_eiv` (errors-in-variables) and its cluster jackknife | Validated (0.87–0.93) | `eiv_validation.md`, `eiv_cluster_validation.md` |
 | Binomial/Poisson GLM with `scale: "robust"` (HC3) | Validated (0.879–0.897); required for external count outcomes | `robust_se_validation.md` |
 | Binomial/Poisson with `scale: "X2"` (quasi-likelihood) | Failed under between-area overdispersion (0.689–0.79); refused for new manifests | `robust_se_validation.md` |
+| Area SII / log RII / concentration (`inequality`, Round 24 implementation) | Passed fixed 90% conservative-interval validation: 0.876–0.905 for rank CV<=15%; high-error attenuation persists (CV30% information only). Independent areas. | `inequality_validation.md` (criterion `60330e3`) |
+| Indirect SMR (`smr`, Round 24 implementation) | Passed combined Poisson/ACS log-interval validation: 0.893–0.909; rates fixed, independent band errors; negative band replicates refused. Exact Garwood limits condition on E. | `smr_validation.md` (criterion `680707e`) |
 | Conley spatial HAC SEs (`spatial_se`) | **Failed** (0.71–0.87 at 150 km); exploratory only | `spatial_hac_validation.md` |
 | Spatial error model λ correction (ME-SEM) | Validated for λ > 0 (0.86–0.93); lag model at γ 0.6 under-covers | `spatial_regression_validation.md` |
 | LISA under sampling error | Characterised, information only | `lisa_validation.md` |
 | Tract 2010→2020 apportionment: 1:1 and merged | Validated | `rate_apportionment_validation.md` |
 | Split tracts: default `missing`; opt-in `split: "dominant"` (≥0.95 share) | Dominant passed held-out OH/PA (ratio 0.913); general split failed | `rate_apportionment_retest.md` |
+
+**Round 24 implementation (v0.22.0, awaiting review/merge):** method registry, area inequality and
+indirect SMR; no new MCP tools (63). The exploratory cached LBW example uses 144 complete counties
+and is documented in `docs/studies/r24_lbw_inequality_example.md`. Full suite: 1703 passed, 37 skipped;
+69 new tests. Legacy 478 golden snapshots change only supported-method lists; final total 516.
+Both final-library validation replays reproduce every committed cell. No merge, tag or release performed.
 
 ## Standing rules
 
@@ -73,8 +81,6 @@ manifests refuse them in confirmatory analyses.
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 3. Replication of the county findings in held-out states (OH/PA).
 4. Split `run_manifest` into stages (Round 23 recorded them in `PLAN_ROUND_23.md` section 7).
-5. A per-method registry so a new analysis method is defined in one place (today: validation args,
-   `_run_analysis`, methods text, recipes, agent protocol).
 
 ## Plan format (keeps agent context small)
 

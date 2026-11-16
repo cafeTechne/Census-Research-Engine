@@ -143,6 +143,7 @@ Log statistics test zero; ratio columns exponentiate estimates and limits. SMR t
 conservative only: tests combine Poisson and expected-count replicate log variance; exact
 Garwood limits condition on expected counts. No replicates means zero expected uncertainty,
 noted; O=0 has only the exact fixed-E interval. Reference-rate uncertainty is excluded.
+SMR refuses negative ACS band replicates under its fixed validation domain, even with positive E.
 Area HC3 assumes independence. R1 applies to external outcomes/counts. Reused LBW associations
 are exploratory. No new tools are needed.
 

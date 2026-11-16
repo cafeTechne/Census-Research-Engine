@@ -179,10 +179,12 @@ def inequality_replicate(frame, outcome, rank_by, weights, higher_is_more_depriv
     cv = np.full(len(frame), np.nan)
     if rank_by+"_se" in frame:
         rank_se = frame[rank_by+"_se"].to_numpy(float)
-        np.divide(100*rank_se, np.abs(x), out=cv, where=x != 0)
-        cv[(x == 0) & (rank_se > 0)] = np.inf
+    elif rank_by in mats:
+        rank_se = np.sqrt(.05*np.sum((mats[rank_by]-x[:, None])**2, axis=1))
     else:
-        cv[:] = 0
+        rank_se = np.zeros(len(frame))  # explicitly nonstochastic rank
+    np.divide(100*rank_se, np.abs(x), out=cv, where=x != 0)
+    cv[(x == 0) & (rank_se > 0)] = np.inf
     median = float(np.nanmedian(cv)) if (~np.isnan(cv)).any() else float("nan")
     if median > 15:
         notes.append(RANK_ERROR_NOTE)
