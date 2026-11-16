@@ -87,6 +87,11 @@ Both offline goldens are required for manifest refactors; suite unchanged at 170
 3. Replication of the county findings in held-out states (OH/PA): Round 29 (needs the owner's WONDER exports).
 4. Further methods: empirical-Bayes rate smoothing, splines and joint Wald tests (Round 27); segregation
    indices and SMR reference-rate uncertainty (Round 28). Not yet planned: microdata inequality measures.
+6. Saturated-model results bundles (Round 25 observation): a two-observation, two-coefficient OLS
+   fit can crash while plotting the bundle (`ValueError: arange: cannot compute length`). Preserve
+   estimable coefficients, explicitly mark unavailable uncertainty when residual degrees of freedom
+   are zero, and skip or adapt plots requiring finite intervals. Add a regression ensuring the bundle
+   completes without inventing SEs, confidence intervals or p-values.
 
 ## Plan format (keeps agent context small)
 
