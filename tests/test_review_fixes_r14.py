@@ -308,7 +308,7 @@ class TestDefaultRppAreas(unittest.TestCase):
 
     def test_validation_and_execution_use_helper(self):
         m = two_state_manifest(adjustments=[{"type": "rpp", "variables": ["income"], "rpp_year": 2023}])
-        with mock.patch.object(M, "default_rpp_areas", return_value="bogus") as helper:
+        with mock.patch("census.manifest.adjustments.default_rpp_areas", return_value="bogus") as helper:
             errs = _errs(m)
         self.assertTrue(helper.called)
         self.assertTrue(any("areas must be" in e for e in errs), errs)
