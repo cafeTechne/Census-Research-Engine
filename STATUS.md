@@ -85,6 +85,11 @@ Exploratory example: `docs/studies/r24_lbw_inequality_example.md`. Suite: 1703 p
 4. Split `run_manifest` into stages: Round 25.
 5. Further methods: empirical-Bayes rate smoothing, splines and joint Wald tests (Round 27); segregation
    indices and SMR reference-rate uncertainty (Round 28). Not yet planned: microdata inequality measures.
+6. Saturated-model results bundles (Round 25 observation): a two-observation, two-coefficient OLS
+   fit can crash while plotting the bundle (`ValueError: arange: cannot compute length`). Preserve
+   estimable coefficients, explicitly mark unavailable uncertainty when residual degrees of freedom
+   are zero, and skip or adapt plots requiring finite intervals. Add a regression ensuring the bundle
+   completes without inventing SEs, confidence intervals or p-values.
 
 ## Plan format (keeps agent context small)
 

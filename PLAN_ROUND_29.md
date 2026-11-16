@@ -58,6 +58,15 @@ their counts, build matching ACS age × sex populations, and enforce the WONDER 
    rate_b`, computed per replicate as well, so it has replicate values. The fitted model holds the offset
    fixed (stated in the methods text). The SMR's combined interval is the sensitivity check.
 5. **Suppressed observed counts.**
+   - **Fix the suppression/join bug recorded in Round 25 before running the study.** In
+     `health_sources.join_external` and the manifest join guard, distinguish an unmatched GEOID
+     from a matched WONDER row whose outcome is suppressed. Retain suppression flags before
+     filtering outcomes; suppression alone must not trigger `external_join_failed` or a
+     geography-vintage mismatch warning. Keep genuine missing-ID checks effective, report
+     unsuppressed missing outcomes separately, and preserve other sources' existing behavior.
+   - Record matched, unmatched, suppressed and analyzable county counts separately. Suppressed
+     values remain unavailable, never zero or an inferred exact count; this fix does not relax
+     the complete-case or output-suppression rules below.
    - A county whose count is suppressed (1–9) has no per-county SMR (a deviation that names it).
    - Pooled statistics and regressions exclude suppressed counties as complete-case. The excluded
      counties are listed, and the count of excluded deaths is bounded at [n, 9n].
@@ -69,7 +78,11 @@ their counts, build matching ACS age × sex populations, and enforce the WONDER 
      but one county.
    - Add a standing rule to `STATUS.md` and `CLAUDE.md` (hard rules): "WONDER outputs: no sub-national
      counts 1–9 or values derived from them; no raw exports in the repo or releases."
-7. Tests for each of items 1–6, using the fixtures.
+7. Tests for each of items 1–6, using the fixtures. For the join regression, use three matching
+   county IDs with one suppressed outcome: report all three as matched, one suppressed and two
+   analyzable, without a vintage-mismatch failure caused by suppression. A companion fixture
+   with genuinely unmatched IDs must still trigger the existing join guard. Also distinguish
+   observed zero counts and unsuppressed missing outcomes from suppression.
 
 ## 3. Part C: pre-registered study (confirmatory; author self-review, not independent)
 
