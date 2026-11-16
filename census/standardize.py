@@ -169,7 +169,7 @@ def age_adjusted_interval(cases: Sequence[float], populations: Sequence[float], 
 
 
 # Set only from the pre-specified simulation report.
-SMR_VALIDATED = False
+SMR_VALIDATED = True  # docs/audits/smr_validation.md (680707e criterion)
 
 
 def indirect_standardize(observed, band_populations, reference_rates, band_replicates=None, level=0.90):

@@ -18,7 +18,7 @@ DIRECTION_NOTE = ("Positive indices mean higher outcomes among more deprived are
                   "has the reverse sign of the usual income-ranked convention.")
 RANK_ERROR_NOTE = "Median rank CV exceeds 15%; estimates may be attenuated by rank error."
 # Set only from the pre-specified validation report, never from the example study.
-INEQUALITY_VALIDATED = False
+INEQUALITY_VALIDATED = True  # docs/audits/inequality_validation.md (60330e3 criterion)
 
 
 def _vectors(y, x, w, hi):
@@ -75,7 +75,7 @@ def _indices(y, x, w, hi, model_se=False):
     valid = (a > 0) & (a+b > 0)
     with np.errstate(divide="ignore", invalid="ignore"):
         log_rii = np.where(valid, np.log((a+b)/a), np.nan)
-        k = 2*srr/W/ym
+        k = np.where(ym != 0, 2*srr/W/ym, np.nan)
         c = k*b
     estimates = np.column_stack((b, log_rii, c))
     if not model_se:
@@ -146,7 +146,7 @@ def inequality_replicate(frame, outcome, rank_by, weights, higher_is_more_depriv
     mats, held = {}, {}
     active = [v for v in variables if v not in fixed]
     if replicates is not None and len(replicates):
-        keys = ["GEOID"] + (["Year"] if "Year" in frame else [])
+        keys = ["GEOID"] + (["Year"] if "Year" in frame and "Year" in replicates else [])
         if frame.duplicated(keys).any() or replicates.duplicated(keys+["variable"]).any():
             raise ValueError("duplicate area/variable replicate keys")
         mats, held = _replicate_matrices(frame, replicates, active)
@@ -178,10 +178,12 @@ def inequality_replicate(frame, outcome, rank_by, weights, higher_is_more_depriv
         notes.append("Concentration undefined: weighted outcome mean is zero.")
     cv = np.full(len(frame), np.nan)
     if rank_by+"_se" in frame:
-        np.divide(100*frame[rank_by+"_se"].to_numpy(float), np.abs(x), out=cv, where=x != 0)
+        rank_se = frame[rank_by+"_se"].to_numpy(float)
+        np.divide(100*rank_se, np.abs(x), out=cv, where=x != 0)
+        cv[(x == 0) & (rank_se > 0)] = np.inf
     else:
         cv[:] = 0
-    median = float(np.nanmedian(cv)) if np.isfinite(cv).any() else float("nan")
+    median = float(np.nanmedian(cv)) if (~np.isnan(cv)).any() else float("nan")
     if median > 15:
         notes.append(RANK_ERROR_NOTE)
     coefs = _table(pd.Series(estimates[0], index=TERMS), pd.Series(model[0], index=TERMS),

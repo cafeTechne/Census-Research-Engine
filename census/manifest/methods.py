@@ -20,6 +20,7 @@ class MethodSpec:
     # Stages: count/external, before_spatial, spatial, after_spatial.
     check: Optional[Callable[..., Any]] = None
     text: Optional[Tuple[str, List[str]]] = None
+    default_target: str = "population"
 
 def _run_fit_replicate(a, args, frame, level, replicates, correction, ctx):
     from .. import correlation, models, multitest, sae, trends
@@ -155,6 +156,8 @@ def _check_spatial(stage, ctx):
             errors.append("spatial_se is supported for fit_eiv and fit_replicate binomial/poisson")
 
 def _check_fit_replicate(stage, ctx):
+    if stage == "hypothesis":
+        return
     from .schema import FORMULA_ID_COLUMNS, LEGACY_X2_MANIFESTS, manifest_hash
     from .replicates import census_vre_source
     i, a, manifest, names, ext_names, errors = (ctx[k] for k in ("i", "a", "manifest", "names", "ext_names", "errors"))
@@ -204,6 +207,8 @@ def _check_fit_replicate(stage, ctx):
     _check_spatial(stage, ctx)
 
 def _check_fit_eiv(stage, ctx):
+    if stage == "hypothesis":
+        return
     from .schema import FORMULA_ID_COLUMNS, LEGACY_X2_MANIFESTS, manifest_hash
     from .replicates import census_vre_source
     i, a, manifest, names, ext_names, errors = (ctx[k] for k in ("i", "a", "manifest", "names", "ext_names", "errors"))
@@ -239,6 +244,132 @@ def _check_fit_eiv(stage, ctx):
                           "replicates.source 'census_vre' or \"replicates\": \"required\"")
     _check_spatial(stage, ctx)
 
+def _run_inequality(a, args, frame, level, replicates, correction, ctx):
+    from ..inequality import inequality_replicate
+    external = set(ctx["external"])
+    fixed = [a["outcome"]] if a["outcome"] in external else []
+    if fixed and a["weights"] == a["outcome"]+"_denominator":
+        fixed.append(a["weights"])
+    args.pop("replicate_policy", None)  # library always enforces strict completeness
+    return inequality_replicate(frame, a["outcome"], a["rank_by"], a["weights"],
+                                replicates=replicates, fixed=fixed, level=level, **args)
+
+
+def _run_smr(a, args, frame, level, replicates, correction, ctx):
+    from ..standardize import indirect_standardize
+    from ..models import _replicate_matrices
+    from ..results import precheck_replicates, stochastic_variables, IncompleteReplicatesError
+    bands = a["population_bands"]
+    mats, held = _replicate_matrices(frame, replicates, bands) if replicates is not None else ({}, {})
+    precheck_replicates("strict", rows_held_fixed=held,
+                       variables_without_replicates=[v for v in stochastic_variables(frame, bands) if v not in mats],
+                       context="smr")
+    reps = (np.stack([mats.get(v, np.broadcast_to(frame[v].to_numpy(float)[:, None], (len(frame), 80)))
+                      for v in bands], axis=1) if mats else None)
+    idx = pd.Index(frame["GEOID"].astype(str))
+    observed = pd.Series(frame[a["observed"]].to_numpy(float), index=idx)
+    populations = frame[bands].set_axis(idx)
+    try:
+        return indirect_standardize(observed, populations, a["reference_rates"], reps, level)
+    except ValueError as exc:
+        if reps is not None and "replicate" in str(exc):
+            raise IncompleteReplicatesError(f"smr: {exc}") from exc
+        raise
+
+
+def _stat_inequality(h, res):
+    result = _stat_coefficient({"term": h["statistic"]}, res)
+    if not all(np.isfinite(result[k]) for k in ("estimate", "se", "p_two_sided", "ci_lower", "ci_upper")):
+        raise ValueError(f"{h['statistic']} or its uncertainty is undefined; see analysis notes")
+    return result
+
+
+def _stat_smr(h, res):
+    row = res[res["GEOID"] == str(h["geoid"])]
+    if row.empty:
+        raise KeyError(f"GEOID {h['geoid']} not in the SMR frame")
+    r = row.iloc[0]
+    if not np.isfinite(r["log_smr"]) or not np.isfinite(r["se_log_smr"]):
+        raise ValueError("log SMR undefined at O=0; only the fixed-E exact interval is available")
+    return {"estimate": float(r["log_smr"]), "se": float(r["se_log_smr"]), "se_basis": "se_log_smr",
+            "p_two_sided": float(r["p_value"]), "ci_lower": float(np.log(r["smr_lower"])),
+            "ci_upper": float(np.log(r["smr_upper"]))}
+
+
+def _check_inequality(stage, ctx):
+    if stage == "spatial":
+        return _check_spatial(stage, ctx)
+    if stage == "hypothesis":
+        h, errors = ctx["h"], ctx["errors"]
+        if "term" in h:
+            errors.append(f"hypotheses[{ctx['i']}] ({h.get('analysis')}): inequality names a statistic only, no term")
+        return
+    if stage != "before_spatial":
+        return
+    from ..inequality import INEQUALITY_VALIDATED
+    a, errors, names, external = (ctx[k] for k in ("a", "errors", "names", "ext_names"))
+    prefix = f"analyses[{ctx['i']}] ({a.get('id')}): "
+    args = a.get("args") or {}
+    if not INEQUALITY_VALIDATED and not ctx["manifest"].get("exploratory", False):
+        errors.append(prefix+"inequality failed validation; exploratory only (docs/audits/inequality_validation.md)")
+    if type(args.get("higher_is_more_deprived")) is not bool:
+        errors.append(prefix+"higher_is_more_deprived must be an explicit boolean")
+    if args.get("target", "conservative") not in ("population", "these_areas", "conservative"):
+        errors.append(prefix+"target must be population, these_areas or conservative")
+    unknown = sorted(set(args)-{"higher_is_more_deprived", "target"})
+    if unknown:
+        errors.append(prefix+f"inequality does not take args {unknown}")
+    outcome = a.get("outcome")
+    for role in ("outcome", "rank_by", "weights"):
+        v = a.get(role)
+        allowed_external = (role == "outcome" and v in external) or (
+            role == "weights" and outcome in external and v == str(outcome)+"_denominator")
+        if not isinstance(v, str) or (v not in names and not allowed_external):
+            errors.append(prefix+f"{role} {v!r} is not a manifest variable in this role")
+    if outcome in external and args.get("target") == "these_areas":
+        errors.append(prefix+"external outcome is held fixed; target these_areas omits its uncertainty")
+
+
+def _check_smr(stage, ctx):
+    if stage == "spatial":
+        return _check_spatial(stage, ctx)
+    if stage == "hypothesis":
+        h, errors = ctx["h"], ctx["errors"]
+        g = h.get("geoid")
+        if not isinstance(g, str) or not g or (g != "all" and not (g.isascii() and g.isdigit())):
+            errors.append(f"hypotheses[{ctx['i']}] ({h.get('analysis')}): smr requires geoid (one GEOID or 'all')")
+        if "term" in h:
+            errors.append(f"hypotheses[{ctx['i']}] ({h.get('analysis')}): smr uses geoid, not term")
+        return
+    if stage != "before_spatial":
+        return
+    from ..standardize import SMR_VALIDATED
+    a, errors, names, external = (ctx[k] for k in ("a", "errors", "names", "ext_names"))
+    prefix = f"analyses[{ctx['i']}] ({a.get('id')}): "
+    args = a.get("args") or {}
+    if not SMR_VALIDATED and not ctx["manifest"].get("exploratory", False):
+        errors.append(prefix+"smr failed validation; exploratory only (docs/audits/smr_validation.md)")
+    if set(args)-{"target"}:
+        errors.append(prefix+f"smr does not take args {sorted(set(args)-{'target'})}")
+    if args.get("target", "conservative") != "conservative":
+        errors.append(prefix+"smr target must be conservative (combined Poisson and expected-count uncertainty)")
+    observed = a.get("observed")
+    allowed_count = isinstance(observed, str) and observed.endswith("_numerator") and observed[:-10] in external
+    if not isinstance(observed, str) or (observed not in names and not allowed_count):
+        errors.append(prefix+f"observed {observed!r} must be a manifest variable or external <name>_numerator")
+    bands, rates = a.get("population_bands"), a.get("reference_rates")
+    if not isinstance(bands, list) or not bands or not all(isinstance(v,str) and v in names for v in bands):
+        errors.append(prefix+"population_bands must be a non-empty list of manifest variables")
+    elif len(set(bands)) != len(bands):
+        errors.append(prefix+"population_bands must not repeat a band")
+    if (not isinstance(rates, list) or not rates or not isinstance(bands, list) or len(rates) != len(bands)
+            or not all(type(r) in (int,float) and np.isfinite(r) and r>0 for r in rates)):
+        errors.append(prefix+"reference_rates must be finite positive numbers, one per population band")
+    source = a.get("reference_source")
+    if not isinstance(source, str) or not source.strip():
+        errors.append(prefix+"reference_source must be a non-empty citation string")
+
+
 METHODS: Dict[str, MethodSpec] = {
     'fit_replicate': MethodSpec('fit_replicate', ('formula',), ('coefficient',), _run_fit_replicate, replicate=True, external_outcome=True, check=_check_fit_replicate, text=('Coefficients were estimated with {model} regression (statsmodels) on the full-sample estimates; sampling standard errors came from refitting on each of {rep_source}, Var = 4/80 sum (b_r - b)^2, combined with the model standard error as se_total = sqrt(se_model^2 + se_sampling^2). Reported standard errors, intervals and p-values use the {target_se} ({target} target: {estimand}), with normal-theory intervals. Without replicates only model standard errors are reported.', ['vre', 'design', 'statsmodels'])),
     'fit_eiv': MethodSpec('fit_eiv', ('formula',), ('coefficient',), _run_fit_eiv, replicate=True, external_outcome=True, check=_check_fit_eiv, text=('Coefficients were estimated by moment-corrected least squares ({model}; Fuller 1987) with per-unit sampling-error covariances of every design column and of the outcome, including the outcome-covariate error covariance, estimated from {rep_source} (4/80 sum over replicates). Standard errors are {se_basis} (se_total, used for normal-theory intervals and p-values); naive coefficients are reported alongside. Coefficients are {estimand}.', ['fuller', 'vre', 'design'])),
@@ -249,6 +380,29 @@ METHODS: Dict[str, MethodSpec] = {
     'correlation_matrix': MethodSpec('correlation_matrix', ('variables',), ('correlation',), _run_correlation_matrix, replicate=True, external_outcome=False, check=_check_spatial, text=('Correlations with Fisher-z intervals{rep}.', ['fisher', 'vre'])),
     'linear_trend_test': MethodSpec('linear_trend_test', ('variable', 'geoid'), ('trend_slope',), _run_linear_trend_test, replicate=False, external_outcome=False, check=_check_spatial, text=('Linear trends across non-overlapping 5-year periods were tested by GLS with known sampling variances.', ['testing'])),
     'batch_z_test': MethodSpec('batch_z_test', ('variable_1', 'variable_2'), ('z_difference',), _run_batch_z_test, replicate=False, external_outcome=False, check=_check_spatial, text=('Differences were tested with the Census two-sample z test, SE = MOE/1.645.', ['testing'])),
+    "inequality": MethodSpec("inequality", ("outcome", "rank_by", "weights"),
+        ("sii", "log_rii", "concentration_index"), _run_inequality, replicate=True, external_outcome=True,
+        check=_check_inequality, default_target="conservative", text=(
+            "Area inequality uses positive population weights and weighted ridits from least (0) to most (1) "
+            "deprived, with tied blocks assigned their weighted mid-rank; {rank_direction}. SII is the WLS "
+            "slope, log RII is log((a+b)/a), and concentration is 2 cov_w(y,r)/mean_w(y). Positive indices "
+            "mean higher outcomes among more deprived areas; concentration has the reverse sign of the "
+            "usual income-ranked convention. Independent-area HC3 SEs (delta method for log RII; convenient-"
+            "regression approximation for concentration) combine with 80 ACS replicate refits, recomputing "
+            "ridits, by quadrature. Target: {target}. External outcomes and their denominator weights stay "
+            "fixed. Median rank CV <=15% is the validated range; above it estimates may be attenuated by "
+            "rank error. These are area associations, not individual inequality or causal effects.",
+            ["pamuk", "kakwani", "vre", "statsmodels"])),
+    "smr": MethodSpec("smr", ("observed", "population_bands", "reference_rates", "reference_source"),
+        ("log_smr",), _run_smr, replicate=True, external_outcome=True, check=_check_smr,
+        default_target="conservative", text=(
+            "Indirect SMR is observed/expected, expected=sum_b population_b*reference_rate_b; pooling "
+            "sums counts and expected counts first. Fixed reference rates: {reference_source}. Exact "
+            "Garwood limits condition on expected counts. Tests use log SMR against zero, with combined "
+            "variance 1/O + 4/80 sum(log E_r-log E)^2 and exponentiated normal intervals (target: {target}). "
+            "Without band replicates the expected-count component is zero, explicitly noted; at O=0 only "
+            "the exact fixed-E interval is defined. External observed counts stay fixed in band refits. "
+            "Reference-rate uncertainty and spatial dependence are not included.", ["garwood", "breslow", "vre"])),
 }
 
 STATISTIC_EXTRACTORS = {
@@ -256,6 +410,10 @@ STATISTIC_EXTRACTORS = {
     'correlation': _stat_correlation,
     'trend_slope': _stat_trend_slope,
     'z_difference': _stat_z_difference,
+    "sii": _stat_inequality,
+    "log_rii": _stat_inequality,
+    "concentration_index": _stat_inequality,
+    "log_smr": _stat_smr,
 }
 
 ANALYSIS_METHODS = {name: (spec.required, spec.statistics) for name, spec in METHODS.items()}

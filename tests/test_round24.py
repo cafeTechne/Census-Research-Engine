@@ -146,3 +146,207 @@ def test_smr_rejects_silent_data_loss(bad):
     if bad=='reserved': obs.index=pop.index=['all','b']
     if bad=='collision': obs.index=pop.index=[1,'1']
     with pytest.raises(ValueError): indirect_standardize(obs,pop,rates,rep)
+
+
+def manifest(method='inequality', external=False):
+    from census.manifest import load_manifest
+    from pathlib import Path
+    m=load_manifest(Path(__file__).resolve().parents[1]/'examples/manifests/income_population_tracts.json')
+    m['authors']=['human:example-researcher']
+    m['exploratory']=True
+    if method=='inequality':
+        a=dict(id='ineq',method=method,outcome='income',rank_by='pop',weights='pop',
+               args={'higher_is_more_deprived':True})
+        hyps=[dict(id=t,analysis='ineq',statistic=t,direction='two-sided') for t in TERMS]
+        if external:
+            a.update(outcome='lbw',weights='lbw_denominator')
+    else:
+        a=dict(id='smr',method=method,observed='income',population_bands=['pop'],reference_rates=[.01],
+               reference_source='Synthetic fixed rate per person; no rate uncertainty')
+        hyps=[dict(id='h',analysis='smr',statistic='log_smr',geoid='all',direction='two-sided')]
+        if external: a['observed']='lbw_numerator'
+    m['analyses']=[a];m['hypotheses']=hyps
+    if external:
+        m['releases']=[2024]
+        m['variables']=[{'name':'income','ref':'2024:B19013_001'},{'name':'pop','ref':'2024:B01003_001'}]
+        m['geography']={'level':'county','states':['26','36']}
+        m['external']=[{'name':'lbw','source':'chr','release':2025,'measure':'v037'}]
+    return m
+
+
+@pytest.mark.parametrize('method',['inequality','smr'])
+def test_registered_metadata_and_valid_manifest(method):
+    from census.manifest import validate_manifest, methods_section
+    from census.manifest.methods import METHODS
+    from census.health_sources import EXTERNAL_OUTCOME_METHODS
+    m=manifest(method)
+    assert validate_manifest(m,resolve=False)==[]
+    assert METHODS[method].external_outcome and method in EXTERNAL_OUTCOME_METHODS
+    text=methods_section(m)
+    assert 'Target: conservative' in text if method=='inequality' else 'Synthetic fixed rate' in text
+
+
+@pytest.mark.parametrize('method',['inequality','smr'])
+def test_failed_validation_refuses_confirmatory(method,monkeypatch):
+    from census.manifest import validate_manifest
+    import census.inequality as iq
+    import census.standardize as st
+    monkeypatch.setattr(iq if method=='inequality' else st,
+                        'INEQUALITY_VALIDATED' if method=='inequality' else 'SMR_VALIDATED',False)
+    m=manifest(method); m.pop('exploratory')
+    assert any('failed validation; exploratory only' in e for e in validate_manifest(m,resolve=False))
+    m['exploratory']=True
+    assert not validate_manifest(m,resolve=False)
+
+
+@pytest.mark.parametrize('mutate,fragment',[
+    (lambda a,h:a['args'].pop('higher_is_more_deprived'),'explicit boolean'),
+    (lambda a,h:a['args'].update(higher_is_more_deprived='true'),'explicit boolean'),
+    (lambda a,h:a['args'].update(target='invalid'),'target must'),
+    (lambda a,h:a['args'].update(scale='robust'),'does not take'),
+    (lambda a,h:a.update(outcome='missing'),'outcome'),
+    (lambda a,h:a.update(rank_by='missing'),'rank_by'),
+    (lambda a,h:a.update(weights='missing'),'weights'),
+    (lambda a,h:h.update(term='pop'),'no term'),
+])
+def test_inequality_manifest_rules(mutate,fragment):
+    from census.manifest import validate_manifest
+    m=manifest(); mutate(m['analyses'][0],m['hypotheses'][0])
+    errors=validate_manifest(m,resolve=False)
+    assert any(fragment in e and ('ineq' in e or 'analyses[0]' in e) for e in errors),errors
+
+
+@pytest.mark.parametrize('mutate,fragment',[
+    (lambda a,h:a.update(observed='missing'),'observed'),
+    (lambda a,h:a.update(population_bands=[]),'population_bands'),
+    (lambda a,h:a.update(population_bands=['missing']),'population_bands'),
+    (lambda a,h:a.update(population_bands=['pop','pop'],reference_rates=[.01,.02]),'repeat'),
+    (lambda a,h:a.update(reference_rates=[0]),'reference_rates'),
+    (lambda a,h:a.update(reference_rates=[float('nan')]),'reference_rates'),
+    (lambda a,h:a.update(reference_rates=[True]),'reference_rates'),
+    (lambda a,h:a.update(reference_rates=[.01,.02]),'reference_rates'),
+    (lambda a,h:a.update(reference_source='  '),'reference_source'),
+    (lambda a,h:a.update(args={'scale':'X2'}),'does not take'),
+    (lambda a,h:a.update(args={'target':'these_areas'}),'target must'),
+    (lambda a,h:h.pop('geoid'),'requires geoid'),
+    (lambda a,h:h.update(geoid=['36061']),'requires geoid'),
+    (lambda a,h:h.update(term='pop'),'not term'),
+])
+def test_smr_manifest_rules(mutate,fragment):
+    from census.manifest import validate_manifest
+    m=manifest('smr'); mutate(m['analyses'][0],m['hypotheses'][0])
+    errors=validate_manifest(m,resolve=False)
+    assert any(fragment in e and ('smr' in e or 'analyses[0]' in e) for e in errors),errors
+
+
+@pytest.mark.parametrize('method',['inequality','smr'])
+def test_reference_values_and_direction_are_hashed(method):
+    from census.manifest import manifest_hash
+    m=manifest(method); before=manifest_hash(m)
+    if method=='inequality': m['analyses'][0]['args']['higher_is_more_deprived']=False
+    else: m['analyses'][0]['reference_source']='Different standard'
+    assert manifest_hash(m)!=before
+    if method=='smr':
+        m=manifest(method);m['analyses'][0]['reference_rates']=[.02]
+        assert manifest_hash(m)!=before
+
+
+@pytest.mark.parametrize('method',['inequality','smr'])
+def test_external_roles(method):
+    from census.manifest import validate_manifest
+    m=manifest(method,True)
+    assert not validate_manifest(m,resolve=False)
+    a=m['analyses'][0]
+    if method=='inequality':
+        a['rank_by']='lbw';fragment='rank_by'
+    else:
+        a['population_bands']=['lbw'];fragment='population_bands'
+    assert any(fragment in e for e in validate_manifest(m,resolve=False))
+
+
+def test_external_inequality_fixed_target():
+    from census.manifest import validate_manifest
+    m=manifest('inequality',True);m['analyses'][0]['args']['target']='these_areas'
+    assert any('omits its uncertainty' in e for e in validate_manifest(m,resolve=False))
+
+
+@pytest.mark.parametrize('placement',['top','args'])
+def test_circularity_rank_is_tested_term(placement):
+    from census.manifest import validate_manifest
+    m=manifest('inequality',True)
+    m['external']=[dict(name='diabetes',source='places',release=2024,measure='DIABETES')]
+    m['variables']=[dict(name='rank',ref='2024:B17001_002'),dict(name='pop',ref='2024:B01003_001')]
+    a=m['analyses'][0];a.update(outcome='diabetes',rank_by='rank',weights='pop')
+    if placement=='args':
+        for k in ('outcome','rank_by','weights'): a['args'][k]=a.pop(k)
+    errors=validate_manifest(m,resolve=False)
+    assert any('CIRCULARITY R2' in e and "'rank'" in e for e in errors),errors
+    for h in m['hypotheses']: h['circularity_justification']='Sensitivity check of published model input association only.'
+    assert not any('CIRCULARITY R2' in e for e in validate_manifest(m,resolve=False))
+
+
+@pytest.mark.parametrize('method',['inequality','smr'])
+def test_circularity_r1_applies_to_nonformula_outcome(method):
+    from census.manifest import validate_manifest
+    m=manifest(method,True)
+    m['external']=[dict(name='disability',source='places',release=2024,measure='DISABILITY')]
+    m['analyses'][0]['outcome' if method=='inequality' else 'observed']='disability' if method=='inequality' else 'disability_numerator'
+    if method=='inequality':m['analyses'][0]['weights']='pop'
+    assert any('CIRCULARITY R1' in e for e in validate_manifest(m,resolve=False))
+
+
+@pytest.mark.parametrize('method',['inequality','smr'])
+def test_full_offline_manifest(method,tmp_path):
+    from census.manifest import run_manifest, STATUS_EXPLORATORY
+    from tests.test_manifest import FakeClient, synthetic_payload
+    m=manifest(method)
+    m['data_source']={'synthetic':True,'description':'Deterministic offline fixture'}
+    # Replicates match the API fixture estimates and years; no real network calls.
+    parts=[]
+    for v,table in [('income','B19013'),('pop','B01003')]:
+        rows=synthetic_payload(table)
+        vals=np.array([float(row[2]) for row in rows[1:]])
+        ids=['36061'+row[-1] for row in rows[1:]]
+        part=pd.DataFrame(np.repeat(vals[:,None],80,axis=1),columns=REPLICATE_COLUMNS)
+        part['GEOID']=ids;part['Year']=2019;part['variable']=v;parts.append(part)
+    client=FakeClient();client.synthetic=True
+    out=run_manifest(m,tmp_path,client=client,use_cache=False,replicates=pd.concat(parts,ignore_index=True))
+    assert out['success'],out.get('deviations',out.get('errors'))
+    assert out['analysis_status']==STATUS_EXPLORATORY
+    assert (out['hypotheses'].status=='tested').all()
+    h=out['hypotheses'].set_index('statistic')
+    logstat='log_rii' if method=='inequality' else 'log_smr'
+    assert h.loc[logstat,'ratio']==pytest.approx(np.exp(h.loc[logstat,'estimate']))
+    assert any('ratio' in p.read_text() for p in (tmp_path/'bundle').rglob('*.csv'))
+
+
+def test_external_quantities_held_fixed_in_runner():
+    from census.manifest.run import _run_analysis
+    f, rep=frames();f=f.rename(columns={'y':'lbw','w':'lbw_denominator'})
+    external_rep=rep.copy();external_rep['variable']='lbw'
+    external_rep.loc[:,REPLICATE_COLUMNS]=1.
+    reps=pd.concat([rep,external_rep],ignore_index=True)
+    a=dict(id='i',method='inequality',outcome='lbw',rank_by='x',weights='lbw_denominator',
+           args={'higher_is_more_deprived':True})
+    r=_run_analysis(a,f,.90,reps,'holm',external=['lbw'])
+    np.testing.assert_allclose(r.coefficients.se_sampling,0,atol=1e-14)
+    assert set(r.diagnostics['fixed_variables'])=={'lbw','lbw_denominator'}
+
+
+def test_undefined_log_statistic_is_not_tested():
+    from census.manifest.run import _statistic
+    obs=pd.Series([0],index=['36061']);pop=pd.DataFrame([[100]],index=obs.index)
+    result=indirect_standardize(obs,pop,[.01])
+    with pytest.raises(ValueError,match='undefined'):
+        _statistic({'statistic':'log_smr','geoid':'all'},result)
+
+
+def test_zero_mean_concentration_is_nan():
+    c=concentration_index([-1,0,1], [1,2,3], [1,1,1], True)
+    assert np.isnan(c['concentration_index'])
+    assert any('undefined' in n for n in c['notes'])
+
+
+def test_replica_alignment_with_single_year_column():
+    f,rep=frames();f['Year']=2024
+    assert inequality_replicate(f,'y','x','w',True,rep).n_obs==6

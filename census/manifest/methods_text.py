@@ -294,14 +294,16 @@ def _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites):
         a = _normalize_analysis(a)
         text, refs = _METHOD_TEXT[a["method"]]
         args = a.get("args") or {}
-        tgt = args.get("target", "population")
+        tgt = args.get("target", METHODS[a["method"]].default_target)
         # the same interpretation contract as the fitted result (census.results.interval_description)
         probe = ModelResult(model_type="", formula=str(a.get("formula") or ""), n_obs=0,
                             coefficients=pd.DataFrame(columns=["term"]), method=a["method"], uncertainty_sources=[],
                             confidence_level=level,
-                            diagnostics={"interval_target": tgt} if a["method"] == "fit_replicate" else {})
+                            diagnostics={"interval_target": tgt} if a["method"] in ("fit_replicate", "inequality") else {})
         info = interval_description(probe)
-        text = text.format(model=args.get("model", "ols").upper(), target=tgt, estimand=info["estimand"],
+        text = text.format(reference_source=a.get("reference_source", ""),
+                           rank_direction=("higher rank values mean more deprived" if args.get("higher_is_more_deprived")
+                                           else "lower rank values mean more deprived"), model=args.get("model", "ols").upper(), target=tgt, estimand=info["estimand"],
                            target_se={"se_model": "model SE (se_model)", "se_sampling": "replicate sampling SE "
                                       "(se_sampling)", "se_total": "combined SE (se_total)"}[info["basis_column"]],
                            cov=", ".join(a.get("error_covariates") or args.get("error_covariates") or []),

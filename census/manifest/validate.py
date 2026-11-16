@@ -401,6 +401,8 @@ def _check_manifest_hypotheses(manifest, ids, errors):
         for k in need:
             if k not in h:
                 errors.append(f"hypotheses[{i}]: {k!r} is required for statistic {h.get('statistic')!r}")
+        METHODS[method].check("hypothesis", {**locals(), "a": next(
+            _normalize_analysis(a) for a in manifest["analyses"] if a.get("id") == h.get("analysis"))})
         just = h.get("circularity_justification")
         if just is not None and not isinstance(just, str):
             errors.append(f"hypotheses[{i}]: circularity_justification must be text")

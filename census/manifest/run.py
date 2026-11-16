@@ -140,7 +140,7 @@ def _run_analysis(a: Mapping[str, Any], frame: pd.DataFrame, level: float, repli
     if method not in METHODS:
         raise ValueError(f"unsupported method {method}")
     return METHODS[method].run(a, args, frame, level, replicates, correction,
-                               {"held_external": held_external, "coords": coords})
+                               {"held_external": held_external, "coords": coords, "external": external})
 
 
 def _statistic(h: Mapping[str, Any], res: Any) -> Dict[str, Any]:
@@ -605,6 +605,9 @@ def run_manifest(
             for source_key, target in (("estimate", "odds_ratio"), ("ci_lower", "odds_ratio_lower"),
                                    ("ci_upper", "odds_ratio_upper")):
                 row[target] = float(np.exp(row[source_key])) if row.get(source_key) is not None else None
+        if hyp["statistic"] in ("log_rii", "log_smr"):
+            for source_key, target in (("estimate", "ratio"), ("ci_lower", "ratio_lower"), ("ci_upper", "ratio_upper")):
+                row[target] = float(np.exp(row[source_key])) if row.get(source_key) is not None else None
         rows.append(row)
     hyp_df = pd.DataFrame(rows)
     hyp_df["p_adjusted"] = np.nan
@@ -748,7 +751,7 @@ def _write_bundle(folder: Path, m, h, results, hyp_df, run_info, citation) -> Di
             figures_[f"shrinkage_{aid}"] = (figs.shrinkage_plot, {"result": r, "manifest_hash": h,
                                                                   "data_source": fig_source})
     cols = ["id", "statistic", "direction", "estimate", "p_value", "p_adjusted", "significant", "status"]
-    cols += [c for c in ("odds_ratio", "odds_ratio_lower", "odds_ratio_upper") if c in hyp_df]
+    cols += [c for c in ("odds_ratio", "odds_ratio_lower", "odds_ratio_upper", "ratio", "ratio_lower", "ratio_upper") if c in hyp_df]
     if m.get("exploratory"):
         cols.append("analysis_status")
     show = hyp_df.reindex(columns=cols)
