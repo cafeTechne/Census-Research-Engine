@@ -1,0 +1,224 @@
+{
+  "criterion": "Conservative nominal 90% coverage >= 0.86 for all three statistics in all four cells with rank CV <= 0.15. CV 0.30 is informational.",
+  "passed": true,
+  "cells": [
+    {
+      "n": 145,
+      "rank_cv": 0.05,
+      "draws": 1000,
+      "seed": 20261116,
+      "invalid_draws": 0,
+      "statistics": {
+        "sii": {
+          "truth": 0.03,
+          "conservative_coverage": 0.905,
+          "population_coverage": 0.905,
+          "bias": -7.50038372105688e-05,
+          "empirical_sd": 0.004494378146362438,
+          "mean_total_se_over_sd": 1.0261672950554321,
+          "mean_model_se_over_sd": 1.0188994078597906
+        },
+        "log_rii": {
+          "truth": 0.3566749439387324,
+          "conservative_coverage": 0.9,
+          "population_coverage": 0.898,
+          "bias": -0.000720659874120233,
+          "empirical_sd": 0.05420389752253155,
+          "mean_total_se_over_sd": 1.024465078766145,
+          "mean_model_se_over_sd": 1.0170831547032084
+        },
+        "concentration_index": {
+          "truth": 0.05881109100544023,
+          "conservative_coverage": 0.903,
+          "population_coverage": 0.899,
+          "bias": -0.0001581508290767336,
+          "empirical_sd": 0.008744204555380693,
+          "mean_total_se_over_sd": 1.033987762749107,
+          "mean_model_se_over_sd": 1.0266659073638067
+        }
+      }
+    },
+    {
+      "n": 145,
+      "rank_cv": 0.15,
+      "draws": 1000,
+      "seed": 20261117,
+      "invalid_draws": 0,
+      "statistics": {
+        "sii": {
+          "truth": 0.03,
+          "conservative_coverage": 0.887,
+          "population_coverage": 0.851,
+          "bias": -0.0016816672687974994,
+          "empirical_sd": 0.004783563621796163,
+          "mean_total_se_over_sd": 1.0718423445757357,
+          "mean_model_se_over_sd": 0.988442834219536
+        },
+        "log_rii": {
+          "truth": 0.3566749439387324,
+          "conservative_coverage": 0.888,
+          "population_coverage": 0.858,
+          "bias": -0.019990987898913348,
+          "empirical_sd": 0.05716417498987063,
+          "mean_total_se_over_sd": 1.0778106778788292,
+          "mean_model_se_over_sd": 0.9927838803057799
+        },
+        "concentration_index": {
+          "truth": 0.058796193374334504,
+          "conservative_coverage": 0.891,
+          "population_coverage": 0.862,
+          "bias": -0.0032763632438349635,
+          "empirical_sd": 0.009247980139218473,
+          "mean_total_se_over_sd": 1.0871960567375862,
+          "mean_model_se_over_sd": 1.0026360801966303
+        }
+      }
+    },
+    {
+      "n": 145,
+      "rank_cv": 0.3,
+      "draws": 1000,
+      "seed": 20261118,
+      "invalid_draws": 0,
+      "statistics": {
+        "sii": {
+          "truth": 0.03,
+          "conservative_coverage": 0.823,
+          "population_coverage": 0.673,
+          "bias": -0.0061687772488054834,
+          "empirical_sd": 0.005101943552726339,
+          "mean_total_se_over_sd": 1.3240520504773057,
+          "mean_model_se_over_sd": 1.006663812997526
+        },
+        "log_rii": {
+          "truth": 0.3566749439387324,
+          "conservative_coverage": 0.821,
+          "population_coverage": 0.672,
+          "bias": -0.07432138425813428,
+          "empirical_sd": 0.06105404774007655,
+          "mean_total_se_over_sd": 1.3301580587862418,
+          "mean_model_se_over_sd": 1.0143563255222237
+        },
+        "concentration_index": {
+          "truth": 0.05878017738420337,
+          "conservative_coverage": 0.824,
+          "population_coverage": 0.672,
+          "bias": -0.012108223091622565,
+          "empirical_sd": 0.009962394070136655,
+          "mean_total_se_over_sd": 1.3278286570040922,
+          "mean_model_se_over_sd": 1.0095998749421176
+        }
+      }
+    },
+    {
+      "n": 1000,
+      "rank_cv": 0.05,
+      "draws": 1000,
+      "seed": 20261119,
+      "invalid_draws": 0,
+      "statistics": {
+        "sii": {
+          "truth": 0.03,
+          "conservative_coverage": 0.902,
+          "population_coverage": 0.898,
+          "bias": -0.00032107246945090387,
+          "empirical_sd": 0.0029831303503507637,
+          "mean_total_se_over_sd": 1.0005601188829774,
+          "mean_model_se_over_sd": 0.9933781912509618
+        },
+        "log_rii": {
+          "truth": 0.3566749439387324,
+          "conservative_coverage": 0.9,
+          "population_coverage": 0.898,
+          "bias": -0.0036958702024200707,
+          "empirical_sd": 0.03626691950642228,
+          "mean_total_se_over_sd": 0.9952431640991851,
+          "mean_model_se_over_sd": 0.9880404562078594
+        },
+        "concentration_index": {
+          "truth": 0.05882278284752297,
+          "conservative_coverage": 0.902,
+          "population_coverage": 0.898,
+          "bias": -0.0006155306762707854,
+          "empirical_sd": 0.0058577195594591265,
+          "mean_total_se_over_sd": 0.9993151226503405,
+          "mean_model_se_over_sd": 0.9921414519503555
+        }
+      }
+    },
+    {
+      "n": 1000,
+      "rank_cv": 0.15,
+      "draws": 1000,
+      "seed": 20261120,
+      "invalid_draws": 0,
+      "statistics": {
+        "sii": {
+          "truth": 0.03,
+          "conservative_coverage": 0.876,
+          "population_coverage": 0.848,
+          "bias": -0.0016854225603098703,
+          "empirical_sd": 0.003166153999902975,
+          "mean_total_se_over_sd": 1.069383499077787,
+          "mean_model_se_over_sd": 0.9785080692989536
+        },
+        "log_rii": {
+          "truth": 0.3566749439387324,
+          "conservative_coverage": 0.876,
+          "population_coverage": 0.843,
+          "bias": -0.020357488834119253,
+          "empirical_sd": 0.038110535661435546,
+          "mean_total_se_over_sd": 1.0729427044328128,
+          "mean_model_se_over_sd": 0.981471140490761
+        },
+        "concentration_index": {
+          "truth": 0.058822898770418255,
+          "conservative_coverage": 0.877,
+          "population_coverage": 0.848,
+          "bias": -0.0033125946981267113,
+          "empirical_sd": 0.006173349596271994,
+          "mean_total_se_over_sd": 1.0753442494014946,
+          "mean_model_se_over_sd": 0.9839711841159384
+        }
+      }
+    },
+    {
+      "n": 1000,
+      "rank_cv": 0.3,
+      "draws": 1000,
+      "seed": 20261121,
+      "invalid_draws": 0,
+      "statistics": {
+        "sii": {
+          "truth": 0.03,
+          "conservative_coverage": 0.644,
+          "population_coverage": 0.425,
+          "bias": -0.005861341451890566,
+          "empirical_sd": 0.003186406963665026,
+          "mean_total_se_over_sd": 1.364479142478532,
+          "mean_model_se_over_sd": 1.0125173984044469
+        },
+        "log_rii": {
+          "truth": 0.3566749439387324,
+          "conservative_coverage": 0.638,
+          "population_coverage": 0.421,
+          "bias": -0.07058433336612135,
+          "empirical_sd": 0.03842576885170834,
+          "mean_total_se_over_sd": 1.3602293853685432,
+          "mean_model_se_over_sd": 1.0110109062294084
+        },
+        "concentration_index": {
+          "truth": 0.05882123359629973,
+          "conservative_coverage": 0.641,
+          "population_coverage": 0.421,
+          "bias": -0.01148101733493627,
+          "empirical_sd": 0.0062720637032942835,
+          "mean_total_se_over_sd": 1.3593587246682728,
+          "mean_model_se_over_sd": 1.0087305294364852
+        }
+      }
+    }
+  ],
+  "criterion_commit": "60330e3",
+  "script_sha256": "58f63eca0529d75f0ccf55cb6058ba4bdb0e8e345d20b23491032ba392194b37"
+}
