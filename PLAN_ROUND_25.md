@@ -160,11 +160,20 @@ return _bundle(state)
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Baseline (golden count, suite line) | | |
-| Run golden: scenarios, normalised keys, determinism | | |
-| Unreachable deviation kinds | | |
-| Split: line counts (driver, longest stage, run.py) | | |
-| Both goldens identical | | |
-| Final suite | | |
-| Bugs noticed (not fixed) | | |
-| Exceptions (0.7) | | |
+| Baseline (golden count, suite line) | Pass | 516 snapshots / 12 manifests; 1703 passed, 37 skipped, 49 subtests (4 warnings). |
+| Run golden: scenarios, normalised keys, determinism | Pass | 29 scenarios; two pre-split runs byte-identical. Keys: generated_at/git_commit/package_version; scenario path prefix, SVG dc:date and transitive text-artifact digests. Fixed SVG hashsalt. |
+| Unreachable deviation kinds | None | All 19 blocking kinds exercised offline, using existing fixtures and explicit dependency failures. No HTTP calls. |
+| Split: line counts (driver, longest stage, run.py) | Pass | 7-line driver excluding docstring; longest stage _bundle 77 lines; run.py 896. Stages follow table order; helpers and run_variant unchanged. |
+| Both goldens identical | Pass | Execution: 29 scenarios byte-identical. Schema: all 516 snapshots byte-identical. |
+| Final suite | Pass | 1703 passed, 37 skipped, 49 subtests, 4 unchanged warnings. Targeted: 115 passed / 1 skipped. No test file changed. |
+| Bugs noticed (not fixed) | Recorded | WONDER suppression counts toward missing-join guard (1/3 suppressed triggers vintage-mismatch warning despite matching IDs). A saturated two-observation/two-coefficient OLS fixture raised ValueError: arange: cannot compute length while bundling. |
+| Exceptions (0.7) | Recorded | Build-identity normalisation and stage-count/name details below. No scientific result or production bug fix. |
+
+Execution-build identity (`git_commit`, `package_version`) necessarily changes with the required
+commits/version bump, so the run golden explicitly normalises those two keys. JSON whitespace,
+manifest creation dates/hashes, scientific values and other dependency/input/binary hashes remain
+unchanged. Only digests of text artifacts affected by the listed normalisation are recalculated.
+The table defines **nine** middle stages (the prose says ten); the driver uses those exact nine.
+Only `_prepare` has early returns, so no unused `state.result` field was added. Existing imported
+helpers `_derive_replicates` and `_apply_adjustments` have local aliases to avoid the required stage
+names; facade exports still refer to the original helpers. No pure helper was moved.

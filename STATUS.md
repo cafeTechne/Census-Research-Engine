@@ -10,7 +10,7 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 
 | Path | What |
 | :--- | :--- |
-| `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run`, `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
+| `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
 | `mcp_server.py` | MCP server (63 tools; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
@@ -53,6 +53,9 @@ concentration index; ridits least to most deprived, positive = worse in more dep
 (combined interval drives tests; fixed-E Garwood limits reported only). Both assume independent areas.
 Exploratory example: `docs/studies/r24_lbw_inequality_example.md`. Suite: 1703 passed, 37 skipped.
 
+**Round 25 (v0.22.1, awaiting review/merge):** `run_manifest` drives typed `RunState` stages in `run.py`.
+Both offline goldens are required for manifest refactors; suite unchanged at 1703 passed / 37 skipped.
+
 ## Standing rules
 
 - **Circularity (enforced, R1/R2):** determinant studies use the ACS's own measure (disability: B18101).
@@ -82,8 +85,7 @@ Exploratory example: `docs/studies/r24_lbw_inequality_example.md`. Suite: 1703 p
    Round 26 tests large-spatial-cluster methods on the Round 22 design; spatial random effects if they fail.
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 3. Replication of the county findings in held-out states (OH/PA): Round 29 (needs the owner's WONDER exports).
-4. Split `run_manifest` into stages: Round 25.
-5. Further methods: empirical-Bayes rate smoothing, splines and joint Wald tests (Round 27); segregation
+4. Further methods: empirical-Bayes rate smoothing, splines and joint Wald tests (Round 27); segregation
    indices and SMR reference-rate uncertainty (Round 28). Not yet planned: microdata inequality measures.
 
 ## Plan format (keeps agent context small)

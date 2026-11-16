@@ -9,6 +9,9 @@ Start with `STATUS.md` (current state, validated methods, rules, backlog). Then 
 - Python: `.venv/bin/python` (there is no `python` on PATH). Supported: Python 3.11+, SciPy 1.16+.
 - Full suite: `OPENBLAS_NUM_THREADS=1 .venv/bin/python -m pytest -q` (about 5 minutes). Run the targeted
   test file first: `tests/test_round<n>.py` or the module's own test file.
+- Manifest refactors require **both** goldens byte-identical before/after:
+  `scripts/refactor_golden.py OUT.json` and `scripts/run_golden.py OUT.json`.
+  The run golden documents its execution-stamp/path/time normalisation; keep snapshots in `/tmp`.
 - Offline external data: set `CENSUS_HEALTH_OFFLINE=1`.
 - No GitHub CI runs are needed; the owner does not run CI for routine rounds.
 

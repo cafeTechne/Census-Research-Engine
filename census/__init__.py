@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Headless Census ACS data client and processing library."""
 
-__version__ = "0.22.0"
+__version__ = "0.22.1"
 
 from census.api import (
     DATASETS,
