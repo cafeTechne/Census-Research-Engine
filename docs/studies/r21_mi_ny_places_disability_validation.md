@@ -1,7 +1,7 @@
 # Does CDC PLACES see tract disability? PLACES 2025 against ACS 2020–2024, Michigan and New York tracts
 
 **Status:** confirmatory run complete; reviewed (section 11 is the author's review, delegated by the owner, so it is not independent)
-**Study plan:** [PLAN_ROUND_21.md](../../PLAN_ROUND_21.md)
+**Study plan:** [PLAN_ROUND_21.md](https://github.com/cafeTechne/Census-Research-Engine/blob/v0.21.0/PLAN_ROUND_21.md) (archived)
 **Manifest:** [`examples/manifests/r21_mi_ny_places_disability_validation.json`](../../examples/manifests/r21_mi_ny_places_disability_validation.json), SHA-256 `11294774f00613a87f902393a8493a56d033591c3dbb6e7a8e4ac86a32221f76`
 **Engine:** Census Research Engine, branch `phase21/health-sources` (released as v0.20.0)
 

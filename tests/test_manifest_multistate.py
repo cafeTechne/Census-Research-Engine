@@ -333,7 +333,7 @@ class TestTwoStateRun(unittest.TestCase):
             seen["reps"] = replicates
             return real(a, frame, level, replicates, correction, **kw)
 
-        with mock.patch.object(manifest, "_run_analysis", side_effect=spy):
+        with mock.patch("census.manifest.run._run_analysis", side_effect=spy):
             self.run_m(two_state_manifest(), replicates=reps)
         got = seen["reps"]
         r = got[(got["variable"] == "income") & (got["GEOID"] == "36005")].iloc[0]

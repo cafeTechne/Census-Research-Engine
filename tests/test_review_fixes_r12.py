@@ -257,7 +257,7 @@ class TestReplicatesHash(unittest.TestCase):
     def test_run_records_unavailable_hash(self):
         tmp = tempfile.mkdtemp()
         try:
-            with mock.patch("census.manifest.replicates_digest", return_value=(None, "boom")):
+            with mock.patch("census.manifest.run.replicates_digest", return_value=(None, "boom")):
                 reps = pd.DataFrame({"GEOID": [], "variable": []})
                 res = run_manifest(load_manifest(EXAMPLE), tmp, client=FakeClient(), use_cache=False,
                                    replicates=reps)

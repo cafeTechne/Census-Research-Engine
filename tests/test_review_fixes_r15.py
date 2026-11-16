@@ -198,7 +198,7 @@ class TestCleanup(unittest.TestCase):
     def test_fill_defaults_uses_latest_rpp_year(self):
         m = release_manifest(releases=[2024], adjustments=[{"type": "rpp", "variables": ["mean_inc"],
                                                             "areas": "state"}])
-        with mock.patch("census.manifest.latest_rpp_year", return_value=2021):
+        with mock.patch("census.manifest.adjustments.latest_rpp_year", return_value=2021):
             res = create_manifest(m, resolve=False)
         self.assertEqual(res["filled"], [{"adjustment": 0, "rpp_year": 2021}])
 

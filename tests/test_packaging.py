@@ -58,7 +58,7 @@ class TestPyproject(unittest.TestCase):
         # Only the census package is installed; repository data is read in place
         # (editable install), so names like `data` or `docs` never reach site-packages.
         packages = self.doc["tool"]["setuptools"]["packages"]
-        self.assertEqual(packages, ["census"])
+        self.assertEqual(packages, ["census", "census.manifest"])
         for folder in ("metadata", "data", "crosswalks", "docs/recipes", "state_places"):
             self.assertTrue(os.path.isdir(os.path.join(ROOT, folder)), folder)
 

@@ -382,8 +382,9 @@ class TestTwoReleaseRun(unittest.TestCase):
             json.dump(release_manifest(), f)
         reps = os.path.join(self.dir, "reps.csv")
         fake_vre("B19025", 2019, "county").to_csv(reps, index=False)
-        with mock.patch("census.manifest.validate_manifest", return_value=[]):
+        with mock.patch("census.manifest.run.validate_manifest", return_value=[]) as validate:
             out = tool(path, os.path.join(self.dir, "out"), replicates_path=reps)
+        self.assertTrue(validate.called)
         self.assertFalse(out["success"])
         self.assertIn("do not also supply replicates", out["error"])
 
