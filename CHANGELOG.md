@@ -5,7 +5,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
-## Unreleased
+## 0.21.1 (Round 23): internal package split
 
 Internal: `census.manifest` split into a package (no behaviour change; golden snapshot identical)
 
