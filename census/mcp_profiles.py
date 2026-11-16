@@ -78,7 +78,7 @@ DESCRIPTION_OVERRIDES: Dict[str, str] = {
     "get_recipe": (
         "Return numbered steps for a standard analysis. Call this first when unsure what to do.\n"
         "name: compare_counties | tract_trend | regression_sampling_error | small_area | preregistered | "
-        "decennial_counts; "
+        "decennial_counts | external_health_outcome | health_inequality; "
         "omit to list recipes.\n"
         "Example: get_recipe(name=\"compare_counties\")"
     ),
@@ -200,6 +200,21 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
 6. On failure read error_code and fix; do not guess numbers.
 7. Health outcomes: use the ACS's own measure (disability: B18101); use CDC PLACES
    only for measures the ACS lacks, such as diabetes (get_recipe first).
+8. Area inequality and standardized ratios: get_recipe('health_inequality'), then
+   existing manifest tools. Inequality statistics sii/log_rii/concentration_index
+   have no term; declare higher_is_more_deprived and positive weights. Ridits run
+   least to most deprived; positive indices mean higher outcomes among more deprived
+   areas, reversing the usual income-ranked concentration sign. Default conservative
+   target combines HC3 and ACS replicates; median rank CV <=15% is validated, above
+   which warn about attenuation. External outcome/denominator weights stay fixed;
+   R2 tests rank_by. HC3 assumes independent areas. SMR requires observed integer
+   counts, distinct population_bands, positive reference_rates in events per person
+   and a hashed reference_source citation; log_smr hypotheses use geoid or all.
+   Only conservative combined Poisson/replicate log intervals drive SMR tests;
+   fixed-E Garwood intervals omit expected uncertainty. O=0 has only exact limits;
+   absent replicates set expected uncertainty to zero, noted. Rates are fixed.
+   Log statistics test zero and report exponentiated ratio columns. R1 applies
+   to external outcomes/counts; reused MI/NY LBW associations remain exploratory.
 """
 
 REVIEW_INSTRUCTIONS = """\

@@ -350,3 +350,26 @@ def test_zero_mean_concentration_is_nan():
 def test_replica_alignment_with_single_year_column():
     f,rep=frames();f['Year']=2024
     assert inequality_replicate(f,'y','x','w',True,rep).n_obs==6
+
+
+def test_manifest_complete_case_exclusions_are_recorded():
+    from census.manifest.run import _run_analysis
+    f,rep=frames();f.loc[0,'y']=np.nan
+    a=dict(id='i',method='inequality',outcome='y',rank_by='x',weights='w',args={'higher_is_more_deprived':True})
+    r=_run_analysis(a,f,.9,rep,'holm')
+    assert r.n_obs==5 and r.diagnostics['complete_case']['dropped_geoids']==['a']
+    assert any('excluded 1' in n for n in r.notes)
+    f['observed']=[np.nan,10,20,30,40,50]
+    b=dict(id='s',method='smr',observed='observed',population_bands=['w'],reference_rates=[.1],reference_source='test')
+    s=_run_analysis(b,f,.9,None,'holm')
+    assert set(s.GEOID)==set('bcdef')|{'all'}
+    assert any('excluded 1' in n for n in s.iloc[-1].notes)
+
+
+def test_public_exports_and_recipe():
+    import census
+    from census.recipes import get_recipe
+    for name in ('ridits','slope_index','concentration_index','inequality_replicate','indirect_standardize'):
+        assert callable(getattr(census,name)) and name in census.__all__
+    recipe=get_recipe('health_inequality')
+    assert recipe['success'] and 'reverse sign' in recipe['steps'] and 'reference_source' in recipe['steps']

@@ -251,8 +251,16 @@ def _run_inequality(a, args, frame, level, replicates, correction, ctx):
     if fixed and a["weights"] == a["outcome"]+"_denominator":
         fixed.append(a["weights"])
     args.pop("replicate_policy", None)  # library always enforces strict completeness
-    return inequality_replicate(frame, a["outcome"], a["rank_by"], a["weights"],
+    # Manifests support complete_case only; filter before aligning replicates.
+    used = frame.dropna(subset=[a[k] for k in ("outcome", "rank_by", "weights")])
+    result = inequality_replicate(used, a["outcome"], a["rank_by"], a["weights"],
                                 replicates=replicates, fixed=fixed, level=level, **args)
+    dropped = frame.loc[~frame.index.isin(used.index), "GEOID"].astype(str).tolist()
+    result.diagnostics["complete_case"] = {"input_rows": len(frame), "used_rows": len(used),
+                                            "dropped_geoids": dropped}
+    if dropped:
+        result.notes.append(f"Complete-case analysis excluded {len(dropped)} area row(s) with missing outcome, rank or weights.")
+    return result
 
 
 def _run_smr(a, args, frame, level, replicates, correction, ctx):
@@ -260,6 +268,8 @@ def _run_smr(a, args, frame, level, replicates, correction, ctx):
     from ..models import _replicate_matrices
     from ..results import precheck_replicates, stochastic_variables, IncompleteReplicatesError
     bands = a["population_bands"]
+    input_rows = len(frame)
+    frame = frame.dropna(subset=[a["observed"]]+bands)
     mats, held = _replicate_matrices(frame, replicates, bands) if replicates is not None else ({}, {})
     precheck_replicates("strict", rows_held_fixed=held,
                        variables_without_replicates=[v for v in stochastic_variables(frame, bands) if v not in mats],
@@ -270,7 +280,11 @@ def _run_smr(a, args, frame, level, replicates, correction, ctx):
     observed = pd.Series(frame[a["observed"]].to_numpy(float), index=idx)
     populations = frame[bands].set_axis(idx)
     try:
-        return indirect_standardize(observed, populations, a["reference_rates"], reps, level)
+        result = indirect_standardize(observed, populations, a["reference_rates"], reps, level)
+        if len(frame) != input_rows:
+            note = f"Complete-case analysis excluded {input_rows-len(frame)} area row(s) with missing observed counts or populations."
+            result["notes"] = result["notes"].map(lambda notes: notes+[note])
+        return result
     except ValueError as exc:
         if reps is not None and "replicate" in str(exc):
             raise IncompleteReplicatesError(f"smr: {exc}") from exc
@@ -371,38 +385,149 @@ def _check_smr(stage, ctx):
 
 
 METHODS: Dict[str, MethodSpec] = {
-    'fit_replicate': MethodSpec('fit_replicate', ('formula',), ('coefficient',), _run_fit_replicate, replicate=True, external_outcome=True, check=_check_fit_replicate, text=('Coefficients were estimated with {model} regression (statsmodels) on the full-sample estimates; sampling standard errors came from refitting on each of {rep_source}, Var = 4/80 sum (b_r - b)^2, combined with the model standard error as se_total = sqrt(se_model^2 + se_sampling^2). Reported standard errors, intervals and p-values use the {target_se} ({target} target: {estimand}), with normal-theory intervals. Without replicates only model standard errors are reported.', ['vre', 'design', 'statsmodels'])),
-    'fit_eiv': MethodSpec('fit_eiv', ('formula',), ('coefficient',), _run_fit_eiv, replicate=True, external_outcome=True, check=_check_fit_eiv, text=('Coefficients were estimated by moment-corrected least squares ({model}; Fuller 1987) with per-unit sampling-error covariances of every design column and of the outcome, including the outcome-covariate error covariance, estimated from {rep_source} (4/80 sum over replicates). Standard errors are {se_basis} (se_total, used for normal-theory intervals and p-values); naive coefficients are reported alongside. Coefficients are {estimand}.', ['fuller', 'vre', 'design'])),
-    'regression_calibration': MethodSpec('regression_calibration', ('formula', 'error_covariates'), ('coefficient',), _run_regression_calibration, replicate=False, external_outcome=False, check=_check_spatial, text=('Covariates measured with known ACS sampling error ({cov}) were corrected by regression calibration with heteroscedastic known error variances; standard errors (se_total, used for normal-theory intervals and p-values) by row bootstrap re-estimating the calibration. Coefficients are {estimand}.', ['carroll'])),
-    'simex': MethodSpec('simex', ('formula', 'error_covariates'), ('coefficient',), _run_simex, replicate=False, external_outcome=False, check=_check_spatial, text=('Covariates measured with known ACS sampling error ({cov}) were corrected by simulation-extrapolation (SIMEX, quadratic extrapolation) with the measurement-error jackknife variance (se_total, used for normal-theory intervals and p-values). Coefficients are {estimand}.', ['simex', 'carroll'])),
-    'fh_regression': MethodSpec('fh_regression', ('formula',), ('coefficient',), _run_fh_regression, replicate=False, external_outcome=True, check=_check_spatial, text=("The outcome's known sampling variance was modelled with an area-level Fay-Herriot model (GLS coefficients, REML variance component).", ['fh'])),
-    'fay_herriot': MethodSpec('fay_herriot', ('formula',), ('coefficient',), _run_fay_herriot, replicate=False, external_outcome=False, check=_check_spatial, text=('Small-area estimates are Fay-Herriot EBLUPs (REML) with Prasad-Rao/Datta-Lahiri MSE.', ['fh'])),
-    'correlation_matrix': MethodSpec('correlation_matrix', ('variables',), ('correlation',), _run_correlation_matrix, replicate=True, external_outcome=False, check=_check_spatial, text=('Correlations with Fisher-z intervals{rep}.', ['fisher', 'vre'])),
-    'linear_trend_test': MethodSpec('linear_trend_test', ('variable', 'geoid'), ('trend_slope',), _run_linear_trend_test, replicate=False, external_outcome=False, check=_check_spatial, text=('Linear trends across non-overlapping 5-year periods were tested by GLS with known sampling variances.', ['testing'])),
-    'batch_z_test': MethodSpec('batch_z_test', ('variable_1', 'variable_2'), ('z_difference',), _run_batch_z_test, replicate=False, external_outcome=False, check=_check_spatial, text=('Differences were tested with the Census two-sample z test, SE = MOE/1.645.', ['testing'])),
-    "inequality": MethodSpec("inequality", ("outcome", "rank_by", "weights"),
-        ("sii", "log_rii", "concentration_index"), _run_inequality, replicate=True, external_outcome=True,
-        check=_check_inequality, default_target="conservative", text=(
-            "Area inequality uses positive population weights and weighted ridits from least (0) to most (1) "
-            "deprived, with tied blocks assigned their weighted mid-rank; {rank_direction}. SII is the WLS "
-            "slope, log RII is log((a+b)/a), and concentration is 2 cov_w(y,r)/mean_w(y). Positive indices "
-            "mean higher outcomes among more deprived areas; concentration has the reverse sign of the "
-            "usual income-ranked convention. Independent-area HC3 SEs (delta method for log RII; convenient-"
-            "regression approximation for concentration) combine with 80 ACS replicate refits, recomputing "
-            "ridits, by quadrature. Target: {target}. External outcomes and their denominator weights stay "
-            "fixed. Median rank CV <=15% is the validated range; above it estimates may be attenuated by "
-            "rank error. These are area associations, not individual inequality or causal effects.",
-            ["pamuk", "kakwani", "vre", "statsmodels"])),
-    "smr": MethodSpec("smr", ("observed", "population_bands", "reference_rates", "reference_source"),
-        ("log_smr",), _run_smr, replicate=True, external_outcome=True, check=_check_smr,
-        default_target="conservative", text=(
-            "Indirect SMR is observed/expected, expected=sum_b population_b*reference_rate_b; pooling "
-            "sums counts and expected counts first. Fixed reference rates: {reference_source}. Exact "
-            "Garwood limits condition on expected counts. Tests use log SMR against zero, with combined "
-            "variance 1/O + 4/80 sum(log E_r-log E)^2 and exponentiated normal intervals (target: {target}). "
-            "Without band replicates the expected-count component is zero, explicitly noted; at O=0 only "
-            "the exact fixed-E interval is defined. External observed counts stay fixed in band refits. "
-            "Reference-rate uncertainty and spatial dependence are not included.", ["garwood", "breslow", "vre"])),
+    'fit_replicate': MethodSpec(
+        'fit_replicate', ('formula',), ('coefficient',), _run_fit_replicate,
+        replicate=True,
+        external_outcome=True,
+        check=_check_fit_replicate,
+        text=(
+            'Coefficients were estimated with {model} regression (statsmodels) on the full-sample estimates; '
+            'sampling standard errors came from refitting on each of {rep_source}, Var = 4/80 sum (b_r - '
+            'b)^2, combined with the model standard error as se_total = sqrt(se_model^2 + se_sampling^2). '
+            'Reported standard errors, intervals and p-values use the {target_se} ({target} target: '
+            '{estimand}), with normal-theory intervals. Without replicates only model standard errors are '
+            'reported.',
+            ['vre', 'design', 'statsmodels'],
+        ),
+    ),
+    'fit_eiv': MethodSpec(
+        'fit_eiv', ('formula',), ('coefficient',), _run_fit_eiv,
+        replicate=True,
+        external_outcome=True,
+        check=_check_fit_eiv,
+        text=(
+            'Coefficients were estimated by moment-corrected least squares ({model}; Fuller 1987) with '
+            'per-unit sampling-error covariances of every design column and of the outcome, including the '
+            'outcome-covariate error covariance, estimated from {rep_source} (4/80 sum over replicates). '
+            'Standard errors are {se_basis} (se_total, used for normal-theory intervals and p-values); naive '
+            'coefficients are reported alongside. Coefficients are {estimand}.',
+            ['fuller', 'vre', 'design'],
+        ),
+    ),
+    'regression_calibration': MethodSpec(
+        'regression_calibration', ('formula', 'error_covariates'), ('coefficient',), _run_regression_calibration,
+        replicate=False,
+        external_outcome=False,
+        check=_check_spatial,
+        text=(
+            'Covariates measured with known ACS sampling error ({cov}) were corrected by regression '
+            'calibration with heteroscedastic known error variances; standard errors (se_total, used for '
+            'normal-theory intervals and p-values) by row bootstrap re-estimating the calibration. '
+            'Coefficients are {estimand}.',
+            ['carroll'],
+        ),
+    ),
+    'simex': MethodSpec(
+        'simex', ('formula', 'error_covariates'), ('coefficient',), _run_simex,
+        replicate=False,
+        external_outcome=False,
+        check=_check_spatial,
+        text=(
+            'Covariates measured with known ACS sampling error ({cov}) were corrected by '
+            'simulation-extrapolation (SIMEX, quadratic extrapolation) with the measurement-error jackknife '
+            'variance (se_total, used for normal-theory intervals and p-values). Coefficients are {estimand}.',
+            ['simex', 'carroll'],
+        ),
+    ),
+    'fh_regression': MethodSpec(
+        'fh_regression', ('formula',), ('coefficient',), _run_fh_regression,
+        replicate=False,
+        external_outcome=True,
+        check=_check_spatial,
+        text=(
+            "The outcome's known sampling variance was modelled with an area-level Fay-Herriot model (GLS "
+            'coefficients, REML variance component).',
+            ['fh'],
+        ),
+    ),
+    'fay_herriot': MethodSpec(
+        'fay_herriot', ('formula',), ('coefficient',), _run_fay_herriot,
+        replicate=False,
+        external_outcome=False,
+        check=_check_spatial,
+        text=(
+            'Small-area estimates are Fay-Herriot EBLUPs (REML) with Prasad-Rao/Datta-Lahiri MSE.',
+            ['fh'],
+        ),
+    ),
+    'correlation_matrix': MethodSpec(
+        'correlation_matrix', ('variables',), ('correlation',), _run_correlation_matrix,
+        replicate=True,
+        external_outcome=False,
+        check=_check_spatial,
+        text=(
+            'Correlations with Fisher-z intervals{rep}.',
+            ['fisher', 'vre'],
+        ),
+    ),
+    'linear_trend_test': MethodSpec(
+        'linear_trend_test', ('variable', 'geoid'), ('trend_slope',), _run_linear_trend_test,
+        replicate=False,
+        external_outcome=False,
+        check=_check_spatial,
+        text=(
+            'Linear trends across non-overlapping 5-year periods were tested by GLS with known sampling '
+            'variances.',
+            ['testing'],
+        ),
+    ),
+    'batch_z_test': MethodSpec(
+        'batch_z_test', ('variable_1', 'variable_2'), ('z_difference',), _run_batch_z_test,
+        replicate=False,
+        external_outcome=False,
+        check=_check_spatial,
+        text=(
+            'Differences were tested with the Census two-sample z test, SE = MOE/1.645.',
+            ['testing'],
+        ),
+    ),
+    'inequality': MethodSpec(
+        "inequality", ("outcome", "rank_by", "weights"), ("sii", "log_rii", "concentration_index"), _run_inequality,
+        replicate=True,
+        external_outcome=True,
+        check=_check_inequality,
+        default_target="conservative",
+        text=(
+            'Area inequality uses positive population weights and weighted ridits from least (0) to most (1) '
+            'deprived, with tied blocks assigned their weighted mid-rank; {rank_direction}. SII is the WLS '
+            'slope, log RII is log((a+b)/a), and concentration is 2 cov_w(y,r)/mean_w(y). Positive indices '
+            'mean higher outcomes among more deprived areas; concentration has the reverse sign of the usual '
+            'income-ranked convention. Independent-area HC3 SEs (delta method for log RII; '
+            'convenient-regression approximation for concentration) combine with 80 ACS replicate refits, '
+            'recomputing ridits, by quadrature. Target: {target}. External outcomes and their denominator '
+            'weights stay fixed. Median rank CV <=15% is the validated range; above it estimates may be '
+            'attenuated by rank error. These are area associations, not individual inequality or causal '
+            'effects.',
+            ['pamuk', 'kakwani', 'vre', 'statsmodels'],
+        ),
+    ),
+    'smr': MethodSpec(
+        "smr", ("observed", "population_bands", "reference_rates", "reference_source"), ("log_smr",), _run_smr,
+        replicate=True,
+        external_outcome=True,
+        check=_check_smr,
+        default_target="conservative",
+        text=(
+            'Indirect SMR is observed/expected, expected=sum_b population_b*reference_rate_b; pooling sums '
+            'counts and expected counts first. Fixed reference rates: {reference_source}. Exact Garwood '
+            'limits condition on expected counts. Tests use log SMR against zero, with combined variance 1/O '
+            '+ 4/80 sum(log E_r-log E)^2 and exponentiated normal intervals (target: {target}). Without band '
+            'replicates the expected-count component is zero, explicitly noted; at O=0 only the exact fixed-E'
+            ' interval is defined. External observed counts stay fixed in band refits. Reference-rate '
+            'uncertainty and spatial dependence are not included.',
+            ['garwood', 'breslow', 'vre'],
+        ),
+    ),
 }
 
 STATISTIC_EXTRACTORS = {

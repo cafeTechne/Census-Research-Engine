@@ -36,7 +36,13 @@ from .schema import (
 
 from .methods import METHODS
 
-_METHOD_TEXT = {name: spec.text for name, spec in sorted(METHODS.items(), key=lambda item: {'fit_replicate': 0, 'regression_calibration': 1, 'fit_eiv': 2, 'simex': 3, 'fh_regression': 4, 'fay_herriot': 5, 'correlation_matrix': 6, 'linear_trend_test': 7, 'batch_z_test': 8}.get(item[0], len(METHODS))) if spec.text is not None}
+# Retain the legacy introspection order while deriving every value from its spec.
+_LEGACY_TEXT_ORDER = ("fit_replicate", "regression_calibration", "fit_eiv", "simex", "fh_regression",
+                      "fay_herriot", "correlation_matrix", "linear_trend_test", "batch_z_test")
+_METHOD_TEXT = {
+    name: METHODS[name].text for name in dict.fromkeys((*_LEGACY_TEXT_ORDER, *METHODS))
+    if METHODS[name].text is not None
+}
 
 
 def _age_standardized_text(d: Mapping[str, Any]) -> str:
