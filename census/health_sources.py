@@ -40,7 +40,7 @@ OPTIONAL_KEYS = {"usaleep": ("include_predicted", "apportion_to", "min_coverage"
                  "wonder": ("file", "sha256")}
 # where an external variable may appear: only as the outcome of these methods (its error is independent
 # of the ACS sampling error, so it enters the residual; as a covariate it would go uncorrected)
-from .manifest.methods import EXTERNAL_OUTCOME_METHODS
+EXTERNAL_OUTCOME_METHODS = ("fit_eiv", "fit_replicate", "fh_regression")
 JOIN_MISSING_LIMIT = 0.05
 KINDS = ("direct", "model_based", "partly_model_based")
 
