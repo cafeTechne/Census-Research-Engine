@@ -3,7 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.22.0 (Round 24: method registry, inequality indices, indirect SMR; DOI 10.5281/zenodo.24268731). All versions: concept record
+**Current release:** v0.22.1 (Round 25: staged manifest execution). Previous: v0.22.0 (Round 24: method registry,
+inequality indices, indirect SMR; DOI 10.5281/zenodo.24268731). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are

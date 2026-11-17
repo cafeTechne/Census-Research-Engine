@@ -5,7 +5,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
-## 0.22.1 (Round 25, unreleased): staged manifest execution
+## 0.22.1 (Round 25): staged manifest execution
 
 - Split `run_manifest` into a 7-line driver over named stages sharing a typed `RunState`,
   retaining stage functions and monkeypatch lookups in `census.manifest.run`. The longest
