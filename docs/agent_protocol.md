@@ -264,3 +264,27 @@ replicates are refused under the pre-specified validation domain, even when
 total expected counts would be positive. See recipe
 `health_inequality` and the two fixed simulation audits. Reused MI/NY LBW
 associations are exploratory.
+
+## Spatial clusters (Round 26)
+
+An eligible explicit spatial-cluster configuration replaces the ordinary binomial
+`scale: robust` requirement; the two cannot be combined.
+
+Configure `analyses[].args.spatial_clusters` on a `fit_replicate` analysis and use
+`run_manifest`. Only `spatial_clusters: {"k": 8, "method": "im"}` passed the fixed six-cell
+OLS/binomial validation (90% coverage 0.886–0.912). It averages separately fitted
+cluster coefficients and uses a one-sample t(7) test. `se_cluster_mean` is the
+between-cluster SE, not an additive model SE. Only population target is allowed;
+analysed variables with ACS replicates are refused. Do not silently drop ACS
+uncertainty to run IM. A separate sensitivity needs an explicit specification.
+Clusters are fixed geographically before outcome filtering (50 seeded EPSG:5070
+k-means restarts, seed 20261126), >=5 analysed counties/tracts each; IM requires
+full-rank designs in all groups. Bundle diagnostics record GEOID-to-label maps.
+
+CR1-t at G=8/12 and restricted wild bootstrap at G=12 failed and are exploratory
+only. CR1 combines target-specific SEs with t(G-1); WCR reports 999-Webb-weight
+bootstrap test-inversion intervals without a scalar SE and also refuses ACS
+replicates. All cluster methods exclude `spatial_se` and `scale: robust`. EIV,
+Poisson and WLS are outside the evaluated model families. The cached R21b/R22 IM
+re-checks are unavailable under these rules; the R21b OLS/ACS sensitivity is
+explicitly post hoc, unclustered and separate from unchanged EIV results.

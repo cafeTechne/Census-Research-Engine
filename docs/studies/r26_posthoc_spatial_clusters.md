@@ -29,6 +29,8 @@ Registered m2 residual Moran's I: **0.183552**, permutation p=0.0010, n=144; que
 
 Reason: analysed inputs have ACS replicates; the IM population-only procedure cannot incorporate them.
 
+The registered R22 p-values above retain the original Pearson X2 inference. That convention subsequently failed overdispersion validation; this comparison does not endorse it. The separate robust-SE sensitivities remain documented in `r22_mi_ny_county_low_birth_weight.md`.
+
 ## Additional authorized OLS sensitivity for Round 21b
 
 **Exploratory, unclustered OLS; not an EIV correction and not a substitute for the unavailable IM re-check.** This uses the exact cached formulas and complete cases, keeps the external outcome fixed during ACS covariate refits, and retains all cached ACS replicates with conservative combined SEs. Holm adjustment uses the original hypothesis family. Measurement-error bias and residual spatial dependence remain. The original EIV outputs are unchanged.

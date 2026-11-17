@@ -175,6 +175,11 @@ def main():
                 lines.append(f"| {h['id']} ({h['analysis']}: {h['term']}) | {float(row.p_adjusted):.6g} | unavailable | not assessed |")
             lines+=['','Reason: '+('the registered method is EIV, and analysed inputs have ACS replicates.' if study=='r21b'
                                    else 'analysed inputs have ACS replicates; the IM population-only procedure cannot incorporate them.'),'']
+            if study=='r22':
+                lines+=['The registered R22 p-values above retain the original Pearson X2 inference. '
+                        'That convention subsequently failed overdispersion validation; this comparison '
+                        'does not endorse it. The separate robust-SE sensitivities remain documented in '
+                        '`r22_mi_ny_county_low_birth_weight.md`.','']
         lines+=['## Additional authorized OLS sensitivity for Round 21b','',
                 '**Exploratory, unclustered OLS; not an EIV correction and not a substitute for the unavailable IM re-check.** '
                 'This uses the exact cached formulas and complete cases, keeps the external outcome fixed during ACS covariate refits, '

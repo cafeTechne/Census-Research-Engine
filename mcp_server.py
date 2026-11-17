@@ -125,7 +125,20 @@ income, race/ethnicity and education. County Health Rankings mortality and WONDE
 are direct death records. create_manifest refuses violations (CIRCULARITY R1/R2).
 Use exploratory:true to label an exploratory manifest; deviations remain recorded.
 Spatial_se (Bartlett Conley) failed validation: exploratory only, including run_variant.
-Count outcomes: binomial trials=<name>_denominator and scale:"robust"; Poisson counts use exposure
+Spatial clusters use the existing manifest tools: analyses[].args.spatial_clusters on
+method fit_replicate, then run_manifest. Only {"k":8,"method":"im"} passed Round 26 OLS/binomial
+validation. IM averages separate cluster fits with t(7); se_cluster_mean is not an additive
+model SE. Population target only, analysed variables with ACS replicates refused. Do not
+discard ACS uncertainty to obtain IM results. EIV/Poisson/WLS are unsupported. Every fixed
+geographic group needs >=5 analysed counties/tracts and full-rank designs; state effects may
+be unidentifiable within groups. Labels are fixed by 50 seeded EPSG:5070 k-means restarts
+before outcome filtering and recorded in the bundle. cr1_t (8/12) and wcr (12) failed and
+are exploratory only; CR1 uses t(G-1), WCR test inversion has no scalar SE. Cluster arguments
+exclude spatial_se and scale:"robust"; IM/WCR cannot combine with ACS replicates.
+The registered county IM re-checks remain unavailable; use the regression_sampling_error
+recipe and report limitations, without replacing registered EIV results.
+Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
+and scale:"robust"; Poisson counts use exposure
 and scale:"robust". New external-count manifests refuse scale:"X2" (failed coverage validation).
 
 Inequality and standardized ratios (get_recipe('health_inequality'); existing manifest tools):

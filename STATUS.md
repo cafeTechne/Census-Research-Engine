@@ -41,6 +41,10 @@ manifests refuse them in confirmatory analyses.
 | Binomial/Poisson with `scale: "X2"` (quasi-likelihood) | Failed under between-area overdispersion (0.689–0.79); refused for new manifests | `robust_se_validation.md` |
 | Area SII / log RII / concentration (`inequality`, Round 24 implementation) | Passed fixed 90% conservative-interval validation: 0.876–0.905 for rank CV<=15%; high-error attenuation persists (CV30% information only). Independent areas. | `inequality_validation.md` (criterion `60330e3`) |
 | Indirect SMR (`smr`, Round 24 implementation) | Passed combined Poisson/ACS log-interval validation: 0.893–0.909; rates fixed, independent band errors; negative band replicates refused. Exact Garwood limits condition on E. | `smr_validation.md` (criterion `680707e`) |
+| Spatial CR1-t, G=8 (`cr1_t`, C1-8) | **Failed**: coverage 0.800–0.895; exploratory only | `spatial_cluster_validation.md`, criterion `46ec2ec` |
+| Spatial CR1-t, G=12 (`cr1_t`, C1-12) | **Failed**: coverage 0.773–0.901; exploratory only | `spatial_cluster_validation.md` |
+| Ibragimov–Müller, G=8 (`im`, C2-8) | **Passed**: 0.886–0.912; unweighted OLS/binomial, population only, no analysed ACS replicates; every cluster full-rank and >=5 units | `spatial_cluster_validation.md` |
+| Restricted wild cluster bootstrap, G=12 (`wcr`, C3-12) | **Failed**: coverage 0.824–0.908; exploratory only, no ACS replicate combination | `spatial_cluster_validation.md` |
 | Conley spatial HAC SEs (`spatial_se`) | **Failed** (0.71–0.87 at 150 km); exploratory only | `spatial_hac_validation.md` |
 | Spatial error model λ correction (ME-SEM) | Validated for λ > 0 (0.86–0.93); lag model at γ 0.6 under-covers | `spatial_regression_validation.md` |
 | LISA under sampling error | Characterised, information only | `lisa_validation.md` |
@@ -55,6 +59,13 @@ Exploratory example: `docs/studies/r24_lbw_inequality_example.md`. Suite: 1703 p
 
 **Round 25 (v0.22.1):** `run_manifest` drives typed `RunState` stages in `run.py`.
 Both offline goldens are required for manifest refactors; suite unchanged at 1703 passed / 37 skipped.
+
+**Round 26 implementation (v0.23.0, awaiting review/merge):** IM-8 passed, CR1/WCR did not.
+Cluster assignments and inference bases are explicit; no new MCP tools (63). Cached original residual
+Moran I remains 0.195464 / 0.183552. IM comparisons are unavailable under the retained ACS/EIV
+protocol; the authorized R21b unclustered OLS/ACS sensitivity is separate from unchanged EIV outputs
+(`docs/studies/r26_posthoc_spatial_clusters.md`). No original study files were rewritten.
+Acceptance: 1734 passed, 37 skipped (31 new tests); both legacy goldens byte-identical.
 
 ## Standing rules
 
@@ -78,11 +89,14 @@ Both offline goldens are required for manifest refactors; suite unchanged at 170
 | 21b | County premature mortality | Poverty, disability supported; vehicle, cost burden not |
 | 22 | County low birth weight | Poverty supported (holds with robust SEs); cost burden fragile (fails with robust SEs) |
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
+| 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 
 ## Open backlog
 
-1. Spatial dependence: residual Moran's I is about 0.18–0.20 in both county studies; Conley failed.
-   Round 26 tests large-spatial-cluster methods on the Round 22 design; spatial random effects if they fail.
+1. Spatial dependence with ACS/EIV remains unresolved: Round 26 IM-8 passed for model-only
+   OLS/binomial, but cannot incorporate the studies' ACS replicates or EIV. CR1/WCR and Conley failed.
+   Separately validate ACS-compatible spatial inference or spatial random effects next; do not drop
+   uncertainty to force an IM re-check. Poisson also needs separate validation.
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 3. Replication of the county findings in held-out states (OH/PA): Round 29 (needs the owner's WONDER exports).
 4. Further methods: empirical-Bayes rate smoothing, splines and joint Wald tests (Round 27); segregation

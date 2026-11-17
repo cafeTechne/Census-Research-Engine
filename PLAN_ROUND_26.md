@@ -135,12 +135,30 @@ at `/tmp/round26-pr-body.md`.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Baseline suite | | |
-| Criterion commit | | |
-| C1-8 / C1-12 / C2-8 / C3-12 results | | |
-| Default chosen (or none) | | |
-| Engine and tests | | |
-| Post hoc R21b / R22 | | |
-| Golden changes | | |
-| Final suite | | |
-| Exceptions | | |
+| Baseline suite | Pass | 1703 passed, 37 skipped, 49 subtests; 4 warnings. Schema 516 / 12 manifests; run golden 29 scenarios / all 19 blocking kinds. |
+| Criterion commit | Pass | 46ec2ec pushed before full run. Audit 6463f34 afterward. Exact scripts/criterion checked at runtime. |
+| C1-8 / C1-12 / C2-8 / C3-12 results | Complete | C1-8 FAIL min .800; C1-12 FAIL .773; C2-8 PASS .886–.9115; C3-12 FAIL .8235. Zero failed draws; all 12,000 datasets retained. |
+| Default chosen (or none) | C2-8 | IM is the only passing candidate; population-only and no analysed ACS replicates. Validated k is 8, not arbitrary counts. |
+| Engine and tests | Pass | Gated OLS/binomial engine, t(G-1), strict target/replicate/full-rank/min-size rules; assignment in bundle. IM SE is se_cluster_mean, not additive se_model. |
+| Post hoc R21b / R22 | Complete with limits | Per owner: IM attempts unavailable (ACS inputs; R21b also EIV); no uncertainty discarded. Authorized separate OLS/ACS sensitivity retained. Moran I .195464/.183552; map/artifacts cached only. |
+| Golden changes | None | Both existing goldens byte-identical (516 schema snapshots; 29 run scenarios). New argument is covered by new tests; old cases unchanged. |
+| Final suite | Pass | 1734 passed, 37 skipped, 49 subtests; 4 unchanged warnings. All 31 new tests pass; final MCP-profile/round tests also pass. |
+| Exceptions | Recorded | Inline Round 22 generators extracted bit-for-bit; representative points reused; post hoc protocol retained per owner. Details below. |
+
+Round 22 had no reusable generator functions: its inline setup/draw blocks were extracted, and
+unit checks reproduced the old arrays bit-for-bit. The plan's explicit reuse of unit_coordinates
+uses representative points, not polygon centroids; they were projected to EPSG:5070 and this was
+fixed in the pre-run criterion. Bootstrap variant, independent RNG, CI endpoint inversion and
+failed-draw handling were all fixed before the full run, with no subsequent tuning.
+
+IM's one-sample test necessarily has a between-cluster SE; it is stored separately as
+se_cluster_mean, never as an additive full-sample se_model/se_total. Only OLS/binomial and k=8
+were promoted. CR1/WCR are gated exploratory. EIV/Poisson/WLS are outside this validation.
+
+The requested default IM re-check cannot consume either study's cached ACS replicates, and
+R21b is EIV. The owner explicitly retained those restrictions and authorized a separate OLS
+sensitivity alongside unchanged EIV results. The report records unavailable IM comparisons and
+makes no claim that those hypotheses still hold under IM. OLS retains the cached ACS replicates
+with conservative combined uncertainty; it is post hoc, unclustered and not EIV-corrected.
+Original model/result/input hashes were verified and original files remained unchanged. All
+post hoc data came from caches with HTTP blocked. The map shows validation-reference geography.
