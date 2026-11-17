@@ -217,3 +217,18 @@ def test_assignment_not_recomputed_after_outcome_filtering():
     f.loc[group[4:],'y']=np.nan
     with pytest.raises(ValueError,match='>=5 analysed'):
         fit_replicate('y ~ x',f,coords=c,spatial_clusters={'k':8,'method':'im'})
+
+
+def test_posthoc_comparisons_verify_cached_result_hashes(tmp_path):
+    import json,hashlib
+    path=Path(__file__).resolve().parents[1]/'scripts/r26_posthoc_spatial_clusters.py'
+    spec=importlib.util.spec_from_file_location('r26_posthoc',path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    inventory={}
+    for rel in ('results/run.json','results/m2.json','tables/hypotheses.csv'):
+        p=tmp_path/'bundle'/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('frozen fixture\n')
+        inventory[rel]=hashlib.sha256(p.read_bytes()).hexdigest()
+    (tmp_path/'bundle/bundle.json').write_text(json.dumps({'files':inventory}))
+    assert len(module.verify_bundle_assets(tmp_path))==3
+    (tmp_path/'bundle/tables/hypotheses.csv').write_text('changed p-values\n')
+    with pytest.raises(ValueError,match='SHA-256 mismatch'):
+        module.verify_bundle_assets(tmp_path)
