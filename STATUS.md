@@ -3,7 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.22.0 (Round 24: method registry, inequality indices, indirect SMR; DOI 10.5281/zenodo.24268731). All versions: concept record
+**Current release:** v0.23.0 (Round 26: spatial-cluster inference; IM-8 validated). Previous: v0.22.1 (Round 25:
+staged manifest execution; DOI 10.5281/zenodo.24297411). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
@@ -16,10 +17,10 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (26–29). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (27–29). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
-**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`, `PLAN_ROUND_25` at `v0.22.1`. Code and docs still cite
+**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`, `PLAN_ROUND_25` at `v0.22.1`, `PLAN_ROUND_26` at `v0.23.0`. Code and docs still cite
 them as labels (for example "PLAN_ROUND_16 A2"). To read one: `git show v0.21.0:PLAN_ROUND_16.md` (or the later tag), or
 `https://github.com/cafeTechne/Census-Research-Engine/blob/v0.21.0/PLAN_ROUND_16.md`.
 
@@ -60,7 +61,7 @@ Exploratory example: `docs/studies/r24_lbw_inequality_example.md`. Suite: 1703 p
 **Round 25 (v0.22.1):** `run_manifest` drives typed `RunState` stages in `run.py`.
 Both offline goldens are required for manifest refactors; suite unchanged at 1703 passed / 37 skipped.
 
-**Round 26 implementation (v0.23.0, awaiting review/merge):** IM-8 passed, CR1/WCR did not.
+**Round 26 (v0.23.0):** IM-8 passed, CR1/WCR did not.
 Cluster assignments and inference bases are explicit; no new MCP tools (63). Cached original residual
 Moran I remains 0.195464 / 0.183552. IM comparisons are unavailable under the retained ACS/EIV
 protocol; the authorized R21b unclustered OLS/ACS sensitivity is separate from unchanged EIV outputs

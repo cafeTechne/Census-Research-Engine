@@ -44,5 +44,5 @@ The registered R22 p-values above retain the original Pearson X2 inference. That
 
 ## Scope and artifacts
 
-The cluster map is a release attachment (`im8_cluster_map.png` / `.pdf`), showing the frozen validation geometry; it does not imply an IM estimate was available for either registered study. The map and computed outputs are in `/tmp/round26-study-outputs.tar.gz`, not committed datasets.
+The cluster map is a release attachment (`im8_cluster_map.png` / `.pdf`), showing the frozen validation geometry; it does not imply an IM estimate was available for either registered study. The map and computed outputs are in `r26_study_outputs.tar.gz`, attached (after a key scan) to the release that ships this round; they are not committed datasets.
 No sources were downloaded. Cached analysed-file SHA-256 values and registered manifest hashes were checked; original files were not modified. Supporting an ACS-compatible spatial re-check or EIV/Poisson inference requires separate validation.

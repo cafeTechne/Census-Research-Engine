@@ -5,7 +5,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
-## 0.23.0 (Round 26, unreleased): spatial-cluster inference and validation
+## 0.23.0 (Round 26): spatial-cluster inference and validation
 
 - Pre-register and run 12,000 datasets on the unchanged Round 22 spatial design. IM with
   eight clusters passed all six cells (coverage 0.886–0.912); CR1-t at 8/12 clusters and
@@ -22,7 +22,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 - Mirror restrictions in recipes and agent/MCP guidance. Existing schema/run goldens
   remain byte-identical for old arguments; no unrelated bug fixes or registered-manifest edits.
 
-## 0.22.1 (Round 25, unreleased): staged manifest execution
+## 0.22.1 (Round 25): staged manifest execution
 
 - Split `run_manifest` into a 7-line driver over named stages sharing a typed `RunState`,
   retaining stage functions and monkeypatch lookups in `census.manifest.run`. The longest
