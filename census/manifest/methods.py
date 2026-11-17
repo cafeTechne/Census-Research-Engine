@@ -114,7 +114,7 @@ def _stat_coefficient(h, res):
     row = c.loc[h["term"]]
     from ..models import interval_se_column
     se_col = interval_se_column(res)  # the SE behind p_value and the interval
-    return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
+    return {"estimate": float(row["estimate"]), "se": (None if se_col == "bootstrap_test" else float(row[se_col])), "se_basis": se_col,
             "p_two_sided": float(row["p_value"]),
             "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"])}
 
@@ -173,7 +173,7 @@ def _check_fit_replicate(stage, ctx):
     count_outcome = ctx.get("count_outcome")
     if stage == "before_spatial":
         allowed = {"model", "weights", "exposure", "trials", "cv_threshold", "max_failed_replicates",
-                   "target", "scale", "spatial_se"}
+                   "target", "scale", "spatial_se", "spatial_clusters"}
         unknown = sorted(set(aargs) - allowed)
         if unknown:
             errors.append(f"fit_replicate does not take args {unknown}")
@@ -183,6 +183,27 @@ def _check_fit_replicate(stage, ctx):
             errors.append("scale must be 'robust' or 'X2' for binomial or poisson models only")
         if aargs.get("scale") == "robust" and aargs.get("spatial_se") is not None:
             errors.append("scale 'robust' and spatial_se are alternatives; choose one")
+        clusters = aargs.get("spatial_clusters")
+        if clusters is not None:
+            from ..spatial_clusters import check_config, SPATIAL_CLUSTERS_VALIDATED, VALIDATED_CLUSTER_COUNTS
+            prefix = f"analyses[{i}] ({a.get('id')}): "
+            try:
+                check_config(clusters)
+            except ValueError as exc:
+                errors.append(prefix+str(exc))
+            else:
+                cluster_method = clusters["method"]
+                if (not SPATIAL_CLUSTERS_VALIDATED[cluster_method] or clusters["k"] not in VALIDATED_CLUSTER_COUNTS[cluster_method]) and not manifest.get("exploratory", False):
+                    errors.append(prefix+"spatial_clusters method/count failed or was not validated; exploratory only (docs/audits/spatial_cluster_validation.md)")
+                if cluster_method in ("im", "wcr"):
+                    if aargs.get("target", "population") != "population":
+                        errors.append(prefix+"IM/WCR spatial_clusters require target population; no ACS SE combination")
+                    if census_vre_source(manifest) or a.get("replicates") == "required":
+                        errors.append(prefix+"IM/WCR spatial_clusters cannot use declared ACS replicates; sampling error is not included")
+            if aargs.get("spatial_se") is not None or aargs.get("scale") == "robust":
+                errors.append(prefix+"spatial_clusters is mutually exclusive with spatial_se and scale robust")
+            if glm not in ("ols", "binomial") or aargs.get("weights") is not None:
+                errors.append(prefix+"spatial_clusters supports unweighted OLS and binomial only; EIV/Poisson/WLS were not validated")
         parent = outcome_name if outcome_name in ext_names else count_outcome[:-10] if count_outcome else None
         if parent is not None:
             if glm not in ("ols", "binomial", "poisson"):
@@ -191,7 +212,7 @@ def _check_fit_replicate(stage, ctx):
                 errors.append(f"external binomial outcome requires trials '{parent}_denominator'; effective trials refused")
             if glm == "poisson" and (count_outcome is None or aargs.get("exposure") != parent + "_denominator"):
                 errors.append(f"external poisson needs {parent}_numerator outcome and exposure '{parent}_denominator'")
-            if glm in ("binomial", "poisson") and aargs.get("scale") is None and aargs.get("spatial_se") is None:
+            if glm in ("binomial", "poisson") and aargs.get("scale") is None and aargs.get("spatial_se") is None and clusters is None:
                 errors.append("overdispersion would be ignored: set scale 'robust'")
             elif (glm in ("binomial", "poisson") and aargs.get("scale") == "X2"
                   and manifest_hash(manifest) not in LEGACY_X2_MANIFESTS):

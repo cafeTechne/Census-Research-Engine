@@ -51,6 +51,10 @@ FIPS2_RE = re.compile(r"^\d{2}$")
 FORMULA_FUNCTIONS = {"C", "I", "np", "log", "exp", "sqrt", "center", "standardize", "scale", "Q"}
 
 REFERENCES = {
+    "cluster_bch": "Bester, C.A., Conley, T.G. & Hansen, C.B. (2011). Inference with dependent data using cluster covariance estimators. Journal of Econometrics 165:137-151.",
+    "cluster_im": "Ibragimov, R. & Müller, U.K. (2010). t-Statistic Based Correlation and Heterogeneity Robust Inference. JBES 28:453-468.",
+    "cluster_wcr": "Kline, P. & Santos, A. (2012). A Score Based Approach to Wild Bootstrap Inference. Journal of Econometric Methods 1:23-41. https://eml.berkeley.edu/~pkline/papers/ScoreFinal_web.pdf",
+
     "pamuk": "Pamuk, E.R. (1985). Social class inequality in mortality from 1921 to 1972 in England and Wales. Population Studies 39:17-31.",
     "kakwani": "Kakwani, N., Wagstaff, A. & van Doorslaer, E. (1997). Socioeconomic inequalities in health: measurement, computation, and statistical inference. Journal of Econometrics 77:87-103.",
     "garwood": "Garwood, F. (1936). Fiducial limits for the Poisson distribution. Biometrika 28:437-442.",
