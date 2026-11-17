@@ -422,6 +422,7 @@ def fit_replicate(
     scale: Optional[str] = None,
     spatial_se: Optional[Mapping] = None,
     coords: Optional[pd.DataFrame] = None,
+    spatial_clusters: Optional[Mapping] = None,
 ) -> ModelResult:
     """Fit a statsmodels formula model with ACS replicate sampling SEs.
 
@@ -448,7 +449,16 @@ def fit_replicate(
     incomplete replicates, and the result records them
     (diagnostics["replicates_declared_fixed"], a note): se_sampling then excludes
     their sampling error.
+    ``spatial_clusters``: {"k": integer, "method": "cr1_t" | "im" | "wcr"}.
+    Only IM with eight fixed geographic clusters passed Round 26 validation.
+    IM/WCR require the population target and refuse analysed inputs with supplied
+    ACS replicates. IM reports a between-cluster mean SE, not an additive model
+    SE; WCR reports test-inverted intervals without a scalar SE. CR1 uses t(G-1)
+    intervals with the usual target-specific SE. CR1/WCR remain exploratory.
+    These methods support unweighted OLS and binomial, not EIV/Poisson/WLS.
     """
+    if spatial_clusters is not None and (spatial_se is not None or scale == "robust"):
+        raise ValueError("spatial_clusters is mutually exclusive with spatial_se and scale='robust'")
     if spatial_se is not None and model.lower() not in ("binomial", "poisson"):
         raise ValueError("spatial_se is supported for binomial and poisson models")
     if spatial_se is not None and coords is None:
@@ -465,6 +475,22 @@ def fit_replicate(
         raise ValueError("target='these_areas' needs replicates (se_sampling)")
     if model not in MODELS:
         raise ValueError(f"unknown model {model!r}; expected one of {MODELS}")
+    cluster_assignment = None
+    if spatial_clusters is not None:
+        from .spatial_clusters import check_config, assignment_for_frame
+        check_config(spatial_clusters)
+        if model not in ("ols", "binomial"):
+            raise ValueError("spatial_clusters supports OLS and binomial only; EIV/Poisson were not validated")
+        if weights is not None:
+            raise ValueError("spatial_clusters does not support weighted linear fits (not validated)")
+        if spatial_clusters["method"] in ("im", "wcr"):
+            if target != "population":
+                raise ValueError("IM/WCR spatial clusters require target='population'; ACS SE combination is unavailable")
+            analysed = set(formula_variables(formula, frame)) | {v for v in (weights, exposure, trials) if isinstance(v, str)}
+            if replicates is not None and len(replicates) and set(replicates["variable"].astype(str)) & analysed:
+                raise ValueError("IM/WCR spatial clusters refuse analysed variables with ACS replicates; sampling error is not included")
+        # Fixed geographic input, before any outcome/formula filtering or fit.
+        cluster_assignment = assignment_for_frame(frame, coords, spatial_clusters)
     data, n_trials, notes = _prepare(frame, formula, model, weights, exposure, trials)
     fit_scale = "X2" if scale == "X2" else None   # 'robust' changes the covariance, not the fit
     full = _fit(formula, data, model, weights, exposure, n_trials, fit_scale)
@@ -478,10 +504,10 @@ def fit_replicate(
         dispersion = float(full.pearson_chi2 / full.df_resid) if full.df_resid > 0 else float("nan")
         diagnostics["pearson_dispersion"] = dispersion
         diagnostics["scale"] = scale
-        if dispersion > 1.5 and scale is None and spatial_se is None:
+        if dispersion > 1.5 and scale is None and spatial_se is None and spatial_clusters is None:
             notes.append(f"Pearson dispersion {dispersion:.6g}: model SEs assume no overdispersion; use "
                          "scale='robust'")
-        elif dispersion > 1.5 and scale == "X2":
+        elif dispersion > 1.5 and scale == "X2" and spatial_clusters is None:
             notes.append(f"Pearson dispersion {dispersion:.6g} with scale='X2': X2 SEs under-cover when the "
                          "overdispersion is between-area variation (validated coverage 0.69-0.79 at nominal 0.90, "
                          "docs/audits/robust_se_validation.md); prefer scale='robust'")
@@ -583,8 +609,28 @@ def fit_replicate(
         diagnostics["spatial_se"] = info
         bse = pd.Series(np.sqrt(np.diag(cov)), index=params.index)
         notes.append(f"Spatial HAC (Conley) SEs, Bartlett kernel, cutoff {spatial_se['cutoff_km']} km")
-    table = _table(params, bse, se_sampling, confidence_level, target)
-    notes.append(f"intervals and p-values use the '{target}' target ({TARGET_SE[target]})")
+    if spatial_clusters is not None:
+        from .spatial_clusters import inference_table
+        table, cluster_info = inference_table(full, data, n_trials, model, spatial_clusters,
+                                               cluster_assignment, target, confidence_level, se_sampling)
+        diagnostics["spatial_clusters"] = cluster_info
+        diagnostics["se_model_unadjusted"] = dict(zip(params.index, map(float, bse)))
+        method = "spatial_cluster_"+spatial_clusters["method"]
+        if spatial_clusters["method"] in ("im", "wcr"):
+            notes.append("ACS sampling error is not included. IM's cluster-mean SE / WCR test cannot be combined with ACS replicates.")
+        if spatial_clusters["method"] == "im":
+            notes.append("IM estimates are unweighted means of separately fitted cluster coefficients; se_cluster_mean is their one-sample SE, not an additive full-sample model SE.")
+            cluster_info["residual_diagnostics_basis"] = "full-sample reference fit, not the cluster-mean estimator"
+        if not cluster_info["validated"]:
+            notes.append("EXPLORATORY ONLY: this spatial-cluster method/count did not pass Round 26 validation.")
+        notes.append(f"Spatial clusters: {spatial_clusters['method']}, G={spatial_clusters['k']}; see docs/audits/spatial_cluster_validation.md")
+    else:
+        table = _table(params, bse, se_sampling, confidence_level, target)
+    if spatial_clusters is not None and spatial_clusters["method"] in ("im", "wcr"):
+        inference_basis = "se_cluster_mean with t(G-1)" if spatial_clusters["method"] == "im" else "restricted bootstrap test inversion"
+        notes.append(f"intervals and p-values use the population target ({inference_basis}); no additive ACS SE")
+    else:
+        notes.append(f"intervals and p-values use the '{target}' target ({TARGET_SE[target]})")
     diagnostics["interval_target"] = target
     diagnostics.update(_numeric_diagnostics(formula, data, full, model, table, weights, exposure,
                                             n_trials, cv_threshold))

@@ -5,6 +5,23 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.23.0 (Round 26): spatial-cluster inference and validation
+
+- Pre-register and run 12,000 datasets on the unchanged Round 22 spatial design. IM with
+  eight clusters passed all six cells (coverage 0.886–0.912); CR1-t at 8/12 clusters and
+  999-Webb-weight restricted bootstrap at 12 clusters failed and remain exploratory.
+- Add fixed geographic clustering (50 seeded EPSG:5070 restarts, >=5 analysed units/group),
+  recorded assignments, and per-method/count manifest gates without new MCP tools.
+- IM reports cluster-mean coefficients and t(7) intervals using `se_cluster_mean`; it has
+  no additive full-sample model SE. IM/WCR require population target and refuse analysed
+  variables with ACS replicates. Unweighted OLS/binomial only; EIV/Poisson/WLS unsupported.
+- Cache-only post hoc report preserves original results and records the requested IM
+  re-checks as unavailable under the retained protocol. The additional authorized R21b
+  OLS sensitivity keeps ACS replicates with conservative combined SEs and is unclustered.
+  Original residual Moran I: 0.195464 / 0.183552. Cluster map remains a release artifact.
+- Mirror restrictions in recipes and agent/MCP guidance. Existing schema/run goldens
+  remain byte-identical for old arguments; no unrelated bug fixes or registered-manifest edits.
+
 ## 0.22.1 (Round 25): staged manifest execution
 
 - Split `run_manifest` into a 7-line driver over named stages sharing a typed `RunState`,

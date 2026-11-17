@@ -168,6 +168,11 @@ def interval_description(result: Any) -> Dict[str, Any]:
     diag = getattr(result, "diagnostics", None) or {}
     target = diag.get("interval_target")
     basis = TARGET_SE.get(target, "se_total")
+    cluster_method = (diag.get("spatial_clusters") or {}).get("method")
+    if cluster_method == "im":
+        basis = "se_cluster_mean"
+    elif cluster_method == "wcr":
+        basis = "bootstrap_test"
     level = float(getattr(result, "confidence_level", 0.90))
     coefs = getattr(result, "coefficients", None)
     df = None
@@ -185,11 +190,14 @@ def interval_description(result: Any) -> Dict[str, Any]:
                 if c in coefs.columns:
                     ok &= np.isfinite(pd.to_numeric(coefs[c], errors="coerce").to_numpy(float))
             undefined = [t for t, v in zip(terms, ok) if not v]
+        elif cluster_method == "wcr":
+            ok = np.isfinite(coefs[["ci_lower", "ci_upper", "p_value"]].to_numpy(float)).all(axis=1)
+            undefined = [t for t, v in zip(terms, ok) if not v]
     sources = list(getattr(result, "uncertainty_sources", None) or [])
     # se_model carries model-based sampling error (known variances) but never replicate refits
     basis_sources = {"se_model": [x for x in sources if x != SOURCE_SAMPLING_REPLICATE],
                      "se_sampling": [x for x in sources if x == SOURCE_SAMPLING_REPLICATE]}.get(basis, sources)
-    distribution = "t" if df else "normal"
+    distribution = "wild_cluster_bootstrap" if cluster_method == "wcr" else "t" if df else "normal"
     estimand = _estimand_text(result, target)
     rep = (diag.get("replicates_incomplete")
            or (getattr(result, "provenance", None) or {}).get("replicates_incomplete"))
@@ -199,6 +207,9 @@ def interval_description(result: Any) -> Dict[str, Any]:
             + (f", {target} target" if target else "") + f"; estimand: {estimand}"
             + (f"; undefined uncertainty (no interval) for {undefined}" if undefined else "")
             + (f"; REPLICATES INCOMPLETE: {rep['note']}" if rep else ""))
+    if cluster_method == "wcr":
+        text = (f"{level * 100:g}% restricted wild-cluster bootstrap test-inversion intervals and p-values; "
+                f"no scalar/additive SE, {target} target; estimand: {estimand}")
     return {"target": target, "basis_column": basis, "level": level, "distribution": distribution, "df": df,
             "basis_sources": basis_sources,
             "estimand": estimand, "undefined_terms": undefined, "replicates_incomplete": bool(rep), "text": text}

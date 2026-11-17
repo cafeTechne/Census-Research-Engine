@@ -32,3 +32,9 @@ exploratory study, set top-level `exploratory: true`; it remains exploratory eve
 when deviations block parts of the analysis. USALEEP may opt into `split: "dominant"`
 for children holding >=95% of parent population (held-out OH/PA validation passed);
 the split default stays `missing`.
+
+For an explicitly selected spatial-cluster fit, follow the restrictions in
+`regression_sampling_error`: only IM with eight groups passed, only for OLS/binomial
+and population target without analysed ACS replicates. It replaces the ordinary
+binomial robust covariance; `scale: robust` and spatial clusters are mutually
+exclusive. Do not drop existing ACS uncertainty to force this fit.

@@ -216,6 +216,16 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    SMR refuses negative band replicates under its pre-specified validation domain.
    Log statistics test zero and report exponentiated ratio columns. R1 applies
    to external outcomes/counts; reused MI/NY LBW associations remain exploratory.
+9. Spatial clusters use analyses[].args.spatial_clusters in existing manifest tools;
+   only {"k":8,"method":"im"} passed for unweighted OLS/binomial.
+   IM reports cluster-mean coefficients and t(7), with se_cluster_mean (not additive
+   model SE). Population target only; analysed inputs with ACS replicates refused.
+   Do not drop ACS uncertainty to run it. EIV/Poisson/WLS are unsupported. Fixed
+   projected-point clusters need >=5 analysed units and full-rank designs; assignment
+   is in the bundle. CR1-t (8/12) and WCR (12) failed and are exploratory only.
+   Cluster args exclude spatial_se/scale:robust. IM/WCR cannot combine ACS SEs.
+   Registered county IM re-checks are unavailable under this protocol; consult the
+   regression_sampling_error recipe and the Round 26 audit/report.
 """
 
 REVIEW_INSTRUCTIONS = """\

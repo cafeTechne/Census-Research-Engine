@@ -321,6 +321,36 @@ def _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites):
                                      f"`{args['cluster']}` (G/(G-1) small-sample factor; validated by simulation, "
                                      "docs/audits/eiv_cluster_validation.md)" if args.get("cluster")
                                      else "sandwich SEs treating units as independent"))
+        clusters = args.get("spatial_clusters")
+        if clusters is not None:
+            from scipy.stats import t as student_t
+            from ..spatial_clusters import SPATIAL_CLUSTERS_VALIDATED, VALIDATED_CLUSTER_COUNTS
+            k, cm = clusters["k"], clusters["method"]
+            critical = student_t.ppf((1+level)/2, k-1)
+            text = (f"Counties/tracts were assigned before outcome filtering to {k} geographic clusters "
+                    "using 50 seeded EPSG:5070 k-means restarts (seed 20261126), minimum five units per cluster; "
+                    "the bundle records GEOID-to-label assignments. ")
+            if cm == "cr1_t":
+                text += (f"Grouped-score CR1 covariance uses G/(G-1)*(n-1)/(n-k); target {tgt} "
+                         f"combines model/sampling SEs by the registered rule. Intervals and p-values use "
+                         f"t({k-1}), critical value {critical:.8g}. ")
+                refs = ["cluster_bch", "vre"]
+            elif cm == "im":
+                text += (f"Ibragimov-Müller inference averages coefficients from separately fitted, full-rank "
+                         f"cluster regressions; a one-sample t({k-1}) test uses between-cluster sd/sqrt(G), "
+                         f"critical value {critical:.8g}. Only population target is supported. "
+                         "No additive full-sample model SE is available, and ACS sampling error is not included; "
+                         "analysed variables with ACS replicates are refused. ")
+                refs = ["cluster_im"]
+            else:
+                text += ("Restricted wild cluster inference uses 999 Webb six-point weight draws: residual "
+                         "WCR for OLS, Kline-Santos Score2-Wald for binomial. Intervals invert the two-sided "
+                         "bootstrap test at the registered level; no single t critical value or scalar SE is "
+                         "reported. Only population target; ACS replicates are refused and their sampling "
+                         "error is not included. ")
+                refs = ["cluster_wcr"]
+            if not SPATIAL_CLUSTERS_VALIDATED[cm] or k not in VALIDATED_CLUSTER_COUNTS[cm]:
+                text += "EXPLORATORY ONLY: this method/count failed or was outside the fixed validation. "
         ext_out = [v for v in _formula_names(str(a.get("formula", "")).split("~")[0]) if v in external_names(m)]
         ext_kind = "an external model-based estimate"
         if ext_out:
@@ -335,13 +365,13 @@ def _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites):
                      "replicates: it was held fixed in the replicate design rows, so the outcome-covariate error "
                      "covariance is zero by construction (independent surveys) and only the covariates' error was "
                      "corrected; the outcome's own error enters the residual and the sandwich.")
-        elif ext_out and a["method"] == "fit_replicate":
+        elif ext_out and a["method"] == "fit_replicate" and (clusters is None or clusters["method"] == "cr1_t"):
             text += (f" The outcome ({', '.join(ext_out)}) is {ext_kind} held fixed in every "
                      "refit; se_sampling covers the covariates' ACS sampling error only.")
         elif ext_out and a["method"] == "fh_regression":
             text += (f" The outcome ({', '.join(ext_out)}) is {ext_kind}; its published "
                      "interval-derived SE was used as the known sampling variance of the Fay-Herriot model.")
-        if a["method"] == "fit_replicate" and args.get("model") in ("binomial", "poisson"):
+        if a["method"] == "fit_replicate" and clusters is None and args.get("model") in ("binomial", "poisson"):
             if args["model"] == "binomial" and args.get("scale") == "X2" and ext_out:
                 text += (" Coefficients were estimated by quasi-binomial regression (logit link, statsmodels GLM, "
                          "dispersion from Pearson χ²) of the low birth weight proportion with live births as trials. "

@@ -17,6 +17,29 @@ CUTOFFS = (50, 100, 150, 200)
 MIN_COVERAGE = .86
 
 
+def simulation_setup(design, range_km, dist, seed):
+    """Original Round 22 setup, extracted without changing RNG order for Round 26."""
+    rng = np.random.default_rng(seed)
+    n = len(dist)
+    L = np.linalg.cholesky((np.eye(n) if range_km==0 else np.exp(-dist/range_km))+1e-10*np.eye(n))
+    trials = np.maximum(50,np.rint(rng.lognormal(np.log(3900),1,n))) if design=='binomial' else None
+    return rng, L, trials
+
+
+def simulation_draw(design, L, trials, rng):
+    """Original covariate/error fields and outcome draw (including binomial RNG order)."""
+    n = len(L)
+    x = L@rng.standard_normal(n)
+    error = L@rng.standard_normal(n)
+    X = np.column_stack((np.ones(n),x))
+    if design=='linear':
+        y = 1+.5*x+error
+    else:
+        p = 1/(1+np.exp(-(-2.6+.3*x+.15*error)))
+        y = rng.binomial(trials.astype(int),p)/trials
+    return X, y
+
+
 def main():
     geoids = sorted(g for state in ('26','36') for g in get_boundaries('county',2020,state).GEOID.astype(str))
     if len(geoids) != 145:
@@ -28,25 +51,18 @@ def main():
     rows = []
     cells = [(design,r) for design in ('linear','binomial') for r in (0,50,100)]
     for index,(design,r) in enumerate(cells):
-        rng = np.random.default_rng(20261122+index)
-        L = np.linalg.cholesky((np.eye(n) if r==0 else np.exp(-dist/r))+1e-10*np.eye(n))
-        trials = np.maximum(50,np.rint(rng.lognormal(np.log(3900),1,n))) if design=='binomial' else None
+        rng, L, trials = simulation_setup(design, r, dist, 20261122+index)
         values = {str(c):{'se':[],'cover':0,'non_psd':0,'failed':0} for c in ('independent',)+CUTOFFS}
         estimates = []
         beta = .5 if design=='linear' else .3
         for draw in range(SIMS):
-            x = L@rng.standard_normal(n)
-            error = L@rng.standard_normal(n)
-            X = np.column_stack((np.ones(n),x))
+            X, y = simulation_draw(design, L, trials, rng)
             if design=='linear':
-                y = 1+.5*x+error
                 bread = np.linalg.inv(X.T@X)
                 b = bread@X.T@y
                 scores = X*(y-X@b)[:,None]
                 se_i = np.sqrt((bread@(scores.T@scores)@bread)[1,1])
             else:
-                p = 1/(1+np.exp(-(-2.6+.3*x+.15*error)))
-                y = rng.binomial(trials.astype(int),p)/trials
                 fit = sm.GLM(y,X,family=sm.families.Binomial(),var_weights=trials).fit(scale='X2')
                 b = np.asarray(fit.params)
                 mu = np.asarray(fit.fittedvalues)
