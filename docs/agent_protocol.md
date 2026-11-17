@@ -288,3 +288,42 @@ replicates. All cluster methods exclude `spatial_se` and `scale: robust`. EIV,
 Poisson and WLS are outside the evaluated model families. The cached R21b/R22 IM
 re-checks are unavailable under these rules; the R21b OLS/ACS sensitivity is
 explicitly post hoc, unclustered and separate from unchanged EIV results.
+
+## Event-count smoothing and nonlinear exploratory models (Round 27)
+
+For ACS direct estimates with known sampling variance, use Fay–Herriot. For event
+counts with fixed expected counts, the Python library exports
+`eb_poisson_gamma`; follow `get_recipe("small_area")`. This is descriptive only,
+without a manifest smoothing method or a new MCP tool. WONDER exports are manual;
+suppressed counts remain missing with [1,9] bounds and contribute interval
+probabilities, never zero/midpoint imputations. Equal bounds on published counts
+are exact observations. E is expected events, not population; compute it from
+exposure times a cited rate in matching time/population units. Optional
+`reference_rate` produces rates in the supplied units. Beta is a Gamma rate.
+Posterior 90% intervals and Laird–Louis with 200 refits passed the fixed Round 27
+criterion; posterior is the default. Preserve DataFrame.attrs with exports and
+report the validation note. Reference-rate/expected-count uncertainty and spatial
+dependence are excluded. EB intervals are not ACS MOEs, and smoothed rates are
+not confirmatory outcomes or evidence of recovered suppressed counts. Existing
+maps accept `eb_ratio`; label maps descriptive EB and do not fabricate SEs.
+
+Natural cubic splines `cr(x, df=3|4|5)` and `joint_wald` **failed** the fixed Round
+27 false-positive criterion and are exploratory only. Confirmatory manifests
+refuse either feature. They are restricted to non-spatial `fit_replicate`
+OLS/WLS/binomial/Poisson; no EIV, Fay–Herriot, SIMEX/calibration or spatial fits.
+`cr` uses centered constraints and default full-sample quantile knots, frozen in
+every replicate. df is required; custom knots and nested spline expressions are
+unsupported. The same state is retained when assessing high-CV influence.
+
+A joint hypothesis uses `statistic: "joint_wald", variable: "x"`, without `term`,
+and `direction: "two_sided"` (existing `"two-sided"` is accepted). It jointly tests
+standalone design columns involving x, including `C(x)`, excluding interactions.
+Circularity R1/R2 applies to the variable. W=b'V^-1 b is referred to chi-squared(q),
+where q is recorded in `df`. Model covariance is explicitly HC3; sampling
+covariance is 4/80 times uncentered replicate-deviation outer products; conservative
+uses their sum. Matrices and term labels are in diagnostics. Existing non-spline
+coefficient SE conventions are retained; spline coefficient model SEs are HC3.
+A singular covariance/design is not tested and produces a deviation. W has no
+coefficient CI or odds ratio. WLS, Poisson, df=4 and categorical terms have
+computational checks but were not separately simulation-validated. Do not use
+the exploratory results for confirmatory claims.

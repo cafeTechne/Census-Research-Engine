@@ -161,6 +161,19 @@ Area HC3 assumes independence. R1 applies to external outcomes/counts. Reused LB
 are exploratory. No new tools are needed.
 
 
+Round 27: get_recipe("small_area") distinguishes ACS Fay-Herriot estimates from descriptive
+Python-library eb_poisson_gamma event-count smoothing. No new MCP tool or manifest smoothing
+method. Preserve WONDER interval-censored counts, fixed expected counts and validation metadata;
+never invent suppressed counts or ACS MOEs from EB limits. Posterior 90% and 200-refit
+Laird-Louis intervals passed; reference-rate and spatial uncertainty are excluded.
+cr(x,df=3|4|5) and joint_wald FAILED the fixed false-positive criterion: exploratory only,
+confirmatory manifests refused. Only non-spatial fit_replicate OLS/WLS/binomial/Poisson;
+centered full-sample knots stay fixed. Joint hypotheses use variable, no term, two_sided
+(or two-sided); R2 applies to variable. HC3/sampling/summed covariance matches target.
+Singular covariance is not tested; W is chi-squared(q), with df, no coefficient CI or odds
+ratio. See get_research_protocol for scope, covariance metadata and limitations.
+
+
 Inflation: default index is R-CPI-U-RS (the Census Bureau's ACS index); 'c-cpi-u'
 matches CPS ASEC income reports. Never pass guessed values via cpi_table.
 Branch on error_code in failed results.

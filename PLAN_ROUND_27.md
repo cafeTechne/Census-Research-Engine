@@ -143,10 +143,49 @@ version and the status table. Push. If you cannot open a PR, leave a body at `/t
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Baseline suite | | |
-| EB criterion commit / result (posterior, Laird–Louis) | | |
-| Joint Wald criterion commit / result | | |
-| Engine, tests | | |
-| Golden changes | | |
-| Final suite | | |
-| Exceptions | | |
+| Baseline suite | Passed | 1734 passed, 37 skipped, 49 subtests; base `74dddf2`. |
+| EB criterion commit / result (posterior, Laird–Louis) | Passed / passed | Criterion `d4dec47` pushed before full run; audit `45d9356`. Required-cell coverage .8813–.9000 / .8718–.8914. Posterior default. No fit failures. |
+| Joint Wald criterion commit / result | Failed; exploratory only | Criterion `376ce69` pushed before full run; audit `f7bceba`. Size .1055–.1825; four of eight cells above .13. Both cr and joint_wald refused in confirmatory manifests. No retuning. |
+| Engine, tests | Implemented | `bbde353`; 48 targeted tests pass, including frozen-kernel/statistical references and offline bundles; no new dependencies/tools. |
+| Golden changes | Reviewed | 516 schema snapshots: 30 supported-statistic messages (`hypotheses[0..2]`, coefficient tuple now includes joint_wald). 29 run scenarios/all 19 kinds: 78 additive diagnostic fields, 55 dependent digest occurrences only; existing scientific values unchanged. See `docs/audits/round27_compatibility.md`. |
+| Final suite | 1782 passed, 37 skipped, 49 subtests; 0 failures | 48 added tests; validation audits preserved. |
+| Exceptions | Documented below | Least-change resolutions under section 0.6; no later round started. |
+
+The prior `build_design_matrices` path belonged to EIV, not fit_replicate. Added a
+frozen-state refit path for splines only, preserving legacy formulas. Centering
+is necessary because uncentered cr columns plus an intercept are rank deficient;
+cr(x,df=q) therefore means patsy's centered natural spline with q columns and
+default quantile knots. Freeze the same state in high-CV influence refits too.
+
+The plan's golden-only-messages condition conflicts with the required public
+covariance diagnostics. Permit additive covariance/column metadata and dependent
+artifact hashes, preserving every old scientific result; no golden normalization
+was changed. Existing non-spline coefficient SEs keep their convention; joint
+covariance is explicitly HC3. Covariance serialization preserves both term axes.
+
+The existing direction spelling is two-sided. Accept two_sided as a joint-only
+alias, preserving existing manifests and refusing one-sided joint tests. W has
+no coefficient CI or binomial odds ratio. WLS/Poisson, df=4 and categorical terms
+have computational coverage only, not separate successful simulation validation.
+
+The function signature lacked a way to supply the requested reference rate; add
+an optional keyword-only reference_rate. E remains explicit expected counts in
+consistent units. Exact lower/upper bounds from the WONDER parser are accepted
+as published observations; suppressed observed counts must remain missing. For
+uncensored data, the library bootstrap keeps simulated counts observed; censored
+data reapply their common rule. The frozen validation specifically uses [1,9].
+Laird–Louis percentiles use 200 posterior-mixture draws, as fixed before the run,
+without claiming they contain the plugin interval. Positive-count information and
+at least three areas are required; censored upper bounds above 4096 are refused.
+Numerical Poisson-limit conventions and the DGP details are fixed in the adjacent
+criterion documents, not chosen after results.
+
+Existing map helpers already accept eb_ratio (`census.maps`, not census/figures).
+The recipe and agent/MCP rules explain the Python workflow without a new tool.
+The delivered-method backlog is item 4, not item 5; remove those delivered parts
+by content, preserving item 5's unrelated saturated-bundle bug. The current
+published release stays v0.23.0 until an authorized merge/release; branch package
+and citation version are v0.24.0. Worktree: `/tmp/census-round27`.
+
+Validation logs and golden snapshots are in `/tmp/r27-*`; PR body at
+`/tmp/round27-pr-body.md`. No merge, tag, release, or CI was run.

@@ -13,7 +13,7 @@ RECIPES: Dict[str, str] = {
     "compare_counties": "Compare a rate between two counties in one release",
     "tract_trend": "Trend in a tract or county rate using non-overlapping releases",
     "regression_sampling_error": "Regression whose SEs include ACS sampling error",
-    "small_area": "Small-area (Fay-Herriot) estimates for noisy tracts or counties",
+    "small_area": "Small-area ACS estimates (Fay-Herriot) and descriptive event-count smoothing (EB)",
     "preregistered": "Pre-registered (manifest) confirmatory analysis",
     "decennial_counts": "Use 2020 Census counts (P.L. 94-171, DHC) without inventing margins of error",
     "external_health_outcome": "Health outcome from CDC PLACES, USALEEP, County Health Rankings or WONDER, "
