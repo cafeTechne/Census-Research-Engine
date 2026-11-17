@@ -657,12 +657,12 @@ def _test_hypotheses(state: RunState) -> None:
             try:
                 s = _statistic(hyp, res)
                 row.update(s, status="tested",
-                           p_value=_one_sided(s["p_two_sided"], s["estimate"], row["direction"]))
+                           p_value=s["p_two_sided"] if hyp["statistic"] == "joint_wald" else _one_sided(s["p_two_sided"], s["estimate"], row["direction"]))
             except Exception as exc:
                 row.update(status="not_tested", estimate=None, p_value=None)
                 state.deviations.append({"kind": "hypothesis_not_tested", "hypothesis": hyp["id"], "detail": str(exc)})
         spec = next(_normalize_analysis(a) for a in state.m["analyses"] if a["id"] == hyp["analysis"])
-        if spec["method"] == "fit_replicate" and (spec.get("args") or {}).get("model") == "binomial":
+        if hyp["statistic"] == "coefficient" and spec["method"] == "fit_replicate" and (spec.get("args") or {}).get("model") == "binomial":
             for source_key, target in (("estimate", "odds_ratio"), ("ci_lower", "odds_ratio_lower"),
                                    ("ci_upper", "odds_ratio_upper")):
                 row[target] = float(np.exp(row[source_key])) if row.get(source_key) is not None else None
@@ -871,7 +871,7 @@ def _write_bundle(folder: Path, m, h, results, hyp_df, run_info, citation) -> Di
             figures_[f"shrinkage_{aid}"] = (figs.shrinkage_plot, {"result": r, "manifest_hash": h,
                                                                   "data_source": fig_source})
     cols = ["id", "statistic", "direction", "estimate", "p_value", "p_adjusted", "significant", "status"]
-    cols += [c for c in ("odds_ratio", "odds_ratio_lower", "odds_ratio_upper", "ratio", "ratio_lower", "ratio_upper") if c in hyp_df]
+    cols += [c for c in ("df", "odds_ratio", "odds_ratio_lower", "odds_ratio_upper", "ratio", "ratio_lower", "ratio_upper") if c in hyp_df]
     if m.get("exploratory"):
         cols.append("analysis_status")
     show = hyp_df.reindex(columns=cols)

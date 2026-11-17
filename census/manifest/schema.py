@@ -48,7 +48,7 @@ FORMULA_ID_COLUMNS = ("GEOID", "Year")
 # geography.states). ZCTA GEOIDs are not state-prefixed and ZCTAs can cross state lines.
 _STATE_PREFIXED_LEVELS = ("state", "county", "tract", "block group", "place")
 FIPS2_RE = re.compile(r"^\d{2}$")
-FORMULA_FUNCTIONS = {"C", "I", "np", "log", "exp", "sqrt", "center", "standardize", "scale", "Q"}
+FORMULA_FUNCTIONS = {"cr", "C", "I", "np", "log", "exp", "sqrt", "center", "standardize", "scale", "Q"}
 
 REFERENCES = {
     "cluster_bch": "Bester, C.A., Conley, T.G. & Hansen, C.B. (2011). Inference with dependent data using cluster covariance estimators. Journal of Econometrics 165:137-151.",
@@ -244,7 +244,7 @@ def _formula_names(formula: str) -> List[str]:
     names = []
     for m in re.finditer(r"[A-Za-z_][A-Za-z0-9_.]*", str(formula)):
         tail = str(formula)[m.end():].lstrip()
-        if tail.startswith("(") or m.group(0) in FORMULA_FUNCTIONS or "." in m.group(0) \
+        if (tail.startswith("(") or tail.startswith("=")) or m.group(0) in FORMULA_FUNCTIONS or "." in m.group(0) \
                 or m.group(0) in FORMULA_ID_COLUMNS:
             continue
         names.append(m.group(0))

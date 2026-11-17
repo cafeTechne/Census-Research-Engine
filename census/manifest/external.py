@@ -102,7 +102,7 @@ def circularity_errors(manifest: Mapping[str, Any]) -> List[str]:
                         f"and only it may be tested). {CIRCULARITY_RULE}")
                     continue
                 for h in tested:
-                    tested_term = analysis.get("rank_by") if analysis.get("method") == "inequality" else h.get("term")
+                    tested_term = analysis.get("rank_by") if analysis.get("method") == "inequality" else h.get("variable") if h.get("statistic") == "joint_wald" else h.get("term")
                     term = [n for n in _formula_names(str(tested_term if tested_term is not None else "")) if n in tables] or [str(tested_term)]
                     if not all(t in c["equivalent"] for t in term):
                         errors.append(
@@ -113,7 +113,7 @@ def circularity_errors(manifest: Mapping[str, Any]) -> List[str]:
             if c["kind"] == "direct":
                 continue
             for h in tested:
-                tested_term = analysis.get("rank_by") if analysis.get("method") == "inequality" else h.get("term")
+                tested_term = analysis.get("rank_by") if analysis.get("method") == "inequality" else h.get("variable") if h.get("statistic") == "joint_wald" else h.get("term")
                 term = [n for n in _formula_names(str(tested_term if tested_term is not None else "")) if n in c["overlap"]]
                 just = h.get("circularity_justification")
                 if term and not (isinstance(just, str) and len(just.strip()) >= 20):

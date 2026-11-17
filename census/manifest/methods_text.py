@@ -423,6 +423,12 @@ def _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites):
 
 
 def _methods_hypotheses(m, corr, level, lines, cites):
+    from ..splines import has_spline
+    if any(h.get("statistic") == "joint_wald" for h in m.get("hypotheses", [])):
+        lines.append("Joint Wald tests jointly tested the standalone design columns for the named variable: W=b'V^-1 b against chi-squared(q), using HC3, ACS sampling covariance, or their conservative sum according to target; singular covariance was not tested. No coefficient confidence interval or odds ratio is attached to W.")
+    if any(has_spline(a.get("formula", "")) for a in m.get("analyses", [])):
+        lines.append("Natural cubic splines used explicit df=3/4/5, centered constraints and full-sample quantile knots frozen in every replicate; spline coefficient model covariance was HC3.")
+
     lines += ["", "### Hypotheses and multiple comparisons", ""]
     for hyp in m.get("hypotheses", []):
         lines.append(f"- **{hyp['id']}** ({hyp.get('direction', 'two-sided')}, {hyp['statistic']}"

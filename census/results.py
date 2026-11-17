@@ -259,6 +259,9 @@ def _outcome_of(formula: str) -> str:
 
 def _jsonable(value: Any) -> Any:
     if isinstance(value, pd.DataFrame):
+        if value.index.name == "term":
+            return {"index": _jsonable(value.index.tolist()), "columns": _jsonable(value.columns.tolist()),
+                    "data": _jsonable(value.to_numpy())}
         return [_jsonable(r) for r in value.to_dict(orient="records")]
     if isinstance(value, dict):
         return {str(k): _jsonable(v) for k, v in value.items()}

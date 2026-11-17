@@ -691,6 +691,19 @@ def coverage_report(
 
 def formula_variables(formula: str, frame: pd.DataFrame) -> List[str]:
     """Frame columns named in a patsy formula (outcome first)."""
-    tokens = re.findall(r"[A-Za-z_][A-Za-z0-9_.]*", formula)
+    if re.search(r"\bcr\s*\(", formula):
+        import ast
+        import patsy
+        desc = patsy.ModelDesc.from_formula(formula)
+        tokens = []
+        for term in desc.lhs_termlist + desc.rhs_termlist:
+            for factor in term.factors:
+                tree = ast.parse(factor.code, mode="eval")
+                tokens.extend(n.id for n in ast.walk(tree) if isinstance(n, ast.Name))
+                tokens.extend(n.args[0].value for n in ast.walk(tree) if isinstance(n, ast.Call)
+                              and isinstance(n.func, ast.Name) and n.func.id == "Q" and n.args
+                              and isinstance(n.args[0], ast.Constant))
+    else:
+        tokens = re.findall(r"[A-Za-z_][A-Za-z0-9_.]*", formula)
     seen = list(dict.fromkeys(t for t in tokens if t in frame.columns))
     return seen

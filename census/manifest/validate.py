@@ -308,6 +308,17 @@ def _check_analysis(i, a, manifest, names, ext_names, ids, folded_ids,
     for req in ANALYSIS_METHODS[method][0]:
         if req not in a:
             errors.append(f"analyses[{i}] ({method}): {req!r} is required")
+    from ..splines import has_spline, spline_formula, JOINT_WALD_VALIDATED
+    if has_spline(a.get("formula", "")):
+        args = a.get("args") or {}
+        if method != "fit_replicate" or args.get("model", "ols") not in ("ols", "wls", "binomial", "poisson") or args.get("spatial_se") is not None or args.get("spatial_clusters") is not None:
+            errors.append("cr splines are supported only by non-spatial fit_replicate OLS/WLS/binomial/Poisson")
+        try:
+            spline_formula(a["formula"])
+        except Exception as exc:
+            errors.append(f"invalid cr spline: {exc}")
+        if not JOINT_WALD_VALIDATED and not manifest.get("exploratory", False):
+            errors.append("cr spline failed or was not validated; exploratory only (docs/audits/joint_wald_validation.md)")
     used = _formula_names(a["formula"]) if a.get("formula") else []
     for key in ("variables", "error_covariates"):
         used += list(a.get(key) or [])
@@ -387,7 +398,7 @@ def _check_manifest_hypotheses(manifest, ids, errors):
         if not h.get("id") or h["id"] in hids:
             errors.append(f"hypotheses[{i}]: id must be present and unique")
         hids.add(h.get("id"))
-        if h.get("direction", "two-sided") not in DIRECTIONS:
+        if h.get("direction", "two-sided") not in DIRECTIONS and not (h.get("statistic") == "joint_wald" and h.get("direction") == "two_sided"):
             errors.append(f"hypotheses[{i}]: direction must be one of {DIRECTIONS}")
         method = ids.get(h.get("analysis"))
         if method is None:
@@ -397,7 +408,7 @@ def _check_manifest_hypotheses(manifest, ids, errors):
             errors.append(f"hypotheses[{i}]: statistic {h.get('statistic')!r} not available from {method} "
                           f"(supported: {ANALYSIS_METHODS[method][1]})")
         need = {"coefficient": ("term",), "correlation": ("variables",), "trend_slope": (),
-                "z_difference": ("geoid",)}.get(h.get("statistic"), ())
+                "z_difference": ("geoid",), "joint_wald": ("variable",)}.get(h.get("statistic"), ())
         for k in need:
             if k not in h:
                 errors.append(f"hypotheses[{i}]: {k!r} is required for statistic {h.get('statistic')!r}")
