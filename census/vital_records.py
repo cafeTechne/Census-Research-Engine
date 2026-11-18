@@ -281,8 +281,9 @@ def read_wonder_reference(path, *, expected_sha256=None, state=None, validate_on
     if rows.sex.isna().any():raise WonderExportError('unexpected reference sex category')
     deaths,supp,_=_num(rows.deaths);pop,_,_=_num(rows.population)
     rows['deaths']=deaths;rows['population']=pop;rows['suppressed']=supp|((deaths>=1)&(deaths<=9))
-    # National numeric counts are public; labelled suppressed cells are refused.
+    # Even a malformed numeric 1..9 cell stays unavailable in validation output.
     if rows.suppressed.any() and (not is_state or not validate_only):raise WonderExportError('suppressed reference cell refused; reference rates unavailable')
+    rows.loc[rows.suppressed, 'deaths'] = np.nan
     if not np.isfinite(pop).all() or (pop<=0).any():raise WonderExportError('reference populations/person-years must be present and positive')
     if ((~rows.suppressed)&(~np.isfinite(deaths)|(deaths<0)|(deaths!=np.floor(deaths)))).any():raise WonderExportError('reference deaths must be nonnegative integer counts')
     def age_code(label):

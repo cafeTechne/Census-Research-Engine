@@ -70,6 +70,9 @@ def test_reference_pin_and_suppression_national_vs_state(tmp_path):
  with pytest.raises(ValueError,match='preregistered'):read_wonder_reference(path)
  r=read_wonder_reference(path,state='26',validate_only=True);assert r['rows'].suppressed.any()
  with pytest.raises(ValueError,match='suppressed reference'):read_wonder_reference(path,state='26')
+ path.write_text(path.read_text().replace('Suppressed','4',1))
+ r=read_wonder_reference(path,state='26',validate_only=True)
+ assert r['rows'].loc[r['rows'].suppressed,['deaths','rate']].isna().all().all()
 
 
 def test_acs_template_covers_each_cell_once_and_fixed_reference_order():
@@ -277,3 +280,42 @@ def test_offline_reference_export_and_suppression_safe_bundle(tmp_path):
  info=json.loads((tmp_path/'run/bundle/results/run.json').read_text())
  assert audit_outputs(tmp_path/'run',info['wonder_output_policy'])['passed']
  assert out['frame'].loc[out['frame'].GEOID=='01003','y_numerator'].iloc[0]=='suppressed'
+
+
+def test_actual_join_guard_keeps_unmatched_ids_and_missing_values_distinct(tmp_path):
+ import hashlib
+ from census.manifest import run_manifest
+ for label, replacement, expected in [('unmatched','01999','geography-vintage mismatch'),
+                                       ('missing','Not Available','unsuppressed missing')]:
+  folder=tmp_path/label;folder.mkdir();m=reference_manifest(folder)
+  source=Path(m['external'][0]['file']);text=source.read_text()
+  text=text.replace('01001',replacement) if label=='unmatched' else text.replace('\t20\t1000','\tNot Available\t1000')
+  source.write_text(text);m['external'][0]['sha256']=hashlib.sha256(source.read_bytes()).hexdigest()
+  m['analyses']=m['analyses'][:1]
+  out=run_manifest(m,folder/'run',client=band_client(),use_cache=False)
+  failures=[d['detail'] for d in out['deviations'] if d['kind']=='external_join_failed']
+  assert failures and any(expected in detail for detail in failures)
+  if label=='missing':assert not any('vintage' in detail for detail in failures)
+
+
+def test_study_manifests_only_change_geography_and_sensitivity_holm(monkeypatch,tmp_path):
+ import copy
+ from scripts import r29_mortality as study
+ from census.multitest import adjust_pvalues
+ monkeypatch.setattr(study,'pinned',lambda kind,cause: {'file':str(FIXTURES/'national_age_sex.tsv'),'sha256':'a'*64})
+ left=study.build_manifest(study.CASES['mi_ny']);right=study.build_manifest(study.CASES['oh_pa'])
+ left.pop('geography');right.pop('geography');assert left==right
+ calls=[]
+ class Model:
+  coefficients=pd.DataFrame([dict(term='poverty',estimate=.1,se_total=.2,ci_lower=-.23,ci_upper=.43)])
+ def fake(formula,frame,replicates,**kwargs):
+  calls.append((frame.h2_numerator.tolist(),kwargs));return Model()
+ monkeypatch.setattr('census.models.fit_replicate',fake)
+ frame=pd.DataFrame({'h2_flag':[0,2],'h2_numerator':[20.,np.nan]})
+ hypotheses=pd.DataFrame([dict(id=h,estimate=.1,p_value=p,p_adjusted=.03,significant=True) for h,p in [('H1',.01),('H2',.02),('H3',.03)]])
+ out=study.sensitivity(frame,None,hypotheses)
+ assert calls[0][0]==[20,1] and calls[1][0]==[20,9] and np.isnan(frame.h2_numerator.iloc[1])
+ assert all(c[1]['replicate_policy']=='strict' and c[1]['exposure']=='E_h2' for c in calls)
+ from scipy.stats import norm
+ assert out['rows'][1]['holm_p']==pytest.approx(adjust_pvalues([.01,norm.sf(.5),.03],'holm')[1])
+ assert not out['robust'] and not any('GEOID' in r or 'h2_numerator' in r for r in out['rows'])
