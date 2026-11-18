@@ -212,3 +212,4 @@ cannot open a PR, leave a body at `/tmp/round29-pr-body.md`.
 | Rule-6 check | Passed | 15 frames/study; independent mask/hash checks; 130-member local archive key-scanned. Hash in compatibility audit. |
 | Final suite | Passed | 1860 passed, 37 skipped, 4 warnings, 50 subtests; 0 failures (baseline 1840/37). |
 | Exceptions | Recorded | WIP retained at `1a485da` before API removal, as directed; initial merge `b8da241`. VRE warning documented. No protocol deviation, WONDER access, defaultBranch merge, tag, release or CI. |
+| Delivery | Pushed | PR integration returned 403; prepared body at `/tmp/round29-pr-body.md`. |
