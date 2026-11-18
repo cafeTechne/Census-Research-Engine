@@ -157,3 +157,9 @@ def test_safe_snapshots_preserve_suppression_labels_and_restore_for_refits(tmp_p
  saved=pd.read_parquet(path) if path.suffix=='.parquet' else pd.read_csv(path,dtype={'GEOID':str})
  assert saved.y.iloc[1]=='suppressed' and saved.x.iloc[1]==.2
  restored=restore_snapshot(saved,['y']);assert np.isnan(restored.y.iloc[1]) and restored.y.iloc[0]==20.
+
+
+def test_older_bare_unreliable_rates_are_missing_not_invalid(tmp_path):
+ from census.vital_records import read_wonder_export
+ path=tmp_path/'old.tsv';path.write_text((FIXTURES/'heart_disease.tsv').read_text().replace('2000\n','Unreliable\n'))
+ r=read_wonder_export(path)['rows'];assert np.isnan(r.crude_rate.iloc[0]) and r.unreliable.iloc[0]

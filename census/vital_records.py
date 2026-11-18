@@ -78,11 +78,11 @@ def parse_footer(footer: List[str]) -> Dict[str, Any]:
 def _num(series: pd.Series) -> "Tuple[np.ndarray, np.ndarray, np.ndarray]":
     """(values, suppressed, unreliable) from a WONDER column."""
     s = series.fillna("").astype(str).str.strip()
-    unreliable = s.str.contains(r"\(Unreliable\)", regex=True).to_numpy()
+    unreliable = (s.str.contains(r"\(Unreliable\)", regex=True) | s.eq("Unreliable")).to_numpy()
     suppressed = s.str.fullmatch(r"Suppressed").to_numpy()
     clean = s.str.replace(r"\s*\(Unreliable\)", "", regex=True).str.replace(",", "", regex=False)
     val = pd.to_numeric(clean, errors="coerce").to_numpy(float)
-    bad = (clean != "") & np.isnan(val) & ~clean.isin(["Suppressed", "Not Applicable", "Not Available", "Missing"]).to_numpy()
+    bad = (clean != "") & np.isnan(val) & ~clean.isin(["Suppressed", "Not Applicable", "Not Available", "Missing", "Unreliable"]).to_numpy()
     if bad.any():
         raise WonderExportError(f"unexpected values in {series.name!r}: {sorted(set(clean[bad]))[:5]}")
     return val, suppressed, unreliable
@@ -268,13 +268,19 @@ def read_wonder_reference(path, *, expected_sha256=None, state=None, validate_on
     else:raise WonderExportError('reference format must be TSV or TXT')
     if state is not None and not is_state:raise WonderExportError('state selector requires a state-grouped reference file')
     if not years or years!=list(range(min(years),max(years)+1)):raise WonderExportError('reference years must be explicit and contiguous')
-    original=len(rows);rows=rows[~rows.age.str.strip().str.lower().isin(('not stated','unknown','ns'))].copy()
-    dropped=original-len(rows)
-    if dropped:notes.append(f'Dropped {dropped} Not Stated age row(s).')
+    unstated=rows.age.str.strip().str.lower().isin(('not stated','unknown','ns'))
+    dropped=int(unstated.sum())
+    if dropped:
+        values=[]
+        for value in rows.loc[unstated,'deaths']:
+            number=pd.to_numeric(str(value).replace(',',''),errors='coerce')
+            values.append('suppressed/unavailable' if not np.isfinite(number) or 1<=number<=9 else int(number))
+        notes.append(f'Dropped {dropped} Not Stated age row(s); deaths by excluded row: {values}.')
+    rows=rows[~unstated].copy()
     rows['sex']=rows.sex.str.strip().map({'Male':'M','Female':'F','M':'M','F':'F'})
     if rows.sex.isna().any():raise WonderExportError('unexpected reference sex category')
     deaths,supp,_=_num(rows.deaths);pop,_,_=_num(rows.population)
-    rows['deaths']=deaths;rows['population']=pop;rows['suppressed']=supp|(((deaths>=1)&(deaths<=9)) if is_state else False)
+    rows['deaths']=deaths;rows['population']=pop;rows['suppressed']=supp|((deaths>=1)&(deaths<=9))
     # National numeric counts are public; labelled suppressed cells are refused.
     if rows.suppressed.any() and (not is_state or not validate_only):raise WonderExportError('suppressed reference cell refused; reference rates unavailable')
     if not np.isfinite(pop).all() or (pop<=0).any():raise WonderExportError('reference populations/person-years must be present and positive')
