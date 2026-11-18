@@ -3,17 +3,10 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.23.0 (Round 26: spatial-cluster inference; IM-8 validated). Previous: v0.22.1 (Round 25:
-staged manifest execution; DOI 10.5281/zenodo.24297411). All versions: concept record
+**Current release:** v0.25.0 (Round 28: segregation indices, exploratory pending a realistic-error validation;
+reference-aware SMR). Previous: v0.24.0 (Round 27: descriptive EB rates; splines and joint Wald exploratory);
+v0.23.0 (Round 26; DOI 10.5281/zenodo.24297427). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
-
-**Round 27 implementation:** v0.24.0 on `phase27/eb-splines`, awaiting review/merge;
-no tag or release. EB passed both fixed interval criteria; splines and joint Wald
-failed and remain exploratory. Details below and in `PLAN_ROUND_27.md`.
-
-**Round 28 implementation:** v0.25.0 on `phase28/segregation-smr`, stacked on
-completed Round 27 (`22a4c96`) pending integration. Passing defaults: naive D,
-corrected isolation/H; SMR reference uncertainty passed. No merge/tag/release.
 
 ## Where things are
 
@@ -25,10 +18,10 @@ corrected isolation/H; SMR reference uncertainty passed. No merge/tag/release.
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (27–29). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (29–30). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
-**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`, `PLAN_ROUND_25` at `v0.22.1`, `PLAN_ROUND_26` at `v0.23.0`. Code and docs still cite
+**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`, `PLAN_ROUND_25` at `v0.22.1`, `PLAN_ROUND_26` at `v0.23.0`, `PLAN_ROUND_27` at `v0.24.0`, `PLAN_ROUND_28` at `v0.25.0`. Code and docs still cite
 them as labels (for example "PLAN_ROUND_16 A2"). To read one: `git show v0.21.0:PLAN_ROUND_16.md` (or the later tag), or
 `https://github.com/cafeTechne/Census-Research-Engine/blob/v0.21.0/PLAN_ROUND_16.md`.
 
@@ -80,7 +73,7 @@ protocol; the authorized R21b unclustered OLS/ACS sensitivity is separate from u
 (`docs/studies/r26_posthoc_spatial_clusters.md`). No original study files were rewritten.
 Acceptance: 1734 passed, 37 skipped (31 new tests); both legacy goldens byte-identical.
 
-**Round 27 (v0.24.0 implementation, pending review):** descriptive `eb_poisson_gamma`
+**Round 27 (v0.24.0):** descriptive `eb_poisson_gamma`
 includes censored-count likelihoods, posterior mixtures, optional rate units and
 explicit validation metadata; posterior default. `cr(df=3/4/5)` freezes centered
 full-sample state in replicates; joint tests use full HC3/sampling covariance,
@@ -90,7 +83,7 @@ Acceptance: 1782 passed, 37 skipped, 49 subtests; 0 failures; 48 new tests. Gold
 messages, additive covariance diagnostics and dependent hashes only; existing
 scientific values unchanged (`docs/audits/round27_compatibility.md`).
 
-**Round 28 (v0.25.0 implementation, pending integration):** `segregation` is one
+**Round 28 (v0.25.0):** `segregation` is one
 registry entry with strict tract/group replicates, preset correction and per-index
 variant gates. County contrasts preserve replicate covariance; non-overlapping
 release contrasts add variances; one-area tests require an explicit null.
@@ -129,10 +122,11 @@ supported-method messages; execution golden byte-identical. See
 
 1. Spatial dependence with ACS/EIV remains unresolved: Round 26 IM-8 passed for model-only
    OLS/binomial, but cannot incorporate the studies' ACS replicates or EIV. CR1/WCR and Conley failed.
-   Separately validate ACS-compatible spatial inference or spatial random effects next; do not drop
-   uncertainty to force an IM re-check. Poisson also needs separate validation.
+   `PLAN_ROUND_30.md` (queued) validates IM-8 with ACS replicates (naive estimand) and per-cluster EIV;
+   spatial random effects follow if both fail. Do not drop uncertainty to force an IM re-check. Poisson also needs separate validation.
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
-3. Replication of the county findings in held-out states (OH/PA): Round 29 (needs the owner's WONDER exports).
+3. Replication of the county findings in held-out states (OH/PA): Round 29. It needs three manual WONDER
+   county exports from the owner; national reference rates come from the official WONDER API.
 4. Further validation: Round 28 delivered two-group segregation defaults and SMR
    Poisson reference-rate uncertainty. Segregation is validated only for tract
    group-count CV <= .15, which real MI/NY counties do not meet: a realistic-error

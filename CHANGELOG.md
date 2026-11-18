@@ -32,8 +32,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
   manifests still test it. No 2018-2022 MI/NY county's white/Black tract counts
   meet the range, so segregation is effectively exploratory pending a
   realistic-error validation.
-- No new dependencies or MCP tools (63); version 0.25.0. Round 28 is stacked on
-  completed Round 27 pending its merge; no merge/tag/release is included.
+- No new dependencies or MCP tools (63); version 0.25.0.
 
 ## 0.24.0 (Round 27): descriptive EB rates and exploratory nonlinear tests
 
