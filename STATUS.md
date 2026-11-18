@@ -127,7 +127,8 @@ supported-method messages; execution golden byte-identical. See
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 3. Replication of the county findings in held-out states (OH/PA): Round 29. The owner's eight WONDER
    county exports (2018–2022, `.tsv`) are in place and passed a structure check on 2026-11-18; national
-   reference rates come from the official WONDER API.
+   reference rates are manual exports too (owner decision 2026-11-18; the WONDER API is not used). The
+   guide `docs/data/wonder_exports.md` lists every file, including the 2013–2017 window.
 4. Further validation: Round 28 delivered two-group segregation defaults and SMR
    Poisson reference-rate uncertainty. Segregation is validated only for tract
    group-count CV <= .15, which real MI/NY counties do not meet: a realistic-error

@@ -1,17 +1,16 @@
 # Round 29 plan (draft): real-data mortality from CDC WONDER
 
 **Status: draft, unblocked.** The owner's county exports are in `external_data/wonder/`
-(all eight are in place and passed a structure check on 2026-11-18; see `docs/data/wonder_exports.md`). National reference data come from the
-official WONDER API instead of manual exports (Part A0). The API serves national data only, so county
-counts remain manual. Parts A0 and A may be pulled forward on request.
+(all eight are in place and passed a structure check on 2026-11-18; see `docs/data/wonder_exports.md`).
+**National reference data are manual exports too (owner decision, 2026-11-18): the WONDER API is not
+used** (Part A0). The three national files Round 29 needs are the guide's Part A.
 **Pre-Part C review: done (2026-11-18).** Methods are validated: Poisson GLM with HC3 SEs, SMR with
 period scaling and reference counts (Round 28), EB for descriptive maps (Round 27). No spatial method
 works with ACS replicates or Poisson yet (Round 30 is queued), so spatial dependence is a stated
 limitation. The owner confirmed H1–H3 and the replication rule as written (with the H2 suppression
 sensitivity below).
 
-**Goal.** (A0) Fetch the national age × sex reference data through the WONDER API. (A) Inventory and
-check the exports and API files. (B) Turn WONDER age × sex exports into reference rates with
+**Goal.** (A0) Remove the WONDER API client. (A) Inventory and check the exports. (B) Turn WONDER age × sex exports into reference rates with
 their counts, build matching ACS age × sex populations, and enforce the WONDER data-use rule in outputs.
 (C) Run one pre-registered MI/NY mortality study, replicated unchanged in held-out OH/PA. Version 0.26.0.
 
@@ -20,56 +19,33 @@ their counts, build matching ACS age × sex populations, and enforce the WONDER 
 1. Branch `phase29/wonder-mortality` from `defaultBranch`. Do not merge, tag or release. Never rebase or
    force-push. Work in your own clone or worktree.
 2. **No AI attribution** in commits or the PR body. Never print, log or commit `.env`, keys or tokens.
-3. **WONDER access: the official API only, national data only, through Part A0's client.** The API
-   cannot group or filter vital statistics by any location, so county data still come only from the
-   owner's manual exports. Never automate the web form or get past a bot check. The owner accepted
-   WONDER's data-use restrictions on 2026-11-18 for all queries from then on: pass the client's
-   acceptance flag and do not ask again. Never copy raw exports
-   or API responses into the repository or a release.
+3. **WONDER access: none.** All WONDER data, county and national, are the owner's manual exports
+   (`docs/data/wonder_exports.md`). Never contact WONDER, automate the web form or get past a bot
+   check. Never copy raw exports into the repository or a release.
 4. Read `CLAUDE.md` and `STATUS.md` first. Use `.venv/bin/python` and `OPENBLAS_NUM_THREADS=1`. No GitHub CI.
 5. **Pre-registration:** before the manifest is hashed and committed, no association between any outcome
    and any covariate may be computed or viewed. Parts A and B check structure only.
 6. Record impossibilities in section 8 and choose the option that changes least.
 
-## 1a. Part A0: WONDER API client (`census/wonder_api.py`, `scripts/wonder_fetch_national.py`)
+## 1a. Part A0: remove the WONDER API client (owner decision, 2026-11-18)
 
-Reference: <https://wonder.cdc.gov/wonder/help/wonder-api.html>. Requests are a POST of one parameter,
-`request_xml`, to `https://wonder.cdc.gov/controller/datarequest/<database ID>`. The XML must include
-`accept_datause_restrictions=true`.
+The owner decided the API is too narrow (national data only) and exports the national files by hand,
+with the same settings as the guide's "national setup" (Ten-Year Age Groups × Sex, all US, Step 6 as in
+its cause list), into `external_data/wonder/ucd/<years>/national_age_sex/<cause>.tsv`.
 
-- **Probe first.** Make one national query to confirm that the 2018-and-later single-race Underlying
-  Cause database (D158 in WONDER's URLs; check the ID) answers API requests, and that its
-  ten-year-age × sex grouping matches the manual export. Take the parameter codes from the help page's
-  examples or from the form's own request XML; never guess them silently. If the API refuses this
-  database, record it in section 8: the national files then become manual exports (the guide's
-  fallback), and the rest of the round is unchanged.
-- **Client rules (enforced in code):**
-  - national queries only: refuse any location group-by or filter before sending;
-  - `accept_data_use_restrictions` must be passed explicitly as `True` (the fetch script's flag is
-    `--accept-data-use-restrictions`); there is no default and no environment variable;
-  - one request at a time, at least 120 seconds apart (WONDER asks for this), with no parallel runs
-    (a lock file); at most one retry, after the same wait;
-  - a generic User-Agent; no email or other personal data in requests;
-  - network use only in the fetch script, never during manifest runs or tests.
-- **Cache and provenance.** Write each response to
-  `external_data/wonder/ucd/<years>/national_age_sex/<cause>.xml` (gitignored), with the request XML
-  beside it and a SHA-256 in the inventory. Never overwrite: a re-fetch gets a `_v2` name. Check that
-  the response echoes the requested database, years, grouping and cause selection; otherwise refuse.
-- **Causes:** the Step 6 selections of exports 1–8 in `docs/data/wonder_exports.md` (ages unrestricted;
-  `premature_all_causes` has no national file), for 2018–2022. Round 29 needs `all_causes`,
-  `heart_disease` and `drug_overdose`; fetch all seven causes in one throttled run.
-- **Tests (offline):** synthetic response fixtures written by hand in WONDER's XML format; mocked HTTP;
-  refusals for a missing acceptance, a location grouping, a second concurrent run, an echo mismatch and
-  an existing cache file; the throttle checked with a fake clock. No test touches the network.
-- **Rule update** (with rule 6's): replace the CLAUDE.md "Data access" line's WONDER clause with
-  "CDC WONDER: the official API for national data only, through `census.wonder_api`, with the owner's
-  acceptance of the data-use restrictions; county data are manual exports; no web-form automation or
-  bot-check circumvention". Mirror it in STATUS.md and `docs/data/wonder_exports.md`.
+- **Remove** `census/wonder_api.py`, `scripts/wonder_fetch_national.py`, their tests and the XML fixture
+  in a new commit (no rebase, no history rewrite; commit 6295958 stays in history). Keep anything the
+  manual-file path reuses (parsers, `.tsv` fixtures). Delete the local
+  `external_data/wonder/.wonder-api-last-request` file (gitignored).
+- **Rule update** (with rule 6's): CLAUDE.md, STATUS.md and the guide already say that all WONDER data
+  are manual exports; keep them consistent if you touch them.
+- If the three national files (guide Part A) are not yet in place when Part B needs them, test on the
+  fixtures and record the wait in section 8; do not fall back to the API.
 
 ## 1b. Part A: inventory (`scripts/wonder_inventory.py`)
 
 - Walk `external_data/wonder/`. Parse each export's footer with `census.vital_records.parse_footer`, and
-  each API file's echoed request (Part A0).
+  each national export the same way.
   Write `external_data/wonder/INVENTORY.md` (gitignored), with one row per file:
   - path, database, years, group-by and cause selection;
   - SHA-256;
@@ -97,13 +73,14 @@ Reference: <https://wonder.cdc.gov/wonder/help/wonder-api.html>. Requests are a 
 
 ## 2. Part B: engine
 
-1. **`vital_records.read_wonder_reference(path)`** parses age × sex API files and (as the fallback)
-   manual exports, with the same output:
+1. **`vital_records.read_wonder_reference(path)`** parses the national age × sex manual exports
+   (`.tsv`/`.txt`, Ten-Year Age Groups × Sex), with this output:
    - Columns: band, sex, deaths, population, rate per person-year (deaths / summed annual population),
      and suppressed.
    - Bands map WONDER ten-year groups to ACS B01001: `0-4` (= "< 1 year" + "1–4 years"), `5-14`, …,
      `75-84`, `85+`.
-   - "Not Stated" age rows are dropped, and the count is recorded in a note.
+   - "Not Stated" age rows (population `Not Applicable`) are dropped, and their deaths are recorded in
+     a note.
    - A suppressed reference cell is refused for national files. For state files it is allowed only if
      the manifest pre-registers that state rates are used, and the cell is then refused at run time.
 2. **ACS bands.** Add a derivation template `acs_age_sex_bands` that sums B01001 cells into the same
@@ -178,8 +155,7 @@ commit the manifests without asking again.
 ## 4. Acceptance
 
 - Inventory is clean (no flags) on the owner's files.
-- The Part A0 tests pass offline, and the national fetch ran once, throttled (data-use acceptance
-  recorded 2026-11-18).
+- The API client is removed (Part A0), and no code path contacts WONDER.
 - Every Part B rule is tested.
 - The two manifests are committed before any outcome analysis, and the commit order shows it.
 - Rule 6 is verified on the study bundle: a test scans the output for counts 1–9 in per-county WONDER
@@ -190,7 +166,7 @@ commit the manifests without asking again.
 
 ## 5. Commits
 
-(0) The API client, fetch script, fixtures and tests (the fetched files stay uncommitted); (1) the
+(0) Remove the API client (Part A0); (1) the
 inventory script and fixtures; (2) the Part B engine and tests; (3) the two manifests
 (registration); (4) the runs and reports; (5) docs, STATUS, version and the status table. Push. If you
 cannot open a PR, leave a body at `/tmp/round29-pr-body.md`.
@@ -199,7 +175,7 @@ cannot open a PR, leave a body at `/tmp/round29-pr-body.md`.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| API probe (database ID) / national fetch | | |
+| API client removed; national files in place | | |
 | Inventory result | | |
 | Part B engine, tests | | |
 | Registration commit | | |
