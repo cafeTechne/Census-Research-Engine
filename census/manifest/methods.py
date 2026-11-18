@@ -515,9 +515,10 @@ def _text_smr(a, text):
             f"rates per person-year. Reference: {a['reference_source']}. Pool counts, expected counts and band contributions first. "
             "Tests use log SMR with 1/O + 4/80 sum(log E_r-log E)^2"
             + (" + sum_b (E_b/E)^2/D_b for independent Poisson reference deaths. " if counts is not None else ". Reference rates are fixed. ")
-            + "Reference person-years are fixed. Shared rates induce covariance between areas; pooled band weights are squared after pooling. "
-            "For internal standardization, ignoring positive study/reference covariance makes intervals conservative. "
-            "Exact Garwood limits condition on E and exclude both population and reference-rate uncertainty; O=0 has no log-Wald test. "
+            + ("Reference person-years are fixed. Shared rates induce covariance between areas; pooled band weights are squared after pooling. "
+               "For internal standardization, ignoring positive study/reference covariance makes intervals conservative. "
+               if counts is not None else "Reference-rate uncertainty is excluded. ")
+            + "Exact Garwood limits condition on E and exclude both population and reference-rate uncertainty; O=0 has no log-Wald test. "
             "Absent ACS replicates the population component is zero, noted. Spatial dependence is excluded.")
 
 

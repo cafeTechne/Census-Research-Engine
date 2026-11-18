@@ -150,12 +150,17 @@ conservative combines HC3 and ACS replicate SEs; median rank CV <=15% is validat
 which warn about rank-error attenuation. External outcomes and their denominator weights
 stay fixed; target these_areas is refused for external outcomes. R2 tests rank_by.
 method smr requires observed integer counts, distinct population_bands, positive reference_rates
-(events per person, in band order), and reference_source (hashed citation). Hypothesis log_smr
+(events per person-year, in band order), and reference_source (hashed citation). Hypothesis log_smr
 uses geoid (one GEOID or all); pooled ratios sum observed and expected counts first.
 Log statistics test zero; ratio columns exponentiate estimates and limits. SMR target is
 conservative only: tests combine Poisson and expected-count replicate log variance; exact
 Garwood limits condition on expected counts. No replicates means zero expected uncertainty,
-noted; O=0 has only the exact fixed-E interval. Reference-rate uncertainty is excluded.
+noted; O=0 has only the exact fixed-E interval. period_years (positive integer, default 1)
+scales E for annual rates. Positive integer reference_counts adds sum((E_b/E)^2/D_b) to log
+variance; zero reference deaths refused. Both fields hashed. Without counts, reference
+rates are fixed. Reference person-years are always fixed. Pool band contributions before
+squaring because reference rates are shared across areas. Internal-reference covariance
+omission is conservative, noted, not refused.
 SMR refuses negative ACS band replicates under its fixed validation domain, even with positive E.
 Area HC3 assumes independence. R1 applies to external outcomes/counts. Reused LBW associations
 are exploratory. No new tools are needed.
@@ -172,6 +177,16 @@ centered full-sample knots stay fixed. Joint hypotheses use variable, no term, t
 (or two-sided); R2 applies to variable. HC3/sampling/summed covariance matches target.
 Singular covariance is not tested; W is chi-squared(q), with df, no coefficient CI or odds
 ratio. See get_research_protocol for scope, covariance metadata and limitations.
+
+
+Round 28 segregation: get_recipe("segregation"), then existing manifest tools. Tract groups
+are mutually exclusive counts, within county; no metro/pre-aggregation. Defaults selected
+by fixed coverage: naive D, corrected isolation and H. Failed overrides and multigroup H
+are exploratory only. Strict 80 tract/group replicates; no negative clipping or missing
+counts held fixed. Zero tracts recomputed per refit, absent groups undefined. Hypotheses
+need geoid plus explicit null_value for one area; compare_geoid uses per-replicate
+differences. release/compare_release select independent non-overlapping five-year releases;
+variances add. First minus comparison; one-sided tests center on null. See protocol.
 
 
 Inflation: default index is R-CPI-U-RS (the Census Bureau's ACS index); 'c-cpi-u'

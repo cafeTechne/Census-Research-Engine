@@ -252,13 +252,19 @@ validated range. Above it, warn about attenuation from rank error. Area HC3
 assumes independent areas. Circularity R2 tests the ranking variable.
 
 Manifest `smr` requires integer `observed` counts, distinct `population_bands`,
-finite positive `reference_rates` in events per person, and a non-empty
+finite positive `reference_rates` in events per person-year, and a non-empty
 `reference_source` citation. Rates and source are hashed. Hypotheses use
 `log_smr`, with one `geoid` or `"all"` for pooled counts/expected counts. Log
 statistics test zero; ratio columns exponentiate estimates and limits. SMR tests
 use the combined Poisson/replicate log interval (`target: conservative` only),
 while Garwood limits condition on expected counts. Zero observed counts have
-only an exact fixed-E interval; rate uncertainty is excluded. No band replicates
+only an exact fixed-E interval. Optional positive integer `period_years` (default 1)
+scales E for a multi-year count period; optional positive integer `reference_counts`
+adds sum_b (E_b/E)^2/D_b to log variance. Both fields are hashed. Reference
+person-years are fixed, zero reference deaths are refused, and pooled band
+contributions are summed before squaring because rates are shared. An internal
+reference makes the independent-count interval conservative (not refused).
+Without reference_counts, rates are fixed as before. No band replicates
 means zero expected-count uncertainty, explicitly noted. Negative ACS band
 replicates are refused under the pre-specified validation domain, even when
 total expected counts would be positive. See recipe
@@ -327,3 +333,35 @@ A singular covariance/design is not tested and produces a deviation. W has no
 coefficient CI or odds ratio. WLS, Poisson, df=4 and categorical terms have
 computational checks but were not separately simulation-validated. Do not use
 the exploratory results for confirmatory claims.
+
+
+## Residential segregation (Round 28)
+
+Start with `get_recipe("segregation")`; use existing manifest tools. Method
+`segregation` requires tract-level `groups` (mutually exclusive count variables)
+and `within: "county"`. Declared groups' sum is tract population. D and isolation
+require two groups; isolation refers to group one. H supports multiple groups,
+but only two-group coverage was simulated, so multigroup H stays exploratory.
+No CBSA/metro pooling or pre-aggregation. Tract GEOIDs are eleven-digit strings;
+county hypotheses use five digits, preserving leading zeros.
+
+Every group/tract needs all 80 replicates, labelled by Year for multiple releases.
+No negative-count clipping, missing-row fixing or failed-refit deletion. Zero-total
+tracts are excluded in each index refit, recomputing totals. An absent county
+group makes the index undefined, noted, and its hypothesis is not tested.
+SE=sqrt(4/80 sum(Ir-I)^2). Fixed correction I-4(mean(Ir)-I) uses the same SE.
+The fixed coverage result chose naive D, corrected isolation and corrected H.
+An explicit bias_correction override that failed validation is exploratory only;
+confirmatory hypotheses refuse it. Normal intervals/adjusted points are not
+clipped to [0,1]. Report selected versions and each row's validation notes.
+
+Hypotheses name statistic, geoid and an explicit null_value for one-area tests.
+County contrasts add compare_geoid, default null zero, first minus comparison,
+and compute per-replicate differences before variance. Multiple-release tests
+require release; compare_release selects the other release (same county if
+compare_geoid omitted). Independent non-overlapping five-year releases add
+variances, not matched replicate deviations. Overlaps/self-comparisons are refused.
+One-sided tests use estimate-null. These are finite-area ACS sampling intervals,
+not causal or superpopulation inference. Coverage acceptance covered independent
+Gaussian errors CV .15, 20/100 tracts and two groups; high CV and contrasts lack
+separate passing coverage studies. No new dependencies or MCP tools.

@@ -29,14 +29,20 @@
    attenuated by rank error; wider intervals do not correct that bias. HC3 assumes
    independent areas and does not cover spatial residual dependence.
 5. For `smr`, use observed **integer counts**, `population_bands` (distinct manifest
-   variables), positive `reference_rates` in **events per person**, in the same band
+   variables), positive `reference_rates` in **events per person-year**, in the same band
    order, and a non-empty `reference_source` citation. Convert rates per 100,000
-   to per person before registration. Source and rates are hashed with the manifest.
+   to per person-year before registration. Set positive integer `period_years` (default 1)
+   to the study count period: E=period_years*sum(population*annual_rate). Use a
+   representative annual/period-average population, not summed person-years, when
+   multiplying by period_years. Source, rates and period are hashed. Optional
+   `reference_counts` gives the positive integer reference deaths behind each rate,
+   one per band, and is also hashed; zero reference deaths are refused.
 
    ```json
    {"id":"smr","method":"smr","observed":"deaths_numerator",
     "population_bands":["pop_young","pop_old"],"reference_rates":[0.001,0.02],
-    "reference_source":"Named standard, year, age bands; annual deaths per person",
+    "reference_source":"Named standard, years, age bands; annual deaths per person-year",
+    "period_years":5,"reference_counts":[500,2000],
     "args":{"target":"conservative"}}
    ```
 
@@ -47,7 +53,15 @@
    only `target: "conservative"` is supported. Without replicates, expected-count
    uncertainty is zero and explicitly noted. At zero observed counts, the combined
    test is undefined; report the exact fixed-E interval only. Reference-rate
-   uncertainty is not included. Negative ACS band replicates are refused under
+   uncertainty is excluded unless `reference_counts` is supplied. With it, add
+   sum_b (E_b/E)^2/D_b to log variance, treating reference person-years as known.
+   Reference rates stay fixed during ACS refits. For pooled studies, sum band
+   contributions before squaring: the same reference rates are shared across
+   counties. Do not average per-county variances as if they were independent.
+   If study areas are included in the reference, ignoring the positive covariance
+   makes the interval conservative; this is noted, not refused. Reference
+   denominators' uncertainty and spatial dependence remain excluded. Negative ACS
+   band replicates are refused under
    the pre-specified validation domain, even if their expected total is positive.
    No age-specific real death-count example is bundled;
    WONDER exports remain manual.
@@ -57,5 +71,8 @@
    unadjusted interval confidence separately from multiplicity-adjusted tests.
 
 Reproducible validation: `docs/audits/inequality_validation.md` and
-`docs/audits/smr_validation.md`. Exploratory MI/NY example:
+`docs/audits/smr_validation.md` and `docs/audits/smr_reference_validation.md`.
+The new reference procedure passed 0.8995–0.9105 coverage in its fixed six-cell
+study (50/500/5000 reference deaths per band, E=10/100, band CV .05). That does
+not establish coverage for very sparse reference deaths or arbitrary covariance. Exploratory MI/NY example:
 `examples/manifests/r24_mi_ny_lbw_inequality.json`.

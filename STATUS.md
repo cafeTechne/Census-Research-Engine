@@ -11,6 +11,10 @@ staged manifest execution; DOI 10.5281/zenodo.24297411). All versions: concept r
 no tag or release. EB passed both fixed interval criteria; splines and joint Wald
 failed and remain exploratory. Details below and in `PLAN_ROUND_27.md`.
 
+**Round 28 implementation:** v0.25.0 on `phase28/segregation-smr`, stacked on
+completed Round 27 (`22a4c96`) pending integration. Passing defaults: naive D,
+corrected isolation/H; SMR reference uncertainty passed. No merge/tag/release.
+
 ## Where things are
 
 | Path | What |
@@ -52,6 +56,8 @@ manifests refuse them in confirmatory analyses.
 | Restricted wild cluster bootstrap, G=12 (`wcr`, C3-12) | **Failed**: coverage 0.824–0.908; exploratory only, no ACS replicate combination | `spatial_cluster_validation.md` |
 | Poisson–Gamma descriptive EB rate smoothing | **Passed** fixed 90% area-average criterion: posterior 0.8813–0.9000 (default); Laird–Louis 0.8718–0.8914 in six required cells. Fixed E/rates, independent areas; [1,9] censoring; 200 bootstrap refits for LL | `eb_rate_validation.md`, criterion `d4dec47` |
 | Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. Both exploratory only; confirmatory manifests refused | `joint_wald_validation.md`, criterion `376ce69` |
+| County segregation, two groups: D / isolation / H | **Passed selected variants**: naive D .898–.911; corrected isolation .877–.901; corrected H .896–.961. Corrected D and naive isolation/H failed. Strict 80 replicates; CV .15 fixed design; multigroup H exploratory | `segregation_validation.md`, criterion `4791763` |
+| SMR period scaling and Poisson reference-rate uncertainty | **Passed** .8995–.9105; known reference person-years, independent bands, 50/500/5000 reference deaths and E=10/100. Common reference covariance preserved when pooling. No-reference coverage reached .724 | `smr_reference_validation.md`, criterion `134bf7f` |
 | Conley spatial HAC SEs (`spatial_se`) | **Failed** (0.71–0.87 at 150 km); exploratory only | `spatial_hac_validation.md` |
 | Spatial error model λ correction (ME-SEM) | Validated for λ > 0 (0.86–0.93); lag model at γ 0.6 under-covers | `spatial_regression_validation.md` |
 | LISA under sampling error | Characterised, information only | `lisa_validation.md` |
@@ -83,6 +89,17 @@ exploratory after the failed criterion. No new dependencies or tools (63).
 Acceptance: 1782 passed, 37 skipped, 49 subtests; 0 failures; 48 new tests. Golden differences are supported-statistic
 messages, additive covariance diagnostics and dependent hashes only; existing
 scientific values unchanged (`docs/audits/round27_compatibility.md`).
+
+**Round 28 (v0.25.0 implementation, pending integration):** `segregation` is one
+registry entry with strict tract/group replicates, preset correction and per-index
+variant gates. County contrasts preserve replicate covariance; non-overlapping
+release contrasts add variances; one-area tests require an explicit null.
+SMR accepts hashed `period_years` and `reference_counts`, annual rate units and
+pooled common-reference variance. Reference person-years remain fixed; internal
+standardization conservatism is noted. No new tools (63) or dependencies.
+Acceptance: 1838 passed, 37 skipped, 50 subtests; 0 failures; 56 added tests. Schema golden changes only in
+supported-method messages; execution golden byte-identical. See
+`docs/audits/round28_compatibility.md`. No real-data study or later round started.
 
 ## Standing rules
 
@@ -116,9 +133,11 @@ scientific values unchanged (`docs/audits/round27_compatibility.md`).
    uncertainty to force an IM re-check. Poisson also needs separate validation.
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 3. Replication of the county findings in held-out states (OH/PA): Round 29 (needs the owner's WONDER exports).
-4. Further methods: segregation indices and SMR reference-rate uncertainty (Round 28).
-   Round 27 delivered descriptive EB and exploratory splines/joint tests. The latter
-   require a separately pre-specified finite-sample validation before confirmatory use.
+4. Further validation: Round 28 delivered two-group segregation defaults and SMR
+   Poisson reference-rate uncertainty. Multigroup H, failed index variants, high
+   count-error CV, contrasts and uncertain reference denominators need separate
+   coverage studies. Round 27 splines/joint tests remain exploratory and require a
+   separately pre-specified finite-sample validation before confirmatory use.
    Not yet planned: microdata inequality measures.
 5. Saturated-model results bundles (Round 25 observation): a two-observation, two-coefficient OLS
    fit can crash while plotting the bundle (`ValueError: arange: cannot compute length`). Preserve

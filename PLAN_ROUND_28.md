@@ -135,10 +135,47 @@ STATUS, version and the status table. Push. If you cannot open a PR, leave a bod
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Baseline suite | | |
-| Segregation criterion / result (per index, naive vs corrected) | | |
-| SMR-reference criterion / result | | |
-| Engine, tests | | |
-| Golden changes | | |
-| Final suite | | |
-| Exceptions | | |
+| Baseline suite | Passed | 1782 passed, 37 skipped, 49 subtests; base `22a4c96`. |
+| Segregation criterion / result (per index, naive vs corrected) | Passed variants selected | `4791763` pushed before full run; audit `43cbedf`. D naive .898–.911 passed, corrected failed. Isolation corrected .877–.901 passed, naive failed. H corrected .896–.961 passed, naive failed. No criterion changes. |
+| SMR-reference criterion / result | Passed | `134bf7f` pushed before full run; audit `8335199`. Coverage .8995–.9105 in all six cells. Without term, coverage reached .724. |
+| Engine, tests | Implemented | `6f3e82e`; 56 new tests, including independent definitions/covariances and offline bundles. No new tools or dependencies. |
+| Golden changes | Accepted | 516 schema snapshots: 50 unsupported-method messages add segregation between regression_calibration and simex (analyses[0..2], validate/create). Run golden byte-identical across 29 scenarios/all 19 deviation kinds; no new example. |
+| Final suite | 1838 passed, 37 skipped, 50 subtests; 0 failures | Baseline plus 56 new tests. |
+| Exceptions | Documented below | Least-change choices under 0.6; no later-round implementation. |
+
+Round 27 is complete/pushed but has not merged into defaultBranch. To proceed with
+the owner's Round 28 request without an unauthorized merge, branch/worktree from
+its final `22a4c96`: `phase28/segregation-smr` in `/tmp/census-round28`. This branch
+is stacked on `phase27/eb-splines`; review/land in that order. No rebase/force push,
+merge, tag, release or CI. The owner's untracked planning file is untouched.
+
+The segregation DGP's unspecified tract log-SD is fixed at one. Matched lognormal
+pairs, rounded to multiples of 20, produce integer counts and exactly the requested
+true D. Both group count errors are independent Gaussian. The same fixed correction
+is assessed for all three indices; the preset default-selection rule is retained.
+CV .30 stays informational, with many invalid negative-count draws (noncoverage),
+not clipped/redrawn. All details were committed before full results.
+
+Only two-group coverage was simulated; multigroup H is computationally supported
+but exploratory. Contrasts have covariance regression checks, not separate coverage
+claims. Explicit hypothesis selectors release/compare_release resolve cross-year
+ambiguity; compare_geoid may select another county. First minus comparison; same
+county allowed across independent releases. One-area null_value is mandatory,
+contrast null defaults to zero; the generic test step centers signs on the null.
+Zero full-sample tracts may enter a replicate; absent county groups remain NaN with
+notes. Zero/undefined SE produces an untested hypothesis, not invented inference.
+
+MethodSpec gained optional-field and conditional-text callbacks for the new SMR
+options, preserving all legacy outputs. period_years/reference_counts work at top
+level or in args (duplicate placement refused), and both are hashed. No additional
+internal-reference flag is introduced: membership cannot be inferred from rates
+and counts. With reference counts, the library note conditionally explains internal
+conservatism; reference denominators remain fixed. Pool band contributions before
+squaring to retain common-reference covariance. Full validation fixes a five-year
+period and the Round 24 rate/ACS-error design; exact limits remain fixed-E.
+
+The delivered-method backlog was item 4, not item 5. Update by content; preserve
+the unrelated saturated-model bundle bug. Package/citation version 0.25.0, while
+the published-release line stays unchanged pending authorized integration/release.
+Validation and golden artifacts are in `/tmp/r28-*`; if PR creation is unavailable,
+its prepared body is `/tmp/round28-pr-body.md`.
