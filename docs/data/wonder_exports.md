@@ -276,9 +276,9 @@ Part E  2013-2017 national (ucd/2013-2017/national_age_sex/)
 Parts A-E: all done 2026-11-18, structure-checked OK
 
 Part F  optional: drug involvement (mcd/2018-2022/county/ and mcd/2018-2022/national_age_sex/)
-        REDO (2026-11-18 files have no multiple-cause filter; see Part F step 2)
-[ ] county: any_opioid  synthetic_opioid  cocaine  psychostimulant
-[ ] national: any_opioid  synthetic_opioid  cocaine  psychostimulant
+        redone 2026-11-18, structure-checked OK (multiple-cause codes applied)
+[x] county: any_opioid  synthetic_opioid  cocaine  psychostimulant
+[x] national: any_opioid  synthetic_opioid  cocaine  psychostimulant
 ```
 
 When a part is done, tell me. I check each file's notes and structure only (database, years, grouping,
