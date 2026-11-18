@@ -1,152 +1,161 @@
-# CDC WONDER exports: what to download and where to put it
+# CDC WONDER exports: a step-by-step checklist
 
-**For the owner, done by hand: county files only.** WONDER's official API
-(<https://wonder.cdc.gov/wonder/help/wonder-api.html>) serves national data only: it cannot group or
-filter deaths by state or county. From Round 29 the engine fetches the national age × sex reference files
-itself through that API, throttled, once you confirm you accept the data-use restrictions. County data
-still come only through the web form, which is never automated. This page lists the county exports
-Rounds 29 and later will use, the exact form settings the parser needs, and the folder layout. Work
-through the tiers in order; three Tier 1 files alone unblock Round 29.
+**For the owner, done by hand.** You download **county** death counts from the WONDER web form. The
+national reference rates come from WONDER's official API, which the engine fetches itself in Round 29;
+the API cannot return state or county death data, so county files are the only manual part.
 
-## Before you start
+**What Round 29 needs: 3 files** (exports 1–3 below, about 10 minutes in total). Exports 4–8 are
+optional extras for later studies; do them now only if you have time. Everything else ("Later" at the
+end) waits until a round asks for it.
 
-- **Data-use agreement.** You accept it at the start of each WONDER session. For sub-national data it
-  forbids presenting counts of 9 or fewer, or rates based on them, and any attempt to identify
-  individuals. The engine will enforce this in its outputs (Round 29), and raw exports never go into the
-  repository or a release.
-- **Pre-registration.** Exporting is fine. Try not to study the county numbers on screen before Round
-  29's study is registered. If you do look closely at something, say so, and the study report will
-  disclose it.
-- **Where files live.** In the repository on the machine that runs the engine:
-  `external_data/wonder/` (gitignored). Never edit an exported file. The parser requires WONDER's
-  footer, and manifests pin each file's SHA-256. If you need to re-export after a study is registered,
-  save the new file under a new name ending in `_v2`; never overwrite the original.
+## Quick answers
 
-## Form settings for every mortality export
+- **File format: leave it exactly as WONDER gives it.** WONDER has one export format: a tab-delimited
+  text file (`.txt`; in effect a TSV). There is no Excel or CSV option, and you need none. **Do not open
+  the file in Excel and save it**: that strips WONDER's notes at the bottom (the engine reads them), can
+  drop leading zeros from county codes, and changes the file's fingerprint (SHA-256), which the study
+  pins. Only rename the file; never edit it.
+- **Do not study the numbers.** The study must be registered before anyone looks at county results. The
+  results table WONDER shows on screen after each export is fine to scroll past; if you do look closely
+  at something, tell me, and the study report will say so.
+- **If anything on the form looks different from this page** (a label, a missing option), stop and send
+  me a screenshot or the label text. Do not guess.
 
-Use **"Underlying Cause of Death"** (UCD). For 2018 onward, use the single-race database. For years
-before 2018 (Tier 2), use the 1999–2020 bridged-race database. Race is not grouped, so totals are
-comparable across the two.
+## Part 1: one-time setup (5 minutes)
 
-| Form section | Setting |
+1. **Make the folder** on the machine that runs the engine (the desktop), from the project folder:
+
+   ```bash
+   mkdir -p external_data/wonder/ucd/2018-2022/county
+   ```
+
+   `external_data/` is gitignored, so nothing here is ever committed.
+2. **Open the database:** <https://wonder.cdc.gov/ucd-icd10-expanded.html> ("Underlying Cause of Death,
+   2018–2024, Single Race"). Use this one database for every export on this page.
+3. **Data use restrictions page:** read it and click **I Agree**. You agree again in each new browser
+   session. It forbids publishing counts of 1–9 (or rates based on them) for areas below national level,
+   and any attempt to identify people; the engine enforces this in its outputs.
+4. You are now on the **Request Form** tab, with Steps 1–7 down the page. Part 2 sets them once; for
+   later exports you change only one or two steps.
+
+## Part 2: base settings (set once, for export 1)
+
+Go down the form in order. Anything not mentioned: leave at its default.
+
+| Step | What to set |
 | :--- | :--- |
-| 1. Group results by | As given in the table for that export (County; or Ten-Year Age Groups + Sex; or State + Ten-Year Age Groups + Sex). "Sex" may be labelled "Gender" in older databases. |
-| 1. Measures | Deaths, Population and Crude Rate are default. Also tick: Crude Rate 95% CI and Standard Error. For County exports only, also tick Age Adjusted Rate, its 95% CI and its Standard Error. |
-| 2. Location | All states (the whole US), unless the table says otherwise. All-US county files also give us held-out states (OH/PA) for replication. |
-| 3. Demographics | Leave age, sex, race and Hispanic origin at "All", except the premature-death export (ages under 75; see the cause table). |
-| 4. Year | The data years of the window, ticking each year (2018–2022 for Tier 1). |
-| 6. Cause of death | As given in the cause table below. |
-| 7. Other options | **Export Results: ticked. Show Totals: ticked. Show Zero Values: ticked. Show Suppressed Values: ticked.** Leave precision and the age-adjustment standard (2000 US) at their defaults. |
+| **1. Organize table layout** | **Group Results By:** `County`. **And By:** `None` (leave the other boxes at None). **Measures:** Deaths, Population and Crude Rate are ticked by default; also tick Crude Rate's **95% Confidence Interval** and **Standard Error**, and **Age Adjusted Rate** with its **95% Confidence Interval** and **Standard Error**. Leave the standard population at **2000 U.S. Std. Population** and rates per **100,000**. |
+| **2. Select location** | Leave **`*All* (The United States)`**. All-US files also cover the OH/PA replication. County is the decedent's county of **residence**; there is nothing to choose. |
+| **3. Select demographics** | Leave every box at **All** (all ages, both sexes, all races, all Hispanic origins). Export 3 changes ages; it says how. |
+| **4. Select year and month** | Select exactly **2018, 2019, 2020, 2021, 2022**: click 2018, then Shift-click 2022 (or Ctrl-click each). Not 2023 or 2024: the years must match ACS 2018–2022. |
+| **5. Select weekday, autopsy, and place of death** | Leave all at **All**. |
+| **6. Select underlying cause of death** | Set per export below. |
+| **7. Other options** | Tick **Export Results**, **Show Totals**, **Show Zero Values** and **Show Suppressed Values**. Leave precision at its default. If a query times out, raise **Data Access Timeout** to its largest value and send again. |
 
-Then **Send**. The browser downloads a `.txt` file named after the database. Rename it as the tables
-below say, and move it into its folder. The **Request Form** tab keeps your settings, so for the next
-export change only the cause.
+## Part 3: the exports, in this order
 
-## Folder layout
+For **each** export: set the steps it names, click **Send** (at the bottom; the button at the top works
+too), wait for the download, then do the **after each export** steps.
+
+**After each export:**
+
+1. Find the downloaded file. It is named after the database, for example
+   `Underlying Cause of Death, 2018-2024, Single Race.txt` (your browser may add `(1)`, `(2)`).
+2. **Rename** it to the exact name in the table (lowercase, underscores, ending `.txt`) and **move** it
+   into `external_data/wonder/ucd/2018-2022/county/`.
+3. **Tick it off** in the checklist. Then go back to the **Request Form** tab: WONDER keeps your
+   settings, so you only change what the next export says.
+
+### Required for Round 29
+
+| # | Save as | Change from the previous export |
+| :--- | :--- | :--- |
+| 1 | `heart_disease.txt` | Base settings (Part 2). **Step 6:** open the **ICD-10 113 Cause List** tab and select `#Diseases of heart (I00-I09,I11,I13,I20-I51)`. |
+| 2 | `drug_overdose.txt` | **Step 6:** open the **Drug/Alcohol Induced Causes** tab. Ctrl-click to select exactly these four, and nothing else: `Drug poisonings (overdose) Unintentional (X40-X44)`, `Drug poisonings (overdose) Suicide (X60-X64)`, `Drug poisonings (overdose) Homicide (X85)`, `Drug poisonings (overdose) Undetermined (Y10-Y14)`. |
+| 3 | `premature_all_causes.txt` | **Step 6:** go back to the **ICD-10 113 Cause List** tab and select `*All* (All Causes of Death)`. **Step 3:** on the **Ten-Year Age Groups** tab, select `< 1 year` through `65-74 years` (click the first, Shift-click the last: nine groups, every age under 75). |
+
+Labels may be worded slightly differently on your screen; match on the ICD-10 codes in brackets. If the
+codes do not match, stop and ask.
+
+### Optional now (useful for later studies)
+
+First **reset Step 3** to **All Ages** (select `*All*` on the Ten-Year Age Groups tab). Then, for each
+row, change only **Step 6** (all on the **ICD-10 113 Cause List** tab unless noted):
+
+| # | Save as | Step 6 selection |
+| :--- | :--- | :--- |
+| 4 | `all_causes.txt` | `*All* (All Causes of Death)` |
+| 5 | `cancer.txt` | `#Malignant neoplasms (C00-C97)` |
+| 6 | `unintentional_injury.txt` | `#Accidents (unintentional injuries) (V01-X59,Y85-Y86)` |
+| 7 | `suicide.txt` | `#Intentional self-harm (suicide) (*U03,X60-X84,Y87.0)` |
+| 8 | `diabetes.txt` | `#Diabetes mellitus (E10-E14)` |
+
+### Checklist
+
+```text
+[ ] 1 heart_disease.txt          (required)
+[ ] 2 drug_overdose.txt          (required)
+[ ] 3 premature_all_causes.txt   (required; ages under 75)
+[ ] 4 all_causes.txt             (optional; Step 3 reset to All Ages first)
+[ ] 5 cancer.txt                 (optional)
+[ ] 6 unintentional_injury.txt   (optional)
+[ ] 7 suicide.txt                (optional)
+[ ] 8 diabetes.txt               (optional)
+```
+
+When you are done, the folder should look like this (exports 4–8 only if you did them):
+
+```text
+external_data/wonder/ucd/2018-2022/county/
+  heart_disease.txt
+  drug_overdose.txt
+  premature_all_causes.txt
+```
+
+Then tell me. Round 29's first step (`scripts/wonder_inventory.py`) reads each file's notes and checks
+the database, years, grouping, cause selection, row count (about 3,140 counties; far fewer means "Show
+Zero Values" was off) and suppressed rows. It checks structure only and computes no associations. If a
+file fails a check, I will tell you exactly which step to change and you re-export just that one.
+
+## Mistakes and re-exports
+
+- **Before the study is registered:** just re-export and overwrite the file with the same name.
+- **After it is registered:** never overwrite. Save the new file as `<name>_v2.txt` and tell me; the
+  manifest pins each file's SHA-256.
+- **Wrong database, years or ages:** the inventory catches these from the file's notes; re-export.
+
+## Fallback: national files by hand (only if Round 29 asks)
+
+If the API turns out not to serve this database, Round 29 will ask for three national files instead.
+Use Part 2's settings with two changes: **Step 1 Group Results By:** `Ten-Year Age Groups`, **And By:**
+`Sex`, with no age-adjusted measures; **Step 3:** All Ages. Export the Step 6 selections of exports 1,
+2 and 4 above as `heart_disease.txt`, `drug_overdose.txt` and `all_causes.txt` into
+`external_data/wonder/ucd/2018-2022/national_age_sex/`. Do not do this unless asked.
+
+## Later (do not do yet; a round will ask)
+
+- **More causes, 2018–2022** (county; same steps): `stroke` (#Cerebrovascular diseases, I60-I69),
+  `clrd` (#Chronic lower respiratory diseases, J40-J47), `liver_disease` (#Chronic liver disease and
+  cirrhosis, K70,K73-K74), `kidney_disease` (#Nephritis, nephrotic syndrome and nephrosis), and, from
+  other tabs, `alcohol_induced` (Drug/Alcohol Induced Causes: all alcohol-induced categories) and
+  `firearm` (Injury Intent and Mechanism: Firearm, all intents).
+- **The 2013–2017 window**, from the 1999–2020 bridged-race database, into `ucd/2013-2017/county/`,
+  for change analyses matched to ACS 2013–2017.
+- **Drug involvement, 2018–2022**, from the Multiple Cause of Death single-race database, into
+  `mcd/2018-2022/county/`: the drug-overdose underlying causes plus a multiple cause of
+  `any_opioid` (T40.0–T40.4, T40.6), `synthetic_opioid` (T40.4), `cocaine` (T40.5) or
+  `psychostimulant` (T43.6). Expect heavy suppression; Round 27's smoothing handles it.
+- **Natality** (2016 onward; WONDER names only counties of 100,000+ people) and **infant deaths**
+  (state only): needs a parser that does not exist yet.
+- **Skip entirely:** environmental data (county series stop around 2011), provisional mortality (not
+  final, not citable), population estimates (the engine uses ACS), and VAERS/TB/AIDS/STD.
+
+Full layout once everything exists (the engine writes the `national_age_sex` API files itself):
 
 ```text
 external_data/wonder/
-  ucd/2018-2022/county/<cause>.txt              Group by: County
-  ucd/2018-2022/national_age_sex/<cause>.xml    written by the API fetch (manual .txt only as fallback)
-  ucd/2018-2022/state_age_sex/<cause>.txt       Group by: State, Ten-Year Age Groups, Sex (later; optional)
-  ucd/2013-2017/...                             same three folders (Tier 2)
-  mcd/2018-2022/county/<drug>.txt               Multiple Cause of Death (Tier 2)
-  mcd/2018-2022/national_age_sex/<drug>.xml     API fetch (manual .txt as fallback)
-  natality/2018-2022/{state,county}/<measure>.txt   (Tier 3)
-  infant_deaths/2018-2022/state/all_causes.txt      (Tier 3)
+  ucd/2018-2022/county/<cause>.txt            you, by hand (this page)
+  ucd/2018-2022/national_age_sex/<cause>.xml  the engine, via the API (Round 29)
+  ucd/2013-2017/county/<cause>.txt            later
+  mcd/2018-2022/county/<drug>.txt             later
 ```
-
-Names are lowercase with underscores, exactly as in the tables. The data years in the folder name must
-match the years ticked in the form; the inventory check (below) compares them with the file's footer.
-
-## Tier 1: unblocks Round 29 (2018–2022, the same years as the ACS 2018–2022 release)
-
-Export **County only**, one file per cause. The national age × sex files come from the API (Round 29,
-Part A0). State × age × sex files are not needed for Round 29; skip them for now.
-
-- **Required for Round 29:** `premature_all_causes`, `drug_overdose` and `heart_disease` (3 files).
-- **Recommended** for later studies: the other five causes (5 files).
-- **Fallback:** if the API turns out not to serve this database, Round 29 will ask you for the national
-  age × sex files by hand (Group by: Ten-Year Age Groups, Sex) for `all_causes`, `drug_overdose` and
-  `heart_disease`.
-
-| `<cause>` | Section 6 selection (ICD-10 113 Cause List unless noted) |
-| :--- | :--- |
-| `all_causes` | No cause filter |
-| `premature_all_causes` | No cause filter; section 3 ages: every ten-year group from "< 1 year" to "65–74 years" (county export only) |
-| `heart_disease` | #Diseases of heart (I00–I09, I11, I13, I20–I51) |
-| `cancer` | #Malignant neoplasms (C00–C97) |
-| `unintentional_injury` | #Accidents (unintentional injuries) (V01–X59, Y85–Y86) |
-| `drug_overdose` | ICD-10 Codes: X40–X44, X60–X64, X85, Y10–Y14 (all intents). Or use the "Drug/Alcohol Induced Causes" drug-poisoning categories, which select the same codes. |
-| `suicide` | #Intentional self-harm (suicide) (*U03, X60–X84, Y87.0) |
-| `diabetes` | #Diabetes mellitus (E10–E14) |
-
-## Tier 2: worth having (do after Tier 1)
-
-**a. More causes, 2018–2022.** County exports only (6 files); national files come from the API:
-
-| `<cause>` | Selection |
-| :--- | :--- |
-| `stroke` | #Cerebrovascular diseases (I60–I69) |
-| `clrd` | #Chronic lower respiratory diseases (J40–J47) |
-| `liver_disease` | #Chronic liver disease and cirrhosis (K70, K73–K74) |
-| `kidney_disease` | #Nephritis, nephrotic syndrome and nephrosis (N00–N07, N17–N19, N25–N27) |
-| `alcohol_induced` | "Drug/Alcohol Induced Causes": all alcohol-induced categories |
-| `firearm` | "Injury Mechanism & All Other Leading Causes": Firearm (all intents) |
-
-**b. The 2013–2017 window** (bridged-race database, 1999–2020), for change analyses matched to ACS
-2013–2017: Tier 1's county files again under `ucd/2013-2017/`
-(national files come from the API).
-
-**c. Drug involvement, 2018–2022** (Multiple Cause of Death, single race). Underlying cause = the
-`drug_overdose` codes above, **and** a multiple cause containing:
-
-| `<drug>` | Multiple-cause codes |
-| :--- | :--- |
-| `any_opioid` | T40.0, T40.1, T40.2, T40.3, T40.4, T40.6 |
-| `synthetic_opioid` | T40.4 (mostly fentanyl) |
-| `cocaine` | T40.5 |
-| `psychostimulant` | T43.6 (mostly methamphetamine) |
-
-Export County for each (4 files); national files come from the API if it serves the Multiple Cause
-database, otherwise by hand. Expect heavy county suppression;
-Round 27's smoothing handles it.
-
-## Tier 3: optional, later
-
-- **Natality** (expanded, 2016 onward). WONDER identifies only counties of 100,000+ people; smaller ones
-  pool into "Unidentified Counties". Export State and County, measure Births, one file per indicator:
-  - `all_births` (no filter);
-  - `low_birthweight` (birthweight under 2,500 g);
-  - `preterm` (OE gestational age under 37 weeks);
-  - `teen_births` (mother's age under 20);
-  - `late_prenatal_care` (care not begun in the first trimester).
-
-  County Health Rankings already gives county low birth weight, so this is lower priority. The parser
-  for natality comes in a later round.
-- **Infant deaths** (Linked Birth/Infant Death), State only, 2018–2022: `all_causes`.
-
-**Skip:**
-
-- environmental data (WONDER's county PM2.5 and temperature series stop around 2011);
-- provisional mortality (counts change after release, so it is not citable);
-- population estimates (the engine uses ACS);
-- VAERS, TB, AIDS and STD (not our questions).
-
-## Checking your exports
-
-Round 29 starts with `scripts/wonder_inventory.py`, which can be pulled forward on request. It reads
-every file's footer and writes `external_data/wonder/INVENTORY.md`, which lists for each file:
-
-- the database, years, group-by, cause selection and SHA-256;
-- the row count, and the number of suppressed and zero rows;
-- any mismatch with the folder or file name. For example, an all-US county file has about 3,140 rows;
-  far fewer means "Show Zero Values" was off.
-
-It checks structure only and computes no associations.
-
-## Rough effort
-
-Round 29 needs 3 county exports (a couple of minutes each, once the form is set up); all of Tier 1 is
-8. Tier 2 is about 18 more, and Tier 3 about 11. The API fetch of the national files runs unattended,
-one query every two minutes.

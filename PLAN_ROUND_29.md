@@ -51,8 +51,9 @@ Reference: <https://wonder.cdc.gov/wonder/help/wonder-api.html>. Requests are a 
   `external_data/wonder/ucd/<years>/national_age_sex/<cause>.xml` (gitignored), with the request XML
   beside it and a SHA-256 in the inventory. Never overwrite: a re-fetch gets a `_v2` name. Check that
   the response echoes the requested database, years, grouping and cause selection; otherwise refuse.
-- **Causes:** the Tier 1 selections in `docs/data/wonder_exports.md`, for 2018–2022. Round 29 needs
-  `all_causes`, `heart_disease` and `drug_overdose`; fetch all eight Tier 1 causes in one throttled run.
+- **Causes:** the Step 6 selections of exports 1–8 in `docs/data/wonder_exports.md` (ages unrestricted;
+  `premature_all_causes` has no national file), for 2018–2022. Round 29 needs `all_causes`,
+  `heart_disease` and `drug_overdose`; fetch all seven causes in one throttled run.
 - **Tests (offline):** synthetic response fixtures written by hand in WONDER's XML format; mocked HTTP;
   refusals for a missing acceptance, a location grouping, a second concurrent run, an echo mismatch and
   an existing cache file; the throttle checked with a fake clock. No test touches the network.
