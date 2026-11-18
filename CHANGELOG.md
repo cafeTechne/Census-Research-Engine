@@ -5,6 +5,28 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.24.0 (Round 27): descriptive EB rates and exploratory nonlinear tests
+
+- Commit and push both fixed protocols before their full simulations: EB criterion
+  `d4dec47` (8,000 datasets, 200 bootstrap refits each), joint criterion `376ce69`
+  (16,000 null datasets plus fixed-alternative power draws). Audits retain all results.
+- Poisson–Gamma ML includes interval-censored count probabilities. Both 90% procedures
+  passed the six required cells: posterior coverage 0.8813–0.9000, Laird–Louis
+  0.8718–0.8914. Posterior remains default. Outputs preserve suppression and GEOID,
+  expose shrinkage, posterior ratios/limits, optional rates and validation metadata.
+  This is descriptive only; fixed expected counts/rates, independent areas.
+- Natural splines and full-covariance joint chi-squared tests **failed** the preset
+  size criterion (0.1055–0.1825; four cells above 0.13). Both remain exploratory;
+  confirmatory manifests refuse them. Do not retune the frozen experiment.
+- Centered cr(df=3/4/5) bases freeze full-sample knots in replicate refits and influence
+  checks. Joint hypotheses select standalone columns by variable, apply R2 and reject
+  singular covariance. W reports df and has no coefficient CI or odds ratio.
+- Expose term-labelled full sampling covariance and HC3 joint-model covariance.
+  These additive diagnostic fields and dependent bundle hashes are the documented
+  golden exception; existing numerical coefficient/hypothesis results stay unchanged.
+- Mirror usage and restrictions in the small-area recipe and agent/MCP guidance.
+  Existing maps accept eb_ratio. No new dependencies or MCP tools (63).
+
 ## 0.23.0 (Round 26): spatial-cluster inference and validation
 
 - Pre-register and run 12,000 datasets on the unchanged Round 22 spatial design. IM with

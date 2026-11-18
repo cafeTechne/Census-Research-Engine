@@ -1,0 +1,112 @@
+{
+  "criterion": "Nominal .10 conservative joint-Wald size within [.07,.13] in all eight cells; power is informational.",
+  "criterion_commit": "376ce69",
+  "script_sha256": "6c6f39302c868b4961830ad2c400d16c1987ca37706694c69309992b86c8716a",
+  "passed": false,
+  "cells": [
+    {
+      "cell": 0,
+      "model": "linear",
+      "df": 3,
+      "x_cv": 0.0,
+      "n": 145,
+      "draws": 2000,
+      "seed": 20261128,
+      "size": 0.137,
+      "power": 0.609,
+      "null_failures": 0,
+      "seconds": 23.42
+    },
+    {
+      "cell": 1,
+      "model": "linear",
+      "df": 3,
+      "x_cv": 0.15,
+      "n": 145,
+      "draws": 2000,
+      "seed": 20261129,
+      "size": 0.1245,
+      "power": 0.5745,
+      "null_failures": 0,
+      "seconds": 23.47
+    },
+    {
+      "cell": 2,
+      "model": "linear",
+      "df": 5,
+      "x_cv": 0.0,
+      "n": 145,
+      "draws": 2000,
+      "seed": 20261130,
+      "size": 0.151,
+      "power": 0.5545,
+      "null_failures": 0,
+      "seconds": 25.33
+    },
+    {
+      "cell": 3,
+      "model": "linear",
+      "df": 5,
+      "x_cv": 0.15,
+      "n": 145,
+      "draws": 2000,
+      "seed": 20261131,
+      "size": 0.1055,
+      "power": 0.4915,
+      "null_failures": 0,
+      "seconds": 25.51
+    },
+    {
+      "cell": 4,
+      "model": "binomial",
+      "df": 3,
+      "x_cv": 0.0,
+      "n": 145,
+      "draws": 2000,
+      "seed": 20261132,
+      "size": 0.1405,
+      "power": 0.8525,
+      "null_failures": 0,
+      "seconds": 32.1
+    },
+    {
+      "cell": 5,
+      "model": "binomial",
+      "df": 3,
+      "x_cv": 0.15,
+      "n": 145,
+      "draws": 2000,
+      "seed": 20261133,
+      "size": 0.113,
+      "power": 0.8095,
+      "null_failures": 0,
+      "seconds": 32.48
+    },
+    {
+      "cell": 6,
+      "model": "binomial",
+      "df": 5,
+      "x_cv": 0.0,
+      "n": 145,
+      "draws": 2000,
+      "seed": 20261134,
+      "size": 0.1825,
+      "power": 0.8015,
+      "null_failures": 0,
+      "seconds": 40.6
+    },
+    {
+      "cell": 7,
+      "model": "binomial",
+      "df": 5,
+      "x_cv": 0.15,
+      "n": 145,
+      "draws": 2000,
+      "seed": 20261135,
+      "size": 0.1135,
+      "power": 0.749,
+      "null_failures": 0,
+      "seconds": 41.35
+    }
+  ]
+}

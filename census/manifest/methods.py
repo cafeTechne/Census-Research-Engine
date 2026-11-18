@@ -118,6 +118,11 @@ def _stat_coefficient(h, res):
             "p_two_sided": float(row["p_value"]),
             "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"])}
 
+def _stat_joint_wald(h, res):
+    from ..splines import joint_wald
+    return joint_wald(res, h["variable"])
+
+
 def _stat_correlation(h, res):
     a, b = h["variables"]
     return {"estimate": float(res.matrix.loc[a, b]), "se": None, "p_two_sided": float(res.p_values.loc[a, b]),
@@ -157,6 +162,21 @@ def _check_spatial(stage, ctx):
 
 def _check_fit_replicate(stage, ctx):
     if stage == "hypothesis":
+        h, a, manifest, errors = (ctx[k] for k in ("h", "a", "manifest", "errors"))
+        if h.get("statistic") == "joint_wald":
+            from ..splines import JOINT_WALD_VALIDATED
+            from .schema import _formula_names
+            if not isinstance(h.get("variable"), str) or not h.get("variable") or h["variable"] not in _formula_names(a.get("formula", "")):
+                errors.append("joint_wald requires variable: a manifest variable in the analysis formula")
+            if "term" in h:
+                errors.append("joint_wald takes variable, not term")
+            if h.get("direction", "two_sided") not in ("two_sided", "two-sided"):
+                errors.append("joint_wald direction must be two_sided (two-sided); one-sided tests are refused")
+            args = a.get("args") or {}
+            if args.get("model", "ols") not in ("ols", "wls", "binomial", "poisson") or args.get("spatial_se") is not None or args.get("spatial_clusters") is not None:
+                errors.append("joint_wald supports only non-spatial fit_replicate OLS/WLS/binomial/Poisson")
+            if not JOINT_WALD_VALIDATED and not manifest.get("exploratory", False):
+                errors.append("joint_wald failed or was not validated; exploratory only (docs/audits/joint_wald_validation.md)")
         return
     from .schema import FORMULA_ID_COLUMNS, LEGACY_X2_MANIFESTS, manifest_hash
     from .replicates import census_vre_source
@@ -407,7 +427,7 @@ def _check_smr(stage, ctx):
 
 METHODS: Dict[str, MethodSpec] = {
     'fit_replicate': MethodSpec(
-        'fit_replicate', ('formula',), ('coefficient',), _run_fit_replicate,
+        'fit_replicate', ('formula',), ('coefficient', 'joint_wald'), _run_fit_replicate,
         replicate=True,
         external_outcome=True,
         check=_check_fit_replicate,
@@ -553,6 +573,7 @@ METHODS: Dict[str, MethodSpec] = {
 
 STATISTIC_EXTRACTORS = {
     'coefficient': _stat_coefficient,
+    'joint_wald': _stat_joint_wald,
     'correlation': _stat_correlation,
     'trend_slope': _stat_trend_slope,
     'z_difference': _stat_z_difference,

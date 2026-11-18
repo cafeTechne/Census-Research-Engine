@@ -193,6 +193,9 @@ def bootstrap_mse(y, X, D, method: str, fit: Dict[str, Any], n_boot: int = 500,
 
 
 def _design(formula: str, frame: pd.DataFrame, se_col: str, geoid_col: str):
+    from .splines import has_spline
+    if has_spline(formula):
+        raise ValueError("cr splines are supported only by non-spatial fit_replicate")
     import patsy
 
     if se_col not in frame.columns:

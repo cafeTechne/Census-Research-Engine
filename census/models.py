@@ -456,7 +456,21 @@ def fit_replicate(
     SE; WCR reports test-inverted intervals without a scalar SE. CR1 uses t(G-1)
     intervals with the usual target-specific SE. CR1/WCR remain exploratory.
     These methods support unweighted OLS and binomial, not EIV/Poisson/WLS.
+    ``cr(x, df=3|4|5)`` uses centered natural splines with full-sample state
+    frozen in every refit. Splines and joint Wald inference remain exploratory
+    after failing the fixed Round 27 size criterion. Full sampling covariance
+    is diagnostics["sampling_covariance"] (NaN if absent). Non-spatial supported
+    models also expose explicitly labelled "joint_model_covariance" (HC3) and
+    column membership for joint tests. Existing non-spline coefficient SEs keep
+    their previous convention; spline coefficient model SEs use HC3.
     """
+    from .splines import has_spline, spline_formula
+    original_formula = formula
+    spline = has_spline(formula)
+    if spline and (model.lower() not in ("ols", "wls", "binomial", "poisson") or spatial_se is not None or spatial_clusters is not None):
+        raise ValueError("cr splines are supported only by non-spatial fit_replicate OLS/WLS/binomial/Poisson")
+    if spline:
+        formula = spline_formula(formula)
     if spatial_clusters is not None and (spatial_se is not None or scale == "robust"):
         raise ValueError("spatial_clusters is mutually exclusive with spatial_se and scale='robust'")
     if spatial_se is not None and model.lower() not in ("binomial", "poisson"):
@@ -498,6 +512,15 @@ def fit_replicate(
     if len(rows) != len(data):
         notes.append(f"{len(data) - len(rows)} row(s) dropped by the formula (non-finite transforms)")
     params, bse = full.params, full.bse
+    # A separate, explicitly labelled HC3 covariance supplies joint inference.
+    # Existing non-spline coefficient-SE conventions are preserved.
+    joint_cov = None
+    if spatial_se is None and spatial_clusters is None and model in ("ols", "wls"):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            joint_cov = np.asarray(full.get_robustcov_results(cov_type="HC3").cov_params(), float)
+        if spline:
+            bse = pd.Series(np.sqrt(np.diag(joint_cov)), index=params.index)
     used = formula_variables(formula, data)
     diagnostics: Dict[str, Any] = {"reliability_screen": _screen_summary(data, formula, cv_threshold)}
     if model in ("binomial", "poisson"):
@@ -515,12 +538,27 @@ def fit_replicate(
             t_rows = np.asarray(n_trials, float)[rows] if model == "binomial" else None
             cov, info = glm_robust_covariance(np.asarray(full.model.exog, float), np.asarray(full.model.endog, float),
                                               np.asarray(full.fittedvalues, float), model, t_rows)
+            joint_cov = cov
             diagnostics["se_model_unadjusted"] = dict(zip(params.index, map(float, bse)))
             diagnostics["robust_se"] = info
             bse = pd.Series(np.sqrt(np.diag(cov)), index=params.index)
             notes.append(ROBUST_SE_NOTE)
+    if joint_cov is None and model in ("binomial", "poisson") and spatial_se is None and spatial_clusters is None:
+        try:
+            joint_cov, _ = glm_robust_covariance(np.asarray(full.model.exog,float), np.asarray(full.model.endog,float),
+                                                np.asarray(full.fittedvalues,float), model,
+                                                np.asarray(n_trials,float)[rows] if model == "binomial" else None)
+        except (ValueError, np.linalg.LinAlgError):
+            joint_cov = np.full((len(params),len(params)), np.nan)
+    if spline:
+        bse = pd.Series(np.sqrt(np.diag(joint_cov)), index=params.index)
+        notes.append("Centered natural cubic splines; full-sample quantile knots and centering are frozen in every replicate; coefficient model SEs use HC3.")
+        from .splines import JOINT_WALD_VALIDATED
+        if not JOINT_WALD_VALIDATED:
+            notes.append("EXPLORATORY ONLY: splines/joint Wald did not pass Round 27 validation.")
     provenance: Dict[str, Any] = {"model_library": "statsmodels", "rows_used": int(len(rows))}
     se_sampling = pd.Series(np.nan, index=params.index)
+    sampling_cov = np.full((len(params),len(params)), np.nan)
     sources = [SOURCE_MODEL]
     method = "full_sample_fit"
 
@@ -542,8 +580,12 @@ def fit_replicate(
             for v, m in mats.items():
                 d[v] = m[:, r]
             try:
-                res = _fit(formula, d, model, weights, exposure, n_trials, fit_scale)
-                b = res.params.reindex(params.index).to_numpy(float)
+                if spline:
+                    from .splines import frozen_refit
+                    b = frozen_refit(full, d, model, weights, exposure, n_trials, fit_scale).to_numpy(float)
+                else:
+                    res = _fit(formula, d, model, weights, exposure, n_trials, fit_scale)
+                    b = res.params.reindex(params.index).to_numpy(float)
                 if not np.isfinite(b).all():
                     raise ValueError("non-finite coefficients")
                 coefs.append(b)
@@ -555,6 +597,7 @@ def fit_replicate(
         check_refit_count(failed, len(coefs), max_failed_replicates, "fit_replicate")
         B = np.vstack(coefs)  # (n_ok, k)
         b0 = params.to_numpy(float)
+        sampling_cov = REPLICATE_FACTOR * (B-b0).T @ (B-b0)
         se_sampling = pd.Series(np.sqrt(REPLICATE_FACTOR * ((B - b0) ** 2).sum(axis=0)), index=params.index)
         sources.append(SOURCE_SAMPLING_REPLICATE)
         method = "replicate_refit"
@@ -634,7 +677,15 @@ def fit_replicate(
     diagnostics["interval_target"] = target
     diagnostics.update(_numeric_diagnostics(formula, data, full, model, table, weights, exposure,
                                             n_trials, cv_threshold))
-    return ModelResult(model_type=model, formula=formula, n_obs=int(full.nobs), coefficients=table,
+    diagnostics["sampling_covariance"] = pd.DataFrame(sampling_cov, index=pd.Index(params.index,name="term"), columns=params.index)
+    if joint_cov is not None:
+        from .splines import variable_columns
+        diagnostics["joint_model_covariance"] = pd.DataFrame(joint_cov, index=pd.Index(params.index,name="term"), columns=params.index)
+        diagnostics["joint_model_covariance_estimator"] = "HC3"
+        diagnostics["joint_has_replicates"] = method == "replicate_refit"
+        diagnostics["joint_full_rank"] = np.linalg.matrix_rank(full.model.exog) == len(params)
+        diagnostics["joint_columns"] = {v: variable_columns(full.model.data.orig_exog.design_info,v,data.columns) for v in used}
+    return ModelResult(model_type=model, formula=original_formula, n_obs=int(full.nobs), coefficients=table,
                        method=method, uncertainty_sources=sources, confidence_level=confidence_level,
                        notes=notes, diagnostics=diagnostics, provenance=provenance)
 
@@ -655,9 +706,14 @@ def _numeric_diagnostics(formula, data, full, model, table, weights, exposure, n
         info: Dict[str, Any] = {"n_high_cv_rows": int(high.sum())}
         if 0 < high.sum() and (~high).sum() > k + 1:
             try:
-                res = _fit(formula, data.loc[~high].reset_index(drop=True), model, weights, exposure,
-                           None if n_trials is None else n_trials[~high])
-                b = res.params.reindex(table["term"]).to_numpy(float)
+                from .splines import has_spline, frozen_refit
+                subset = data.loc[~high].reset_index(drop=True)
+                trials_subset = None if n_trials is None else n_trials[~high]
+                if has_spline(formula):
+                    b = frozen_refit(full, subset, model, weights, exposure, trials_subset).reindex(table["term"]).to_numpy(float)
+                else:
+                    res = _fit(formula, subset, model, weights, exposure, trials_subset)
+                    b = res.params.reindex(table["term"]).to_numpy(float)
                 shift = (b - table["estimate"].to_numpy(float)) / table["se_total"].to_numpy(float)
                 info["coef_shift_in_se_total_without_high_cv"] = dict(zip(table["term"], shift.tolist()))
             except Exception as exc:  # noqa: BLE001
@@ -731,6 +787,9 @@ def _corrected_result(formula, model, naive, est, se_total, confidence_level, me
 
 
 def _setup(formula, frame, error_covariates, model, weights, exposure, trials):
+    from .splines import has_spline
+    if has_spline(formula):
+        raise ValueError("cr splines are supported only by non-spatial fit_replicate")
     model = model.lower()
     if model not in MODELS:
         raise ValueError(f"unknown model {model!r}; expected one of {MODELS}")
@@ -969,6 +1028,9 @@ def fit_eiv(
     residual, which the sandwich covers. Only the outcome may be fixed: a fixed covariate's
     error would go uncorrected.
     """
+    from .splines import has_spline
+    if has_spline(formula):
+        raise ValueError("cr splines are supported only by non-spatial fit_replicate")
     import scipy.linalg as sla
 
     if spatial_se is not None and cluster:

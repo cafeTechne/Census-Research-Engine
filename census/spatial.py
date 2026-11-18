@@ -571,6 +571,9 @@ def local_morans(
 
 
 def _design(formula: str, d: pd.DataFrame):
+    from .splines import has_spline
+    if has_spline(formula):
+        raise ValueError("cr splines are supported only by non-spatial fit_replicate")
     import patsy
 
     try:
@@ -1049,6 +1052,9 @@ def spatial_regression(
 
     check_replicate_policy(replicate_policy)
 
+    from .splines import has_spline
+    if has_spline(formula):
+        raise ValueError("cr splines are supported only by non-spatial fit_replicate")
     model = model.lower()
     if model not in SPATIAL_MODELS:
         raise ValueError(f"model must be one of {SPATIAL_MODELS}")

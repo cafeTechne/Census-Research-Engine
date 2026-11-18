@@ -226,6 +226,18 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    Cluster args exclude spatial_se/scale:robust. IM/WCR cannot combine ACS SEs.
    Registered county IM re-checks are unavailable under this protocol; consult the
    regression_sampling_error recipe and the Round 26 audit/report.
+10. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+   manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
+   WONDER [1,9] suppression, report validation metadata; never impute suppressed
+   counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
+   intervals passed Round 27; reference-rate/spatial uncertainty is excluded.
+   cr(x,df=3|4|5) and joint_wald FAILED Round 27 and are exploratory only;
+   confirmatory manifests refuse either. Only non-spatial fit_replicate
+   OLS/WLS/binomial/Poisson; centered full-sample knots stay fixed in refits.
+   Joint hypotheses give variable, no term, two_sided (or two-sided); R2 applies
+   to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
+   HC3 / ACS covariance / their sum matches target; singular covariance is not
+   tested. See the protocol for full covariance metadata and validation scope.
 """
 
 REVIEW_INSTRUCTIONS = """\

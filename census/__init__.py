@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Headless Census ACS data client and processing library."""
 
-__version__ = "0.23.0"
+__version__ = "0.24.0"
 
 from census.api import (
     DATASETS,
@@ -177,6 +177,7 @@ from census.geo_crosswalk import apportion, harmonize_panel, tract_crosswalk, tr
 
 from census.results import CorrelationResult, ModelResult, SmallAreaResult
 from census.analysis import analysis_frame, attach_replicates, coverage_report
+from census.rate_smoothing import eb_poisson_gamma
 from census.models import fit_eiv, fit_replicate, regression_calibration, reliability_screen, simex
 from census.sae import fay_herriot, fh_regression
 from census.planning import aggregation_forecast, minimum_detectable_difference, reliability_profile
@@ -387,6 +388,7 @@ __all__ = [
     "attach_replicates",
     "coverage_report",
     "fit_replicate",
+    "eb_poisson_gamma",
     "regression_calibration",
     "fit_eiv",
     "reliability_screen",

@@ -3,8 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.23.0 (Round 26: spatial-cluster inference; IM-8 validated). Previous: v0.22.1 (Round 25:
-staged manifest execution; DOI 10.5281/zenodo.24297411). All versions: concept record
+**Current release:** v0.24.0 (Round 27: descriptive EB rates; splines and joint Wald exploratory). Previous:
+v0.23.0 (Round 26: spatial-cluster inference, IM-8 validated; DOI 10.5281/zenodo.24297427). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
@@ -17,10 +17,10 @@ staged manifest execution; DOI 10.5281/zenodo.24297411). All versions: concept r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (27–29). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (28–29). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
-**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`, `PLAN_ROUND_25` at `v0.22.1`, `PLAN_ROUND_26` at `v0.23.0`. Code and docs still cite
+**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`, `PLAN_ROUND_25` at `v0.22.1`, `PLAN_ROUND_26` at `v0.23.0`, `PLAN_ROUND_27` at `v0.24.0`. Code and docs still cite
 them as labels (for example "PLAN_ROUND_16 A2"). To read one: `git show v0.21.0:PLAN_ROUND_16.md` (or the later tag), or
 `https://github.com/cafeTechne/Census-Research-Engine/blob/v0.21.0/PLAN_ROUND_16.md`.
 
@@ -46,6 +46,8 @@ manifests refuse them in confirmatory analyses.
 | Spatial CR1-t, G=12 (`cr1_t`, C1-12) | **Failed**: coverage 0.773–0.901; exploratory only | `spatial_cluster_validation.md` |
 | Ibragimov–Müller, G=8 (`im`, C2-8) | **Passed**: 0.886–0.912; unweighted OLS/binomial, population only, no analysed ACS replicates; every cluster full-rank and >=5 units | `spatial_cluster_validation.md` |
 | Restricted wild cluster bootstrap, G=12 (`wcr`, C3-12) | **Failed**: coverage 0.824–0.908; exploratory only, no ACS replicate combination | `spatial_cluster_validation.md` |
+| Poisson–Gamma descriptive EB rate smoothing | **Passed** fixed 90% area-average criterion: posterior 0.8813–0.9000 (default); Laird–Louis 0.8718–0.8914 in six required cells. Fixed E/rates, independent areas; [1,9] censoring; 200 bootstrap refits for LL | `eb_rate_validation.md`, criterion `d4dec47` |
+| Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. Both exploratory only; confirmatory manifests refused | `joint_wald_validation.md`, criterion `376ce69` |
 | Conley spatial HAC SEs (`spatial_se`) | **Failed** (0.71–0.87 at 150 km); exploratory only | `spatial_hac_validation.md` |
 | Spatial error model λ correction (ME-SEM) | Validated for λ > 0 (0.86–0.93); lag model at γ 0.6 under-covers | `spatial_regression_validation.md` |
 | LISA under sampling error | Characterised, information only | `lisa_validation.md` |
@@ -67,6 +69,16 @@ Moran I remains 0.195464 / 0.183552. IM comparisons are unavailable under the re
 protocol; the authorized R21b unclustered OLS/ACS sensitivity is separate from unchanged EIV outputs
 (`docs/studies/r26_posthoc_spatial_clusters.md`). No original study files were rewritten.
 Acceptance: 1734 passed, 37 skipped (31 new tests); both legacy goldens byte-identical.
+
+**Round 27 (v0.24.0):** descriptive `eb_poisson_gamma`
+includes censored-count likelihoods, posterior mixtures, optional rate units and
+explicit validation metadata; posterior default. `cr(df=3/4/5)` freezes centered
+full-sample state in replicates; joint tests use full HC3/sampling covariance,
+record df and refuse singular covariance. Both nonlinear features remain
+exploratory after the failed criterion. No new dependencies or tools (63).
+Acceptance: 1782 passed, 37 skipped, 49 subtests; 0 failures; 48 new tests. Golden differences are supported-statistic
+messages, additive covariance diagnostics and dependent hashes only; existing
+scientific values unchanged (`docs/audits/round27_compatibility.md`).
 
 ## Standing rules
 
@@ -100,8 +112,10 @@ Acceptance: 1734 passed, 37 skipped (31 new tests); both legacy goldens byte-ide
    uncertainty to force an IM re-check. Poisson also needs separate validation.
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 3. Replication of the county findings in held-out states (OH/PA): Round 29 (needs the owner's WONDER exports).
-4. Further methods: empirical-Bayes rate smoothing, splines and joint Wald tests (Round 27); segregation
-   indices and SMR reference-rate uncertainty (Round 28). Not yet planned: microdata inequality measures.
+4. Further methods: segregation indices and SMR reference-rate uncertainty (Round 28).
+   Round 27 delivered descriptive EB and exploratory splines/joint tests. The latter
+   require a separately pre-specified finite-sample validation before confirmatory use.
+   Not yet planned: microdata inequality measures.
 5. Saturated-model results bundles (Round 25 observation): a two-observation, two-coefficient OLS
    fit can crash while plotting the bundle (`ValueError: arange: cannot compute length`). Preserve
    estimable coefficients, explicitly mark unavailable uncertainty when residual degrees of freedom
