@@ -4,8 +4,11 @@
 (all eight are in place and passed a structure check on 2026-11-18; see `docs/data/wonder_exports.md`). National reference data come from the
 official WONDER API instead of manual exports (Part A0). The API serves national data only, so county
 counts remain manual. Parts A0 and A may be pulled forward on request.
-Before Part C, the maintainer reviews this plan against what Rounds 25–28 actually shipped, especially
-which methods passed validation, and the owner confirms the hypotheses.
+**Pre-Part C review: done (2026-11-18).** Methods are validated: Poisson GLM with HC3 SEs, SMR with
+period scaling and reference counts (Round 28), EB for descriptive maps (Round 27). No spatial method
+works with ACS replicates or Poisson yet (Round 30 is queued), so spatial dependence is a stated
+limitation. The owner confirmed H1–H3 and the replication rule as written (with the H2 suppression
+sensitivity below).
 
 **Goal.** (A0) Fetch the national age × sex reference data through the WONDER API. (A) Inventory and
 check the exports and API files. (B) Turn WONDER age × sex exports into reference rates with
@@ -19,8 +22,9 @@ their counts, build matching ACS age × sex populations, and enforce the WONDER 
 2. **No AI attribution** in commits or the PR body. Never print, log or commit `.env`, keys or tokens.
 3. **WONDER access: the official API only, national data only, through Part A0's client.** The API
    cannot group or filter vital statistics by any location, so county data still come only from the
-   owner's manual exports. Never automate the web form or get past a bot check. Before the first live
-   query, confirm with the owner that they accept WONDER's data-use restrictions. Never copy raw exports
+   owner's manual exports. Never automate the web form or get past a bot check. The owner accepted
+   WONDER's data-use restrictions on 2026-11-18 for all queries from then on: pass the client's
+   acceptance flag and do not ask again. Never copy raw exports
    or API responses into the repository or a release.
 4. Read `CLAUDE.md` and `STATUS.md` first. Use `.venv/bin/python` and `OPENBLAS_NUM_THREADS=1`. No GitHub CI.
 5. **Pre-registration:** before the manifest is hashed and committed, no association between any outcome
@@ -142,8 +146,8 @@ Reference: <https://wonder.cdc.gov/wonder/help/wonder-api.html>. Requests are a 
 ## 3. Part C: pre-registered study (confirmatory; author self-review, not independent)
 
 The analysis uses only validated methods: a Poisson GLM with `scale: "robust"` (HC3), offset `log E`,
-and replicates. If Round 26 shipped a validated spatial-cluster method, it is used as well; otherwise
-spatial dependence is a stated limitation.
+and replicates. Round 26's IM-8 refuses ACS replicates and Poisson, so spatial dependence is a stated
+limitation (Round 30 may later supply a post hoc check).
 
 | ID | Outcome (observed deaths, 2018–2022, county) | Expected | Tested term | Direction |
 | :--- | :--- | :--- | :--- | :--- |
@@ -152,6 +156,13 @@ spatial dependence is a stated limitation.
 | H3 | `heart_disease` | national age × sex `heart_disease` rates | poverty % | positive |
 
 - **Model:** every model includes a state fixed effect. Holm correction over H1–H3. MI/NY counties.
+- **Suppression sensitivity (H2, pre-registered).** In the 2018–2022 files, `drug_overdose` is
+  suppressed (1–9 deaths) in 13 MI/NY counties and 3 OH/PA counties; the H1 and H3 outcomes have none.
+  Complete-case exclusion drops the counties with the fewest deaths, which can bias the slope. Refit H2
+  (and its replication) twice more, with every suppressed count set to 1 and then to 9 (a simple
+  sensitivity, not a strict bound). Report the coefficient and Holm p of all three fits. H2 is called
+  robust only if its conclusion is the same in all three. These fits output coefficients only, never
+  county values (rule 6). If an outcome has no suppressed study counties, skip the refits and say so.
 - **Circularity:** outcomes are direct vital records, not modelled estimates, so R1 is satisfied.
 - **Replication:** the same manifest with geography swapped to OH/PA is a separate registered manifest,
   hashed at the same commit. A replication "holds" when the coefficient has the same sign and its Holm p
@@ -161,14 +172,14 @@ spatial dependence is a stated limitation.
 - **Reports:** `docs/studies/r29_mi_ny_mortality_smr.md` and `docs/studies/r29_oh_pa_replication.md`.
   Outputs go in `r29_study_outputs.tar.gz`, after a key scan and the rule-6 check.
 
-**Owner checkpoint:** H1–H3 and the replication rule are a proposal. The owner confirms or edits them
-before the manifest is committed.
+**Owner checkpoint: passed (2026-11-18).** H1–H3, the replication rule and the H2 sensitivity are fixed;
+commit the manifests without asking again.
 
 ## 4. Acceptance
 
 - Inventory is clean (no flags) on the owner's files.
-- The Part A0 tests pass offline, and the national fetch ran once, throttled, after the owner's
-  acceptance.
+- The Part A0 tests pass offline, and the national fetch ran once, throttled (data-use acceptance
+  recorded 2026-11-18).
 - Every Part B rule is tested.
 - The two manifests are committed before any outcome analysis, and the commit order shows it.
 - Rule 6 is verified on the study bundle: a test scans the output for counts 1–9 in per-county WONDER
