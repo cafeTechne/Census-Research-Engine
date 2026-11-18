@@ -50,6 +50,7 @@ def parse_footer(footer: List[str]) -> Dict[str, Any]:
     """Dataset name, query parameters ({name: value}) and other footer lines."""
     out: Dict[str, Any] = {"dataset": None, "parameters": {}, "other": []}
     in_params = False
+    last_key = None
     for line in footer:
         if line.startswith("Dataset:"):
             out["dataset"] = line.split(":", 1)[1].strip()
@@ -58,9 +59,13 @@ def parse_footer(footer: List[str]) -> Dict[str, Any]:
             in_params = True
         elif in_params and ":" in line and not line.startswith(("Help:", "Query Date:", "Suggested Citation:")):
             k, v = line.split(":", 1)
-            out["parameters"][k.strip()] = v.strip()
+            last_key = k.strip()
+            out["parameters"][last_key] = v.strip()
+        elif in_params and last_key and not line.startswith(("Help:", "Query Date:", "Suggested Citation:", "Notes:")):
+            out["parameters"][last_key] += " " + line.strip()
         else:
             in_params = False
+            last_key = None
             if line.startswith("Query Date:"):
                 out["query_date"] = line.split(":", 1)[1].strip()
             out["other"].append(line)
@@ -77,7 +82,7 @@ def _num(series: pd.Series) -> "Tuple[np.ndarray, np.ndarray, np.ndarray]":
     suppressed = s.str.fullmatch(r"Suppressed").to_numpy()
     clean = s.str.replace(r"\s*\(Unreliable\)", "", regex=True).str.replace(",", "", regex=False)
     val = pd.to_numeric(clean, errors="coerce").to_numpy(float)
-    bad = (clean != "") & np.isnan(val) & ~clean.isin(["Suppressed", "Not Applicable", "Missing"]).to_numpy()
+    bad = (clean != "") & np.isnan(val) & ~clean.isin(["Suppressed", "Not Applicable", "Not Available", "Missing"]).to_numpy()
     if bad.any():
         raise WonderExportError(f"unexpected values in {series.name!r}: {sorted(set(clean[bad]))[:5]}")
     return val, suppressed, unreliable
@@ -114,6 +119,7 @@ def read_wonder_export(path: str, level: str = "county") -> Dict[str, Any]:
         raise WonderExportError(f"duplicated {level} rows (group by {level} only): {sorted(geo[geo.duplicated()])[:5]}")
     out = pd.DataFrame({"GEOID": geo.to_numpy()})
     deaths, supp, _ = _num(df["Deaths"])
+    supp = supp | ((deaths >= 1) & (deaths <= 9))
     out["deaths"] = np.where(supp, np.nan, deaths)
     out["deaths_suppressed"] = supp
     out["deaths_lower_bound"] = np.where(supp, SUPPRESSED_BOUNDS[0], deaths)
@@ -153,8 +159,13 @@ def read_wonder_export(path: str, level: str = "county") -> Dict[str, Any]:
             cols = [c for c in df.columns if c.startswith(pre)]
             out["age_adjusted_rate" + suf] = _num(df[cols[0]])[0] if cols else np.nan
     out["unreliable"] = unrel | ((out["deaths"] < 20) & ~out["deaths_suppressed"]).to_numpy()
+    notes = []
+    if "Population" not in df:
+        notes.append("Deaths-only export: population/rate columns absent; study expected counts require separate ACS populations.")
+    elif not np.isfinite(pop).all():
+        notes.append(f"Population unavailable for {int((~np.isfinite(pop)).sum())} row(s); retained as missing, not zero.")
     return {"rows": out, "footer": footer, "sha256": hashlib.sha256(raw).hexdigest(), "path": os.path.abspath(path),
-            "size_bytes": len(raw)}
+            "size_bytes": len(raw), "notes": notes, "columns": list(df.columns)}
 
 
 def garwood_interval(deaths: np.ndarray, level: float = 0.95) -> "Tuple[np.ndarray, np.ndarray]":
@@ -210,4 +221,6 @@ def load_wonder_measure(path: str, sha256: str, measure: str, name: str,
            "suppressed_units": int(r["deaths_suppressed"].sum()), "unreliable_units": int((flag == 1).sum()),
            "file": {"path": exp["path"], "sha256": exp["sha256"], "size_bytes": exp["size_bytes"],
                     "source_url": "user-supplied CDC WONDER export"}}
+    if exp.get("notes"):
+        rec["notes"] = exp["notes"]
     return out, rec

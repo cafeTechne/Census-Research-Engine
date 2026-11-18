@@ -98,3 +98,41 @@ def test_no_library_network_transport_or_xml_entities(tmp_path):
  with api.WonderClient(tmp_path) as c:
   with pytest.raises(api.WonderAPIError,match='fetch script'):c.fetch('all_causes',(2018,),accept_data_use_restrictions=True,path=tmp_path/'x.xml')
  with pytest.raises(api.WonderAPIError,match='DOCTYPE'):api.xml_parameters(b'<!DOCTYPE x [<!ENTITY y "a">]><x/>')
+
+
+def test_real_format_wrapped_parameters_and_missing_optional_measures():
+ from census.vital_records import read_wonder_export
+ first=read_wonder_export(str(FIXTURES/'heart_disease.tsv'));rows=first['rows']
+ assert rows.GEOID.tolist()==['01001','01003','01005']
+ assert np.isnan(rows.population.iloc[2]) and rows.deaths.iloc[2]==0
+ assert any('unavailable' in n for n in first['notes'])
+ second=read_wonder_export(str(FIXTURES/'premature_all_causes.tsv'))
+ assert second['footer']['parameters']['Ten-Year Age Groups'].endswith('65-74 years')
+ assert second['footer']['parameters']['Year/Month'].endswith('2022')
+ assert second['rows'].population.isna().all() and any('Deaths-only' in n for n in second['notes'])
+
+
+def test_inventory_compares_codes_and_detects_structural_mismatches(tmp_path):
+ from census.wonder_inventory import inspect_file
+ folder=tmp_path/'ucd/2018-2022/county';folder.mkdir(parents=True)
+ file=folder/'heart_disease.tsv';text=(FIXTURES/'heart_disease.tsv').read_text();file.write_text(text)
+ assert inspect_file(file,tmp_path,minimum_counties=0)['flags']==[]
+ assert any('fewer than 3100' in f for f in inspect_file(file,tmp_path)['flags'])
+ for old,new,flag in [('I00-I09,I11,I13,I20-I51','C00-C97','ICD-10'),('2022','2023','years'),('Group By: County','Group By: State','Group By')]:
+  file.write_text(text.replace(old,new));assert any(flag in f for f in inspect_file(file,tmp_path,minimum_counties=0)['flags'])
+ file=folder/'premature_all_causes.tsv';file.write_text((FIXTURES/file.name).read_text())
+ assert inspect_file(file,tmp_path,minimum_counties=0)['flags']==[]
+ file.write_text(file.read_text().replace('65-74','75-84'))
+ assert any('nine age groups' in f for f in inspect_file(file,tmp_path,minimum_counties=0)['flags'])
+
+
+def test_equivalent_cancer_codes_do_not_depend_on_form_tab():
+ from census.wonder_inventory import cause_codes
+ assert cause_codes({'ICD-10 Codes':'C00-C97'})==cause_codes({'ICD-10 113 Cause List':'#Malignant neoplasms (C00-C97)'})
+
+
+def test_wrapped_drug_selection_preserves_later_parameters():
+ from census.vital_records import parse_footer
+ p=parse_footer(['Dataset: Synthetic','Query Parameters:','Drug/Alcohol Induced Causes: Unintentional (X40-X44); Suicide (X60-X64);',
+ 'Homicide (X85); Undetermined (Y10-Y14)','Year/Month: 2018; 2019; 2020; 2021; 2022','Group By: County','Query Date: synthetic'])['parameters']
+ assert p['Drug/Alcohol Induced Causes'].endswith('(Y10-Y14)') and p['Group By']=='County'
