@@ -25,6 +25,7 @@ Start with `STATUS.md` (current state, validated methods, rules, backlog). Then 
 - **Data access.** No automated CDC WONDER access of any kind: all WONDER data (county and national) are
   the owner's manual exports (`docs/data/wonder_exports.md`; owner decision, 2026-11-18). No web-form
   automation, bot-check or paywall circumvention.
+- WONDER outputs: no sub-national counts 1–9 or values derived from them; no raw exports in the repo or releases.
 - **Merges and releases** need the owner's explicit approval each time.
 - **Circularity rule (R1/R2)** and **pre-registration discipline**: see `STATUS.md`.
 

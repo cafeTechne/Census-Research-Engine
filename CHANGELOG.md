@@ -5,6 +5,29 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.26.0 (Round 29): manual WONDER mortality studies
+
+- Remove the WONDER API client, fetch script, API tests and XML fixture. All inputs
+  are owner-supplied, pinned manual exports; no WONDER network access.
+- Inventory all 62 files, including wrapped footers, optional population/rate
+  columns, older unreliable markers, cause-code equivalence and MCD filters.
+- Read national age × sex references, combine the two youngest groups, refuse
+  suppressed reference cells and check hashes/periods. Add a disjoint B01001
+  template and expected-count derivations with all 80 ACS replicates.
+- Separate geographic join failures from suppressed outcomes and unsuppressed
+  missing values. Mask protected county values throughout bundles/snapshots/maps;
+  reject unverifiable complementary totals and scan study outputs before archiving.
+- Register MI/NY and geography-only OH/PA mortality manifests together at
+  `150e172`, before outcomes. All three poverty coefficients are positive and
+  supported after Holm correction; all replicate. The overdose conclusion holds
+  under both registered endpoint-assignment sensitivities. Reports distinguish
+  fixed-offset model inference, reference-aware SMR intervals, descriptive EB
+  maps and exploratory SII/RII; spatial dependence remains unresolved.
+- Acceptance: 1860 passed, 37 skipped, 4 warnings and 50 subtests; zero failures.
+  Twenty new synthetic tests; all legacy schema snapshots and all non-WONDER
+  execution scenarios unchanged (`docs/audits/round29_compatibility.md`).
+- No new dependencies or MCP tools. Version prepared on the branch; no tag or release.
+
 ## 0.25.0 (Round 28): segregation indices and reference-aware SMR
 
 - Fixed, committed-and-pushed validations: segregation `4791763` (8,000 draws;

@@ -67,4 +67,7 @@ Local artifact: `/tmp/r29_study_outputs.tar.gz`, SHA-256
 Detailed audit: `/tmp/r29-package-audit.json`. The two study reports and immutable
 manifests are committed; generated data and the archive remain outside Git.
 
-Final full-suite acceptance is recorded in PLAN_ROUND_29.md section 8 and STATUS.md.
+Final full suite (including the state-reference hardening): **1,860 passed, 37 skipped,
+4 warnings, 50 subtests passed; zero failures**, in 275.25 seconds. Twenty new tests
+above the checked 1,840-test baseline. The four warnings are unchanged from baseline.
+Also recorded in PLAN_ROUND_29.md section 8 and STATUS.md.

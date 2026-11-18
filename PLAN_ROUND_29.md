@@ -1,6 +1,6 @@
-# Round 29 plan (draft): real-data mortality from CDC WONDER
+# Round 29 plan: real-data mortality from CDC WONDER
 
-**Status: ready.** All WONDER data are the owner's manual exports (owner decision, 2026-11-18: the API
+**Status: implemented on `phase29/wonder-mortality`; final acceptance in section 8.** All WONDER data are the owner's manual exports (owner decision, 2026-11-18: the API
 is not used; Part A0). All 62 files in the guide (`docs/data/wonder_exports.md`, Parts A–F) are in
 `external_data/wonder/` and passed a structure check on 2026-11-18. Round 29 uses six of them:
 `ucd/2018-2022/county/{premature_all_causes,drug_overdose,heart_disease}.tsv` and
@@ -204,11 +204,11 @@ cannot open a PR, leave a body at `/tmp/round29-pr-body.md`.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| API client removed; national files in place | | |
-| Inventory result | | |
-| Part B engine, tests | | |
-| Registration commit | | |
-| H1–H3 MI/NY; OH/PA replication | | |
-| Rule-6 check | | |
-| Final suite | | |
-| Exceptions | | |
+| API client removed; national files in place | Done | `46058b4`; all inputs manual. |
+| Inventory result | Passed | 62 files, 0 flags; private checkout clean (only ignored INVENTORY.md written). |
+| Part B engine, tests | Passed | 20 synthetic tests; details in docs/audits/round29_compatibility.md. |
+| Registration commit | Done | Both manifests committed/pushed at `150e172` before outcomes. |
+| H1–H3 MI/NY; OH/PA replication | Done | All three positive, Holm-supported and replicated; H2 stable in both sensitivities. |
+| Rule-6 check | Passed | 15 frames/study; independent mask/hash checks; 130-member local archive key-scanned. Hash in compatibility audit. |
+| Final suite | Passed | 1860 passed, 37 skipped, 4 warnings, 50 subtests; 0 failures (baseline 1840/37). |
+| Exceptions | Recorded | WIP retained at `1a485da` before API removal, as directed; initial merge `b8da241`. VRE warning documented. No protocol deviation, WONDER access, defaultBranch merge, tag, release or CI. |
