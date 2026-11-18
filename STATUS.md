@@ -4,8 +4,8 @@ The single current summary of the Census Research Engine: what it does, which me
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
 **Current release:** v0.25.0 (Round 28: segregation indices, exploratory pending a realistic-error validation;
-reference-aware SMR). Previous: v0.24.0 (Round 27: descriptive EB rates; splines and joint Wald exploratory);
-v0.23.0 (Round 26; DOI 10.5281/zenodo.24297427). All versions: concept record
+reference-aware SMR; DOI 10.5281/zenodo.24329678). Previous: v0.24.0 (Round 27: descriptive EB rates; splines
+and joint Wald exploratory; DOI 10.5281/zenodo.24329544); v0.23.0 (Round 26; DOI 10.5281/zenodo.24297427). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
