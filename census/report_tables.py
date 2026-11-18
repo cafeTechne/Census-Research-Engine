@@ -473,8 +473,20 @@ def results_bundle(
         for name,table in (tables or {}).items():
             table = copy.copy(table)
             scope = wonder_policy.get("results",{}).get(name,wonder_policy)
+            original = table.data
             table.data = sanitize_frame(table.data,scope)
             table.display = sanitize_frame(table.display,scope)
+            changed = np.zeros(len(original),dtype=bool)
+            for col in scope.get("columns",{}):
+                if col in original:
+                    changed |= (original[col].astype("string").fillna("<NA>") != table.data[col].astype("string").fillna("<NA>")).to_numpy()
+            if changed.any():
+                if len(table.display)!=len(original) or not table.display.index.equals(original.index):
+                    raise ValueError("WONDER county-table display must align with its source rows")
+                table.display=table.display.astype(object).copy()
+                keep={"geoid","name","county"}
+                for col in table.display:
+                    if str(col).lower() not in keep:table.display.loc[changed,col]="suppressed"
             safe_tables[name] = table
         tables = safe_tables
     for items in (tables, figures, results):

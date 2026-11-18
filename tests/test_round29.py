@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Round 29 synthetic-only fixtures. No live Census or WONDER requests."""
 from pathlib import Path
-from types import SimpleNamespace
 from unittest import mock
-import xml.etree.ElementTree as ET
 import numpy as np
 import pandas as pd
 import pytest
@@ -163,3 +161,119 @@ def test_older_bare_unreliable_rates_are_missing_not_invalid(tmp_path):
  from census.vital_records import read_wonder_export
  path=tmp_path/'old.tsv';path.write_text((FIXTURES/'heart_disease.tsv').read_text().replace('2000\n','Unreliable\n'))
  r=read_wonder_export(path)['rows'];assert np.isnan(r.crude_rate.iloc[0]) and r.unreliable.iloc[0]
+
+
+def test_disclosure_scanner_catches_small_counts_and_national_complements(tmp_path):
+ import json
+ from census.wonder_outputs import audit_outputs,sanitize_frame
+ policy={'columns':{'observed':['01003'],'smr':['01003']},'count_column':'observed'}
+ path=tmp_path/'values.csv'
+ pd.DataFrame({'GEOID':['01001','01003'],'observed':[20,5],'smr':[1,.2]}).to_csv(path,index=False)
+ assert not audit_outputs(tmp_path,policy)['passed']
+ safe=sanitize_frame(pd.read_csv(path,dtype={'GEOID':str}),policy);safe.to_csv(path,index=False)
+ assert audit_outputs(tmp_path,policy)['passed']
+ totals=pd.concat([safe,pd.DataFrame({'GEOID':['US'],'observed':[25]})])
+ with pytest.raises(ValueError,match='complementary'):sanitize_frame(totals,policy)
+ # Missing source flags still require derived values to be suppressed.
+ unflagged={'columns':{'observed':[],'smr':[]},'count_column':'observed'}
+ protected=sanitize_frame(pd.DataFrame({'GEOID':['01003'],'observed':[5],'smr':[.2]}),unflagged)
+ assert protected.smr.iloc[0]=='suppressed'
+
+
+def test_reference_numeric_small_counts_are_refused_and_ns_deaths_not_reconstructed(tmp_path):
+ from census.vital_records import read_wonder_reference
+ text=(FIXTURES/'national_age_sex.tsv').read_text()
+ file=tmp_path/'reference.tsv';file.write_text(text.replace('\t20\t1000\t','\t5\t1000\t',1))
+ with pytest.raises(ValueError,match='suppressed reference'):read_wonder_reference(file)
+ file.write_text(text.replace('"Not Stated"\t"NS"\t"Male"\t"M"\t10','"Not Stated"\t"NS"\t"Male"\t"M"\tSuppressed'))
+ assert 'suppressed/unavailable' in read_wonder_reference(file)['notes'][0]
+
+
+def test_county_table_display_is_suppressed_even_with_renamed_headers(tmp_path):
+ from census.report_tables import results_bundle,ReportTable
+ data=pd.DataFrame({'GEOID':['01001','01003'],'observed':[20.,5.],'smr':[1.,.2]})
+ display=pd.DataFrame({'County':['Alpha','Beta'],'Mortality':['20','5'],'Ratio':['1.0','.2']})
+ table=ReportTable('Synthetic',display,data)
+ policy={'columns':{'observed':['01003'],'smr':['01003']},'count_column':'observed'}
+ results_bundle(tmp_path,tables={'mortality':table},wonder_policy=policy)
+ text=(tmp_path/'tables/mortality.md').read_text()
+ assert 'suppressed' in text and '| Beta | 5' not in text
+
+
+def band_client():
+ from census.api import CensusAPIClient
+ class Fake(CensusAPIClient):
+  synthetic=True
+  def __init__(self):super().__init__(api_key='',cache=None)
+  def fetch_variable_metadata(self,*args,**kwargs):return {}
+  def fetch(self,year,table_code,**kwargs):
+   self.last_error=None
+   codes=[f'B01001_{i:03}' for i in range(1,50)] if table_code=='B01001' else ['B01003_001']
+   header=['GEO_ID','NAME']+[v for c in codes for v in (c+'E',c+'EA',c+'M',c+'MA')]+['state','county']
+   rows=[header]
+   for i in range(6):
+    county=f'{2*i+1:03}'
+    values=[v for j,c in enumerate(codes) for v in (str(100+j+i*5),None,'2',None)]
+    rows.append(['0500000US01'+county,'Synthetic county',*values,'01',county])
+   return rows
+ return Fake()
+
+
+def reference_manifest(tmp_path):
+ import hashlib
+ from tests.test_round24 import manifest
+ from census.wonder_reference import acs_age_sex_bands
+ template=acs_age_sex_bands(2022);entry=expected_entry();m=manifest();m.pop('exploratory',None)
+ m['exclusions']=[];m['created']='2026-11-18';m['releases']=[2022];m['geography']={'level':'county','state':'01'}
+ m['variables']=template['variables']+[{'name':'pop','ref':'2022:B01003_001'}]
+ m['derivations']=template['derivations']+[entry]
+ source=tmp_path/'heart.tsv'
+ source.write_text('"Notes"\t"County"\t"County Code"\tDeaths\tPopulation\tCrude Rate\n'+
+  ''.join(f'\tSynthetic\t01{2*i+1:03}\t{d}\t1000\t0\n' for i,d in enumerate(['20','Suppressed','0','30','14','50']))+
+  '"---"\n"Dataset: Underlying Cause of Death, 2018-2024, Single Race"\n"Query Parameters:"\n"Year/Month: 2018; 2019; 2020; 2021; 2022"\n"Group By: County"\n')
+ m['external']=[{'source':'wonder','name':'y','measure':'deaths','file':str(source),'sha256':hashlib.sha256(source.read_bytes()).hexdigest()}]
+ m['analyses']=[{'id':'model','method':'fit_replicate','formula':'y_numerator ~ pop', 'args':{'model':'poisson','exposure':'expected','scale':'robust','target':'conservative'}},
+               {'id':'smr','method':'smr','observed':'y_numerator','population_bands':template['population_bands'],
+                'reference_export':entry['reference_export'],'reference_source':'Synthetic age/sex standard','period_years':5}]
+ m['hypotheses']=[{'id':'H1','analysis':'model','statistic':'coefficient','term':'pop','direction':'greater'}]
+ m['data_source']={'synthetic':True,'description':'Handwritten synthetic Round 29 fixture'}
+ return m
+
+
+def test_reference_export_hash_units_alternative_and_ages_under(tmp_path):
+ import copy
+ from census.manifest import validate_manifest,manifest_hash
+ from census.wonder_reference import resolve_reference_export
+ m=reference_manifest(tmp_path);assert validate_manifest(m,resolve=False)==[]
+ changed=copy.deepcopy(m);changed['analyses'][1]['period_years']=4
+ assert manifest_hash(changed)!=manifest_hash(m) and any('footer years' in e for e in validate_manifest(changed,resolve=False))
+ changed=copy.deepcopy(m);changed['analyses'][1]['reference_rates']=[1.]*20
+ assert any('alternative' in e for e in validate_manifest(changed,resolve=False))
+ spec=dict(m['analyses'][1]['reference_export'],ages_under=75)
+ names=[n for n in m['analyses'][1]['population_bands'] if not n.endswith(('75_84','85_plus'))]
+ rates,counts,info=resolve_reference_export(spec,5,names)
+ assert len(rates)==16 and len(counts)==16
+
+
+def test_offline_reference_export_and_suppression_safe_bundle(tmp_path):
+ from census.manifest import run_manifest
+ from census.simulation import make_replicates,replicate_long
+ from census.wonder_reference import acs_age_sex_bands
+ from census.wonder_outputs import audit_outputs
+ m=reference_manifest(tmp_path);client=band_client()
+ # The complete source fixture has 46 age cells plus the model covariate.
+ names=[v['name'] for v in m['variables']];codes=[int(v['ref'].rsplit('_',1)[1]) if 'B01001' in v['ref'] else 1 for v in m['variables']]
+ values=np.array([[100+(c-1)+i*5 if 'cell' in n else 100+i*5 for c,n in zip(codes,names)] for i in range(6)],float)
+ ids=[f'01{2*i+1:03}' for i in range(6)];rep=make_replicates(values,np.full_like(values,2/1.645),np.random.default_rng(9))
+ reps=replicate_long(ids,names,values,rep);reps['Year']=2022
+ out=run_manifest(m,tmp_path/'run',client=client,replicates=reps,replicates_synthetic=True,use_cache=False)
+ assert out['success'],{'errors':out.get('errors'),'deviations':out.get('deviations')}
+ join=out['external']['join'];assert join['matched_units']==6 and join['suppressed_units']==1 and join['analyzable_units']==5
+ assert not any(d['kind']=='external_join_failed' for d in out['deviations'])
+ assert any(d['kind']=='wonder_suppressed' and d['geoid']=='01003' for d in out['deviations'])
+ rows=out['results']['smr']['rows'];assert '01003' not in rows.GEOID.tolist()
+ assert out['results']['model'].n_obs==5 and 'held fixed' in ' '.join(out['results']['model'].notes)
+ import json
+ info=json.loads((tmp_path/'run/bundle/results/run.json').read_text())
+ assert audit_outputs(tmp_path/'run',info['wonder_output_policy'])['passed']
+ assert out['frame'].loc[out['frame'].GEOID=='01003','y_numerator'].iloc[0]=='suppressed'
