@@ -4,8 +4,8 @@ The single current summary of the Census Research Engine: what it does, which me
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
 **Current release:** v0.25.0 (Round 28: segregation indices, exploratory pending a realistic-error validation;
-reference-aware SMR). Previous: v0.24.0 (Round 27: descriptive EB rates; splines and joint Wald exploratory);
-v0.23.0 (Round 26; DOI 10.5281/zenodo.24297427). All versions: concept record
+reference-aware SMR; DOI 10.5281/zenodo.24329678). Previous: v0.24.0 (Round 27: descriptive EB rates; splines
+and joint Wald exploratory; DOI 10.5281/zenodo.24329544); v0.23.0 (Round 26; DOI 10.5281/zenodo.24297427). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
@@ -127,7 +127,8 @@ supported-method messages; execution golden byte-identical. See
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 3. Replication of the county findings in held-out states (OH/PA): Round 29. The owner's eight WONDER
    county exports (2018–2022, `.tsv`) are in place and passed a structure check on 2026-11-18; national
-   reference rates come from the official WONDER API.
+   reference rates are manual exports too (owner decision 2026-11-18; the WONDER API is not used). The
+   guide `docs/data/wonder_exports.md` lists every file, including the 2013–2017 window.
 4. Further validation: Round 28 delivered two-group segregation defaults and SMR
    Poisson reference-rate uncertainty. Segregation is validated only for tract
    group-count CV <= .15, which real MI/NY counties do not meet: a realistic-error

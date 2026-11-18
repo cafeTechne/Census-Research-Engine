@@ -22,9 +22,9 @@ Start with `STATUS.md` (current state, validated methods, rules, backlog). Then 
 - **Secrets.** Never print, log or commit `.env`, the Census API key or any token. Scan release tarballs
   for the key before uploading. Published users bring their own key.
 - **Privacy.** Do not send the owner's email to any service. Use a generic User-Agent.
-- **Data access.** No automated CDC WONDER downloads, except the official WONDER API for national data as
-  specified in `PLAN_ROUND_29.md` Part A0 (owner decision, 2026-11-17); county data are manual exports. No
-  web-form automation, bot-check or paywall circumvention.
+- **Data access.** No automated CDC WONDER access of any kind: all WONDER data (county and national) are
+  the owner's manual exports (`docs/data/wonder_exports.md`; owner decision, 2026-11-18). No web-form
+  automation, bot-check or paywall circumvention.
 - **Merges and releases** need the owner's explicit approval each time.
 - **Circularity rule (R1/R2)** and **pre-registration discipline**: see `STATUS.md`.
 
