@@ -305,6 +305,13 @@ external_data/wonder/
   mcd/2018-2022/national_age_sex/<drug>.tsv     4 files (Part F, optional)
 ```
 
+**Backup (2026-11-18):** `external_data/wonder/` is a git checkout of the owner's **private** repository
+`cafeTechne/census-wonder-exports` (62 files). To restore, clone it into `external_data/wonder/`. After
+adding or re-exporting a file: `git -C external_data/wonder add -A && git -C external_data/wonder commit
+-m "..." && git -C external_data/wonder push`. **Never make it public:** combining files can reveal a
+hidden count of 1–9 deaths (the 2018–2022 all-cause county and national files together reveal one
+county), which WONDER's data use rules forbid publishing.
+
 ## Not planned (do not download)
 
 - **Natality** (WONDER names only counties of 100,000+ people) and **infant deaths** (state only): they
