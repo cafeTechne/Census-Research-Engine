@@ -26,6 +26,12 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 - Reference-aware SMR passed coverage 0.8995–0.9105; omitting the reference term
   reached 0.7240 in the sparse-reference E=100 cell. Reference person-years remain
   fixed. Existing SMR defaults and execution golden remain unchanged.
+- Range gate (review fix): a county with any tract group-count CV above .15, the
+  validated simulation range, is marked not validated (`max_count_cv` reported);
+  confirmatory hypotheses on it are refused (`hypothesis_not_tested`), exploratory
+  manifests still test it. No 2018-2022 MI/NY county's white/Black tract counts
+  meet the range, so segregation is effectively exploratory pending a
+  realistic-error validation.
 - No new dependencies or MCP tools (63); version 0.25.0. Round 28 is stacked on
   completed Round 27 pending its merge; no merge/tag/release is included.
 

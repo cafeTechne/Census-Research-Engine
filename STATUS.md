@@ -56,7 +56,7 @@ manifests refuse them in confirmatory analyses.
 | Restricted wild cluster bootstrap, G=12 (`wcr`, C3-12) | **Failed**: coverage 0.824–0.908; exploratory only, no ACS replicate combination | `spatial_cluster_validation.md` |
 | Poisson–Gamma descriptive EB rate smoothing | **Passed** fixed 90% area-average criterion: posterior 0.8813–0.9000 (default); Laird–Louis 0.8718–0.8914 in six required cells. Fixed E/rates, independent areas; [1,9] censoring; 200 bootstrap refits for LL | `eb_rate_validation.md`, criterion `d4dec47` |
 | Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. Both exploratory only; confirmatory manifests refused | `joint_wald_validation.md`, criterion `376ce69` |
-| County segregation, two groups: D / isolation / H | **Passed selected variants**: naive D .898–.911; corrected isolation .877–.901; corrected H .896–.961. Corrected D and naive isolation/H failed. Strict 80 replicates; CV .15 fixed design; multigroup H exploratory | `segregation_validation.md`, criterion `4791763` |
+| County segregation, two groups: D / isolation / H | **Passed selected variants**: naive D .898–.911; corrected isolation .877–.901; corrected H .896–.961. Corrected D and naive isolation/H failed. Strict 80 replicates; CV .15 fixed design; multigroup H exploratory. **Range gate:** a county with any tract group-count CV > .15 is exploratory and confirmatory tests on it are refused; no MI/NY county's 2018–2022 white/Black tract counts meet it, so segregation is effectively exploratory | `segregation_validation.md`, criterion `4791763` |
 | SMR period scaling and Poisson reference-rate uncertainty | **Passed** .8995–.9105; known reference person-years, independent bands, 50/500/5000 reference deaths and E=10/100. Common reference covariance preserved when pooling. No-reference coverage reached .724 | `smr_reference_validation.md`, criterion `134bf7f` |
 | Conley spatial HAC SEs (`spatial_se`) | **Failed** (0.71–0.87 at 150 km); exploratory only | `spatial_hac_validation.md` |
 | Spatial error model λ correction (ME-SEM) | Validated for λ > 0 (0.86–0.93); lag model at γ 0.6 under-covers | `spatial_regression_validation.md` |
@@ -134,9 +134,12 @@ supported-method messages; execution golden byte-identical. See
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 3. Replication of the county findings in held-out states (OH/PA): Round 29 (needs the owner's WONDER exports).
 4. Further validation: Round 28 delivered two-group segregation defaults and SMR
-   Poisson reference-rate uncertainty. Multigroup H, failed index variants, high
-   count-error CV, contrasts and uncertain reference denominators need separate
-   coverage studies. Round 27 splines/joint tests remain exploratory and require a
+   Poisson reference-rate uncertainty. Segregation is validated only for tract
+   group-count CV <= .15, which real MI/NY counties do not meet: a realistic-error
+   validation (heterogeneous CVs from real tract MOEs, non-negative counts,
+   correlated group errors) is needed before confirmatory use. Multigroup H,
+   failed index variants, contrasts and uncertain reference denominators also need
+   separate coverage studies. Round 27 splines/joint tests remain exploratory and require a
    separately pre-specified finite-sample validation before confirmatory use.
    Not yet planned: microdata inequality measures.
 5. Saturated-model results bundles (Round 25 observation): a two-observation, two-coefficient OLS

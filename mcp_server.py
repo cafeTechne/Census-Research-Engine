@@ -186,7 +186,9 @@ are exploratory only. Strict 80 tract/group replicates; no negative clipping or 
 counts held fixed. Zero tracts recomputed per refit, absent groups undefined. Hypotheses
 need geoid plus explicit null_value for one area; compare_geoid uses per-replicate
 differences. release/compare_release select independent non-overlapping five-year releases;
-variances add. First minus comparison; one-sided tests center on null. See protocol.
+variances add. First minus comparison; one-sided tests center on null. A county with any
+tract group-count CV above .15 is exploratory only; confirmatory tests on it are refused
+(most real counties exceed it). See protocol.
 
 
 Inflation: default index is R-CPI-U-RS (the Census Bureau's ACS index); 'c-cpi-u'

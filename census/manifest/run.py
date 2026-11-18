@@ -656,6 +656,9 @@ def _test_hypotheses(state: RunState) -> None:
         else:
             try:
                 s = _statistic(hyp, res)
+                refusal = s.pop("confirmatory_refusal", None)
+                if refusal and not state.m.get("exploratory", False):
+                    raise ValueError(refusal)
                 row.update(s, status="tested",
                            p_value=s["p_two_sided"] if hyp["statistic"] == "joint_wald" else _one_sided(s["p_two_sided"], s.get("test_estimate", s["estimate"]), row["direction"]))
             except Exception as exc:

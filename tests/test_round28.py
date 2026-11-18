@@ -326,3 +326,41 @@ def test_optional_smr_inputs_execute_identically_in_top_level_or_args():
     pd.testing.assert_frame_equal(first,second)
     nested['period_years']=4;m['analyses'][0]=nested
     assert any("'period_years' given both" in e for e in validate_manifest(m,resolve=False))
+
+
+def high_cv_sample(cv):
+    counts=np.array([[300.,100.],[100.,300.],[200.,200.],[350.,50.]])
+    ids=[f'36061{i:06}' for i in range(1,5)];rng=np.random.default_rng(2828)
+    reps=make_replicates(counts,cv*counts,rng)
+    f=pd.DataFrame({'GEOID':ids,'Year':2019,'a':counts[:,0],'b':counts[:,1]})
+    r=replicate_long(ids,['a','b'],counts,reps);r['Year']=2019
+    return f,r
+
+
+def test_count_cv_above_validated_range_is_exploratory_and_reported():
+    f,r=high_cv_sample(.03);ok=sg.segregation_replicate(f,['a','b'],r).set_index('statistic')
+    assert ok.loc['dissimilarity','validated'] and ok.loc['dissimilarity','max_count_cv']<=.15
+    f,r=high_cv_sample(.25);out=sg.segregation_replicate(f,['a','b'],r).set_index('statistic')
+    assert not out.validated.any() and (out.max_count_cv>.15).all()
+    assert all(any('exceeds .15' in n for n in notes) for notes in out.notes)
+    t=sg.segregation_test(out.reset_index(),'dissimilarity','36061',null_value=.5)
+    assert t['validated'] is False and 'confirmatory test refused' in t['confirmatory_refusal']
+    assert sg.segregation_test(ok.reset_index(),'dissimilarity','36061',null_value=.5)['confirmatory_refusal'] is None
+
+
+def test_confirmatory_manifest_refuses_high_cv_county_and_exploratory_tests_it(tmp_path):
+    import tests.test_manifest as fixtures
+    from census.manifest.run import _prepare,_extract,_build_frame
+    def run(exploratory,cv,tag):
+        client=fixtures.FakeClient();client.synthetic=True;m=segregation_manifest()
+        m['data_source']={'synthetic':True,'description':'Offline Round 28 CV gate'}
+        if exploratory:m['exploratory']=True
+        state=_prepare(m,tmp_path/f'src{tag}',client,None,False,None,None);_extract(state);_build_frame(state)
+        f=state.frame;x=f[['income','pop']].to_numpy()
+        reps=make_replicates(x,cv*x,np.random.default_rng(2829));r=replicate_long(f.GEOID,['income','pop'],x,reps);r['Year']=f.Year.iloc[0]
+        return run_manifest(m,tmp_path/f'run{tag}',client=client,replicates=r,replicates_synthetic=True,use_cache=False)
+    refused=run(False,.25,'a');h=refused['hypotheses'].iloc[0]
+    assert h.status=='not_tested'
+    assert any(d['kind']=='hypothesis_not_tested' and 'confirmatory test refused' in d['detail'] for d in refused['deviations'])
+    explored=run(True,.25,'b');assert explored['hypotheses'].iloc[0].status=='tested'
+    accepted=run(False,.03,'c');assert accepted['hypotheses'].iloc[0].status=='tested'

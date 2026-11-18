@@ -250,7 +250,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    recomputed per refit; absent county groups undefined. One-area tests need
    null_value; compare_geoid uses replicate differences. release/compare_release
    select independent non-overlapping releases; variances add. First minus
-   comparison, one-sided tests center on null. No metro pooling; see protocol.
+   comparison, one-sided tests center on null. No metro pooling. Any tract
+   group-count CV above .15 makes a county exploratory only (most real ones).
 """
 
 REVIEW_INSTRUCTIONS = """\

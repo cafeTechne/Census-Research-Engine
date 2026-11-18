@@ -364,4 +364,6 @@ variances, not matched replicate deviations. Overlaps/self-comparisons are refus
 One-sided tests use estimate-null. These are finite-area ACS sampling intervals,
 not causal or superpopulation inference. Coverage acceptance covered independent
 Gaussian errors CV .15, 20/100 tracts and two groups; high CV and contrasts lack
-separate passing coverage studies. No new dependencies or MCP tools.
+separate passing coverage studies. A county with any tract group-count CV above
+.15 (`max_count_cv`) is not validated: exploratory only, and confirmatory
+hypotheses on it are refused at run time. Most real counties exceed it. No new dependencies or MCP tools.

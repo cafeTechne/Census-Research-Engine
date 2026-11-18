@@ -59,7 +59,13 @@
    among the observed tracts, not causal effects or superpopulation uncertainty.
    The fixed validation used two groups, 20/100 tracts and group CV .15, with
    independent Gaussian count errors. CV .30 performed poorly, largely because
-   negative draws/refits were invalid; it is not a validated extension. Contrasts
+   negative draws/refits were invalid; it is not a validated extension. The
+   engine therefore marks a county not validated when any tract group count has
+   CV above .15 (`max_count_cv`): its rows are exploratory and confirmatory
+   hypotheses on it are refused (`hypothesis_not_tested`). Real tract data
+   usually exceed this: in 2018-2022 MI/NY, no county's white/Black tract counts
+   all meet it, so treat segregation as exploratory until a realistic-error
+   validation passes. Contrasts
    have covariance checks but no separate coverage experiment. Wider intervals
    are not a remedy for an unsupported error model.
 

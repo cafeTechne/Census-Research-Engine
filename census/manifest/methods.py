@@ -670,7 +670,8 @@ METHODS: Dict[str, MethodSpec] = {
             "normal intervals. County contrasts use per-replicate differences; independent non-overlapping "
             "releases add variances, first area/release minus comparison. One-area tests require a registered "
             "null_value. Only the passing two-group versions are confirmatory; multigroup H and failed "
-            "versions are exploratory. High count-error CV is outside the accepted .15 simulation range.",
+            "versions are exploratory. Counties with any tract group-count CV above .15, the validated "
+            "simulation range, are exploratory only; confirmatory tests on them are refused.",
             ["duncan", "massey", "reardon", "vre"],
         ),
     ),
