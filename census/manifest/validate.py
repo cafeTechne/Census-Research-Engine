@@ -238,6 +238,12 @@ def _check_manifest_measures(manifest, errors, releases):
         if not isinstance(d, Mapping):
             errors.append(f"derivations[{i}] must be an object {{name, op, num, den}}")
             continue
+        if d.get("op") == "expected_count":
+            from ..wonder_reference import expected_count_weights
+            try:
+                expected_count_weights(d, validate_only=True)
+            except (ValueError, OSError) as exc:
+                errors.append(f"derivation {d.get('name')!r}: {exc}")
         if d.get("op") == "age_standardized":
             _age_standardized_errors(d, errors)
         for r in _derivation_refs(d):
@@ -306,7 +312,7 @@ def _check_analysis(i, a, manifest, names, ext_names, ids, folded_ids,
     if method in REPLICATE_METHODS and a.get("replicates") == "required":
         needs_replicates.append(str(a.get("id")))
     for req in ANALYSIS_METHODS[method][0]:
-        if req not in a:
+        if req not in a and not any(key==req and alternative in a for key,alternative in METHODS[method].required_alternatives):
             errors.append(f"analyses[{i}] ({method}): {req!r} is required")
     from ..splines import has_spline, spline_formula, JOINT_WALD_VALIDATED
     if has_spline(a.get("formula", "")):

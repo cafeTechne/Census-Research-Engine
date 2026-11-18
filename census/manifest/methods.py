@@ -23,6 +23,7 @@ class MethodSpec:
     default_target: str = "population"
     optional: Tuple[str, ...] = ()
     format_text: Optional[Callable[..., str]] = None
+    required_alternatives: Tuple[Tuple[str, str], ...] = ()
 
 def _run_fit_replicate(a, args, frame, level, replicates, correction, ctx):
     from .. import correlation, models, multitest, sae, trends
@@ -34,7 +35,19 @@ def _run_fit_replicate(a, args, frame, level, replicates, correction, ctx):
         fixed_vars += [v for v in _formula_names(a["formula"].split("~")[0]) if v not in fixed_vars]
     if fixed_vars:
         args["fixed_variables"] = fixed_vars
-    return models.fit_replicate(a["formula"], frame, replicates=replicates, confidence_level=level, **args)
+    result = models.fit_replicate(a["formula"], frame, replicates=replicates, confidence_level=level, **args)
+    outcome = str(a["formula"]).split("~")[0].strip()
+    parent = next((n for n in ctx.get("wonder_names",()) if outcome in (n,n+"_numerator")),None)
+    if parent:
+        from ..wonder_outputs import suppression_info
+        info = suppression_info(frame,parent)
+        result.diagnostics["wonder_suppression"] = info
+        if info["excluded_counties"]:
+            result.notes.append(f"WONDER complete-case exclusions: {info['suppressed_counties']}; excluded deaths bounded by {info['excluded_deaths_bounds']}, not imputed.")
+            result.diagnostics["deviations"] = [{"kind":"wonder_suppressed","geoid":g,"detail":"Suppressed county excluded from regression."} for g in info["suppressed_counties"]]
+        if args.get("exposure"):
+            result.notes.append(f"Exposure {args['exposure']} held fixed in every replicate; offset/reference-rate uncertainty is excluded from this regression; reference-aware SMR intervals are the sensitivity check.")
+    return result
 
 def _run_fit_eiv(a, args, frame, level, replicates, correction, ctx):
     from .. import correlation, models, multitest, sae, trends
@@ -232,7 +245,8 @@ def _check_fit_replicate(stage, ctx):
                 errors.append(f"{glm} not validated for external outcomes (PLAN_ROUND_22 out of scope)")
             if glm == "binomial" and aargs.get("trials") != parent + "_denominator":
                 errors.append(f"external binomial outcome requires trials '{parent}_denominator'; effective trials refused")
-            if glm == "poisson" and (count_outcome is None or aargs.get("exposure") != parent + "_denominator"):
+            expected_offset = any(d.get("op")=="expected_count" and d.get("name")==aargs.get("exposure") for d in manifest.get("derivations",[]))
+            if glm == "poisson" and (count_outcome is None or (aargs.get("exposure") != parent + "_denominator" and not expected_offset)):
                 errors.append(f"external poisson needs {parent}_numerator outcome and exposure '{parent}_denominator'")
             if glm in ("binomial", "poisson") and aargs.get("scale") is None and aargs.get("spatial_se") is None and clusters is None:
                 errors.append("overdispersion would be ignored: set scale 'robust'")
@@ -312,6 +326,12 @@ def _run_smr(a, args, frame, level, replicates, correction, ctx):
     from ..results import precheck_replicates, stochastic_variables, IncompleteReplicatesError
     bands = a["population_bands"]
     input_rows = len(frame)
+    original = frame
+    parent = next((n for n in ctx.get("wonder_names",()) if a["observed"] in (n,n+"_numerator")),None)
+    rates, counts = a.get("reference_rates"), a.get("reference_counts")
+    if a.get("reference_export") is not None:
+        from ..wonder_reference import resolve_reference_export
+        rates, counts, _ = resolve_reference_export(a["reference_export"],a.get("period_years",1),bands)
     frame = frame.dropna(subset=[a["observed"]]+bands)
     mats, held = _replicate_matrices(frame, replicates, bands) if replicates is not None else ({}, {})
     precheck_replicates("strict", rows_held_fixed=held,
@@ -323,11 +343,18 @@ def _run_smr(a, args, frame, level, replicates, correction, ctx):
     observed = pd.Series(frame[a["observed"]].to_numpy(float), index=idx)
     populations = frame[bands].set_axis(idx)
     try:
-        result = indirect_standardize(observed, populations, a["reference_rates"], reps, level,
-                                      period_years=a.get("period_years",1), reference_counts=a.get("reference_counts"))
+        result = indirect_standardize(observed, populations, rates, reps, level,
+                                      period_years=a.get("period_years",1), reference_counts=counts)
         if len(frame) != input_rows:
             note = f"Complete-case analysis excluded {input_rows-len(frame)} area row(s) with missing observed counts or populations."
             result["notes"] = result["notes"].map(lambda notes: notes+[note])
+        if parent:
+            from ..wonder_outputs import suppression_info
+            info = suppression_info(original,parent)
+            if info["excluded_counties"]:
+                note = f"Suppressed counties excluded: {info['suppressed_counties']}; excluded deaths bounded by {info['excluded_deaths_bounds']}. Pooled totals are complete-case only."
+                result["notes"] = result["notes"].map(lambda notes: notes+[note])
+                result.attrs["deviations"] = [{"kind":"wonder_suppressed","geoid":g,"detail":"Suppressed county excluded; no per-county SMR reported."} for g in info["suppressed_counties"]]
         return result
     except ValueError as exc:
         if reps is not None and "replicate" in str(exc):
@@ -420,7 +447,16 @@ def _check_smr(stage, ctx):
         errors.append(prefix+"population_bands must be a non-empty list of manifest variables")
     elif len(set(bands)) != len(bands):
         errors.append(prefix+"population_bands must not repeat a band")
-    if (not isinstance(rates, list) or not rates or not isinstance(bands, list) or len(rates) != len(bands)
+    reference_export = a.get("reference_export")
+    if reference_export is not None:
+        if "reference_rates" in a or a.get("reference_counts") is not None:
+            errors.append(prefix+"reference_export is an alternative to literal reference_rates/reference_counts, not an override")
+        try:
+            from ..wonder_reference import resolve_reference_export
+            resolve_reference_export(reference_export,a.get("period_years",1),bands,validate_only=True)
+        except (ValueError, OSError, TypeError) as exc:
+            errors.append(prefix+str(exc))
+    if reference_export is None and (not isinstance(rates, list) or not rates or not isinstance(bands, list) or len(rates) != len(bands)
             or not all(type(r) in (int,float) and np.isfinite(r) and r>0 for r in rates)):
         errors.append(prefix+"reference_rates must be finite positive numbers, one per population band")
     period=a.get("period_years",1)
@@ -431,6 +467,10 @@ def _check_smr(stage, ctx):
         from ..standardize import SMR_REFERENCE_VALIDATED
         if not isinstance(counts,list) or not isinstance(bands,list) or len(counts)!=len(bands) or not all(type(d) is int and d>0 for d in counts):
             errors.append(prefix+"reference_counts must be positive integers, one per band; zero reference deaths refused")
+        if not SMR_REFERENCE_VALIDATED and not ctx["manifest"].get("exploratory",False):
+            errors.append(prefix+"SMR reference-rate uncertainty failed or lacks validation; exploratory only")
+    if reference_export is not None:
+        from ..standardize import SMR_REFERENCE_VALIDATED
         if not SMR_REFERENCE_VALIDATED and not ctx["manifest"].get("exploratory",False):
             errors.append(prefix+"SMR reference-rate uncertainty failed or lacks validation; exploratory only")
     source = a.get("reference_source")
@@ -509,6 +549,8 @@ def _check_segregation(stage, ctx):
 
 def _text_smr(a, text):
     period=a.get("period_years",1);counts=a.get("reference_counts")
+    if a.get("reference_export") is not None:
+        counts = "from pinned reference export"
     if period==1 and counts is None:
         return text
     return (f"Indirect SMR is observed/expected, E=period_years*sum_b population_b*rate_b; period_years={period}, "
@@ -680,7 +722,8 @@ METHODS: Dict[str, MethodSpec] = {
         replicate=True,
         external_outcome=True,
         check=_check_smr,
-        optional=("period_years", "reference_counts"), format_text=_text_smr,
+        optional=("period_years", "reference_counts", "reference_export"), format_text=_text_smr,
+        required_alternatives=(("reference_rates","reference_export"),),
         default_target="conservative",
         text=(
             'Indirect SMR is observed/expected, expected=sum_b population_b*reference_rate_b; pooling sums '

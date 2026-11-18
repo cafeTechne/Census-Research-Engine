@@ -224,3 +224,73 @@ def load_wonder_measure(path: str, sha256: str, measure: str, name: str,
     if exp.get("notes"):
         rec["notes"] = exp["notes"]
     return out, rec
+
+
+def read_wonder_reference(path, *, expected_sha256=None, state=None, validate_only=False):
+    """Read national age/sex manual TSV/TXT, with one common schema.
+
+    Rates are deaths/summed annual populations (per person-year). Under-one and
+    ages 1–4 combine before division. Not Stated ages are excluded and counted.
+    State references require an explicit state selector; a suppressed state cell
+    can pass registration validation but is refused at runtime. National
+    suppressed reference cells are always refused. No network access occurs.
+    """
+    from pathlib import Path
+    import re
+    from .wonder_reference import BANDS,band_order
+    file=Path(path);raw=file.read_bytes();sha=hashlib.sha256(raw).hexdigest()
+    if expected_sha256 is not None and sha!=str(expected_sha256).lower():raise WonderExportError('reference export SHA-256 differs from its registered bytes')
+    notes=[]
+    if file.suffix.lower() in ('.tsv','.txt'):
+        text=raw.decode('utf-8-sig');body,lines=_split_footer(text);footer=parse_footer(lines)
+        from .wonder_inventory import years_from_parameters
+        years=years_from_parameters(footer['parameters'])
+        source=pd.read_csv(io.StringIO('\n'.join(body)),sep='\t',dtype=str,keep_default_na=False)
+        is_state='State Code' in source
+        group=footer['parameters'].get('Group By','').lower().replace('gender','sex')
+        group_parts={x.strip() for x in group.split(';') if x.strip()}
+        wanted={'ten-year age groups','sex'}|({'state'} if is_state else set())
+        if group_parts!=wanted or 'County Code' in source:
+            raise WonderExportError('reference grouping must be national age/sex or preregistered state/age/sex')
+        if not is_state:
+            for key,value in footer['parameters'].items():
+                if any(word in key.lower() for word in ('location','county','state','region','division','urbanization')) and '*All*' not in value and value.strip() not in ('All','The United States'):
+                    raise WonderExportError('national reference file has a location filter')
+        if is_state:
+            if not isinstance(state,str) or not re.fullmatch(r'[0-9]{2}',state):raise WonderExportError('state reference rates require an explicitly preregistered two-digit state')
+            source=source[source['State Code'].str.zfill(2)==state]
+            if source.empty:raise WonderExportError('selected reference state is absent')
+        age=next((c for c in ('Ten-Year Age Groups','Ten-Year Age Group') if c in source),None)
+        sex=next((c for c in ('Sex','Gender') if c in source),None)
+        if not age or not sex or not {'Deaths','Population'}<=set(source):raise WonderExportError('age/sex reference requires Ten-Year Age Groups, Sex/Gender, Deaths and Population columns')
+        if 'Notes' in source:source=source[source.Notes.str.strip()!='Total']
+        rows=source.rename(columns={age:'age',sex:'sex','Deaths':'deaths','Population':'population'})[['age','sex','deaths','population']].copy()
+    else:raise WonderExportError('reference format must be TSV or TXT')
+    if state is not None and not is_state:raise WonderExportError('state selector requires a state-grouped reference file')
+    if not years or years!=list(range(min(years),max(years)+1)):raise WonderExportError('reference years must be explicit and contiguous')
+    original=len(rows);rows=rows[~rows.age.str.strip().str.lower().isin(('not stated','unknown','ns'))].copy()
+    dropped=original-len(rows)
+    if dropped:notes.append(f'Dropped {dropped} Not Stated age row(s).')
+    rows['sex']=rows.sex.str.strip().map({'Male':'M','Female':'F','M':'M','F':'F'})
+    if rows.sex.isna().any():raise WonderExportError('unexpected reference sex category')
+    deaths,supp,_=_num(rows.deaths);pop,_,_=_num(rows.population)
+    rows['deaths']=deaths;rows['population']=pop;rows['suppressed']=supp|(((deaths>=1)&(deaths<=9)) if is_state else False)
+    # National numeric counts are public; labelled suppressed cells are refused.
+    if rows.suppressed.any() and (not is_state or not validate_only):raise WonderExportError('suppressed reference cell refused; reference rates unavailable')
+    if not np.isfinite(pop).all() or (pop<=0).any():raise WonderExportError('reference populations/person-years must be present and positive')
+    if ((~rows.suppressed)&(~np.isfinite(deaths)|(deaths<0)|(deaths!=np.floor(deaths)))).any():raise WonderExportError('reference deaths must be nonnegative integer counts')
+    def age_code(label):
+        label=' '.join(str(label).strip().replace('–','-').split())
+        if label in ('< 1 year','Under 1 year','<1 year','1'):return '<1'
+        label=re.sub(r'\s+years?$','',label)
+        if label=='1-4':return '1-4'
+        if label in BANDS[1:]:return label
+        raise WonderExportError(f'unexpected ten-year reference age group {label!r}')
+    rows['source_age']=rows.age.map(age_code)
+    if rows.duplicated(['sex','source_age']).any():raise WonderExportError('duplicate reference age/sex rows')
+    expected={(s,a) for s in ('M','F') for a in ('<1','1-4',*BANDS[1:])}
+    if set(zip(rows.sex,rows.source_age))!=expected:raise WonderExportError('reference lacks complete ten-year age/sex coverage')
+    rows['band']=rows.source_age.replace({'<1':'0-4','1-4':'0-4'})
+    grouped=rows.groupby(['sex','band'],sort=False).agg(deaths=('deaths',lambda x:x.sum(min_count=len(x))),population=('population','sum'),suppressed=('suppressed','any'))
+    grouped=grouped.loc[band_order()].reset_index();grouped['rate']=grouped.deaths/grouped.population
+    return dict(rows=grouped,years=years,footer=footer,notes=notes,sha256=sha,path=str(file.resolve()),state=state)

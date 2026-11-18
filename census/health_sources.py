@@ -965,6 +965,7 @@ def load_external(
         groups.setdefault((e["source"], int(e["release"])), {})[_measure_key(e["source"], e["measure"])] = \
             str(e["name"])
     parts: List[pd.DataFrame] = []
+    wonder_geoids = {}
     prov: List[Dict[str, Any]] = []
     for (source, release), names in groups.items():
         if source == "places":
@@ -1005,10 +1006,14 @@ def load_external(
                                             str(e["measure"]), name, level)
             prov.append(_provenance("wonder", None, level, rec["dataset"], {str(e["measure"]).lower(): name},
                                     [rec["file"]], len(part), export=rec))
+            wonder_geoids[name] = part["GEOID"].astype(str).tolist()
             parts.append(part)
     wide: Optional[pd.DataFrame] = None
     for part in parts:
         wide = part if wide is None else wide.merge(part, on="GEOID", how="outer")
+    if wide is not None and wonder_geoids:
+        wide.attrs["wonder_source_geoids"] = wonder_geoids
+        wide.attrs["wonder_columns"] = list(wonder_geoids)
     return (wide if wide is not None else pd.DataFrame({"GEOID": []})), prov
 
 
@@ -1040,4 +1045,47 @@ def join_external(frame: pd.DataFrame, ext: pd.DataFrame, names: Sequence[str],
               "missing_share_by_variable": per_name,
               "examples_without_external": lacking[:20],
               "source_units_outside_frame": int((~ext["GEOID"].isin(frame["GEOID"].astype(str))).sum())}
+    wonder_names = list(ext.attrs.get("wonder_columns", ()))
+    if wonder_names:
+        if frame["GEOID"].duplicated().any() or ext["GEOID"].duplicated().any():
+            raise HealthSourceError("WONDER joins require unique county GEOIDs")
+        matched_masks = []; missing_masks = []; all_supp = np.zeros(len(out),bool)
+        per_variable = {}; unmatched_shares = {}; unsuppressed_missing = {}
+        for name in names:
+            finite = np.isfinite(out[name].to_numpy(float))
+            if name not in wonder_names:
+                matched_masks.append(finite); missing_masks.append(~finite)
+                continue
+            source_ids = ext.attrs.get("wonder_source_geoids", {}).get(name, ext["GEOID"].astype(str))
+            matched = out["GEOID"].astype(str).isin(set(source_ids)).to_numpy()
+            flag = out.get(name+"_flag",pd.Series(0,index=out.index)).fillna(0).to_numpy()
+            count = out.get(name+"_numerator",out[name]).to_numpy(float)
+            suppressed = matched & ((flag==2) | ((count>=1)&(count<=9)))
+            for col in [name,name+"_numerator",name+"_se",name+"_ci_lower",name+"_ci_upper"]:
+                if col in out:out.loc[suppressed,col]=np.nan
+            if name+"_flag" in out:out.loc[suppressed,name+"_flag"]=2
+            finite = np.isfinite(out[name].to_numpy(float))
+            missing = ~finite & ~suppressed
+            matched_masks.append(matched);missing_masks.append(missing);all_supp |= suppressed
+            n_supp = int((complete & suppressed).sum())
+            per_variable[name] = {"matched":int((complete & matched).sum()),"unmatched":int((complete & ~matched).sum()),
+                "suppressed":n_supp,"analyzable":int((complete & finite & matched).sum()),
+                "unsuppressed_missing":int((complete & matched & ~finite & ~suppressed).sum()),
+                "suppressed_geoids":out.loc[complete & suppressed,"GEOID"].astype(str).tolist(),
+                "excluded_deaths_bounds":[n_supp,9*n_supp]}
+            per_name[name] = float((complete & missing).sum()/n_complete) if n_complete else float("nan")
+            unmatched_shares[name] = float((complete & ~matched).sum()/n_complete) if n_complete else float("nan")
+            unsuppressed_missing[name] = per_variable[name]["unsuppressed_missing"]
+        any_missing = np.logical_or.reduce(missing_masks)
+        ids_matched = np.logical_and.reduce(matched_masks)
+        has = np.isfinite(out[list(names)].to_numpy(float)).all(axis=1)
+        lacking = out.loc[complete & any_missing,"GEOID"].astype(str).tolist()
+        record.update(matched_units=int((complete & ids_matched).sum()),unmatched_units=int((complete & ~ids_matched).sum()),
+                      suppressed_units=int((complete & all_supp).sum()),analyzable_units=int((complete & has).sum()),
+                      complete_units_without_external=len(lacking),missing_share=float(len(lacking)/n_complete) if n_complete else float("nan"),
+                      missing_share_by_variable=per_name,examples_without_external=lacking[:20],
+                      unmatched_share_by_variable=unmatched_shares,unsuppressed_missing_by_variable=unsuppressed_missing,
+                      wonder=per_variable)
+        out.attrs.update(frame.attrs)
+        out.attrs["wonder_columns"] = wonder_names
     return out, record

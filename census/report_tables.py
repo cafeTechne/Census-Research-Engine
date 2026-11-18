@@ -445,7 +445,7 @@ def results_bundle(
     folder: Union[str, Path], *, tables: Optional[Mapping[str, ReportTable]] = None,
     figures: Optional[Mapping[str, FigureSpec]] = None, methods: Optional[str] = None,
     results: Optional[Mapping[str, Any]] = None, provenance: Optional[Mapping[str, Any]] = None,
-    citation: str = "",
+    citation: str = "", wonder_policy: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Write one analysis's outputs into ``folder``:
 
@@ -465,6 +465,18 @@ def results_bundle(
     are checked together before bundle writes. Only the root bundle.json is
     excluded from the SHA-256 inventory, not same-named payloads below it.
     """
+    if wonder_policy:
+        import copy
+        from .wonder_outputs import sanitize_payload,sanitize_frame
+        results = {name:sanitize_payload(value,wonder_policy.get("results",{}).get(name,wonder_policy)) for name,value in (results or {}).items()}
+        safe_tables = {}
+        for name,table in (tables or {}).items():
+            table = copy.copy(table)
+            scope = wonder_policy.get("results",{}).get(name,wonder_policy)
+            table.data = sanitize_frame(table.data,scope)
+            table.display = sanitize_frame(table.display,scope)
+            safe_tables[name] = table
+        tables = safe_tables
     for items in (tables, figures, results):
         _artifact_names(items or {})
     root = _require_empty_bundle(folder)
@@ -476,11 +488,26 @@ def results_bundle(
         for name, spec in (figures or {}).items():
             if isinstance(spec, tuple):
                 func, kwargs = spec
+                if wonder_policy:
+                    from .wonder_outputs import sanitize_payload
+                    scope = wonder_policy.get("figures",{}).get(name,wonder_policy)
+                    kwargs = sanitize_payload(kwargs,scope)
+                    if name in wonder_policy.get("figures",{}) and not any(isinstance(v,pd.DataFrame) and "GEOID" in v for v in kwargs.values()):
+                        raise ValueError("WONDER figures require GEOID-labelled source data for disclosure control")
                 staging = Path(scratch.enter_context(TemporaryDirectory(prefix="census-bundle-figure-")))
                 out = func(**dict(kwargs, out_dir=staging, name=name))
             else:
+                if wonder_policy and name in wonder_policy.get("figures",{}):
+                    raise ValueError("pre-rendered WONDER county figures cannot be verified; provide a render function and labelled data")
                 out = spec
             files_for_figure = _figure_files(name, out)
+            if wonder_policy and name in wonder_policy.get("figures",{}):
+                from .wonder_outputs import sanitize_frame
+                scope = wonder_policy["figures"][name]
+                for source, _ in files_for_figure.values():
+                    if Path(source).suffix.lower() == ".csv":
+                        values = pd.read_csv(source,dtype={"GEOID":str})
+                        sanitize_frame(values,scope).to_csv(source,index=False)
             for source, target in files_for_figure.values():
                 if target.casefold() in occupied:
                     raise ValueError(f"Figure destination filename collision: {target!r}")
