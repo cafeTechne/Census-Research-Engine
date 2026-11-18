@@ -169,10 +169,12 @@ def age_adjusted_interval(cases: Sequence[float], populations: Sequence[float], 
 
 
 # Set only from the pre-specified simulation report.
+SMR_REFERENCE_VALIDATED = True  # criterion 134bf7f; docs/audits/smr_reference_validation.md
 SMR_VALIDATED = True  # docs/audits/smr_validation.md (680707e criterion)
 
 
-def indirect_standardize(observed, band_populations, reference_rates, band_replicates=None, level=0.90):
+def indirect_standardize(observed, band_populations, reference_rates, band_replicates=None, level=0.90,
+                         *, period_years=1, reference_counts=None):
     """Indirect SMR and fixed-expected Garwood / combined log-Wald intervals.
 
     ``observed`` is a GEOID-indexed Series of nonnegative integer counts;
@@ -183,8 +185,14 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
     requires nonnegative band replicates; negative ACS band perturbations are
     refused even when their total expected count would remain positive. The returned final GEOID
     ``all`` pools counts and expected counts BEFORE computing uncertainty.
-    Rates are fixed; their uncertainty and between-area dependence are not
-    covered. At O=0 only the exact fixed-E interval is defined.
+    Rates are per person-year; period_years multiplies expected counts and every
+    replicate. Optional positive integer reference_counts adds independent-Poisson
+    reference-rate uncertainty. Reference person-years must be treated as fixed.
+    Shared reference uncertainty is pooled by band before squaring, not averaged
+    as independent area uncertainty. For an internal reference, ignoring positive
+    study/reference covariance makes intervals conservative (not refused).
+    At O=0 only the exact fixed-E interval is defined. Fixed-E exact intervals do
+    not incorporate population or reference-rate uncertainty.
     """
     import pandas as pd
     from scipy.stats import chi2, norm
@@ -205,23 +213,44 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
         raise ValueError("observed counts must be finite nonnegative integers")
     if not np.isfinite(pop).all() or (pop < 0).any():
         raise ValueError("band populations must be finite and nonnegative")
-    e = pop@rates
-    if (e <= 0).any():
+    if isinstance(period_years, (bool, np.bool_)) or not isinstance(period_years, (int, np.integer)) or period_years <= 0:
+        raise ValueError("period_years must be a positive integer")
+    reference = None
+    if reference_counts is not None:
+        reference = np.asarray(reference_counts)
+        if (reference.ndim != 1 or reference.size != rates.size or reference.dtype.kind not in "iuf"
+                or any(isinstance(d,(bool,np.bool_)) for d in np.asarray(reference_counts,dtype=object).flat)
+                or not np.isfinite(reference).all() or (reference <= 0).any()
+                or (reference != np.floor(reference)).any()):
+            raise ValueError("reference_counts must be positive integers, one per population band; zero reference deaths refused")
+        reference = reference.astype(float)
+    e = period_years*(pop@rates)
+    if not np.isfinite(e).all() or (e <= 0).any():
         raise ValueError("expected counts must be positive")
     notes = ["Reference rates fixed; exact Garwood interval conditions on expected counts."]
+    if period_years != 1:
+        notes.append(f"Reference rates are per person-year; expected counts multiply band populations by period_years={period_years}.")
+    if reference is not None:
+        notes[0] = "Combined log interval includes independent-Poisson reference-rate uncertainty; exact Garwood interval still conditions on expected counts."
+        notes.append("Reference person-years are treated as fixed. For internal standardization (study areas included in the reference population), ignoring positive study/reference covariance makes the combined interval conservative; no refusal.")
     o, e = np.r_[o, o.sum()], np.r_[e, e.sum()]
     ve = np.zeros(len(o))
     if band_replicates is not None:
         rep = np.asarray(band_replicates, float)
         if rep.shape != (*pop.shape, 80) or not np.isfinite(rep).all() or (rep < 0).any():
             raise ValueError("band_replicates must be finite nonnegative (areas, bands, 80)")
-        er = np.einsum("abr,b->ar", rep, rates)
+        er = period_years*np.einsum("abr,b->ar", rep, rates)
         er = np.vstack((er, er.sum(axis=0)))
         if (er <= 0).any():
             raise ValueError("replicate expected counts must be positive")
         ve = .05*np.sum((np.log(er)-np.log(e[:, None]))**2, axis=1)
     else:
         notes.append("No band replicates: expected-count uncertainty set to zero.")
+    reference_variance = np.zeros(len(o))
+    if reference is not None:
+        components = period_years*pop*rates
+        components = np.vstack((components, components.sum(axis=0)))
+        reference_variance = np.sum((components/e[:,None])**2/reference, axis=1)
     alpha = 1-level
     lower = np.zeros(len(o)); positive = o > 0
     lower[positive] = chi2.ppf(alpha/2, 2*o[positive])/(2*e[positive])
@@ -229,11 +258,15 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
     smr = o/e
     log, se, lo, hi, p = (np.full(len(o), np.nan) for _ in range(5))
     log[positive] = np.log(smr[positive])
-    se[positive] = np.sqrt(1/o[positive]+ve[positive])
+    se[positive] = np.sqrt(1/o[positive]+ve[positive]+reference_variance[positive])
     z = norm.ppf(1-alpha/2)
     lo[positive], hi[positive] = np.exp(log[positive]-z*se[positive]), np.exp(log[positive]+z*se[positive])
     p[positive] = 2*norm.sf(np.abs(log[positive]/se[positive]))
     rownotes = [notes+([] if pos else ["O=0: combined log interval and Wald test undefined."]) for pos in positive]
-    return pd.DataFrame(dict(GEOID=list(observed.index.astype(str))+["all"], observed=o, expected=e,
+    result = pd.DataFrame(dict(GEOID=list(observed.index.astype(str))+["all"], observed=o, expected=e,
                              smr=smr, log_smr=log, se_log_smr=se, smr_lower=lo, smr_upper=hi,
                              smr_exact_lower=lower, smr_exact_upper=upper, p_value=p, notes=rownotes))
+    if reference is not None or period_years != 1:
+        result["period_years"] = int(period_years)
+        result["variance_log_reference"] = reference_variance
+    return result
