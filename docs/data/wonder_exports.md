@@ -1,9 +1,12 @@
 # CDC WONDER exports: what to download and where to put it
 
-**For the owner, done by hand.** The engine never automates WONDER: county data comes only through the
-web form, and the data-use agreement and bot checks rule out scripting. This page lists the exports
+**For the owner, done by hand: county files only.** WONDER's official API
+(<https://wonder.cdc.gov/wonder/help/wonder-api.html>) serves national data only: it cannot group or
+filter deaths by state or county. From Round 29 the engine fetches the national age × sex reference files
+itself through that API, throttled, once you confirm you accept the data-use restrictions. County data
+still come only through the web form, which is never automated. This page lists the county exports
 Rounds 29 and later will use, the exact form settings the parser needs, and the folder layout. Work
-through the tiers in order; Tier 1 alone unblocks Round 29.
+through the tiers in order; three Tier 1 files alone unblock Round 29.
 
 ## Before you start
 
@@ -44,11 +47,11 @@ export change only the cause.
 ```text
 external_data/wonder/
   ucd/2018-2022/county/<cause>.txt              Group by: County
-  ucd/2018-2022/national_age_sex/<cause>.txt    Group by: Ten-Year Age Groups, Sex
-  ucd/2018-2022/state_age_sex/<cause>.txt       Group by: State, Ten-Year Age Groups, Sex
+  ucd/2018-2022/national_age_sex/<cause>.xml    written by the API fetch (manual .txt only as fallback)
+  ucd/2018-2022/state_age_sex/<cause>.txt       Group by: State, Ten-Year Age Groups, Sex (later; optional)
   ucd/2013-2017/...                             same three folders (Tier 2)
   mcd/2018-2022/county/<drug>.txt               Multiple Cause of Death (Tier 2)
-  mcd/2018-2022/national_age_sex/<drug>.txt
+  mcd/2018-2022/national_age_sex/<drug>.xml     API fetch (manual .txt as fallback)
   natality/2018-2022/{state,county}/<measure>.txt   (Tier 3)
   infant_deaths/2018-2022/state/all_causes.txt      (Tier 3)
 ```
@@ -58,9 +61,14 @@ match the years ticked in the form; the inventory check (below) compares them wi
 
 ## Tier 1: unblocks Round 29 (2018–2022, the same years as the ACS 2018–2022 release)
 
-Make three exports per cause (county, national by age and sex, state by age and sex), except
-`premature_all_causes`, which is county only: its age-specific reference rates come from
-`all_causes`. That is 22 files.
+Export **County only**, one file per cause. The national age × sex files come from the API (Round 29,
+Part A0). State × age × sex files are not needed for Round 29; skip them for now.
+
+- **Required for Round 29:** `premature_all_causes`, `drug_overdose` and `heart_disease` (3 files).
+- **Recommended** for later studies: the other five causes (5 files).
+- **Fallback:** if the API turns out not to serve this database, Round 29 will ask you for the national
+  age × sex files by hand (Group by: Ten-Year Age Groups, Sex) for `all_causes`, `drug_overdose` and
+  `heart_disease`.
 
 | `<cause>` | Section 6 selection (ICD-10 113 Cause List unless noted) |
 | :--- | :--- |
@@ -75,7 +83,7 @@ Make three exports per cause (county, national by age and sex, state by age and 
 
 ## Tier 2: worth having (do after Tier 1)
 
-**a. More causes, 2018–2022.** Same three exports per cause (18 files):
+**a. More causes, 2018–2022.** County exports only (6 files); national files come from the API:
 
 | `<cause>` | Selection |
 | :--- | :--- |
@@ -87,7 +95,8 @@ Make three exports per cause (county, national by age and sex, state by age and 
 | `firearm` | "Injury Mechanism & All Other Leading Causes": Firearm (all intents) |
 
 **b. The 2013–2017 window** (bridged-race database, 1999–2020), for change analyses matched to ACS
-2013–2017: Tier 1's 22 files again under `ucd/2013-2017/`.
+2013–2017: Tier 1's county files again under `ucd/2013-2017/`
+(national files come from the API).
 
 **c. Drug involvement, 2018–2022** (Multiple Cause of Death, single race). Underlying cause = the
 `drug_overdose` codes above, **and** a multiple cause containing:
@@ -99,7 +108,8 @@ Make three exports per cause (county, national by age and sex, state by age and 
 | `cocaine` | T40.5 |
 | `psychostimulant` | T43.6 (mostly methamphetamine) |
 
-Export County and national by age and sex for each (8 files). Expect heavy county suppression;
+Export County for each (4 files); national files come from the API if it serves the Multiple Cause
+database, otherwise by hand. Expect heavy county suppression;
 Round 27's smoothing handles it.
 
 ## Tier 3: optional, later
@@ -137,5 +147,6 @@ It checks structure only and computes no associations.
 
 ## Rough effort
 
-Tier 1 is 22 exports at a couple of minutes each, once the form is set up. Tier 2 is about 48 more.
-Tier 3 is about 11.
+Round 29 needs 3 county exports (a couple of minutes each, once the form is set up); all of Tier 1 is
+8. Tier 2 is about 18 more, and Tier 3 about 11. The API fetch of the national files runs unattended,
+one query every two minutes.

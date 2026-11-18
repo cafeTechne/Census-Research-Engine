@@ -321,6 +321,9 @@ def _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites):
                                      f"`{args['cluster']}` (G/(G-1) small-sample factor; validated by simulation, "
                                      "docs/audits/eiv_cluster_validation.md)" if args.get("cluster")
                                      else "sandwich SEs treating units as independent"))
+        formatter = METHODS[a["method"]].format_text
+        if formatter is not None:
+            text = formatter(a, text)
         clusters = args.get("spatial_clusters")
         if clusters is not None:
             from scipy.stats import t as student_t

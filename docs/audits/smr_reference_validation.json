@@ -1,0 +1,86 @@
+{
+  "criterion": "Combined nominal 90% true-SMR coverage >= .86 in all six cells with the Poisson reference term. Zeros and invalid draws count as noncoverage; no-reference coverage informational.",
+  "passed": true,
+  "cells": [
+    {
+      "cell": 0,
+      "reference_deaths_per_band": 50,
+      "expected": 10,
+      "band_cv": 0.05,
+      "period_years": 5,
+      "draws": 2000,
+      "seed": 20261130,
+      "coverage_with_reference": 0.9105,
+      "coverage_without_reference": 0.883,
+      "invalid_draws": 0,
+      "zero_observed": 0
+    },
+    {
+      "cell": 1,
+      "reference_deaths_per_band": 50,
+      "expected": 100,
+      "band_cv": 0.05,
+      "period_years": 5,
+      "draws": 2000,
+      "seed": 20261131,
+      "coverage_with_reference": 0.901,
+      "coverage_without_reference": 0.724,
+      "invalid_draws": 0,
+      "zero_observed": 0
+    },
+    {
+      "cell": 2,
+      "reference_deaths_per_band": 500,
+      "expected": 10,
+      "band_cv": 0.05,
+      "period_years": 5,
+      "draws": 2000,
+      "seed": 20261132,
+      "coverage_with_reference": 0.909,
+      "coverage_without_reference": 0.907,
+      "invalid_draws": 0,
+      "zero_observed": 0
+    },
+    {
+      "cell": 3,
+      "reference_deaths_per_band": 500,
+      "expected": 100,
+      "band_cv": 0.05,
+      "period_years": 5,
+      "draws": 2000,
+      "seed": 20261133,
+      "coverage_with_reference": 0.8995,
+      "coverage_without_reference": 0.883,
+      "invalid_draws": 0,
+      "zero_observed": 0
+    },
+    {
+      "cell": 4,
+      "reference_deaths_per_band": 5000,
+      "expected": 10,
+      "band_cv": 0.05,
+      "period_years": 5,
+      "draws": 2000,
+      "seed": 20261134,
+      "coverage_with_reference": 0.905,
+      "coverage_without_reference": 0.905,
+      "invalid_draws": 0,
+      "zero_observed": 0
+    },
+    {
+      "cell": 5,
+      "reference_deaths_per_band": 5000,
+      "expected": 100,
+      "band_cv": 0.05,
+      "period_years": 5,
+      "draws": 2000,
+      "seed": 20261135,
+      "coverage_with_reference": 0.902,
+      "coverage_without_reference": 0.9,
+      "invalid_draws": 0,
+      "zero_observed": 0
+    }
+  ],
+  "criterion_commit": "134bf7f",
+  "script_sha256": "ae46c28238abe6b298f9bc36fadf2a67e6794067d1bd1915e873a1e94027d86e"
+}

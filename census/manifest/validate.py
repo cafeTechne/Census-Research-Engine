@@ -320,8 +320,11 @@ def _check_analysis(i, a, manifest, names, ext_names, ids, folded_ids,
         if not JOINT_WALD_VALIDATED and not manifest.get("exploratory", False):
             errors.append("cr spline failed or was not validated; exploratory only (docs/audits/joint_wald_validation.md)")
     used = _formula_names(a["formula"]) if a.get("formula") else []
-    for key in ("variables", "error_covariates"):
-        used += list(a.get(key) or [])
+    for key in ("variables", "error_covariates", "groups"):
+        values = a.get(key) or []
+        if key == "groups" and (not isinstance(values, list) or not all(isinstance(v, str) for v in values)):
+            continue  # the method check reports malformed groups without unhashable identifiers
+        used += list(values)
     for key in ("variable", "variable_1", "variable_2"):
         if a.get(key):
             used.append(a[key])

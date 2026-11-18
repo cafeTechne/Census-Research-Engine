@@ -51,6 +51,9 @@ FIPS2_RE = re.compile(r"^\d{2}$")
 FORMULA_FUNCTIONS = {"cr", "C", "I", "np", "log", "exp", "sqrt", "center", "standardize", "scale", "Q"}
 
 REFERENCES = {
+    "duncan": "Duncan, O.D. & Duncan, B. (1955). American Sociological Review 20:210–217.",
+    "massey": "Massey, D.S. & Denton, N.A. (1988). Social Forces 67:281–315.",
+    "reardon": "Reardon, S.F. & Firebaugh, G. (2002). Sociological Methodology 32:33–67.",
     "cluster_bch": "Bester, C.A., Conley, T.G. & Hansen, C.B. (2011). Inference with dependent data using cluster covariance estimators. Journal of Econometrics 165:137-151.",
     "cluster_im": "Ibragimov, R. & Müller, U.K. (2010). t-Statistic Based Correlation and Heterogeneity Robust Inference. JBES 28:453-468.",
     "cluster_wcr": "Kline, P. & Santos, A. (2012). A Score Based Approach to Wild Bootstrap Inference. Journal of Econometric Methods 1:23-41. https://eml.berkeley.edu/~pkline/papers/ScoreFinal_web.pdf",
@@ -215,7 +218,7 @@ _SPEC_KEYS = ("formula", "error_covariates", "variables", "variable", "geoid", "
 
 def _spec_keys(a):
     spec = METHODS.get(a.get("method"))
-    return tuple(dict.fromkeys(_SPEC_KEYS + (spec.required if spec else ())))
+    return tuple(dict.fromkeys(_SPEC_KEYS + (spec.required + spec.optional if spec else ())))
 
 
 def _normalize_analysis(a: Mapping[str, Any]) -> Dict[str, Any]:

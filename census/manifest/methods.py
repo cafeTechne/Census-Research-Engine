@@ -21,6 +21,8 @@ class MethodSpec:
     check: Optional[Callable[..., Any]] = None
     text: Optional[Tuple[str, List[str]]] = None
     default_target: str = "population"
+    optional: Tuple[str, ...] = ()
+    format_text: Optional[Callable[..., str]] = None
 
 def _run_fit_replicate(a, args, frame, level, replicates, correction, ctx):
     from .. import correlation, models, multitest, sae, trends
@@ -321,7 +323,8 @@ def _run_smr(a, args, frame, level, replicates, correction, ctx):
     observed = pd.Series(frame[a["observed"]].to_numpy(float), index=idx)
     populations = frame[bands].set_axis(idx)
     try:
-        result = indirect_standardize(observed, populations, a["reference_rates"], reps, level)
+        result = indirect_standardize(observed, populations, a["reference_rates"], reps, level,
+                                      period_years=a.get("period_years",1), reference_counts=a.get("reference_counts"))
         if len(frame) != input_rows:
             note = f"Complete-case analysis excluded {input_rows-len(frame)} area row(s) with missing observed counts or populations."
             result["notes"] = result["notes"].map(lambda notes: notes+[note])
@@ -420,9 +423,110 @@ def _check_smr(stage, ctx):
     if (not isinstance(rates, list) or not rates or not isinstance(bands, list) or len(rates) != len(bands)
             or not all(type(r) in (int,float) and np.isfinite(r) and r>0 for r in rates)):
         errors.append(prefix+"reference_rates must be finite positive numbers, one per population band")
+    period=a.get("period_years",1)
+    if type(period) is not int or period<=0:
+        errors.append(prefix+"period_years must be a positive integer")
+    counts=a.get("reference_counts")
+    if counts is not None:
+        from ..standardize import SMR_REFERENCE_VALIDATED
+        if not isinstance(counts,list) or not isinstance(bands,list) or len(counts)!=len(bands) or not all(type(d) is int and d>0 for d in counts):
+            errors.append(prefix+"reference_counts must be positive integers, one per band; zero reference deaths refused")
+        if not SMR_REFERENCE_VALIDATED and not ctx["manifest"].get("exploratory",False):
+            errors.append(prefix+"SMR reference-rate uncertainty failed or lacks validation; exploratory only")
     source = a.get("reference_source")
     if not isinstance(source, str) or not source.strip():
         errors.append(prefix+"reference_source must be a non-empty citation string")
+
+
+def _run_segregation(a, args, frame, level, replicates, correction, ctx):
+    from ..segregation import segregation_replicate
+    return segregation_replicate(frame, a["groups"], replicates, within=a["within"], level=level,
+                                 bias_correction=args.get("bias_correction"))
+
+
+def _stat_segregation(h, res):
+    from ..segregation import segregation_test
+    return segregation_test(res,h["statistic"],h["geoid"],null_value=h.get("null_value"),
+                            compare_geoid=h.get("compare_geoid"),release=h.get("release"),
+                            compare_release=h.get("compare_release"))
+
+
+def _check_segregation(stage, ctx):
+    if stage == "spatial":
+        return _check_spatial(stage,ctx)
+    if stage not in ("hypothesis", "before_spatial"):
+        return
+    from ..segregation import SEGREGATION_VALIDATED, DEFAULT_BIAS_CORRECTION
+    from .schema import manifest_releases, release_overlap_message
+    a, manifest, errors = ctx["a"], ctx["manifest"], ctx["errors"]
+    args=a.get("args") or {}; groups=a.get("groups")
+    if stage == "before_spatial":
+        if not isinstance(groups,list) or len(groups)<2 or not all(isinstance(g,str) and g in ctx["names"] for g in groups):
+            errors.append("segregation groups must be at least two distinct tract manifest variables")
+        elif len(set(groups))!=len(groups):
+            errors.append("segregation groups must be distinct")
+        if a.get("within")!="county" or manifest.get("geography",{}).get("level")!="tract" or manifest.get("aggregation"):
+            errors.append("segregation requires tract geography, within county, and no pre-aggregation; metro/CBSA unsupported")
+        if set(args)-{"bias_correction"}:
+            errors.append(f"segregation does not take args {sorted(set(args)-{'bias_correction'})}")
+        if args.get("bias_correction") is not None and type(args["bias_correction"]) is not bool:
+            errors.append("segregation bias_correction must be boolean")
+        overlap=release_overlap_message(manifest_releases(manifest),"segregation releases")
+        if overlap:errors.append(overlap)
+        return
+    h=ctx["h"];stat=h.get("statistic");releases=manifest_releases(manifest)
+    for key in ("geoid","compare_geoid"):
+        val=h.get(key)
+        if key=="geoid" or val is not None:
+            if not isinstance(val,str) or len(val)!=5 or not val.isascii() or not val.isdigit():
+                errors.append(f"segregation {key} must be a five-digit county GEOID")
+    for key in ("term","variable"):
+        if key in h:errors.append("segregation hypotheses name statistic and county, not term/variable")
+    if stat in ("dissimilarity","isolation") and (not isinstance(groups,list) or len(groups)!=2):
+        errors.append(f"segregation {stat} requires exactly two groups")
+    contrast=h.get("compare_geoid") is not None or h.get("compare_release") is not None
+    val=h.get("null_value")
+    if (not contrast and val is None) or (val is not None and (type(val) not in (int,float) or not np.isfinite(val))):
+        errors.append("segregation one-area test requires a finite pre-registered null_value; contrasts default to zero")
+    for key in ("release","compare_release"):
+        year=h.get(key)
+        if year is not None and (type(year) is not int or year not in releases):
+            errors.append(f"segregation {key} must name a declared release integer")
+    if len(releases)>1 and h.get("release") is None:
+        errors.append("segregation hypotheses over multiple releases require an explicit release selector")
+    if h.get("compare_release") is not None and h.get("release") is None:
+        errors.append("segregation compare_release also requires release")
+    if contrast and h.get("geoid")==h.get("compare_geoid",h.get("geoid")) and h.get("release")==h.get("compare_release",h.get("release")):
+        errors.append("segregation cannot compare an area/release with itself")
+    if isinstance(stat,str) and stat in SEGREGATION_VALIDATED:
+        corrected=args.get("bias_correction")
+        if corrected is None: corrected=DEFAULT_BIAS_CORRECTION[stat]
+        variant="bias_corrected" if corrected else "naive"
+        passed=SEGREGATION_VALIDATED[stat][variant] and isinstance(groups,list) and len(groups)==2
+        if not passed and not manifest.get("exploratory",False):
+            errors.append(f"segregation {stat}/{variant}/group count failed or lacks coverage validation; exploratory only")
+
+
+def _text_smr(a, text):
+    period=a.get("period_years",1);counts=a.get("reference_counts")
+    if period==1 and counts is None:
+        return text
+    return (f"Indirect SMR is observed/expected, E=period_years*sum_b population_b*rate_b; period_years={period}, "
+            f"rates per person-year. Reference: {a['reference_source']}. Pool counts, expected counts and band contributions first. "
+            "Tests use log SMR with 1/O + 4/80 sum(log E_r-log E)^2"
+            + (" + sum_b (E_b/E)^2/D_b for independent Poisson reference deaths. " if counts is not None else ". Reference rates are fixed. ")
+            + ("Reference person-years are fixed. Shared rates induce covariance between areas; pooled band weights are squared after pooling. "
+               "For internal standardization, ignoring positive study/reference covariance makes intervals conservative. "
+               if counts is not None else "Reference-rate uncertainty is excluded. ")
+            + "Exact Garwood limits condition on E and exclude both population and reference-rate uncertainty; O=0 has no log-Wald test. "
+            "Absent ACS replicates the population component is zero, noted. Spatial dependence is excluded.")
+
+
+def _text_segregation(a, text):
+    from ..segregation import DEFAULT_BIAS_CORRECTION
+    specified=(a.get("args") or {}).get("bias_correction")
+    versions=", ".join(f"{name}: {'bias-corrected' if (DEFAULT_BIAS_CORRECTION[name] if specified is None else specified) else 'naive'}" for name in DEFAULT_BIAS_CORRECTION)
+    return text+" Chosen versions: "+versions+". Groups: "+", ".join(a["groups"])+"."
 
 
 METHODS: Dict[str, MethodSpec] = {
@@ -552,11 +656,31 @@ METHODS: Dict[str, MethodSpec] = {
             ['pamuk', 'kakwani', 'vre', 'statsmodels'],
         ),
     ),
+    'segregation': MethodSpec(
+        "segregation", ("groups", "within"), ("dissimilarity", "isolation", "theil_h"), _run_segregation,
+        replicate=True, check=_check_segregation, default_target="these_areas", format_text=_text_segregation,
+        text=(
+            "Tract group counts were aggregated within counties. Dissimilarity D is half the sum of absolute "
+            "group tract-share differences; isolation xPx is the group-one weighted tract group-one share; "
+            "Theil H is population-weighted between-tract entropy divided by county entropy (natural logs). "
+            "Declared groups are mutually exclusive and their sum defines tract population. Zero-total tracts "
+            "are excluded in each refit; absent county groups make indices undefined. Sampling SE is sqrt(4/80 "
+            "sum(I_r-I)^2) using 80 complete tract-count replicates, with no negative-count clipping. "
+            "When selected, the fixed bias correction is I-4*(mean(I_r)-I), using the same SE and unbounded "
+            "normal intervals. County contrasts use per-replicate differences; independent non-overlapping "
+            "releases add variances, first area/release minus comparison. One-area tests require a registered "
+            "null_value. Only the passing two-group versions are confirmatory; multigroup H and failed "
+            "versions are exploratory. Counties with any tract group-count CV above .15, the validated "
+            "simulation range, are exploratory only; confirmatory tests on them are refused.",
+            ["duncan", "massey", "reardon", "vre"],
+        ),
+    ),
     'smr': MethodSpec(
         "smr", ("observed", "population_bands", "reference_rates", "reference_source"), ("log_smr",), _run_smr,
         replicate=True,
         external_outcome=True,
         check=_check_smr,
+        optional=("period_years", "reference_counts"), format_text=_text_smr,
         default_target="conservative",
         text=(
             'Indirect SMR is observed/expected, expected=sum_b population_b*reference_rate_b; pooling sums '
@@ -581,6 +705,9 @@ STATISTIC_EXTRACTORS = {
     "log_rii": _stat_inequality,
     "concentration_index": _stat_inequality,
     "log_smr": _stat_smr,
+    "dissimilarity": _stat_segregation,
+    "isolation": _stat_segregation,
+    "theil_h": _stat_segregation,
 }
 
 ANALYSIS_METHODS = {name: (spec.required, spec.statistics) for name, spec in METHODS.items()}

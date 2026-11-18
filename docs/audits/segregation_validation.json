@@ -1,0 +1,442 @@
+{
+  "criterion": "For each index and naive/bias_corrected version separately: nominal 90% coverage >= .86 in all four CV .15 cells; CV .30 informational. Invalid draws count as noncoverage.",
+  "passed": {
+    "dissimilarity": {
+      "naive": true,
+      "bias_corrected": false
+    },
+    "isolation": {
+      "naive": false,
+      "bias_corrected": true
+    },
+    "theil_h": {
+      "naive": false,
+      "bias_corrected": true
+    }
+  },
+  "default": {
+    "dissimilarity": "naive",
+    "isolation": "bias_corrected",
+    "theil_h": "bias_corrected"
+  },
+  "cells": [
+    {
+      "cell": 0,
+      "n_tracts": 20,
+      "true_dissimilarity": 0.2,
+      "group_cv": 0.15,
+      "seed": 20261129,
+      "draws": 1000,
+      "true_indices": {
+        "dissimilarity": 0.2,
+        "isolation": 0.52,
+        "theil_h": 0.029049405545331204
+      },
+      "invalid_draws": 0,
+      "statistics": {
+        "dissimilarity": {
+          "naive": {
+            "coverage": 0.9,
+            "bias": 0.0014807743230186526,
+            "mean_se_over_empirical_sd": 1.039435287813924
+          },
+          "bias_corrected": {
+            "coverage": 0.868,
+            "bias": -0.005353553834891834,
+            "mean_se_over_empirical_sd": 0.9097546123831796
+          }
+        },
+        "isolation": {
+          "naive": {
+            "coverage": 0.885,
+            "bias": 0.004709726709670209,
+            "mean_se_over_empirical_sd": 0.9954389466531347
+          },
+          "bias_corrected": {
+            "coverage": 0.886,
+            "bias": 0.00014197908234388134,
+            "mean_se_over_empirical_sd": 0.9540746093745552
+          }
+        },
+        "theil_h": {
+          "naive": {
+            "coverage": 0.93,
+            "bias": 0.006850276857363529,
+            "mean_se_over_empirical_sd": 1.1137416541083427
+          },
+          "bias_corrected": {
+            "coverage": 0.912,
+            "bias": -0.0003861781348213721,
+            "mean_se_over_empirical_sd": 1.0853093305688792
+          }
+        }
+      }
+    },
+    {
+      "cell": 1,
+      "n_tracts": 20,
+      "true_dissimilarity": 0.2,
+      "group_cv": 0.3,
+      "seed": 20261130,
+      "draws": 1000,
+      "true_indices": {
+        "dissimilarity": 0.19999999999999996,
+        "isolation": 0.5199999999999999,
+        "theil_h": 0.02904940554533121
+      },
+      "invalid_draws": 555,
+      "statistics": {
+        "dissimilarity": {
+          "naive": {
+            "coverage": 0.408,
+            "bias": 0.02786496366168134,
+            "mean_se_over_empirical_sd": 1.3799920978941627
+          },
+          "bias_corrected": {
+            "coverage": 0.384,
+            "bias": -0.026385493712489303,
+            "mean_se_over_empirical_sd": 0.9443705913040836
+          }
+        },
+        "isolation": {
+          "naive": {
+            "coverage": 0.385,
+            "bias": 0.017196756423727214,
+            "mean_se_over_empirical_sd": 1.1279666501449779
+          },
+          "bias_corrected": {
+            "coverage": 0.405,
+            "bias": -0.0039495520793831704,
+            "mean_se_over_empirical_sd": 1.0470260641508888
+          }
+        },
+        "theil_h": {
+          "naive": {
+            "coverage": 0.414,
+            "bias": 0.025599440043896915,
+            "mean_se_over_empirical_sd": 1.6733023774882654
+          },
+          "bias_corrected": {
+            "coverage": 0.433,
+            "bias": -0.008281777508939912,
+            "mean_se_over_empirical_sd": 1.563731580851774
+          }
+        }
+      }
+    },
+    {
+      "cell": 2,
+      "n_tracts": 20,
+      "true_dissimilarity": 0.5,
+      "group_cv": 0.15,
+      "seed": 20261131,
+      "draws": 1000,
+      "true_indices": {
+        "dissimilarity": 0.5,
+        "isolation": 0.625,
+        "theil_h": 0.1887218755408672
+      },
+      "invalid_draws": 0,
+      "statistics": {
+        "dissimilarity": {
+          "naive": {
+            "coverage": 0.911,
+            "bias": -0.0017427567905095394,
+            "mean_se_over_empirical_sd": 1.011845290962497
+          },
+          "bias_corrected": {
+            "coverage": 0.892,
+            "bias": -0.0012772557851991992,
+            "mean_se_over_empirical_sd": 0.9896871097662672
+          }
+        },
+        "isolation": {
+          "naive": {
+            "coverage": 0.886,
+            "bias": 0.002048153884498703,
+            "mean_se_over_empirical_sd": 1.015191937696028
+          },
+          "bias_corrected": {
+            "coverage": 0.877,
+            "bias": -0.0009286025942759533,
+            "mean_se_over_empirical_sd": 0.9883120298374302
+          }
+        },
+        "theil_h": {
+          "naive": {
+            "coverage": 0.899,
+            "bias": 0.004551006518301754,
+            "mean_se_over_empirical_sd": 1.028621759756477
+          },
+          "bias_corrected": {
+            "coverage": 0.896,
+            "bias": -0.001138443468916488,
+            "mean_se_over_empirical_sd": 0.9950369815499777
+          }
+        }
+      }
+    },
+    {
+      "cell": 3,
+      "n_tracts": 20,
+      "true_dissimilarity": 0.5,
+      "group_cv": 0.3,
+      "seed": 20261132,
+      "draws": 1000,
+      "true_indices": {
+        "dissimilarity": 0.5,
+        "isolation": 0.6249999999999999,
+        "theil_h": 0.18872187554086717
+      },
+      "invalid_draws": 524,
+      "statistics": {
+        "dissimilarity": {
+          "naive": {
+            "coverage": 0.445,
+            "bias": -0.003745930741359887,
+            "mean_se_over_empirical_sd": 1.0947794689137895
+          },
+          "bias_corrected": {
+            "coverage": 0.418,
+            "bias": -0.01040190485254609,
+            "mean_se_over_empirical_sd": 0.9418855116258471
+          }
+        },
+        "isolation": {
+          "naive": {
+            "coverage": 0.432,
+            "bias": 0.008686242542773235,
+            "mean_se_over_empirical_sd": 1.1270607785446223
+          },
+          "bias_corrected": {
+            "coverage": 0.432,
+            "bias": -0.004634999006546726,
+            "mean_se_over_empirical_sd": 1.0501947585455031
+          }
+        },
+        "theil_h": {
+          "naive": {
+            "coverage": 0.446,
+            "bias": 0.017636343693098702,
+            "mean_se_over_empirical_sd": 1.2522322804866708
+          },
+          "bias_corrected": {
+            "coverage": 0.438,
+            "bias": -0.008614949234217375,
+            "mean_se_over_empirical_sd": 1.175522374373284
+          }
+        }
+      }
+    },
+    {
+      "cell": 4,
+      "n_tracts": 100,
+      "true_dissimilarity": 0.2,
+      "group_cv": 0.15,
+      "seed": 20261133,
+      "draws": 1000,
+      "true_indices": {
+        "dissimilarity": 0.2,
+        "isolation": 0.52,
+        "theil_h": 0.029049405545331208
+      },
+      "invalid_draws": 0,
+      "statistics": {
+        "dissimilarity": {
+          "naive": {
+            "coverage": 0.898,
+            "bias": 0.0014825589882377513,
+            "mean_se_over_empirical_sd": 1.046505638895158
+          },
+          "bias_corrected": {
+            "coverage": 0.834,
+            "bias": -0.007119167263139866,
+            "mean_se_over_empirical_sd": 0.8886571167995693
+          }
+        },
+        "isolation": {
+          "naive": {
+            "coverage": 0.846,
+            "bias": 0.005085317640809596,
+            "mean_se_over_empirical_sd": 1.0134833676308224
+          },
+          "bias_corrected": {
+            "coverage": 0.901,
+            "bias": -0.0002490037397576268,
+            "mean_se_over_empirical_sd": 0.9824190801425793
+          }
+        },
+        "theil_h": {
+          "naive": {
+            "coverage": 0.788,
+            "bias": 0.007381743926135501,
+            "mean_se_over_empirical_sd": 1.3331330673807944
+          },
+          "bias_corrected": {
+            "coverage": 0.961,
+            "bias": -0.0005584832165589617,
+            "mean_se_over_empirical_sd": 1.2889673672438398
+          }
+        }
+      }
+    },
+    {
+      "cell": 5,
+      "n_tracts": 100,
+      "true_dissimilarity": 0.2,
+      "group_cv": 0.3,
+      "seed": 20261134,
+      "draws": 1000,
+      "true_indices": {
+        "dissimilarity": 0.20000000000000007,
+        "isolation": 0.52,
+        "theil_h": 0.0290494055453312
+      },
+      "invalid_draws": 983,
+      "statistics": {
+        "dissimilarity": {
+          "naive": {
+            "coverage": 0.015,
+            "bias": 0.03155187286059497,
+            "mean_se_over_empirical_sd": 1.6146382244668456
+          },
+          "bias_corrected": {
+            "coverage": 0.015,
+            "bias": -0.02558488154944642,
+            "mean_se_over_empirical_sd": 0.955796137623527
+          }
+        },
+        "isolation": {
+          "naive": {
+            "coverage": 0.014,
+            "bias": 0.022544241235272506,
+            "mean_se_over_empirical_sd": 2.162457274298796
+          },
+          "bias_corrected": {
+            "coverage": 0.017,
+            "bias": 0.0010905377378560958,
+            "mean_se_over_empirical_sd": 1.789040911012535
+          }
+        },
+        "theil_h": {
+          "naive": {
+            "coverage": 0.014,
+            "bias": 0.027456429608612335,
+            "mean_se_over_empirical_sd": 2.1145780636974543
+          },
+          "bias_corrected": {
+            "coverage": 0.017,
+            "bias": -0.008058906920429479,
+            "mean_se_over_empirical_sd": 2.097985748450554
+          }
+        }
+      }
+    },
+    {
+      "cell": 6,
+      "n_tracts": 100,
+      "true_dissimilarity": 0.5,
+      "group_cv": 0.15,
+      "seed": 20261135,
+      "draws": 1000,
+      "true_indices": {
+        "dissimilarity": 0.5,
+        "isolation": 0.6250000000000001,
+        "theil_h": 0.1887218755408672
+      },
+      "invalid_draws": 0,
+      "statistics": {
+        "dissimilarity": {
+          "naive": {
+            "coverage": 0.905,
+            "bias": 0.00040176301611178885,
+            "mean_se_over_empirical_sd": 1.020661499800358
+          },
+          "bias_corrected": {
+            "coverage": 0.901,
+            "bias": 0.0005770340087565282,
+            "mean_se_over_empirical_sd": 0.9981123644128319
+          }
+        },
+        "isolation": {
+          "naive": {
+            "coverage": 0.872,
+            "bias": 0.0029983155433614224,
+            "mean_se_over_empirical_sd": 0.9958038994058535
+          },
+          "bias_corrected": {
+            "coverage": 0.88,
+            "bias": -0.0001891519123754455,
+            "mean_se_over_empirical_sd": 0.9621782362747137
+          }
+        },
+        "theil_h": {
+          "naive": {
+            "coverage": 0.855,
+            "bias": 0.006426080880403957,
+            "mean_se_over_empirical_sd": 1.0894084521957428
+          },
+          "bias_corrected": {
+            "coverage": 0.921,
+            "bias": 0.00031641623362316115,
+            "mean_se_over_empirical_sd": 1.0563844445928956
+          }
+        }
+      }
+    },
+    {
+      "cell": 7,
+      "n_tracts": 100,
+      "true_dissimilarity": 0.5,
+      "group_cv": 0.3,
+      "seed": 20261136,
+      "draws": 1000,
+      "true_indices": {
+        "dissimilarity": 0.49999999999999994,
+        "isolation": 0.6249999999999999,
+        "theil_h": 0.18872187554086714
+      },
+      "invalid_draws": 982,
+      "statistics": {
+        "dissimilarity": {
+          "naive": {
+            "coverage": 0.016,
+            "bias": -0.0072288141337518985,
+            "mean_se_over_empirical_sd": 1.268852949834972
+          },
+          "bias_corrected": {
+            "coverage": 0.016,
+            "bias": -0.013667903460255891,
+            "mean_se_over_empirical_sd": 1.0855559004094482
+          }
+        },
+        "isolation": {
+          "naive": {
+            "coverage": 0.015,
+            "bias": 0.011270797893894716,
+            "mean_se_over_empirical_sd": 1.2576925937491918
+          },
+          "bias_corrected": {
+            "coverage": 0.017,
+            "bias": -0.0020552830959073565,
+            "mean_se_over_empirical_sd": 1.1168524408685148
+          }
+        },
+        "theil_h": {
+          "naive": {
+            "coverage": 0.017,
+            "bias": 0.01409170561292691,
+            "mean_se_over_empirical_sd": 1.4285840336743798
+          },
+          "bias_corrected": {
+            "coverage": 0.016,
+            "bias": -0.012926349820004812,
+            "mean_se_over_empirical_sd": 1.289305268584671
+          }
+        }
+      }
+    }
+  ],
+  "criterion_commit": "4791763",
+  "script_sha256": "828592af18823e4a2669350e8e843bfc4536fe3d77412145058ecaae881f7e24"
+}

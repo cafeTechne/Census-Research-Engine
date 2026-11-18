@@ -5,6 +5,35 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.25.0 (Round 28): segregation indices and reference-aware SMR
+
+- Fixed, committed-and-pushed validations: segregation `4791763` (8,000 draws;
+  audit `43cbedf`), SMR reference uncertainty `134bf7f` (12,000 draws; audit
+  `8335199`). No seeds or criteria retuned after results.
+- Add county D, isolation and Theil H from tract counts, strict 80-replicate
+  uncertainty and the preset I-4(mean(Ir)-I) correction. Defaults selected by
+  passing coverage: naive D, corrected isolation and corrected H. Failed
+  variants and multigroup H remain exploratory. No negative clipping/dropping;
+  zero tracts and undefined absent groups are noted.
+- Register `segregation` through one MethodSpec; within-release county contrasts
+  preserve shared replicate covariance, non-overlapping releases add variances.
+  Explicit one-area nulls and release selectors prevent silent comparison choices.
+  One-sided tests center on estimate-null. Add a recipe and matching agent/MCP rules.
+- Extend SMR with hashed period_years and reference_counts. Rates per person-year
+  scale expected counts by period; combined intervals add Poisson reference-rate
+  variance. Shared band contributions are pooled before squaring. Internal-reference
+  conservatism is noted. Fixed-E exact limits still exclude uncertainty in E.
+- Reference-aware SMR passed coverage 0.8995–0.9105; omitting the reference term
+  reached 0.7240 in the sparse-reference E=100 cell. Reference person-years remain
+  fixed. Existing SMR defaults and execution golden remain unchanged.
+- Range gate (review fix): a county with any tract group-count CV above .15, the
+  validated simulation range, is marked not validated (`max_count_cv` reported);
+  confirmatory hypotheses on it are refused (`hypothesis_not_tested`), exploratory
+  manifests still test it. No 2018-2022 MI/NY county's white/Black tract counts
+  meet the range, so segregation is effectively exploratory pending a
+  realistic-error validation.
+- No new dependencies or MCP tools (63); version 0.25.0.
+
 ## 0.24.0 (Round 27): descriptive EB rates and exploratory nonlinear tests
 
 - Commit and push both fixed protocols before their full simulations: EB criterion

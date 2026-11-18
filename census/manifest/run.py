@@ -602,7 +602,7 @@ def _run_analyses(state: RunState) -> None:
         a = _normalize_analysis(a)
         aid = a["id"]
         needed = set(_formula_names(a.get("formula", "")))
-        for k in ("variables", "error_covariates"):
+        for k in ("variables", "error_covariates", "groups"):
             needed |= set(a.get(k) or [])
         needed |= {a[k] for k in ("variable", "variable_1", "variable_2") if a.get(k)}
         if state.frame is None or not needed <= available:
@@ -656,8 +656,11 @@ def _test_hypotheses(state: RunState) -> None:
         else:
             try:
                 s = _statistic(hyp, res)
+                refusal = s.pop("confirmatory_refusal", None)
+                if refusal and not state.m.get("exploratory", False):
+                    raise ValueError(refusal)
                 row.update(s, status="tested",
-                           p_value=s["p_two_sided"] if hyp["statistic"] == "joint_wald" else _one_sided(s["p_two_sided"], s["estimate"], row["direction"]))
+                           p_value=s["p_two_sided"] if hyp["statistic"] == "joint_wald" else _one_sided(s["p_two_sided"], s.get("test_estimate", s["estimate"]), row["direction"]))
             except Exception as exc:
                 row.update(status="not_tested", estimate=None, p_value=None)
                 state.deviations.append({"kind": "hypothesis_not_tested", "hypothesis": hyp["id"], "detail": str(exc)})
@@ -871,7 +874,7 @@ def _write_bundle(folder: Path, m, h, results, hyp_df, run_info, citation) -> Di
             figures_[f"shrinkage_{aid}"] = (figs.shrinkage_plot, {"result": r, "manifest_hash": h,
                                                                   "data_source": fig_source})
     cols = ["id", "statistic", "direction", "estimate", "p_value", "p_adjusted", "significant", "status"]
-    cols += [c for c in ("df", "odds_ratio", "odds_ratio_lower", "odds_ratio_upper", "ratio", "ratio_lower", "ratio_upper") if c in hyp_df]
+    cols += [c for c in ("df", "null_value", "geoid", "release", "compare_geoid", "compare_release", "odds_ratio", "odds_ratio_lower", "odds_ratio_upper", "ratio", "ratio_lower", "ratio_upper") if c in hyp_df]
     if m.get("exploratory"):
         cols.append("analysis_status")
     show = hyp_df.reindex(columns=cols)

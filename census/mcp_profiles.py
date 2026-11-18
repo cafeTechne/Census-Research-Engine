@@ -78,7 +78,7 @@ DESCRIPTION_OVERRIDES: Dict[str, str] = {
     "get_recipe": (
         "Return numbered steps for a standard analysis. Call this first when unsure what to do.\n"
         "name: compare_counties | tract_trend | regression_sampling_error | small_area | preregistered | "
-        "decennial_counts | external_health_outcome | health_inequality; "
+        "decennial_counts | external_health_outcome | health_inequality | segregation; "
         "omit to list recipes.\n"
         "Example: get_recipe(name=\"compare_counties\")"
     ),
@@ -208,11 +208,16 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    target combines HC3 and ACS replicates; median rank CV <=15% is validated, above
    which warn about attenuation. External outcome/denominator weights stay fixed;
    R2 tests rank_by. HC3 assumes independent areas. SMR requires observed integer
-   counts, distinct population_bands, positive reference_rates in events per person
+   counts, distinct population_bands, positive reference_rates in events per person-year
    and a hashed reference_source citation; log_smr hypotheses use geoid or all.
    Only conservative combined Poisson/replicate log intervals drive SMR tests;
-   fixed-E Garwood intervals omit expected uncertainty. O=0 has only exact limits;
-   absent replicates set expected uncertainty to zero, noted. Rates are fixed.
+   fixed-E Garwood intervals omit expected/reference uncertainty. O=0 has only exact limits;
+   absent replicates set expected uncertainty to zero, noted. period_years (positive
+   integer, default 1) scales E; reference_counts adds sum((E_b/E)^2/D_b) to log
+   variance, with positive integer reference deaths per band. Both hashed. Rates
+   are fixed without counts; reference person-years are always fixed. Pool band
+   contributions before squaring (shared rates). Internal-reference covariance
+   omitted makes intervals conservative, noted, not refused.
    SMR refuses negative band replicates under its pre-specified validation domain.
    Log statistics test zero and report exponentiated ratio columns. R1 applies
    to external outcomes/counts; reused MI/NY LBW associations remain exploratory.
@@ -238,6 +243,15 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
+11. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+   groups are mutually exclusive counts, within county. Defaults: naive D,
+   corrected isolation/H; failed overrides and multigroup H exploratory only.
+   Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts
+   recomputed per refit; absent county groups undefined. One-area tests need
+   null_value; compare_geoid uses replicate differences. release/compare_release
+   select independent non-overlapping releases; variances add. First minus
+   comparison, one-sided tests center on null. No metro pooling. Any tract
+   group-count CV above .15 makes a county exploratory only (most real ones).
 """
 
 REVIEW_INSTRUCTIONS = """\

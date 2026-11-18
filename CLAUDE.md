@@ -2,7 +2,7 @@
 
 Start with `STATUS.md` (current state, validated methods, rules, backlog). Then read only the lowest-numbered
 `PLAN_ROUND_<n>.md` if you are implementing a round (later ones are queued; do not read them). Older plans are archived at their release tags
-(`git show v0.21.0:PLAN_ROUND_<n>.md` for rounds 1–22; `v0.21.1` for 23; `v0.22.0` for 24; `v0.22.1` for 25; `v0.23.0` for 26; `v0.24.0` for 27); read one only when a docstring citation is not enough.
+(`git show v0.21.0:PLAN_ROUND_<n>.md` for rounds 1–22; `v0.21.1` for 23; `v0.22.0` for 24; `v0.22.1` for 25; `v0.23.0` for 26; `v0.24.0` for 27; `v0.25.0` for 28); read one only when a docstring citation is not enough.
 
 ## Commands
 
@@ -22,7 +22,9 @@ Start with `STATUS.md` (current state, validated methods, rules, backlog). Then 
 - **Secrets.** Never print, log or commit `.env`, the Census API key or any token. Scan release tarballs
   for the key before uploading. Published users bring their own key.
 - **Privacy.** Do not send the owner's email to any service. Use a generic User-Agent.
-- **Data access.** No automated CDC WONDER downloads; no bot-check or paywall circumvention.
+- **Data access.** No automated CDC WONDER downloads, except the official WONDER API for national data as
+  specified in `PLAN_ROUND_29.md` Part A0 (owner decision, 2026-11-17); county data are manual exports. No
+  web-form automation, bot-check or paywall circumvention.
 - **Merges and releases** need the owner's explicit approval each time.
 - **Circularity rule (R1/R2)** and **pre-registration discipline**: see `STATUS.md`.
 
