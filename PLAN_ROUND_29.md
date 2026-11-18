@@ -1,7 +1,7 @@
-# Round 29 plan (draft, blocked on owner county exports): real-data mortality from CDC WONDER
+# Round 29 plan (draft): real-data mortality from CDC WONDER
 
-**Status: draft.** This round starts when the owner's county exports are in `external_data/wonder/`
-(three files are required; see `docs/data/wonder_exports.md`). National reference data come from the
+**Status: draft, unblocked.** The owner's county exports are in `external_data/wonder/`
+(all eight are in place and passed a structure check on 2026-11-18; see `docs/data/wonder_exports.md`). National reference data come from the
 official WONDER API instead of manual exports (Part A0). The API serves national data only, so county
 counts remain manual. Parts A0 and A may be pulled forward on request.
 Before Part C, the maintainer reviews this plan against what Rounds 25–28 actually shipped, especially
@@ -74,10 +74,22 @@ Reference: <https://wonder.cdc.gov/wonder/help/wonder-api.html>. Requests are a 
   - folder years ≠ footer years;
   - folder kind ≠ group-by (`county` / `national_age_sex` / `state_age_sex`);
   - an all-US county file with fewer than 3,100 rows ("Show Zero Values" off);
-  - missing CI/SE columns;
-  - a `drug_overdose` selection that differs from the guide.
+  - a missing `County Code` or `Deaths` column (other measure columns are optional: record which exist);
+  - a cause selection whose ICD-10 code ranges differ from the guide's (compare codes, not the tab:
+    `C00-C97` on the ICD-10 Codes tab equals `#Malignant neoplasms (C00-C97)`);
+  - for `premature_all_causes`, an age filter other than the nine groups under 75.
 - Exit non-zero on any flag. Test it on fixtures in `tests/fixtures/wonder/`: small synthetic files in
   real WONDER format, built by hand, with no real data.
+- **Real export format (owner's files, 2026-11-18; fix `vital_records` and fixtures to match):**
+  - files end `.tsv` (older exports `.txt`); accept both;
+  - footer parameter lines wrap at about 128 characters (`Ten-Year Age Groups`, `Drug/Alcohol Induced
+    Causes`): join continuation lines before parsing, or later parameters are lost;
+  - `Population` may be `Not Available` (Connecticut's legacy counties have no 2022 estimates): treat as
+    missing with a note, not an error;
+  - an age-filtered export may have only `Deaths` (no Population or rate columns): accept it;
+  - `Show Totals: Disabled` may appear, with no Total row.
+  - The scratch check of the owner's eight files passed with these rules; repeat it with the real
+    script, which must flag nothing on them.
 
 ## 2. Part B: engine
 
