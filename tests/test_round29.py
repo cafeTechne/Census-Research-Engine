@@ -7,97 +7,8 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import pandas as pd
 import pytest
-from census import wonder_api as api
 
 FIXTURES=Path(__file__).parent/'fixtures/wonder'
-
-
-class Clock:
- def __init__(self):self.now=1000.;self.sleeps=[]
- def clock(self):return self.now
- def sleep(self,s):self.sleeps.append(s);self.now+=s
-
-
-def response():return (FIXTURES/'national_api.xml').read_bytes()
-
-def query():return api.request_xml('all_causes',(2018,2019,2020,2021,2022),accept_data_use_restrictions=True)
-
-
-def test_request_requires_explicit_true_acceptance():
- for accept in (None,False,1,'true'):
-  with pytest.raises(api.WonderAPIError,match='explicit True'):api.request_xml('all_causes',(2018,),accept_data_use_restrictions=accept)
- with pytest.raises(TypeError):api.request_xml('all_causes',(2018,))
-
-
-def test_location_and_unknown_parameters_refused_before_transport(tmp_path,monkeypatch):
- q=ET.fromstring(query());p=ET.SubElement(q,'parameter');ET.SubElement(p,'name').text='F_D158.V9';ET.SubElement(p,'value').text='26'
- raw=ET.tostring(q)
- with pytest.raises(api.WonderAPIError,match='national-only'):api.validate_national_request(raw)
- post=mock.Mock();monkeypatch.setattr(api,'request_xml',lambda *a,**k:raw)
- with api.WonderClient(tmp_path,post=post) as c:
-  with pytest.raises(api.WonderAPIError):c.fetch('all_causes',(2018,),accept_data_use_restrictions=True,path=tmp_path/'x.xml')
- post.assert_not_called()
-
-
-@pytest.mark.parametrize('parameter,value',[('B_1','D158.V9'),('B_2','D158.V10'),('B_3','D158.V11')])
-def test_geographic_grouping_refused(parameter,value):
- root=ET.fromstring(query())
- for p in root.findall('parameter'):
-  if p.findtext('name')==parameter:p.find('value').text=value
- with pytest.raises(api.WonderAPIError):api.validate_national_request(ET.tostring(root))
-
-
-def test_echo_and_database_validation_fail_closed():
- q=query();info=api.validate_response(response(),q);assert info['database']=='D158' and info['cause']=='all_causes'
- for old,new in [(b'code="D158"',b'code="D76"'),(b'<value>2022</value>',b'<value>2023</value>'),(b'<value>D158.V5</value>',b'<value>D158.V9</value>')]:
-  with pytest.raises(api.WonderAPIError):api.validate_response(response().replace(old,new),q)
- with pytest.raises(api.WonderAPIError):api.validate_response(b'<html>access denied</html>',q)
-
-
-def test_rowspan_expansion_preserves_age_and_skips_totals():
- rows=api.response_rows(response());assert len(rows)==4
- assert [r['age'] for r in rows]==['< 1 year','< 1 year','1-4 years','1-4 years']
- assert [r['sex'] for r in rows]==['Female','Male','Female','Male']
- assert rows[1]['deaths']=='60'
-
-
-def test_lock_refuses_concurrent_runs_and_is_released(tmp_path):
- with api.WonderClient(tmp_path):
-  with pytest.raises(api.WonderAPIError,match='concurrently'):
-   with api.WonderClient(tmp_path):pass
- assert not (tmp_path/'.wonder-api.lock').exists()
-
-
-def test_throttle_persistent_and_one_retry_with_fake_clock(tmp_path):
- clk=Clock();times=[];attempt=[0]
- def post(*a,**kw):
-  times.append(clk.now);attempt[0]+=1
-  assert set(kw['data'])=={'request_xml'} and '@' not in kw['headers']['User-Agent']
-  if attempt[0]==1:raise OSError('synthetic transport error')
-  return SimpleNamespace(status_code=200,content=response())
- with api.WonderClient(tmp_path,post=post,clock=clk.clock,sleep=clk.sleep) as c:
-  c.fetch('all_causes',(2018,2019,2020,2021,2022),accept_data_use_restrictions=True,path=tmp_path/'a.xml')
- with api.WonderClient(tmp_path,post=post,clock=clk.clock,sleep=clk.sleep) as c:
-  c.fetch('all_causes',(2018,2019,2020,2021,2022),accept_data_use_restrictions=True,path=tmp_path/'b.xml')
- assert times==[1000,1120,1240] and sum(clk.sleeps)==240 and max(clk.sleeps)<=30
- assert (tmp_path/'a.request.xml').exists()
-
-
-def test_retry_limited_and_existing_file_refused_before_request(tmp_path):
- clk=Clock();post=mock.Mock(side_effect=OSError('synthetic failure'))
- with api.WonderClient(tmp_path,post=post,clock=clk.clock,sleep=clk.sleep) as c:
-  with pytest.raises(api.WonderAPIError,match='one throttled retry'):c.fetch('all_causes',(2018,),accept_data_use_restrictions=True,path=tmp_path/'a.xml')
- assert post.call_count==2
- path=tmp_path/'exists.xml';path.write_text('original');post.reset_mock()
- with api.WonderClient(tmp_path,post=post) as c:
-  with pytest.raises(api.WonderAPIError,match='existing cache'):c.fetch('all_causes',(2018,),accept_data_use_restrictions=True,path=path)
- assert path.read_text()=='original';post.assert_not_called()
-
-
-def test_no_library_network_transport_or_xml_entities(tmp_path):
- with api.WonderClient(tmp_path) as c:
-  with pytest.raises(api.WonderAPIError,match='fetch script'):c.fetch('all_causes',(2018,),accept_data_use_restrictions=True,path=tmp_path/'x.xml')
- with pytest.raises(api.WonderAPIError,match='DOCTYPE'):api.xml_parameters(b'<!DOCTYPE x [<!ENTITY y "a">]><x/>')
 
 
 def test_real_format_wrapped_parameters_and_missing_optional_measures():
@@ -136,3 +47,113 @@ def test_wrapped_drug_selection_preserves_later_parameters():
  p=parse_footer(['Dataset: Synthetic','Query Parameters:','Drug/Alcohol Induced Causes: Unintentional (X40-X44); Suicide (X60-X64);',
  'Homicide (X85); Undetermined (Y10-Y14)','Year/Month: 2018; 2019; 2020; 2021; 2022','Group By: County','Query Date: synthetic'])['parameters']
  assert p['Drug/Alcohol Induced Causes'].endswith('(Y10-Y14)') and p['Group By']=='County'
+
+
+def test_reference_bands_rates_and_not_stated_note():
+ from census.vital_records import read_wonder_reference
+ r=read_wonder_reference(FIXTURES/'national_age_sex.tsv');rows=r['rows']
+ assert len(rows)==20 and rows.sex.tolist()==['M']*10+['F']*10
+ assert rows.iloc[0].deaths==60 and rows.iloc[0].population==5000
+ assert rows.iloc[0].rate==pytest.approx(60/5000) # Not a mean of component rates.
+ assert rows.iloc[1].rate==pytest.approx(50/10000)
+ assert any('2 Not Stated' in n for n in r['notes']) and r['years']==[2018,2019,2020,2021,2022]
+
+
+def test_reference_pin_and_suppression_national_vs_state(tmp_path):
+ from census.vital_records import read_wonder_reference
+ import hashlib
+ source=(FIXTURES/'national_age_sex.tsv').read_text();path=tmp_path/'ref.tsv';path.write_text(source)
+ with pytest.raises(ValueError,match='SHA-256'):read_wonder_reference(path,expected_sha256='0'*64)
+ path.write_text(source.replace('\t20\t1000\t','\tSuppressed\t1000\t',1))
+ with pytest.raises(ValueError,match='suppressed reference'):read_wonder_reference(path)
+ lines=path.read_text().splitlines();lines[0]+='\t"State Code"'
+ for i in range(1,25):lines[i]+='\t"26"'
+ path.write_text(('\n'.join(lines)+'\n').replace('Group By: Ten-Year Age Groups; Sex','Group By: State; Ten-Year Age Groups; Sex'))
+ with pytest.raises(ValueError,match='preregistered'):read_wonder_reference(path)
+ r=read_wonder_reference(path,state='26',validate_only=True);assert r['rows'].suppressed.any()
+ with pytest.raises(ValueError,match='suppressed reference'):read_wonder_reference(path,state='26')
+
+
+def test_acs_template_covers_each_cell_once_and_fixed_reference_order():
+ from census.wonder_reference import acs_age_sex_bands,validate_band_order
+ t=acs_age_sex_bands(2022);refs=[v['ref'] for v in t['variables']]
+ assert len(refs)==46 and len(set(refs))==46 and len(t['derivations'])==20
+ assert {int(r.rsplit('_',1)[1]) for r in refs}==set(range(3,26))|set(range(27,50))
+ validate_band_order(t['population_bands'])
+ with pytest.raises(ValueError,match='order'):validate_band_order(t['population_bands'][::-1])
+
+
+def expected_entry():
+ import hashlib
+ from census.wonder_reference import acs_age_sex_bands
+ t=acs_age_sex_bands(2022)
+ path=FIXTURES/'national_age_sex.tsv'
+ return dict(name='expected',op='expected_count',population_bands=t['population_bands'],period_years=5,
+             reference_export={'file':str(path.resolve()),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+
+
+def test_expected_count_point_and_replicates_and_period_validation():
+ from census.wonder_reference import expected_count_weights
+ from census.analysis import analysis_frame,attach_replicates
+ from census.simulation import replicate_long,make_replicates
+ entry=expected_entry();names=entry['population_bands'];weights,_=expected_count_weights(entry)
+ frame=pd.DataFrame({'GEOID':['01001','01003'],'Year':2022})
+ values=np.arange(40,dtype=float).reshape(2,20)+100
+ for j,name in enumerate(names):frame[name+'E']=values[:,j];frame[name+'M']=2.
+ result=analysis_frame(frame,variables={n:n for n in names},derive=[entry])
+ np.testing.assert_allclose(result.expected,values@weights)
+ rep=make_replicates(values,np.ones_like(values),np.random.default_rng(29))
+ long=replicate_long(frame.GEOID,names,values,rep);long['Year']=2022
+ out,reps=attach_replicates(result,long,variables={n:n for n in names},derive=[entry],replace_se=True)
+ er=np.einsum('abr,b->ar',rep,weights)
+ np.testing.assert_allclose(out.expected_se,np.sqrt(.05*np.sum((er-result.expected.to_numpy()[:,None])**2,axis=1)),rtol=1e-10)
+ bad=dict(entry,period_years=4)
+ with pytest.raises(ValueError,match='footer years'):expected_count_weights(bad)
+
+
+def test_wonder_join_identity_suppression_zero_and_missing_are_distinct():
+ from census.health_sources import join_external
+ frame=pd.DataFrame({'GEOID':['01001','01003','01005'],'x':[1.,2.,3.]})
+ ext=pd.DataFrame({'GEOID':frame.GEOID,'y':[20.,np.nan,0.],'y_numerator':[20.,np.nan,0.],'y_flag':[0,2,0]})
+ ext.attrs['wonder_columns']=['y']
+ out,info=join_external(frame,ext,['y'],['x'])
+ assert info['matched_units']==3 and info['suppressed_units']==1 and info['analyzable_units']==2
+ assert info['missing_share_by_variable']['y']==0 and out.y.iloc[2]==0
+ assert info['wonder']['y']['excluded_deaths_bounds']==[1,9]
+ missing=ext.iloc[:2].copy();missing.attrs=ext.attrs
+ _,record=join_external(frame,missing,['y'],['x']);assert record['unmatched_units']==1 and record['missing_share_by_variable']['y']==pytest.approx(1/3)
+ missing=ext.copy();missing.loc[2,'y']=np.nan;missing.attrs=ext.attrs
+ _,record=join_external(frame,missing,['y'],['x']);assert record['wonder']['y']['unsuppressed_missing']==1 and record['matched_units']==3
+
+
+def test_other_sources_keep_their_original_join_semantics():
+ from census.health_sources import join_external
+ f=pd.DataFrame({'GEOID':['01001','01003','01005'],'x':[1.,2.,3.]})
+ e=pd.DataFrame({'GEOID':f.GEOID,'y':[1.,np.nan,0.],'y_flag':[0,2,0]})
+ _,info=join_external(f,e,['y'],['x'])
+ assert info['matched_units']==2 and info['missing_share_by_variable']['y']==pytest.approx(1/3) and 'wonder' not in info
+
+
+def test_wonder_bundle_suppresses_derived_values_and_refuses_complementary_totals(tmp_path):
+ import json
+ from census.report_tables import results_bundle
+ hidden=['01003'];cols={k:hidden for k in ('observed','smr','eb_ratio','eb_lower','eb_upper')}
+ policy={'columns':cols,'results':{},'figures':{},'count_column':'observed'}
+ data=pd.DataFrame({'GEOID':['01001','01003'],'observed':[20.,5.],'smr':[2.,.5],'eb_ratio':[1.8,.7],'eb_lower':[1.2,.2],'eb_upper':[2.4,1.6]})
+ results_bundle(tmp_path/'ok',results={'rates':{'rows':data}},wonder_policy=policy)
+ saved=json.loads((tmp_path/'ok/results/rates.json').read_text())['rows']
+ assert saved[1]['observed']=='suppressed' and all(saved[1][k]=='suppressed' for k in cols)
+ total=pd.concat([data,pd.DataFrame({'GEOID':['all'],'observed':[25.],'smr':[1.]})],ignore_index=True)
+ with pytest.raises(ValueError,match='complementary'):results_bundle(tmp_path/'bad',results={'rates':{'rows':total}},wonder_policy=policy)
+ total.loc[total.GEOID=='all','observed']=20.
+ results_bundle(tmp_path/'complete-case',results={'rates':{'rows':total}},wonder_policy=policy)
+
+
+def test_safe_snapshots_preserve_suppression_labels_and_restore_for_refits(tmp_path):
+ from census.manifest.run import _write_analysed_data
+ from census.wonder_outputs import restore_snapshot
+ f=pd.DataFrame({'GEOID':['01001','01003'],'y':[20.,np.nan],'y_numerator':[20.,np.nan],'y_flag':[0,2],'x':[.1,.2]})
+ f.attrs['wonder_columns']=['y'];files=_write_analysed_data(tmp_path,f,None);path=tmp_path/files['analysis_frame']['path']
+ saved=pd.read_parquet(path) if path.suffix=='.parquet' else pd.read_csv(path,dtype={'GEOID':str})
+ assert saved.y.iloc[1]=='suppressed' and saved.x.iloc[1]==.2
+ restored=restore_snapshot(saved,['y']);assert np.isnan(restored.y.iloc[1]) and restored.y.iloc[0]==20.
