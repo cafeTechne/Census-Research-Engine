@@ -44,7 +44,7 @@ Go down the form in order. Anything not mentioned: leave at its default.
 
 | Step | What to set |
 | :--- | :--- |
-| **1. Organize table layout** | **Group Results By:** `County`. **And By:** `None` (leave the other boxes at None). **Measures:** Deaths, Population and Crude Rate are ticked by default; also tick Crude Rate's **95% Confidence Interval** and **Standard Error**, and **Age Adjusted Rate** with its **95% Confidence Interval** and **Standard Error**. Leave the standard population at **2000 U.S. Std. Population** and rates per **100,000**. |
+| **1. Organize table layout** | **Group Results By:** `County`. **And By:** `None` (leave the other boxes at None). **Measures:** Deaths, Population and Crude Rate are ticked by default; also tick Crude Rate's **95% Confidence Interval** and **Standard Error**. Leave **Age Adjusted Rate** and its interval and SE **unticked**: WONDER refuses them with county grouping, and the study does not use them (it builds expected deaths from national rates). Leave rates per **100,000**. |
 | **2. Select location** | Leave **`*All* (The United States)`**. All-US files also cover the OH/PA replication. County is the decedent's county of **residence**; there is nothing to choose. |
 | **3. Select demographics** | Leave every box at **All** (all ages, both sexes, all races, all Hispanic origins). Export 3 changes ages; it says how. |
 | **4. Select year and month** | Select exactly **2018, 2019, 2020, 2021, 2022**: click 2018, then Shift-click 2022 (or Ctrl-click each). Not 2023 or 2024: the years must match ACS 2018–2022. |
