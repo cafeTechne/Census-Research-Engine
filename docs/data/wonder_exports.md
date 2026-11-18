@@ -219,6 +219,13 @@ it until everything above is done; expect heavy suppression in county files.
    part, open the **ICD-10 Codes** tab and select the codes below. (In the code tree they are under
    T36-T50, Poisoning by drugs; expand with the `+` signs and Ctrl-click. If a code shows sub-codes,
    select the code itself, which includes them.)
+   **Then click the button that moves them into the "Currently selected" box** (labelled `Move Items
+   Over` or similar), and remove `*All*` from that box if it is still there. Highlighting codes in the
+   tree is not enough: on the first attempt (2026-11-18) no code was moved over, so all four files
+   came out as plain overdose counts.
+   **Check before saving:** the results page lists the query criteria above the table; it must show a
+   multiple-cause line (for example `MCD - ICD-10 Codes: T40.5 (Cocaine)`). If it does not, the
+   filter did not apply.
 
 | Save as | Multiple-cause codes |
 | :--- | :--- |
@@ -232,6 +239,13 @@ it until everything above is done; expect heavy suppression in county files.
 
 If the multiple-cause part looks different from this description, stop and send a screenshot.
 
+**Check result (2026-11-18): Parts A–E passed.** Notes for later rounds, not mistakes:
+- Some national files have suppressed cells in child age groups or "Not Stated" (alcohol-induced,
+  liver disease, diabetes and others; 1–9 deaths nationally over five years). The engine will need a
+  rule for these before studying those causes; Round 29's three causes have none.
+- The two extra national `premature_all_causes.tsv` files are not needed and can be deleted.
+- 2013–2017 county files have 3,147 rows (counties renamed or merged since then); that is expected.
+
 ## Checklist
 
 ```text
@@ -240,7 +254,7 @@ If the multiple-cause part looks different from this description, stop and send 
 [x] cancer  [x] unintentional_injury  [x] suicide  [x] diabetes
 
 Part A  2018-2022 national (ucd/2018-2022/national_age_sex/)   ROUND 29 NEEDS THESE
-[ ] 1 all_causes   [ ] 2 heart_disease   [ ] 3 drug_overdose
+[x] 1 all_causes   [x] 2 heart_disease   [x] 3 drug_overdose
 
 Part B  2018-2022 national (same folder)
 [ ] 4 cancer  [ ] 5 unintentional_injury  [ ] 6 suicide  [ ] 7 diabetes  [ ] 8 stroke
@@ -259,7 +273,10 @@ Part E  2013-2017 national (ucd/2013-2017/national_age_sex/)
 [ ] suicide  [ ] diabetes  [ ] stroke  [ ] clrd  [ ] liver_disease  [ ] kidney_disease
 [ ] alcohol_induced  [ ] firearm
 
+Parts A-E: all done 2026-11-18, structure-checked OK
+
 Part F  optional: drug involvement (mcd/2018-2022/county/ and mcd/2018-2022/national_age_sex/)
+        REDO (2026-11-18 files have no multiple-cause filter; see Part F step 2)
 [ ] county: any_opioid  synthetic_opioid  cocaine  psychostimulant
 [ ] national: any_opioid  synthetic_opioid  cocaine  psychostimulant
 ```
