@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Handwritten synthetic fixture, not a CDC response. Counts/populations are invented. -->
+<page>
+ <dataset code="D158" label="Underlying Cause of Death, 2018-2024, Single Race">
+  <variable code="D158.V5" label="Ten-Year Age Groups" />
+  <variable code="D158.V7" label="Sex" />
+ </dataset>
+ <response>
+  <request><request-parameters>
+   <parameter><name>B_1</name><value>D158.V5</value></parameter>
+   <parameter><name>B_2</name><value>D158.V7</value></parameter>
+   <parameter><name>F_D158.V1</name><value>2018</value><value>2019</value><value>2020</value><value>2021</value><value>2022</value></parameter>
+   <parameter><name>O_ucd</name><value>D158.V2</value></parameter>
+   <parameter><name>F_D158.V2</name><value>*All*</value></parameter>
+  </request-parameters></request>
+  <data-table>
+   <r><c l="&lt; 1 year" r="3"/><c l="Female"/><c v="50"/><c v="100000"/><c v="50.0"/></r>
+   <r><c l="Male"/><c v="60"/><c v="100000"/><c v="60.0"/></r>
+   <r><c l="Total" c="1"/><c v="110"/><c v="200000"/><c v="55.0"/></r>
+   <r><c l="1-4 years" r="2"/><c l="Female"/><c v="40"/><c v="400000"/><c v="10.0"/></r>
+   <r><c l="Male"/><c v="45"/><c v="400000"/><c v="11.25"/></r>
+  </data-table>
+ </response>
+</page>
