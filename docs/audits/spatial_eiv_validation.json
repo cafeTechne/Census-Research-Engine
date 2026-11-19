@@ -1,0 +1,251 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "reliability": 0.9,
+      "range_km": 0,
+      "error_corr": 0.0,
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.8985,
+        "G2": 0.8915,
+        "C1_naive": 0.8825
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0,
+        "C1_naive": 0
+      },
+      "bias": {
+        "G1": 0.002245411270088593,
+        "G2": 0.0008902818222507047,
+        "C1_naive": -0.04022160729937352
+      },
+      "width": {
+        "G1": 0.49599507378499325,
+        "G2": 0.38930798007035333,
+        "C1_naive": 0.42829768150498465
+      },
+      "mean_lambda": -0.06452270044106558,
+      "seconds": 22.20465588569641
+    },
+    {
+      "cell": 1,
+      "reliability": 0.9,
+      "range_km": 0,
+      "error_corr": 0.3,
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.8985,
+        "G2": 0.882,
+        "C1_naive": 0.8995
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0,
+        "C1_naive": 0
+      },
+      "bias": {
+        "G1": 0.005468717668341894,
+        "G2": 0.006276010680305033,
+        "C1_naive": 0.0031269915598486353
+      },
+      "width": {
+        "G1": 0.4922391456416704,
+        "G2": 0.3806710860456166,
+        "C1_naive": 0.42622575914812444
+      },
+      "mean_lambda": -0.0723619664435449,
+      "seconds": 22.83709716796875
+    },
+    {
+      "cell": 2,
+      "reliability": 0.9,
+      "range_km": 100,
+      "error_corr": 0.0,
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.883,
+        "G2": 0.887,
+        "C1_naive": 0.8455
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0,
+        "C1_naive": 0
+      },
+      "bias": {
+        "G1": -0.006519290082385887,
+        "G2": -0.0022624513051568984,
+        "C1_naive": -0.07392383226804033
+      },
+      "width": {
+        "G1": 0.6549603513027761,
+        "G2": 0.48681041660236873,
+        "C1_naive": 0.5169755141029188
+      },
+      "mean_lambda": 0.6171799631998652,
+      "seconds": 32.072458028793335
+    },
+    {
+      "cell": 3,
+      "reliability": 0.9,
+      "range_km": 100,
+      "error_corr": 0.3,
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.8835,
+        "G2": 0.863,
+        "C1_naive": 0.8855
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0,
+        "C1_naive": 0
+      },
+      "bias": {
+        "G1": 0.0067029902238682215,
+        "G2": 0.0058105499411975625,
+        "C1_naive": -0.0005517640977322769
+      },
+      "width": {
+        "G1": 0.6495274906465263,
+        "G2": 0.4738106782879025,
+        "C1_naive": 0.5124743140002537
+      },
+      "mean_lambda": 0.6266194653882438,
+      "seconds": 23.093726873397827
+    },
+    {
+      "cell": 4,
+      "reliability": 0.7,
+      "range_km": 0,
+      "error_corr": 0.0,
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.899,
+        "G2": 0.887,
+        "C1_naive": 0.728
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0,
+        "C1_naive": 0
+      },
+      "bias": {
+        "G1": 0.017353921694154506,
+        "G2": 0.004592167474546605,
+        "C1_naive": -0.12271843076490091
+      },
+      "width": {
+        "G1": 0.656380359093857,
+        "G2": 0.5257217765557705,
+        "C1_naive": 0.4045041585787356
+      },
+      "mean_lambda": -0.07271188185036104,
+      "seconds": 22.744417190551758
+    },
+    {
+      "cell": 5,
+      "reliability": 0.7,
+      "range_km": 0,
+      "error_corr": 0.3,
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.899,
+        "G2": 0.898,
+        "C1_naive": 0.847
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0,
+        "C1_naive": 0
+      },
+      "bias": {
+        "G1": 0.01079686125582513,
+        "G2": 0.00738625058463005,
+        "C1_naive": -0.06482142861694751
+      },
+      "width": {
+        "G1": 0.6229414500259179,
+        "G2": 0.5111398752835569,
+        "C1_naive": 0.3807778239059752
+      },
+      "mean_lambda": -0.07626161539407025,
+      "seconds": 22.26409602165222
+    },
+    {
+      "cell": 6,
+      "reliability": 0.7,
+      "range_km": 100,
+      "error_corr": 0.0,
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.879,
+        "G2": 0.8985,
+        "C1_naive": 0.58
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 1,
+        "C1_naive": 0
+      },
+      "bias": {
+        "G1": 0.02698821447254629,
+        "G2": 0.04233769368163309,
+        "C1_naive": -0.18135196028084627
+      },
+      "width": {
+        "G1": 0.9274238348009463,
+        "G2": 1.1723700096547442,
+        "C1_naive": 0.43145357261564526
+      },
+      "mean_lambda": 0.6167014286124376,
+      "seconds": 22.881722688674927
+    },
+    {
+      "cell": 7,
+      "reliability": 0.7,
+      "range_km": 100,
+      "error_corr": 0.3,
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.885,
+        "G2": 0.9175,
+        "C1_naive": 0.7945
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 1,
+        "C1_naive": 0
+      },
+      "bias": {
+        "G1": 0.0390197460832703,
+        "G2": 0.03637361412639473,
+        "C1_naive": -0.09376815902729324
+      },
+      "width": {
+        "G1": 0.9112828116515823,
+        "G2": 1.0353162300116237,
+        "C1_naive": 0.4258892689334649
+      },
+      "mean_lambda": 0.6248845820190849,
+      "seconds": 32.093618631362915
+    }
+  ],
+  "passed": {
+    "G1": true,
+    "G2": true
+  },
+  "draws_per_cell": 2000,
+  "criterion": "90% coverage of the true slope >= .86 in every cell (spatial and independent), per candidate; failed fits count as non-coverage; C1_naive informational",
+  "criterion_commit": "46fab40",
+  "frozen_sha256": {
+    "scripts/spatial_eiv_validation.py": "02c8241d0cdf53e324c965cf625ba2be01175ad71c1156ca596c209b7dafde2b",
+    "census/spatial_eiv_core.py": "d1136dea82ab42a8afdd6594457f48db7eb2b3f15a19c9d373f683e86ba6885a",
+    "census/simulation.py": "b0ba4c803939d8803fc8a7e702b4f70bda5f486736bd651b8630d7e1262b198e",
+    "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+    "docs/audits/spatial_eiv_validation_criterion.md": "8bf3410c013ae16050e7fdc49e1e34fb6f63d6d7e456425e174cc6de124bc4b5",
+    "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f"
+  }
+}

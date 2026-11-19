@@ -5,6 +5,17 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.32.0 (Round 35): corrected EIV slopes under spatial dependence
+
+- Freeze candidates, script and criterion at `46fab40` before the 8-cell run (Round 30's linear design
+  plus outcome error correlated 0/0.3 with a covariate's error).
+- Passed: G1 (eight fixed clusters, pooled within-cluster reliability correction, t(7)) and G2
+  (spatial-error λ̂ by ML, whitening, Fuller EIV). Closes the corrected-slope part of backlog item 1
+  for linear models.
+- New `census.spatial_eiv_core` (frozen) and `census.spatial_eiv.fit_spatial_eiv`; MCP
+  `fit_model(method="eiv", spatial="clusters"|"error")`. Manifests unchanged.
+- Post hoc R21b: H1 and H4 hold under both (`docs/studies/r35_posthoc_spatial_eiv.md`).
+
 ## 0.31.0 (Round 34): ranking areas
 
 - Freeze procedures, script and criterion at `6286ad9` before the 8-cell run (K 40/145, SNR 0.5/2,
