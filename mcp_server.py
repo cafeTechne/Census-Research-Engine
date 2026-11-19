@@ -169,6 +169,16 @@ and medians; Korn-Graubard intervals for one proportion. The design-blind Pearso
 is far too liberal; Wald proportion intervals under-cover for rare outcomes in small
 domains; larger tables are exploratory. No continuity corrections: empty 2x2 cells are refused.
 
+Round 33 rank methods (recipe rank_methods): correlation_matrix returns
+validated_intervals per pair. Spearman and Kendall Fisher-type intervals passed
+without replicates; Pearson and partial (one control) intervals pass only with
+replicates (ACS replicate variance added), else exploratory. Estimand: the observed-
+estimate correlation (attenuated). compare_groups(method="rank"): Brunner-Munzel
+superiority (two groups) and Kruskal-Wallis (3+), validated for independent areas.
+All correlation intervals under-covered (0.60-0.89) with spatially correlated areas.
+OLS fit_model/compare_groups add model diagnostics (VIF, Cook's distance, Breusch-Pagan,
+RESET): information only, never a gate.
+
 Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
 and scale:"robust"; Poisson counts use exposure
 and scale:"robust". New external-count manifests refuse scale:"X2" (failed coverage validation).

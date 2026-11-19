@@ -711,6 +711,7 @@ def fit_replicate(
         column_names=list(params.index), target=target, has_replicates=method == "replicate_refit",
         sampling_covariance=np.nan_to_num(np.asarray(sampling_cov, float)),
         full_rank=bool(np.linalg.matrix_rank(full.model.exog) == len(params)),
+        geoids=(data.loc[rows, "GEOID"].astype(str).tolist() if "GEOID" in data.columns else None),
         term_columns={t.name(): list(design_info.column_names[design_info.term_name_slices[t.name()]])
                       for t in design_info.terms})
     return result

@@ -169,7 +169,7 @@ DESCRIPTION_OVERRIDES: Dict[str, str] = {
         "input_path: analysis frame. outcome: column. group: category column or 'state'. "
         "design: two_group | oneway | ancova | twoway. covariates (ancova). group2 (twoway).\n"
         "model: ols|binomial|poisson. replicates_path: from build_analysis_frame. posthoc: holm | simultaneous | none.\n"
-        "spatial: true for 8 fixed spatial clusters. Results say validated or exploratory.\n"
+        "spatial: true for 8 fixed spatial clusters. method: model | rank. Results say validated or exploratory.\n"
         "Example: compare_groups(input_path=\"frame.parquet\", outcome=\"poverty_rate\", group=\"metro_class\")"
     ),
     "make_map": (
@@ -282,7 +282,17 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      is far too liberal; Wald proportion intervals under-cover for rare outcomes in small
      domains; larger tables are exploratory. No continuity corrections: empty 2x2 cells are refused.
 
-12. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+12. Round 33 rank methods (recipe rank_methods): correlation_matrix returns
+     validated_intervals per pair. Spearman and Kendall Fisher-type intervals passed
+     without replicates; Pearson and partial (one control) intervals pass only with
+     replicates (ACS replicate variance added), else exploratory. Estimand: the observed-
+     estimate correlation (attenuated). compare_groups(method="rank"): Brunner-Munzel
+     superiority (two groups) and Kruskal-Wallis (3+), validated for independent areas.
+     All correlation intervals under-covered (0.60-0.89) with spatially correlated areas.
+     OLS fit_model/compare_groups add model diagnostics (VIF, Cook's distance, Breusch-Pagan,
+     RESET): information only, never a gate.
+
+13. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
@@ -295,7 +305,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-13. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+14. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts
