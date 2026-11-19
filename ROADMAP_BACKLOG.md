@@ -46,7 +46,7 @@ saturated-model bundle crash.
 | Round | Theme | Covers | Status |
 | :--- | :--- | :--- | :--- |
 | 43 | Manifest routing and housekeeping | backlog 1 (routing), 2 (manifest NB2), 3, 7; N1–N4 | merged (v0.40.0) |
-| 44 | Post hoc sensitivity and replication checks | backlog 2 (R29 NB2), N11, N15 | proposed |
+| 44 | Post hoc sensitivity and replication checks | backlog 2 (R29 NB2), N11, N15 | in progress |
 | 45 | Count-model repairs | N9; NB2 with IM-8 clusters; Poisson-offset uncertainty (backlog 1) | proposed |
 | 46 | Measurement-error-corrected GLM slopes | backlog 1 and 4; linear EIV with 3–4 error-prone covariates | proposed |
 | 47 | Causal and missing-data robustness | N5–N8 | proposed |
