@@ -241,6 +241,9 @@ def _methods_derivations(m, rep_info, lines, cites):
                        "formulas, Handbook ch. 8) elsewhere")
         else:
             se_text = "; MOE by the ACS approximation formulas (Handbook ch. 8)"
+        if d.get("op") == "expected_count":
+            lines.append(f"- `{d['name']}` = {d.get('period_years',1)} times age/sex populations times annual national reference rates from the pinned export, evaluated on every ACS replicate"+se_text+". Poisson exposures hold this offset fixed; reference-aware SMR intervals assess expected-count uncertainty.")
+            continue
         if d.get("op") == "age_standardized":
             lines.append(_age_standardized_text(d) + se_text + ".")
             if d.get("standard") == "us2000" and "standard_pop" not in cites:

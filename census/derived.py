@@ -679,7 +679,7 @@ def subset_relationship(
 
 DERIVED_FIELDS = ("estimate", "moe", "se", "cv_percent", "method", "notes")
 SPEC_OPS = ("proportion", "ratio", "auto", "difference", "product", "sum", "percent_change", "scale",
-            "age_standardized")
+            "age_standardized", "expected_count")
 METHOD_AGE_STANDARDIZED = "age_standardized"
 
 
@@ -717,6 +717,8 @@ def _spec_codes(entry: Mapping[str, Any]) -> List[str]:
     for key in ("num", "den"):
         if entry.get(key) is not None:
             codes += _as_list(entry[key])
+    if entry.get("op") == "expected_count":
+        codes += _as_list(entry.get("population_bands", []))
     for g in entry.get("groups") or []:
         for key in ("num", "den"):
             if isinstance(g, Mapping) and g.get(key) is not None:
@@ -786,6 +788,16 @@ def derive_entry(
         est = df[[c[0] for c in cols]]
         moe = df[[c[1] for c in cols]]
         return sum_estimates(est, moe, zero_estimate_rule=zero_estimate_rule, names=refs)  # type: ignore[return-value]
+    if op == "expected_count":
+        from .wonder_reference import expected_count_weights
+        weights, _ = expected_count_weights(entry)
+        refs = entry["population_bands"]
+        cols = [resolve_columns(df, r) for r in refs]
+        est = df[[c[0] for c in cols]].to_numpy(float)*weights
+        moe = df[[c[1] for c in cols]].to_numpy(float)*weights
+        result = sum_estimates(est, moe, zero_estimate_rule=zero_estimate_rule, names=refs)
+        result["method"] = "expected_count_fixed_reference"
+        return result
     if op == "age_standardized":
         return _age_standardized_entry(df, entry, zero_estimate_rule)
     if op == "scale":

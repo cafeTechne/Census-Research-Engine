@@ -3,9 +3,10 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.25.0 (Round 28: segregation indices, exploratory pending a realistic-error validation;
-reference-aware SMR; DOI 10.5281/zenodo.24329678). Previous: v0.24.0 (Round 27: descriptive EB rates; splines
-and joint Wald exploratory; DOI 10.5281/zenodo.24329544); v0.23.0 (Round 26; DOI 10.5281/zenodo.24297427). All versions: concept record
+**Current release:** v0.26.0 (Round 29: manual CDC WONDER mortality inputs, suppression-safe outputs, MI/NY
+mortality study replicated in OH/PA; DOI pending). Previous: v0.25.0 (Round 28: segregation indices, exploratory
+pending a realistic-error validation; reference-aware SMR; DOI 10.5281/zenodo.24329678); v0.24.0 (Round 27;
+DOI 10.5281/zenodo.24329544). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
@@ -18,10 +19,10 @@ and joint Wald exploratory; DOI 10.5281/zenodo.24329544); v0.23.0 (Round 26; DOI
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (29–30). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (30). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
-**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`, `PLAN_ROUND_25` at `v0.22.1`, `PLAN_ROUND_26` at `v0.23.0`, `PLAN_ROUND_27` at `v0.24.0`, `PLAN_ROUND_28` at `v0.25.0`. Code and docs still cite
+**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`; from Round 24 on, each plan is at tag `plan-r<n>` (for example `git show plan-r29:PLAN_ROUND_29.md`). Code and docs still cite
 them as labels (for example "PLAN_ROUND_16 A2"). To read one: `git show v0.21.0:PLAN_ROUND_16.md` (or the later tag), or
 `https://github.com/cafeTechne/Census-Research-Engine/blob/v0.21.0/PLAN_ROUND_16.md`.
 
@@ -94,6 +95,14 @@ Acceptance: 1838 passed, 37 skipped, 50 subtests; 0 failures; 56 added tests. Sc
 supported-method messages; execution golden byte-identical. See
 `docs/audits/round28_compatibility.md`. No real-data study or later round started.
 
+**Round 29 (v0.26.0):** manual-only WONDER inventory, pinned age/sex standards,
+replicate-aware expected deaths and suppression-safe bundles. Both mortality manifests registered at
+`150e172` before analysis. MI/NY and held-out OH/PA support all three poverty associations after Holm
+correction; H2 is stable under both registered suppression sensitivities. Independence assumptions and
+fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
+Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
+snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
 ## Standing rules
 
 - **Circularity (enforced, R1/R2):** determinant studies use the ACS's own measure (disability: B18101).
@@ -104,6 +113,7 @@ supported-method messages; execution golden byte-identical. See
   self-review, not independent".
 - **Releases:** every merged round gets a tag, GitHub release and Zenodo DOI. Study outputs are attached as
   a tarball after a key scan. Merges and releases need the owner's explicit approval.
+- WONDER outputs: no sub-national counts 1–9 or values derived from them; no raw exports in the repo or releases.
 - **Secrets and attribution:** see `CLAUDE.md`.
 
 ## Studies so far
@@ -117,6 +127,7 @@ supported-method messages; execution golden byte-identical. See
 | 22 | County low birth weight | Poverty supported (holds with robust SEs); cost burden fragile (fails with robust SEs) |
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
+| 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
 
 ## Open backlog
 
@@ -125,10 +136,11 @@ supported-method messages; execution golden byte-identical. See
    `PLAN_ROUND_30.md` (queued) validates IM-8 with ACS replicates (naive estimand) and per-cluster EIV;
    spatial random effects follow if both fail. Do not drop uncertainty to force an IM re-check. Poisson also needs separate validation.
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
-3. Replication of the county findings in held-out states (OH/PA): Round 29. The owner's eight WONDER
-   county exports (2018–2022, `.tsv`) are in place and passed a structure check on 2026-11-18; national
-   reference rates are manual exports too (owner decision 2026-11-18; the WONDER API is not used). The
-   guide `docs/data/wonder_exports.md` lists every file, including the 2013–2017 window.
+3. Held-out OH/PA mortality replication completed in Round 29 under the unchanged registered protocol;
+   all three associations replicate, including both H2 suppression sensitivities. All 62 manual WONDER
+   exports pass inventory. Later causes with suppressed national child-age reference cells need a
+   separately pre-registered rule before analysis; do not replace them by zero, an invented count or
+   an unregistered pooling rule. The 2013–2017 and MCD files remain inventory-only.
 4. Further validation: Round 28 delivered two-group segregation defaults and SMR
    Poisson reference-rate uncertainty. Segregation is validated only for tract
    group-count CV <= .15, which real MI/NY counties do not meet: a realistic-error

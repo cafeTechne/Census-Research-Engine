@@ -1,0 +1,34 @@
+"Notes"	"Ten-Year Age Groups"	"Ten-Year Age Groups Code"	"Sex"	"Sex Code"	Deaths	Population	Crude Rate
+	"< 1 year"	"0"	"Male"	"M"	20	1000	2000.0
+	"1-4 years"	"1"	"Male"	"M"	40	4000	1000.0
+	"5-14 years"	"2"	"Male"	"M"	50	10000	500.0
+	"15-24 years"	"3"	"Male"	"M"	50	10000	500.0
+	"25-34 years"	"4"	"Male"	"M"	50	10000	500.0
+	"35-44 years"	"5"	"Male"	"M"	50	10000	500.0
+	"45-54 years"	"6"	"Male"	"M"	50	10000	500.0
+	"55-64 years"	"7"	"Male"	"M"	50	10000	500.0
+	"65-74 years"	"8"	"Male"	"M"	50	10000	500.0
+	"75-84 years"	"9"	"Male"	"M"	50	10000	500.0
+	"85+ years"	"10"	"Male"	"M"	50	10000	500.0
+	"Not Stated"	"NS"	"Male"	"M"	10	1000	1000
+	"< 1 year"	"0"	"Female"	"F"	20	1000	2000.0
+	"1-4 years"	"1"	"Female"	"F"	40	4000	1000.0
+	"5-14 years"	"2"	"Female"	"F"	50	10000	500.0
+	"15-24 years"	"3"	"Female"	"F"	50	10000	500.0
+	"25-34 years"	"4"	"Female"	"F"	50	10000	500.0
+	"35-44 years"	"5"	"Female"	"F"	50	10000	500.0
+	"45-54 years"	"6"	"Female"	"F"	50	10000	500.0
+	"55-64 years"	"7"	"Female"	"F"	50	10000	500.0
+	"65-74 years"	"8"	"Female"	"F"	50	10000	500.0
+	"75-84 years"	"9"	"Female"	"F"	50	10000	500.0
+	"85+ years"	"10"	"Female"	"F"	50	10000	500.0
+	"Not Stated"	"NS"	"Female"	"F"	10	1000	1000
+"---"
+"Dataset: Underlying Cause of Death, 2018-2024, Single Race"
+"Query Parameters:"
+"Year/Month: 2018; 2019; 2020; 2021; 2022"
+"Group By: Ten-Year Age Groups; Sex"
+"Show Totals: True"
+"Show Zero Values: True"
+"Show Suppressed: True"
+"Query Date: Synthetic fixture, not real data"

@@ -1,0 +1,14 @@
+"Notes"	"County"	"County Code"	Deaths	Population	Crude Rate
+	"Synthetic Alpha"	"01001"	20	1000	2000
+	"Synthetic Beta"	"01003"	Suppressed	500	Suppressed
+	"Synthetic Gamma"	"01005"	0	Not Available	Not Available
+"---"
+"Dataset: Underlying Cause of Death, 2018-2024, Single Race"
+"Query Parameters:"
+"ICD-10 113 Cause List: #Diseases of heart (I00-I09,I11,I13,I20-I51)"
+"Year/Month: 2018; 2019; 2020; 2021; 2022"
+"Group By: County"
+"Show Totals: Disabled"
+"Show Zero Values: True"
+"Show Suppressed: True"
+"Query Date: Synthetic fixture, not real data"

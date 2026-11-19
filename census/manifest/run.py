@@ -144,7 +144,8 @@ def _run_analysis(a: Mapping[str, Any], frame: pd.DataFrame, level: float, repli
     if method not in METHODS:
         raise ValueError(f"unsupported method {method}")
     return METHODS[method].run(a, args, frame, level, replicates, correction,
-                               {"held_external": held_external, "coords": coords, "external": external})
+                               {"held_external": held_external, "coords": coords, "external": external,
+                                "wonder_names": frame.attrs.get("wonder_columns",())})
 
 
 def _statistic(h: Mapping[str, Any], res: Any) -> Dict[str, Any]:
@@ -216,6 +217,10 @@ def run_variant(
         if dict(args).get("spatial_se") is not None and a["args"].get("scale") == "robust" and "scale" not in args:
             a["args"].pop("scale")   # spatial (Conley) SEs replace the registered robust SEs in this variant
     frame, reps = data["analysis_frame"], data.get("replicates")
+    wonder_names = [str(e["name"]) for e in m.get("external",[]) if e.get("source")=="wonder"]
+    if wonder_names:
+        from ..wonder_outputs import restore_snapshot
+        frame = restore_snapshot(frame,wonder_names)
     mask = np.ones(len(frame), bool)
     if keep_prefixes:
         mask &= frame["GEOID"].str.startswith(tuple(str(p) for p in keep_prefixes)).to_numpy()
@@ -530,7 +535,9 @@ def _join_external(state: RunState) -> None:
                 state.deviations.append({"kind": "external_join_failed", "detail": (
                     "; ".join(f"{n}: {s:.1%} of {join['complete_acs_units']} units with complete ACS data have no "
                               f"value (> {limits.get(n, hs.JOIN_MISSING_LIMIT):.0%})" for n, s in over.items())
-                    + "; a geography-vintage mismatch is likely. Examples: "
+                    + ("; matched rows have unsuppressed missing outcomes. Examples: "
+                       if join.get("wonder") and not any(join.get("unmatched_share_by_variable",{}).get(n,0)>limits.get(n,hs.JOIN_MISSING_LIMIT) for n in over)
+                       else "; a geography-vintage mismatch is likely. Examples: ")
                     + ", ".join(join["examples_without_external"][:5]))})
         except Exception as exc:  # noqa: BLE001 - recorded as a blocking deviation, never substituted
             state.deviations.append({"kind": "external_unavailable", "detail": f"{type(exc).__name__}: {exc}"})
@@ -629,6 +636,9 @@ def _run_analyses(state: RunState) -> None:
                 state.fixed_had_replicates[aid] = had
         try:
             state.results[aid] = _run_analysis(a, state.frame, state.level, state.work_reps, state.corr_method, external=state.joined_external, coords=state.coords)
+            result = state.results[aid]
+            extra = getattr(result,"attrs",{}).get("deviations",getattr(result,"diagnostics",{}).get("deviations",[]))
+            state.deviations.extend(dict(d,analysis=aid) for d in extra)
         except Exception as exc:
             kind = "replicates_incomplete" if isinstance(exc, IncompleteReplicatesError) else "analysis_failed"
             state.deviations.append({"kind": kind, "analysis": aid, "detail": f"{type(exc).__name__}: {exc}"})
@@ -752,10 +762,17 @@ def _bundle(state: RunState) -> Dict[str, Any]:
                              description=state.source.get("description"))
     if state.external_info and state.external_info.get("sources"):
         citation = citation + " External data: " + " ".join(p["citation"] for p in state.external_info["sources"])
+    if state.frame is not None:
+        from ..wonder_outputs import policy_from_frame
+        policy = policy_from_frame(state.frame,state.m)
+        if policy:run_info["wonder_output_policy"] = policy
     bundle = _write_bundle(state.out / "bundle", state.m, state.h, tagged, state.hyp_df, run_info, citation)
     out_res = {"success": complete, "analysis_status": status, "data_source": state.source, "replicates": rep_info,
                "manifest_hash": state.h, "deviations": state.deviations, "hypotheses": state.hyp_df, "results": tagged,
                "frame": state.frame, "bundle": bundle, "output_dir": str(state.out), "errors": []}
+    if run_info.get("wonder_output_policy"):
+        from ..wonder_outputs import sanitize_frame
+        out_res["frame"] = sanitize_frame(state.frame,run_info["wonder_output_policy"])
     if state.m.get("adjustments"):
         out_res["adjustments"] = state.adjustment_log
     if state.external_info is not None:
@@ -835,6 +852,11 @@ def _write_analysed_data(out: Path, frame: Optional[pd.DataFrame], replicates: A
         for stale in (folder / f"{name}.parquet", folder / f"{name}.csv"):  # never mix with an earlier run's copy
             stale.unlink(missing_ok=True)
         data = df.reset_index(drop=True)
+        if name == "analysis_frame":
+            from ..wonder_outputs import policy_from_frame,sanitize_frame
+            policy = policy_from_frame(df)
+            if policy:
+                data = sanitize_frame(data,policy,parquet=True)
         try:
             path = folder / f"{name}.parquet"
             data.to_parquet(path, index=False)
@@ -886,6 +908,7 @@ def _write_bundle(folder: Path, m, h, results, hyp_df, run_info, citation) -> Di
     payload["hypotheses"] = {"manifest_hash": h, "rows": hyp_df}
     payload["run"] = run_info
     from ..report_tables import results_bundle
+    wonder_policy = run_info.get("wonder_output_policy")
     provenance = {"manifest_hash": h, "analysis_status": run_info["analysis_status"],
                   "deviations": len(run_info["deviations"]), "data_source": run_info.get("data_source"),
                   "replicates": run_info.get("replicates")}
@@ -896,4 +919,5 @@ def _write_bundle(folder: Path, m, h, results, hyp_df, run_info, citation) -> Di
                                                         "releases") if k in a}
                                      for a in run_info["adjustments"]]
     return results_bundle(folder, tables=tables, figures=figures_, methods=methods_section(m, run_info),
-                          results=payload, provenance=provenance, citation=citation)
+                          results=payload, provenance=provenance, citation=citation,
+                          **({"wonder_policy":wonder_policy} if wonder_policy else {}))

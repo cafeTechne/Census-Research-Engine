@@ -1,0 +1,15 @@
+"Notes"	"County"	"County Code"	Deaths
+	"Synthetic Alpha"	"01001"	20
+	"Synthetic Beta"	"01003"	Suppressed
+	"Synthetic Gamma"	"01005"	0
+"---"
+"Dataset: Underlying Cause of Death, 2018-2024, Single Race"
+"Query Parameters:"
+"Ten-Year Age Groups: < 1 year; 1-4 years; 5-14 years; 15-24 years; 25-34 years; 35-44 years; 45-54 years; 55-64 years; 65-74"
+"years"
+"Year/Month: 2018; 2019; 2020; 2021; 2022"
+"Group By: County"
+"Show Totals: Disabled"
+"Show Zero Values: True"
+"Show Suppressed: True"
+"Query Date: Synthetic fixture, not real data"

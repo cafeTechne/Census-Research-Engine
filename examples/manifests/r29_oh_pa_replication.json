@@ -1,0 +1,722 @@
+{
+  "analyses": [
+    {
+      "args": {
+        "exposure": "E_h1",
+        "model": "poisson",
+        "scale": "robust",
+        "target": "conservative"
+      },
+      "formula": "h1_numerator ~ poverty + C(GEOID.str[:2])",
+      "id": "h1",
+      "method": "fit_replicate"
+    },
+    {
+      "id": "smr_h1",
+      "method": "smr",
+      "observed": "h1_numerator",
+      "period_years": 5,
+      "population_bands": [
+        "age_m_0_4",
+        "age_m_5_14",
+        "age_m_15_24",
+        "age_m_25_34",
+        "age_m_35_44",
+        "age_m_45_54",
+        "age_m_55_64",
+        "age_m_65_74",
+        "age_f_0_4",
+        "age_f_5_14",
+        "age_f_15_24",
+        "age_f_25_34",
+        "age_f_35_44",
+        "age_f_45_54",
+        "age_f_55_64",
+        "age_f_65_74"
+      ],
+      "reference_export": {
+        "ages_under": 75,
+        "file": "external_data/wonder/ucd/2018-2022/national_age_sex/all_causes.tsv",
+        "sha256": "5cc68a5244e8cdb47d6b40d4d961e61dc0624092d2c2b0f2ee57da356fc51fee"
+      },
+      "reference_source": "Owner manual WONDER UCD national age × sex export, 2018–2022; annual person-year rates"
+    },
+    {
+      "args": {
+        "exposure": "E_h2",
+        "model": "poisson",
+        "scale": "robust",
+        "target": "conservative"
+      },
+      "formula": "h2_numerator ~ poverty + C(GEOID.str[:2])",
+      "id": "h2",
+      "method": "fit_replicate"
+    },
+    {
+      "id": "smr_h2",
+      "method": "smr",
+      "observed": "h2_numerator",
+      "period_years": 5,
+      "population_bands": [
+        "age_m_0_4",
+        "age_m_5_14",
+        "age_m_15_24",
+        "age_m_25_34",
+        "age_m_35_44",
+        "age_m_45_54",
+        "age_m_55_64",
+        "age_m_65_74",
+        "age_m_75_84",
+        "age_m_85_plus",
+        "age_f_0_4",
+        "age_f_5_14",
+        "age_f_15_24",
+        "age_f_25_34",
+        "age_f_35_44",
+        "age_f_45_54",
+        "age_f_55_64",
+        "age_f_65_74",
+        "age_f_75_84",
+        "age_f_85_plus"
+      ],
+      "reference_export": {
+        "file": "external_data/wonder/ucd/2018-2022/national_age_sex/drug_overdose.tsv",
+        "sha256": "5a7e39415288c0c95747e1d4afc167e26bb304472d552bedadae79a16f7074bb"
+      },
+      "reference_source": "Owner manual WONDER UCD national age × sex export, 2018–2022; annual person-year rates"
+    },
+    {
+      "args": {
+        "exposure": "E_h3",
+        "model": "poisson",
+        "scale": "robust",
+        "target": "conservative"
+      },
+      "formula": "h3_numerator ~ poverty + C(GEOID.str[:2])",
+      "id": "h3",
+      "method": "fit_replicate"
+    },
+    {
+      "id": "smr_h3",
+      "method": "smr",
+      "observed": "h3_numerator",
+      "period_years": 5,
+      "population_bands": [
+        "age_m_0_4",
+        "age_m_5_14",
+        "age_m_15_24",
+        "age_m_25_34",
+        "age_m_35_44",
+        "age_m_45_54",
+        "age_m_55_64",
+        "age_m_65_74",
+        "age_m_75_84",
+        "age_m_85_plus",
+        "age_f_0_4",
+        "age_f_5_14",
+        "age_f_15_24",
+        "age_f_25_34",
+        "age_f_35_44",
+        "age_f_45_54",
+        "age_f_55_64",
+        "age_f_65_74",
+        "age_f_75_84",
+        "age_f_85_plus"
+      ],
+      "reference_export": {
+        "file": "external_data/wonder/ucd/2018-2022/national_age_sex/heart_disease.tsv",
+        "sha256": "ce28a49d8d4981cafb439826d8ca3c00eeeb1c4604a67e25641508f689f8302c"
+      },
+      "reference_source": "Owner manual WONDER UCD national age × sex export, 2018–2022; annual person-year rates"
+    }
+  ],
+  "authors": [
+    "human:cafeTechne"
+  ],
+  "confidence_level": 0.9,
+  "correction": {
+    "family": "all",
+    "method": "holm"
+  },
+  "created": "2026-11-18",
+  "data_source": {
+    "synthetic": false
+  },
+  "derivations": [
+    {
+      "name": "age_m_0_4",
+      "num": [
+        "age_cell_003"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_5_14",
+      "num": [
+        "age_cell_004",
+        "age_cell_005"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_15_24",
+      "num": [
+        "age_cell_006",
+        "age_cell_007",
+        "age_cell_008",
+        "age_cell_009",
+        "age_cell_010"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_25_34",
+      "num": [
+        "age_cell_011",
+        "age_cell_012"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_35_44",
+      "num": [
+        "age_cell_013",
+        "age_cell_014"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_45_54",
+      "num": [
+        "age_cell_015",
+        "age_cell_016"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_55_64",
+      "num": [
+        "age_cell_017",
+        "age_cell_018",
+        "age_cell_019"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_65_74",
+      "num": [
+        "age_cell_020",
+        "age_cell_021",
+        "age_cell_022"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_75_84",
+      "num": [
+        "age_cell_023",
+        "age_cell_024"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_85_plus",
+      "num": [
+        "age_cell_025"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_0_4",
+      "num": [
+        "age_cell_027"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_5_14",
+      "num": [
+        "age_cell_028",
+        "age_cell_029"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_15_24",
+      "num": [
+        "age_cell_030",
+        "age_cell_031",
+        "age_cell_032",
+        "age_cell_033",
+        "age_cell_034"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_25_34",
+      "num": [
+        "age_cell_035",
+        "age_cell_036"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_35_44",
+      "num": [
+        "age_cell_037",
+        "age_cell_038"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_45_54",
+      "num": [
+        "age_cell_039",
+        "age_cell_040"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_55_64",
+      "num": [
+        "age_cell_041",
+        "age_cell_042",
+        "age_cell_043"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_65_74",
+      "num": [
+        "age_cell_044",
+        "age_cell_045",
+        "age_cell_046"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_75_84",
+      "num": [
+        "age_cell_047",
+        "age_cell_048"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_85_plus",
+      "num": [
+        "age_cell_049"
+      ],
+      "op": "sum"
+    },
+    {
+      "as_percent": true,
+      "den": "pov_total",
+      "name": "poverty",
+      "num": "pov_below",
+      "op": "proportion"
+    },
+    {
+      "name": "acs_population",
+      "num": [
+        "age_m_0_4",
+        "age_m_5_14",
+        "age_m_15_24",
+        "age_m_25_34",
+        "age_m_35_44",
+        "age_m_45_54",
+        "age_m_55_64",
+        "age_m_65_74",
+        "age_m_75_84",
+        "age_m_85_plus",
+        "age_f_0_4",
+        "age_f_5_14",
+        "age_f_15_24",
+        "age_f_25_34",
+        "age_f_35_44",
+        "age_f_45_54",
+        "age_f_55_64",
+        "age_f_65_74",
+        "age_f_75_84",
+        "age_f_85_plus"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "E_h1",
+      "op": "expected_count",
+      "period_years": 5,
+      "population_bands": [
+        "age_m_0_4",
+        "age_m_5_14",
+        "age_m_15_24",
+        "age_m_25_34",
+        "age_m_35_44",
+        "age_m_45_54",
+        "age_m_55_64",
+        "age_m_65_74",
+        "age_f_0_4",
+        "age_f_5_14",
+        "age_f_15_24",
+        "age_f_25_34",
+        "age_f_35_44",
+        "age_f_45_54",
+        "age_f_55_64",
+        "age_f_65_74"
+      ],
+      "reference_export": {
+        "ages_under": 75,
+        "file": "external_data/wonder/ucd/2018-2022/national_age_sex/all_causes.tsv",
+        "sha256": "5cc68a5244e8cdb47d6b40d4d961e61dc0624092d2c2b0f2ee57da356fc51fee"
+      }
+    },
+    {
+      "name": "E_h2",
+      "op": "expected_count",
+      "period_years": 5,
+      "population_bands": [
+        "age_m_0_4",
+        "age_m_5_14",
+        "age_m_15_24",
+        "age_m_25_34",
+        "age_m_35_44",
+        "age_m_45_54",
+        "age_m_55_64",
+        "age_m_65_74",
+        "age_m_75_84",
+        "age_m_85_plus",
+        "age_f_0_4",
+        "age_f_5_14",
+        "age_f_15_24",
+        "age_f_25_34",
+        "age_f_35_44",
+        "age_f_45_54",
+        "age_f_55_64",
+        "age_f_65_74",
+        "age_f_75_84",
+        "age_f_85_plus"
+      ],
+      "reference_export": {
+        "file": "external_data/wonder/ucd/2018-2022/national_age_sex/drug_overdose.tsv",
+        "sha256": "5a7e39415288c0c95747e1d4afc167e26bb304472d552bedadae79a16f7074bb"
+      }
+    },
+    {
+      "name": "E_h3",
+      "op": "expected_count",
+      "period_years": 5,
+      "population_bands": [
+        "age_m_0_4",
+        "age_m_5_14",
+        "age_m_15_24",
+        "age_m_25_34",
+        "age_m_35_44",
+        "age_m_45_54",
+        "age_m_55_64",
+        "age_m_65_74",
+        "age_m_75_84",
+        "age_m_85_plus",
+        "age_f_0_4",
+        "age_f_5_14",
+        "age_f_15_24",
+        "age_f_25_34",
+        "age_f_35_44",
+        "age_f_45_54",
+        "age_f_55_64",
+        "age_f_65_74",
+        "age_f_75_84",
+        "age_f_85_plus"
+      ],
+      "reference_export": {
+        "file": "external_data/wonder/ucd/2018-2022/national_age_sex/heart_disease.tsv",
+        "sha256": "ce28a49d8d4981cafb439826d8ca3c00eeeb1c4604a67e25641508f689f8302c"
+      }
+    }
+  ],
+  "exclusions": [
+    {
+      "action": "flag",
+      "rule": "cv_screen",
+      "threshold": 30,
+      "variables": [
+        "poverty"
+      ]
+    }
+  ],
+  "external": [
+    {
+      "file": "external_data/wonder/ucd/2018-2022/county/premature_all_causes.tsv",
+      "measure": "deaths",
+      "name": "h1",
+      "sha256": "657de24ba221247fe97a8d8b6614e29622d66fbc5dac1b5f24a1c4f62b41b702",
+      "source": "wonder"
+    },
+    {
+      "file": "external_data/wonder/ucd/2018-2022/county/drug_overdose.tsv",
+      "measure": "deaths",
+      "name": "h2",
+      "sha256": "6cb523b4ae4ee27601fb3ea7b115d3ff9c78c17da2d20152674c2da2ec271499",
+      "source": "wonder"
+    },
+    {
+      "file": "external_data/wonder/ucd/2018-2022/county/heart_disease.tsv",
+      "measure": "deaths",
+      "name": "h3",
+      "sha256": "7c3191d74448d126e98f9c03e549f3db3615c4d324716cbe097031f186c84eaa",
+      "source": "wonder"
+    }
+  ],
+  "geography": {
+    "level": "county",
+    "states": [
+      "39",
+      "42"
+    ]
+  },
+  "hypotheses": [
+    {
+      "analysis": "h1",
+      "direction": "greater",
+      "id": "H1",
+      "statement": "premature_all_causes: mortality relative to the age/sex standard increases with poverty percentage, conditional on state.",
+      "statistic": "coefficient",
+      "term": "poverty"
+    },
+    {
+      "analysis": "h2",
+      "direction": "greater",
+      "id": "H2",
+      "statement": "drug_overdose: mortality relative to the age/sex standard increases with poverty percentage, conditional on state.",
+      "statistic": "coefficient",
+      "term": "poverty"
+    },
+    {
+      "analysis": "h3",
+      "direction": "greater",
+      "id": "H3",
+      "statement": "heart_disease: mortality relative to the age/sex standard increases with poverty percentage, conditional on state.",
+      "statistic": "coefficient",
+      "term": "poverty"
+    }
+  ],
+  "missing": "complete_case",
+  "protocol": {
+    "descriptive": "posterior EB SMR maps with suppressed counties masked; exploratory population-weighted SII/log RII across poverty ridits",
+    "h2_sensitivity": {
+      "assign_all_suppressed": [
+        1,
+        9
+      ],
+      "holm": "replace H2 raw p only; retain registered H1 and H3 raw p",
+      "outputs": "coefficients only; never county imputed values",
+      "robust": "same support/non-support conclusion in complete-case and both refits; these are not strict bounds"
+    },
+    "limitations": "independent-area inference; spatial dependence unresolved; ecological association, no causal interpretation; no GLM attenuation correction",
+    "models": "Poisson log link; HC3 plus ACS covariate replicate variance; expected-death offsets held fixed",
+    "outputs": "study states only; no reference death-count vectors, raw exports, complementary totals or per-county suppressed-derived values",
+    "replication": "same coefficient sign and Holm p < 0.10 in OH/PA; Holm family H1–H3 separately in each geography",
+    "review": "author self-review, not independent; owner checkpoint passed 2026-11-18"
+  },
+  "releases": [
+    2022
+  ],
+  "replicates": {
+    "source": "census_vre"
+  },
+  "schema_version": 1,
+  "title": "County mortality and poverty, ACS/WONDER 2018–2022",
+  "variables": [
+    {
+      "name": "age_cell_003",
+      "ref": "2022:B01001_003"
+    },
+    {
+      "name": "age_cell_004",
+      "ref": "2022:B01001_004"
+    },
+    {
+      "name": "age_cell_005",
+      "ref": "2022:B01001_005"
+    },
+    {
+      "name": "age_cell_006",
+      "ref": "2022:B01001_006"
+    },
+    {
+      "name": "age_cell_007",
+      "ref": "2022:B01001_007"
+    },
+    {
+      "name": "age_cell_008",
+      "ref": "2022:B01001_008"
+    },
+    {
+      "name": "age_cell_009",
+      "ref": "2022:B01001_009"
+    },
+    {
+      "name": "age_cell_010",
+      "ref": "2022:B01001_010"
+    },
+    {
+      "name": "age_cell_011",
+      "ref": "2022:B01001_011"
+    },
+    {
+      "name": "age_cell_012",
+      "ref": "2022:B01001_012"
+    },
+    {
+      "name": "age_cell_013",
+      "ref": "2022:B01001_013"
+    },
+    {
+      "name": "age_cell_014",
+      "ref": "2022:B01001_014"
+    },
+    {
+      "name": "age_cell_015",
+      "ref": "2022:B01001_015"
+    },
+    {
+      "name": "age_cell_016",
+      "ref": "2022:B01001_016"
+    },
+    {
+      "name": "age_cell_017",
+      "ref": "2022:B01001_017"
+    },
+    {
+      "name": "age_cell_018",
+      "ref": "2022:B01001_018"
+    },
+    {
+      "name": "age_cell_019",
+      "ref": "2022:B01001_019"
+    },
+    {
+      "name": "age_cell_020",
+      "ref": "2022:B01001_020"
+    },
+    {
+      "name": "age_cell_021",
+      "ref": "2022:B01001_021"
+    },
+    {
+      "name": "age_cell_022",
+      "ref": "2022:B01001_022"
+    },
+    {
+      "name": "age_cell_023",
+      "ref": "2022:B01001_023"
+    },
+    {
+      "name": "age_cell_024",
+      "ref": "2022:B01001_024"
+    },
+    {
+      "name": "age_cell_025",
+      "ref": "2022:B01001_025"
+    },
+    {
+      "name": "age_cell_027",
+      "ref": "2022:B01001_027"
+    },
+    {
+      "name": "age_cell_028",
+      "ref": "2022:B01001_028"
+    },
+    {
+      "name": "age_cell_029",
+      "ref": "2022:B01001_029"
+    },
+    {
+      "name": "age_cell_030",
+      "ref": "2022:B01001_030"
+    },
+    {
+      "name": "age_cell_031",
+      "ref": "2022:B01001_031"
+    },
+    {
+      "name": "age_cell_032",
+      "ref": "2022:B01001_032"
+    },
+    {
+      "name": "age_cell_033",
+      "ref": "2022:B01001_033"
+    },
+    {
+      "name": "age_cell_034",
+      "ref": "2022:B01001_034"
+    },
+    {
+      "name": "age_cell_035",
+      "ref": "2022:B01001_035"
+    },
+    {
+      "name": "age_cell_036",
+      "ref": "2022:B01001_036"
+    },
+    {
+      "name": "age_cell_037",
+      "ref": "2022:B01001_037"
+    },
+    {
+      "name": "age_cell_038",
+      "ref": "2022:B01001_038"
+    },
+    {
+      "name": "age_cell_039",
+      "ref": "2022:B01001_039"
+    },
+    {
+      "name": "age_cell_040",
+      "ref": "2022:B01001_040"
+    },
+    {
+      "name": "age_cell_041",
+      "ref": "2022:B01001_041"
+    },
+    {
+      "name": "age_cell_042",
+      "ref": "2022:B01001_042"
+    },
+    {
+      "name": "age_cell_043",
+      "ref": "2022:B01001_043"
+    },
+    {
+      "name": "age_cell_044",
+      "ref": "2022:B01001_044"
+    },
+    {
+      "name": "age_cell_045",
+      "ref": "2022:B01001_045"
+    },
+    {
+      "name": "age_cell_046",
+      "ref": "2022:B01001_046"
+    },
+    {
+      "name": "age_cell_047",
+      "ref": "2022:B01001_047"
+    },
+    {
+      "name": "age_cell_048",
+      "ref": "2022:B01001_048"
+    },
+    {
+      "name": "age_cell_049",
+      "ref": "2022:B01001_049"
+    },
+    {
+      "name": "pov_total",
+      "ref": "2022:B17001_001"
+    },
+    {
+      "name": "pov_below",
+      "ref": "2022:B17001_002"
+    }
+  ]
+}

@@ -50,6 +50,7 @@ def parse_footer(footer: List[str]) -> Dict[str, Any]:
     """Dataset name, query parameters ({name: value}) and other footer lines."""
     out: Dict[str, Any] = {"dataset": None, "parameters": {}, "other": []}
     in_params = False
+    last_key = None
     for line in footer:
         if line.startswith("Dataset:"):
             out["dataset"] = line.split(":", 1)[1].strip()
@@ -58,9 +59,13 @@ def parse_footer(footer: List[str]) -> Dict[str, Any]:
             in_params = True
         elif in_params and ":" in line and not line.startswith(("Help:", "Query Date:", "Suggested Citation:")):
             k, v = line.split(":", 1)
-            out["parameters"][k.strip()] = v.strip()
+            last_key = k.strip()
+            out["parameters"][last_key] = v.strip()
+        elif in_params and last_key and not line.startswith(("Help:", "Query Date:", "Suggested Citation:", "Notes:")):
+            out["parameters"][last_key] += " " + line.strip()
         else:
             in_params = False
+            last_key = None
             if line.startswith("Query Date:"):
                 out["query_date"] = line.split(":", 1)[1].strip()
             out["other"].append(line)
@@ -73,11 +78,11 @@ def parse_footer(footer: List[str]) -> Dict[str, Any]:
 def _num(series: pd.Series) -> "Tuple[np.ndarray, np.ndarray, np.ndarray]":
     """(values, suppressed, unreliable) from a WONDER column."""
     s = series.fillna("").astype(str).str.strip()
-    unreliable = s.str.contains(r"\(Unreliable\)", regex=True).to_numpy()
+    unreliable = (s.str.contains(r"\(Unreliable\)", regex=True) | s.eq("Unreliable")).to_numpy()
     suppressed = s.str.fullmatch(r"Suppressed").to_numpy()
     clean = s.str.replace(r"\s*\(Unreliable\)", "", regex=True).str.replace(",", "", regex=False)
     val = pd.to_numeric(clean, errors="coerce").to_numpy(float)
-    bad = (clean != "") & np.isnan(val) & ~clean.isin(["Suppressed", "Not Applicable", "Missing"]).to_numpy()
+    bad = (clean != "") & np.isnan(val) & ~clean.isin(["Suppressed", "Not Applicable", "Not Available", "Missing", "Unreliable"]).to_numpy()
     if bad.any():
         raise WonderExportError(f"unexpected values in {series.name!r}: {sorted(set(clean[bad]))[:5]}")
     return val, suppressed, unreliable
@@ -114,6 +119,7 @@ def read_wonder_export(path: str, level: str = "county") -> Dict[str, Any]:
         raise WonderExportError(f"duplicated {level} rows (group by {level} only): {sorted(geo[geo.duplicated()])[:5]}")
     out = pd.DataFrame({"GEOID": geo.to_numpy()})
     deaths, supp, _ = _num(df["Deaths"])
+    supp = supp | ((deaths >= 1) & (deaths <= 9))
     out["deaths"] = np.where(supp, np.nan, deaths)
     out["deaths_suppressed"] = supp
     out["deaths_lower_bound"] = np.where(supp, SUPPRESSED_BOUNDS[0], deaths)
@@ -153,8 +159,13 @@ def read_wonder_export(path: str, level: str = "county") -> Dict[str, Any]:
             cols = [c for c in df.columns if c.startswith(pre)]
             out["age_adjusted_rate" + suf] = _num(df[cols[0]])[0] if cols else np.nan
     out["unreliable"] = unrel | ((out["deaths"] < 20) & ~out["deaths_suppressed"]).to_numpy()
+    notes = []
+    if "Population" not in df:
+        notes.append("Deaths-only export: population/rate columns absent; study expected counts require separate ACS populations.")
+    elif not np.isfinite(pop).all():
+        notes.append(f"Population unavailable for {int((~np.isfinite(pop)).sum())} row(s); retained as missing, not zero.")
     return {"rows": out, "footer": footer, "sha256": hashlib.sha256(raw).hexdigest(), "path": os.path.abspath(path),
-            "size_bytes": len(raw)}
+            "size_bytes": len(raw), "notes": notes, "columns": list(df.columns)}
 
 
 def garwood_interval(deaths: np.ndarray, level: float = 0.95) -> "Tuple[np.ndarray, np.ndarray]":
@@ -210,4 +221,83 @@ def load_wonder_measure(path: str, sha256: str, measure: str, name: str,
            "suppressed_units": int(r["deaths_suppressed"].sum()), "unreliable_units": int((flag == 1).sum()),
            "file": {"path": exp["path"], "sha256": exp["sha256"], "size_bytes": exp["size_bytes"],
                     "source_url": "user-supplied CDC WONDER export"}}
+    if exp.get("notes"):
+        rec["notes"] = exp["notes"]
     return out, rec
+
+
+def read_wonder_reference(path, *, expected_sha256=None, state=None, validate_only=False):
+    """Read national age/sex manual TSV/TXT, with one common schema.
+
+    Rates are deaths/summed annual populations (per person-year). Under-one and
+    ages 1–4 combine before division. Not Stated ages are excluded and counted.
+    State references require an explicit state selector; a suppressed state cell
+    can pass registration validation but is refused at runtime. National
+    suppressed reference cells are always refused. No network access occurs.
+    """
+    from pathlib import Path
+    import re
+    from .wonder_reference import BANDS,band_order
+    file=Path(path);raw=file.read_bytes();sha=hashlib.sha256(raw).hexdigest()
+    if expected_sha256 is not None and sha!=str(expected_sha256).lower():raise WonderExportError('reference export SHA-256 differs from its registered bytes')
+    notes=[]
+    if file.suffix.lower() in ('.tsv','.txt'):
+        text=raw.decode('utf-8-sig');body,lines=_split_footer(text);footer=parse_footer(lines)
+        from .wonder_inventory import years_from_parameters
+        years=years_from_parameters(footer['parameters'])
+        source=pd.read_csv(io.StringIO('\n'.join(body)),sep='\t',dtype=str,keep_default_na=False)
+        is_state='State Code' in source
+        group=footer['parameters'].get('Group By','').lower().replace('gender','sex')
+        group_parts={x.strip() for x in group.split(';') if x.strip()}
+        wanted={'ten-year age groups','sex'}|({'state'} if is_state else set())
+        if group_parts!=wanted or 'County Code' in source:
+            raise WonderExportError('reference grouping must be national age/sex or preregistered state/age/sex')
+        if not is_state:
+            for key,value in footer['parameters'].items():
+                if any(word in key.lower() for word in ('location','county','state','region','division','urbanization')) and '*All*' not in value and value.strip() not in ('All','The United States'):
+                    raise WonderExportError('national reference file has a location filter')
+        if is_state:
+            if not isinstance(state,str) or not re.fullmatch(r'[0-9]{2}',state):raise WonderExportError('state reference rates require an explicitly preregistered two-digit state')
+            source=source[source['State Code'].str.zfill(2)==state]
+            if source.empty:raise WonderExportError('selected reference state is absent')
+        age=next((c for c in ('Ten-Year Age Groups','Ten-Year Age Group') if c in source),None)
+        sex=next((c for c in ('Sex','Gender') if c in source),None)
+        if not age or not sex or not {'Deaths','Population'}<=set(source):raise WonderExportError('age/sex reference requires Ten-Year Age Groups, Sex/Gender, Deaths and Population columns')
+        if 'Notes' in source:source=source[source.Notes.str.strip()!='Total']
+        rows=source.rename(columns={age:'age',sex:'sex','Deaths':'deaths','Population':'population'})[['age','sex','deaths','population']].copy()
+    else:raise WonderExportError('reference format must be TSV or TXT')
+    if state is not None and not is_state:raise WonderExportError('state selector requires a state-grouped reference file')
+    if not years or years!=list(range(min(years),max(years)+1)):raise WonderExportError('reference years must be explicit and contiguous')
+    unstated=rows.age.str.strip().str.lower().isin(('not stated','unknown','ns'))
+    dropped=int(unstated.sum())
+    if dropped:
+        values=[]
+        for value in rows.loc[unstated,'deaths']:
+            number=pd.to_numeric(str(value).replace(',',''),errors='coerce')
+            values.append('suppressed/unavailable' if not np.isfinite(number) or 1<=number<=9 else int(number))
+        notes.append(f'Dropped {dropped} Not Stated age row(s); deaths by excluded row: {values}.')
+    rows=rows[~unstated].copy()
+    rows['sex']=rows.sex.str.strip().map({'Male':'M','Female':'F','M':'M','F':'F'})
+    if rows.sex.isna().any():raise WonderExportError('unexpected reference sex category')
+    deaths,supp,_=_num(rows.deaths);pop,_,_=_num(rows.population)
+    rows['deaths']=deaths;rows['population']=pop;rows['suppressed']=supp|((deaths>=1)&(deaths<=9))
+    # Even a malformed numeric 1..9 cell stays unavailable in validation output.
+    if rows.suppressed.any() and (not is_state or not validate_only):raise WonderExportError('suppressed reference cell refused; reference rates unavailable')
+    rows.loc[rows.suppressed, 'deaths'] = np.nan
+    if not np.isfinite(pop).all() or (pop<=0).any():raise WonderExportError('reference populations/person-years must be present and positive')
+    if ((~rows.suppressed)&(~np.isfinite(deaths)|(deaths<0)|(deaths!=np.floor(deaths)))).any():raise WonderExportError('reference deaths must be nonnegative integer counts')
+    def age_code(label):
+        label=' '.join(str(label).strip().replace('–','-').split())
+        if label in ('< 1 year','Under 1 year','<1 year','1'):return '<1'
+        label=re.sub(r'\s+years?$','',label)
+        if label=='1-4':return '1-4'
+        if label in BANDS[1:]:return label
+        raise WonderExportError(f'unexpected ten-year reference age group {label!r}')
+    rows['source_age']=rows.age.map(age_code)
+    if rows.duplicated(['sex','source_age']).any():raise WonderExportError('duplicate reference age/sex rows')
+    expected={(s,a) for s in ('M','F') for a in ('<1','1-4',*BANDS[1:])}
+    if set(zip(rows.sex,rows.source_age))!=expected:raise WonderExportError('reference lacks complete ten-year age/sex coverage')
+    rows['band']=rows.source_age.replace({'<1':'0-4','1-4':'0-4'})
+    grouped=rows.groupby(['sex','band'],sort=False).agg(deaths=('deaths',lambda x:x.sum(min_count=len(x))),population=('population','sum'),suppressed=('suppressed','any'))
+    grouped=grouped.loc[band_order()].reset_index();grouped['rate']=grouped.deaths/grouped.population
+    return dict(rows=grouped,years=years,footer=footer,notes=notes,sha256=sha,path=str(file.resolve()),state=state)

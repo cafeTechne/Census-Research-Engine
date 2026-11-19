@@ -532,6 +532,10 @@ def _eval_spec_replicates(entry: Mapping[str, Any], get) -> np.ndarray:
 
     if op == "sum":
         return total("num")
+    if op == "expected_count":
+        from .wonder_reference import expected_count_weights
+        weights, _ = expected_count_weights(entry)
+        return sum(weight*get(str(ref)) for weight,ref in zip(weights,entry["population_bands"]))
     if op == "age_standardized":
         from .derived import standardization_weights
         out = None

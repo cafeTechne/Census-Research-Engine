@@ -161,6 +161,27 @@ variance; zero reference deaths refused. Both fields hashed. Without counts, ref
 rates are fixed. Reference person-years are always fixed. Pool band contributions before
 squaring because reference rates are shared across areas. Internal-reference covariance
 omission is conservative, noted, not refused.
+
+Round 29 manual WONDER references: all county and national files are manual
+exports; the engine never contacts WONDER. `acs_age_sex_bands` builds the fixed
+20-band B01001 order (male youngest–oldest, then female). `smr` may replace literal
+rates/counts with `reference_export: {file, sha256}`; `period_years` must match the
+footer. Optional `ages_under: 75` selects the registered under-75 standard.
+National suppressed reference cells are refused after dropping Not Stated;
+state references require explicit `state` registration and are refused at runtime
+if suppressed. No invented reference counts. `expected_count` derivations use
+the same population bands, pinned reference and period, including ACS replicates.
+Poisson offsets remain fixed during regression refits; reference-aware SMR
+combined intervals provide the separate sensitivity, not corrected slope inference.
+Matched suppressed outcomes are distinct from unmatched GEOIDs and unsuppressed
+missing outcomes. Complete-case regressions/SMRs exclude suppressed counties,
+record county IDs and [n,9n] excluded-death bounds. EB is descriptive only.
+WONDER outputs: no sub-national counts 1–9 or values derived from them; no raw
+exports in the repo or releases. Keep study states only, omit national death-count
+vectors/complementary totals, mask censored counties in every product and run
+`census.wonder_outputs.audit_outputs` before packaging. Sensitivity endpoint
+assignments stay internal and output coefficients only; they are not strict bounds.
+
 SMR refuses negative ACS band replicates under its fixed validation domain, even with positive E.
 Area HC3 assumes independence. R1 applies to external outcomes/counts. Reused LBW associations
 are exploratory. No new tools are needed.
