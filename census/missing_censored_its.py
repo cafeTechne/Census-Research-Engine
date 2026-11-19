@@ -143,13 +143,32 @@ def fit_censored_negbin(frame: pd.DataFrame, count: str, censored: str, exposure
                        "Interval-censored NB2 (validated Round 45); prefer it to fit_censored_poisson."])
 
 
-def interrupted_series(values: Sequence[float], interruption_index: int, method: str = "ar1") -> Dict[str, Any]:
-    """EXPLORATORY. Level and slope change after ``interruption_index`` (0-based position) in an annual series."""
+def interrupted_series(values: Sequence[float], interruption_index: int, method: str = "ar1",
+                       seed: int = 20270601) -> Dict[str, Any]:
+    """Level and slope change after ``interruption_index`` (0-based position) in an annual series.
+
+    ``method``: "bootstrap_t" (AR(1) residual bootstrap-t around a REML AR(1) fit, 499 resamples; validated
+    for 30+ points, Round 48), "reml" (REML AR(1) GLS, t reference; exploratory), or the Round 42 "ar1",
+    "ols", "hac" (exploratory)."""
+    from . import small_spatial as ss
+    from . import small_spatial_core as sc
     y = np.asarray(values, float)
     if len(y) < 8 or not 3 <= interruption_index <= len(y)-3:
         raise ValueError("need at least 8 points and 3 on each side of the interruption")
     X = mi.its_design(len(y), interruption_index+1)
-    level, slope = mi.interrupted(y, X, method)
-    return dict(level_change=level, slope_change=slope, n=len(y), method=method, validated=False, audit=AUDIT,
-                notes=["EXPLORATORY: with 20 annual points, OLS, Newey-West and AR(1) GLS intervals all under-covered "
-                       "(.47-.81) under autocorrelation; do not base confirmatory claims on short series."])
+    if method == "bootstrap_t":
+        (level, slope), phi = sc.its_bootstrap_t(y, X, np.random.default_rng(seed))
+    elif method == "reml":
+        (level, slope), phi = sc.its_reml(y, X)
+    else:
+        level, slope = mi.interrupted(y, X, method); phi = None
+    validated = method == "bootstrap_t" and len(y) >= ss.ITS_BOOTSTRAP_MIN_N
+    if validated:
+        notes = [f"AR(1) bootstrap-t (Round 48, {ss.AUDIT}): validated for {ss.ITS_BOOTSTRAP_MIN_N}+ annual points "
+                 "(.883-.896). Assumes AR(1) errors and a linear trend on each side."]
+    else:
+        notes = [f"EXPLORATORY: short-series intervals under-covered (Round 42: OLS, Newey-West, AR(1) GLS .47-.81 at 20 "
+                 f"points; Round 48: REML .79-.88, bootstrap-t validated only at {ss.ITS_BOOTSTRAP_MIN_N}+ points, "
+                 f"{ss.AUDIT}). Use method='bootstrap_t' with {ss.ITS_BOOTSTRAP_MIN_N}+ points for confirmatory claims."]
+    return dict(level_change=level, slope_change=slope, n=len(y), method=method, phi=phi, validated=validated,
+                audit=ss.AUDIT, notes=notes)

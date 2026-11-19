@@ -29,7 +29,7 @@ def _ari(a, b):
 def build_index(frame: pd.DataFrame, indicators: Sequence[str], *, replicates: Optional[pd.DataFrame] = None,
                 method: str = "pca", reverse: Sequence[str] = (), outcome: Optional[str] = None,
                 typology_k: Optional[int] = None, level: float = 0.90, label_col: str = "GEOID",
-                seed: int = 20270121) -> Dict[str, Any]:
+                seed: int = 20270121, coords: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
     """Index of ``indicators`` (higher = more deprived after flipping ``reverse``)."""
     indicators = list(indicators)
     if len(indicators) < 3:
@@ -71,9 +71,17 @@ def build_index(frame: pd.DataFrame, indicators: Sequence[str], *, replicates: O
         notes.append("EXPLORATORY: no replicates, so score intervals are unavailable.")
     out["table"] = pd.DataFrame(dict(area=labels, score=sc, se=se, lower=lo, upper=hi, quintile=quint,
                                      quintile_stability=same)).sort_values("score", ascending=False).reset_index(drop=True)
-    alpha = ic.alpha_interval(Z, level)
-    out["cronbach_alpha"] = dict(alpha, method="Feldt", validated=True,
-                                 note="validated for independent areas; under-covered with spatial dependence")
+    if coords is not None:
+        from . import small_spatial as ss
+        from . import small_spatial_core as ssc
+        alpha = ssc.alpha_neff(Z, ss.distance_classes(data.assign(GEOID=data[label_col].astype(str)), coords), level)
+        out["cronbach_alpha"] = dict(alpha, method="Feldt (effective n)", validated=ss.NEFF_ALPHA_VALIDATED,
+                                     note=f"n replaced by the effective sample size of the total score (Round 48, {ss.AUDIT})")
+    else:
+        alpha = ic.alpha_interval(Z, level)
+        out["cronbach_alpha"] = dict(alpha, method="Feldt", validated=True,
+                                     note="validated for independent areas; under-covered with spatial dependence "
+                                          "(pass coords for the Round 48 effective-n interval)")
     if typology_k:
         rng = np.random.default_rng(seed)
         _, grp = kmeans2(Z, typology_k, minit="++", seed=rng)

@@ -26,13 +26,22 @@ def combine_estimates(estimates: Sequence[float], ses: Sequence[float], *, metho
     fixed-effect interval as validated."""
     if method not in ("hksj", "fixed", "dl"):
         raise ValueError("method must be 'hksj' (default), 'fixed' or 'dl'")
+    from . import small_spatial as ss
+    from . import small_spatial_core as ssc
     theta, se = np.asarray(estimates, float), np.asarray(ses, float)
-    out = ev.pooled(theta, se, method, level)
     k = len(theta)
+    truncated = method == "hksj" and k > HKSJ_VALIDATED_MAX_K
+    if truncated:
+        t = ssc.hksj_truncated(theta, se, level)
+        out = dict(ev.pooled(theta, se, "hksj", level), estimate=t["estimate"], se=t["se"], lower=t["lower"],
+                   upper=t["upper"], variance_factor=t["q"], method="hksj_truncated")
+    else:
+        out = ev.pooled(theta, se, method, level)
     het = ev.heterogeneity(theta, se)
     if method == "hksj":
-        validated = k <= HKSJ_VALIDATED_MAX_K
-        why = None if validated else f"HKSJ validated for up to {HKSJ_VALIDATED_MAX_K} studies; it under-covered at 8 with heterogeneity"
+        validated = k <= ss.HKSJ_TRUNCATED_MAX_K
+        why = None if validated else (f"HKSJ validated for up to {ss.HKSJ_TRUNCATED_MAX_K} studies "
+                                      "(truncated variance factor above 4)")
     elif method == "fixed":
         validated = assume_homogeneous
         why = None if validated else "the fixed-effect interval is valid only if the studies share one effect (declare assume_homogeneous in advance)"
@@ -40,6 +49,9 @@ def combine_estimates(estimates: Sequence[float], ses: Sequence[float], *, metho
         validated, why = False, "DerSimonian-Laird under-covered with heterogeneity"
     notes = [f"{k} estimates; Q = {het['Q']:.3g} (p = {het['p']:.3g}), I² = {het['I2']:.0%}. With few studies, "
              "heterogeneity tests have little power: absence of evidence is not homogeneity."]
+    if truncated:
+        notes.append(f"More than {HKSJ_VALIDATED_MAX_K} estimates: Hartung-Knapp variance factor truncated at 1 "
+                     f"(Round 48, {ss.AUDIT}; plain HKSJ under-covered at 8 with heterogeneity in Round 38).")
     if why:
         notes.append("EXPLORATORY: "+why+f" ({AUDIT}).")
     return dict(pooled=out, heterogeneity=het, k=k, validated=validated,

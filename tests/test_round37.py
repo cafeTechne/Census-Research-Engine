@@ -45,7 +45,8 @@ def test_engine_flags_and_refusal():
     f = pd.DataFrame(dict(GEOID=[f"26{i:03d}" for i in range(len(x))], A=x, B=y, A_se=a))
     out = agreement.check_agreement(f, "A", "B", a_se="A_se")
     assert out["bias"]["validated"] and out["kappa_quintiles"]["validated"]
-    assert not out["limits_observed"]["validated"] and not out["ccc"]["validated"] and "limits_error_free" in out
+    # Round 48 validated the limits with moment-based SEs (docs/audits/small_spatial_validation.md)
+    assert out["limits_observed"]["validated"] and not out["ccc"]["validated"] and "limits_error_free" in out
     no_se = agreement.check_agreement(f, "A", "B")
     assert "limits_error_free" not in no_se
     with pytest.raises(ValueError, match="ten areas"):

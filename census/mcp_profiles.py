@@ -236,15 +236,15 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    - test_association (pums_tests): PUMS Rao-Scott tables up to 3x4, design mean tests,
      differences/OR/RR, Korn-Graubard. Never the design-blind Pearson test.
    - correlation_matrix [full] (rank_methods): Spearman/Kendall intervals; Pearson/partial only
-     with replicates. Independent areas only (spatial dependence breaks every interval).
+     with replicates. Spatially dependent areas: spatial=True (not partial).
    - rank_areas [full]: report rank intervals, never point ranks.
    - fit_model: method="eiv" with spatial="clusters"|"error" (corrected slopes, <=4 noisy
      covariates); model="negbin" for counts (Poisson HC3 under-covers when overdispersed;
      spatial="clusters" gives IM-8 count slopes);
      model="beta" for shares; model="median"; impute="w" or ["w","v"] for incomplete covariates.
-   - build_index [full] (composite_index): score intervals, Feldt alpha; no outcome as indicator.
-   - check_agreement [full] (agreement): bias and kappa only; Bland-Altman limits/CCC exploratory.
-   - combine_estimates [full]: Hartung-Knapp for up to 4 estimates, TOST, power; DL fails.
+   - build_index [full] (composite_index): score intervals, Feldt alpha (spatial=True if dependent); no outcome as indicator.
+   - check_agreement [full] (agreement): bias, kappa, Bland-Altman limits; CCC exploratory.
+   - combine_estimates [full]: Hartung-Knapp for up to 10 estimates, TOST, power; DL fails.
      Pooling states is a new analysis, never a reinterpretation of a registered study.
    - estimate_effect [full] (causal): calibrate=True for noisy confounders or mediator;
      iv: report the Anderson-Rubin interval when F < 10. State the assumptions;

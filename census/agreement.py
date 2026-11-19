@@ -43,13 +43,15 @@ def check_agreement(frame: pd.DataFrame, a: str, b: str, *, a_se: Optional[str] 
     out: Dict[str, Any] = dict(n=len(f), a=a, b=b, audit=AUDIT)
     out["bias"] = dict(ag.bias(x, y, level), validated=True)
     out["kappa_quintiles"] = dict(ag.kappa_quintiles(x, y, level), validated=True)
-    out["limits_observed"] = dict(ag.limits_observed(x, y, level), validated=False)
+    from . import small_spatial as ss
+    from . import small_spatial_core as ssc
+    out["limits_observed"] = dict(ssc.limits_robust(x, y, level=level), validated=ss.LIMITS_ROBUST_VALIDATED)
     out["ccc"] = dict(ag.ccc(x, y, level=level), validated=False)
-    notes = ["Areas assumed independent. Validated: bias and kappa. Limits of agreement and concordance are "
-             "estimates whose intervals failed validation (exploratory)."]
+    notes = ["Areas assumed independent. Validated: bias, kappa and (Round 48) limits of agreement with "
+             f"moment-based SEs ({ss.AUDIT}). Concordance intervals failed validation (exploratory)."]
     if sa is not None:
         try:
-            out["limits_error_free"] = dict(ag.limits_true(x, y, sa, sb, level), validated=False)
+            out["limits_error_free"] = dict(ssc.limits_robust(x, y, sa, sb, level), validated=ss.LIMITS_ROBUST_VALIDATED)
             out["ccc_error_free"] = dict(ag.ccc(x, y, sa, sb, level), validated=False)
         except ValueError as exc:
             notes.append(f"Error-free quantities unavailable: {exc}")

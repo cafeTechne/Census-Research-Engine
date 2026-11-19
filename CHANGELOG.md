@@ -5,6 +5,22 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.45.0 (Round 48): small samples and spatial dependence
+
+- Freeze `census/small_spatial_core.py`, the script and the criterion at `3fb07d3` before the run; the
+  problems reuse the Round 33, 36, 37, 38 and 42 generators.
+- Passed: Clifford–Richardson–Hémon effective-sample-size intervals for Spearman, Kendall and Pearson
+  correlations (.862–.967) and Feldt α (.912–.926) under spatial dependence; Hartung–Knapp for 5–10
+  estimates with the variance factor truncated at 1 (.874–.918); Bland–Altman limits with moment-based
+  SEs (.884–.936); the AR(1) bootstrap-t for interrupted series with 30+ points (.883–.896).
+- Failed: REML AR(1) (.79–.88) and the bootstrap-t below 30 points; IM-8 versions of Spearman, Pearson
+  and α.
+- `validated_correlations(coords=...)`, `build_index(coords=...)`, MCP `spatial=True`;
+  `interrupted_series(method="bootstrap_t" | "reml")`; `combine_estimates` truncates for k > 4 (validated
+  up to 10); `check_agreement` limits validated.
+- Exploratory example: Round 29 correlations with poverty corrected for spatial dependence
+  (`docs/studies/r48_spatial_example.md`).
+
 ## 0.44.0 (Round 47): causal and missing-data robustness
 
 - Freeze `census/causal_robustness_core.py`, the script and the criterion at `cbdc97f` before the run.

@@ -474,6 +474,7 @@ def build_index(
     reverse: Optional[List[str]] = None,
     outcome: Optional[str] = None,
     typology_k: Optional[int] = None,
+    spatial: bool = False,
 ) -> Dict[str, Any]:
     """Build a composite (e.g. deprivation) index from three or more ACS estimates, with
     per-area score intervals, quintiles and their stability, Cronbach's alpha and an
@@ -487,13 +488,20 @@ def build_index(
         reverse: Indicators where higher means less deprived (e.g. median income).
         outcome: The outcome you will relate the index to; refused if it is an indicator.
         typology_k: Also group areas into k types (descriptive), with replicate stability.
+        spatial: Spatially dependent areas: Cronbach's alpha interval with the effective sample
+            size (Round 48; validated).
     Example: build_index("frame.parquet", ["poverty", "no_vehicle", "cost_burden"], replicates_path="reps.parquet")
     """
     from census.composite_index import build_index as _build
 
     try:
-        out = _build(_load_frame(input_path), indicators, replicates=_read_replicates(replicates_path) if replicates_path else None,
-                     method=method, reverse=reverse or (), outcome=outcome, typology_k=typology_k)
+        frame = _load_frame(input_path)
+        coords = None
+        if spatial:
+            from census.small_spatial import frame_coordinates
+            coords = frame_coordinates(frame)
+        out = _build(frame, indicators, replicates=_read_replicates(replicates_path) if replicates_path else None,
+                     method=method, reverse=reverse or (), outcome=outcome, typology_k=typology_k, coords=coords)
     except _INPUT_ERRORS as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
                      "check the indicator names (at least three) and replicates, then retry")
@@ -536,7 +544,7 @@ def check_agreement(
     bias, kap = out["bias"], out["kappa_quintiles"]
     return _ok(f"{b} minus {a}: bias {bias['estimate']:.4g} ({bias['lower']:.4g} to {bias['upper']:.4g}); "
                f"quintile kappa {kap['estimate']:.2f}.",
-               "report bias and kappa; treat limits of agreement and concordance intervals as exploratory",
+               "report bias, kappa and limits of agreement with their intervals; concordance intervals are exploratory",
                **_jsonable(out))
 
 
@@ -708,6 +716,7 @@ def correlation_matrix(
     disattenuate: bool = False,
     figure_dir: Optional[str] = None,
     controls: Optional[List[str]] = None,
+    spatial: bool = False,
 ) -> Dict[str, Any]:
     """Correlations among ACS variables with confidence intervals, corrected
     p-values, design-based SEs from replicates, and optional correction for the
@@ -722,6 +731,8 @@ def correlation_matrix(
         controls: Variables held constant (method="partial").
         disattenuate: Also report correlations corrected for sampling error.
         figure_dir: Also write a heatmap here.
+        spatial: Neighbouring areas are alike (spatial dependence): widen the validated
+            intervals with the effective sample size (Round 48; county or tract GEOIDs).
     """
     from census.correlation import correlation_matrix as _corr, validated_correlations
 
@@ -730,11 +741,15 @@ def correlation_matrix(
     try:
         frame = _load_frame(input_path)
         reps = _read_replicates(replicates_path)
-        table = validated_correlations(frame, variables, method, reps, controls or (),)
+        coords = None
+        if spatial:
+            from census.small_spatial import frame_coordinates
+            coords = frame_coordinates(frame)
+        table = validated_correlations(frame, variables, method, reps, controls or (), coords=coords)
         if method in ("kendall", "partial"):
             n_ok = int(table["validated"].sum())
             return _ok(f"{method.title()} correlations among {len(variables)} variables; {n_ok} of {len(table)} "
-                       "intervals validated.", "report r with its interval; areas are assumed independent",
+                       "intervals validated.", "report r with its interval" + ("" if spatial else "; areas are assumed independent"),
                        validated_intervals=table.to_dict("records"))
         res = _corr(frame, variables, method=method, replicates=reps, disattenuate=disattenuate)
     except _INPUT_ERRORS as exc:

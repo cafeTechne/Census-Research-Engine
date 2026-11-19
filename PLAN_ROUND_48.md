@@ -104,9 +104,9 @@ reported with that minimum (the "n₀" rule: the smallest n at which it passes t
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit | | |
-| I / C / A / H / B results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Criterion commit | `3fb07d3`, pushed before the full run | core, script, criterion and reused generators frozen |
+| I / C / A / H / B results | ITS bootstrap-t passes at n = 30 only; REML fails; effective-n correlations (.862–.967) and α (.912–.926) pass; IM-8 fails except Kendall; HKSJ k 5–10 passes (truncated used); moment-based limits pass (.884–.936) | |
+| Engine, tests | `small_spatial` flags, `coords=`/`spatial=True`, `bootstrap_t`, truncated HKSJ, validated limits; 8 tests; 2 old flag tests updated | |
+| Example | Round 29 correlations with poverty, independent vs effective-n (n_eff 59–127) | `docs/studies/r48_spatial_example.md` |
+| Goldens, final suite | both byte-identical; 2035 passed, 37 skipped | |
+| Exceptions | estimator is Clifford–Richardson–Hémon (named Dutilleul in the plan) | recorded in the criterion |

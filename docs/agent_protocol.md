@@ -335,7 +335,9 @@ without replicates; Pearson and partial (one control) intervals pass only with
 replicates (ACS replicate variance added), else exploratory. Estimand: the observed-
 estimate correlation (attenuated). compare_groups(method="rank"): Brunner-Munzel
 superiority (two groups) and Kruskal-Wallis (3+), validated for independent areas.
-All correlation intervals under-covered (0.60-0.89) with spatially correlated areas.
+All correlation intervals under-covered (0.60-0.89) with spatially correlated areas. Round 48:
+correlation_matrix(spatial=True) uses the effective sample size (Spearman .875-.917, Kendall
+.862-.905, Pearson with replicates .864-.967; partial stays exploratory).
 OLS fit_model/compare_groups add model diagnostics (VIF, Cook's distance, Breusch-Pagan,
 RESET): information only, never a gate.
 
@@ -365,21 +367,21 @@ Round 36 composite indices (full profile tool build_index; recipe composite_inde
 first principal component or equal weights; full-sample standardisation and loadings
 fixed in every replicate. Validated: per-area score intervals (with replicates) and the
 Feldt interval for Cronbach's alpha (independent areas; it under-covers with spatial
-dependence). Quintile stability and typologies are descriptive. An outcome cannot be an
+dependence; build_index(spatial=True) uses the effective sample size, validated .912-.926 in Round 48). Quintile stability and typologies are descriptive. An outcome cannot be an
 indicator of the index used to explain it (circularity).
 
 ## Agreement between sources (Round 37)
 
 Round 37 agreement (full profile tool check_agreement; recipe agreement): bias (b - a)
 and Cohen's kappa of quintile classes passed validation for independent areas. Bland-Altman
-limits of agreement (observed and error-free) and Lin's concordance correlation are reported,
-but their intervals failed (exploratory): differences of noisy estimates are heavy-tailed.
+limits of agreement (observed and error-free) use moment-based SEs since Round 48 (validated,
+.884-.936). Lin's concordance correlation intervals failed (exploratory).
 
 ## Combining evidence (Round 38)
 
 Round 38 combining evidence (full profile tool combine_estimates; recipe
 combine_estimates): pooling uses Paule-Mandel + Hartung-Knapp (validated for up to 4
-estimates); the fixed-effect interval only if homogeneity is declared in advance;
+estimates; Round 48: 5-10 with the variance factor truncated at 1, .874-.918); the fixed-effect interval only if homogeneity is declared in advance;
 DerSimonian-Laird under-covers with heterogeneity. TOST equivalence (margin set in
 advance) and z-test power/minimum detectable effects are validated. Pooling states is a
 new analysis, never a reinterpretation of a registered study.
@@ -444,6 +446,8 @@ two by chained equations (validated .898-.916; complete case .84 when missingnes
 census.missing_censored_its.fit_censored_poisson uses WONDER counts hidden as 1-9 as interval
 information without estimating them (under-covered .84-.86, though better than dropping them);
 interrupted_series for annual series (20-point series: every method under-covered, .47-.81).
+Round 48: interrupted_series(method="bootstrap_t") is validated for 30+ annual points
+(.883-.896); shorter series stay exploratory (REML .79-.88; bootstrap-t .846 at 15 points).
 
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
