@@ -117,6 +117,7 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 **Round 37 (v0.34.0; merged, release pending owner approval; implemented by the maintainer agent):**
 agreement between sources. Criterion `e6d4be6` pushed before the 8-cell run. New `census.agreement_core`,
 `census.agreement`, MCP tool `check_agreement` (full profile), recipe `agreement`. Goldens unchanged.
+Acceptance: 1951 passed, 37 skipped; 0 failures.
 
 **Round 36 (v0.33.0; merged, release pending owner approval; implemented by the maintainer agent):**
 composite indices. Criterion `e86907d` pushed before the 8-cell run. New `census.index_core`,

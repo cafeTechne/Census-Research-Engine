@@ -55,5 +55,5 @@ audit, tool offline. Goldens unchanged; full suite; STATUS, CHANGELOG, version 0
 | B0–B2 / C1–C2 / K1 results | Mixed | B0, K1 passed; B1, B2, C1, C2 failed. |
 | Engine, tool, tests | Done | check_agreement library and tool; 5 tests. |
 | Example | Done | ACS vs population estimates. |
-| Goldens, final suite | | |
+| Goldens, final suite | Done | Goldens identical; 1951 passed, 37 skipped, 0 failures. |
 | Exceptions | Recorded | Design change (δ) before freezing. |

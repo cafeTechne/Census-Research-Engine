@@ -25,4 +25,5 @@ added, because with δ = 0 the error-free limits have near-zero width (unrealist
 
 ## Goldens and suite
 
-See STATUS (Round 37).
+Both goldens byte-identical to v0.33.0. Suite: 1951 passed, 37 skipped, 61 subtests; 0 failures
+(baseline 1946; 5 new tests).
