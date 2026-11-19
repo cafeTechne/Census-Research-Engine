@@ -3,7 +3,8 @@
 
 The numerical kernels match the immutable pre-run validation implementation;
 regression tests compare them and independent statsmodels calculations. Validation
-was on MI/NY independent/spatial fields for OLS and binomial, not EIV or Poisson.
+was on MI/NY independent/spatial fields. Round 30 C1 passed for observed-ACS
+OLS/binomial/Poisson slopes. C2 EIV failed; see im_acs_validation.md.
 """
 import warnings
 import numpy as np
@@ -18,6 +19,9 @@ from .spatial_hac import unit_coordinates
 SPATIAL_CLUSTERS_VALIDATED = {"cr1_t": False, "im": True, "wcr": False}
 VALIDATED_CLUSTER_COUNTS = {"cr1_t": (), "im": (8,), "wcr": ()}
 DEFAULT_SPATIAL_CLUSTERS = {"k": 8, "method": "im"}
+# Fixed Round 30 audit, criterion 2774140. C2 EIV failed; no fallback.
+IM_ACS_VALIDATED = {"ols": True, "binomial": True, "poisson": True}
+IM_EIV_VALIDATED = False
 WEBB = np.array([-np.sqrt(1.5), -1., -np.sqrt(.5), np.sqrt(.5), 1., np.sqrt(1.5)])
 
 def cluster_points(coords, k, seed=20261126):
@@ -162,6 +166,36 @@ def check_config(config):
     return config
 
 
+def supports_im_acs(config, model):
+    return (isinstance(config, dict) and config.get('method') == 'im'
+            and config.get('k') == 8 and IM_ACS_VALIDATED.get(model, False))
+
+
+def _im_acs_table(full, X, y, labels, trials, model, level, info):
+    from .im_acs import constant_columns, cluster_coefficients, summarize
+    terms = list(full.params.index)
+    design = full.model.data.orig_exog.design_info
+    groups = {name: list(range(s.start,s.stop)) for name,s in design.term_name_slices.items()}
+    keep, dropped = constant_columns(X, labels, terms, groups)
+    # statsmodels stores log(exposure), aligned to the retained fit rows.
+    exposure = np.exp(full.model.exposure) if model == 'poisson' and hasattr(full.model,'exposure') else np.ones(len(y))
+    betas = cluster_coefficients(X[:,keep],y,labels,'linear' if model=='ols' else model,
+                                 trials=trials,exposure=exposure)
+    summary = summarize(betas,level)
+    table = pd.DataFrame({'term':terms,'estimate':np.nan,'se_model':np.nan,'se_sampling':np.nan,
+                          'se_total':np.nan,'se_cluster_mean':np.nan,'ci_lower':np.nan,'ci_upper':np.nan,
+                          'p_value':np.nan,'df':7})
+    for key,col in [('estimate','estimate'),('se','se_cluster_mean'),('lower','ci_lower'),
+                    ('upper','ci_upper'),('p_two_sided','p_value')]:
+        table.loc[keep,col] = summary[key]
+    info.update(cluster_estimates=betas.tolist(),cluster_terms=np.asarray(terms)[keep].tolist(),
+                not_estimable_terms=dropped,validated=True,validation_audit='docs/audits/im_acs_validation.md',
+                estimand='coefficient on the ACS estimates as observed; not measurement-error corrected',
+                sampling_error_handling='independent ACS error enters between-cluster spread; no additive replicate variance',
+                full_sample_reference_coefficients={k:float(v) for k,v in full.params.items()})
+    return table,info
+
+
 def spatial_clusters(geoids, level, acs_year, k, seed=20261126):
     """Fixed geographic assignment; output GEOID/lon/lat/cluster plus attrs provenance.
 
@@ -205,8 +239,8 @@ def inference_table(full, data, n_trials, model, config, assignment, target, lev
     """Return method-specific coefficients and diagnostics, without changing old fits.
 
     IM's between-cluster one-sample SE is recorded as se_cluster_mean, not as an
-    additive full-sample se_model. WCR has no scalar reported SE. Both refuse ACS
-    replicates in fit_replicate and use only population-target inference.
+    additive full-sample se_model. WCR has no scalar reported SE. Round 30 C1 accepts ACS
+    replicates without adding their variance; WCR refuses them. Population target only.
     """
     from .models import _table
     X = np.asarray(full.model.exog, float); y = np.asarray(full.model.endog, float)
@@ -219,13 +253,15 @@ def inference_table(full, data, n_trials, model, config, assignment, target, lev
     if np.linalg.matrix_rank(X) != X.shape[1]:
         raise ValueError("spatial-cluster full design is rank deficient")
     trials = np.asarray(n_trials, float)[rows] if model == "binomial" else None
-    b,bread,scores,_ = fit_components(X,y,"linear" if model=="ols" else "binomial",trials)
     terms = list(full.params.index); g = config["k"]; critical = t.ppf((1+level)/2,g-1)
     info = {**config,"df":g-1,"critical_value":float(critical),"seed":20261126,
             "assignment":dict(zip(assignment.GEOID.astype(str),map(int,assignment.cluster))),
             "analysed_cluster_sizes":{str(k):int(v) for k,v in counts.items()},
             "validated":bool(SPATIAL_CLUSTERS_VALIDATED[config["method"]] and
                              g in VALIDATED_CLUSTER_COUNTS[config["method"]])}
+    if supports_im_acs(config,model):
+        return _im_acs_table(full,X,y,labels,trials,model,level,info)
+    b,bread,scores,_ = fit_components(X,y,"linear" if model=="ols" else "binomial",trials)
     if config["method"] == "cr1_t":
         se = np.sqrt(np.diag(cluster_covariance(scores,bread,labels)))
         table = _table(full.params,pd.Series(se,index=terms),se_sampling,level,target)

@@ -82,7 +82,7 @@ def test_im_t_interval_and_distinct_se_contract():
     info=interval_description(r)
     assert info['basis_column']=='se_cluster_mean' and info['distribution']=='t' and info['df']['x']==7
     assert info['undefined_terms']==[]
-    assert 'ACS sampling error is not included' in ' '.join(r.notes)
+    assert 'between-cluster spread' in ' '.join(r.notes)
     assert len(r.diagnostics['spatial_clusters']['assignment'])==96
 
 
@@ -143,7 +143,8 @@ def test_failed_candidates_not_promoted(method,k):
 
 
 @pytest.mark.parametrize('method',['im','wcr'])
-def test_incompatible_target_and_acs_replicates_refused(method):
+def test_incompatible_target_and_acs_replicates_refused(method,monkeypatch):
+    monkeypatch.setitem(sc.IM_ACS_VALIDATED,'ols',False)
     f,c=sample()
     with pytest.raises(ValueError,match="target='population'"):
         fit_replicate('y ~ x',f,target='conservative',coords=c,spatial_clusters={'k':8,'method':method})
@@ -158,10 +159,11 @@ def test_hash_includes_cluster_spec_and_methods_prose():
     m=manifest();before=manifest_hash(m);m['analyses'][0]['args']['spatial_clusters']['k']=12
     assert manifest_hash(m)!=before
     text=methods_section(manifest())
-    assert 'Ibragimov-Müller' in text and 't(7)' in text and 'ACS sampling error is not included' in text
+    assert 'Ibragimov-Müller' in text and 't(7)' in text and 'between-cluster spread' in text
 
 
-def test_im_rank_deficiency_refused():
+def test_im_rank_deficiency_refused(monkeypatch):
+    monkeypatch.setitem(sc.IM_ACS_VALIDATED,'ols',False)
     f,c=sample();labels=sc.cluster_points(c,8);f['group_indicator']=(labels==0).astype(float)
     with pytest.raises(ValueError,match='full-rank design'):
         fit_replicate('y ~ x + group_indicator',f,coords=c,spatial_clusters={'k':8,'method':'im'})
@@ -183,11 +185,12 @@ def test_offline_manifest_bundle(tmp_path,monkeypatch):
     saved=json.loads((tmp_path/'bundle/results/m1.json').read_text())
     assert len(saved['diagnostics']['spatial_clusters']['assignment'])==96
     text=(tmp_path/'bundle/methods.md').read_text()
-    assert 'Ibragimov-Müller' in text and 'sampling error is not included' in text
+    assert 'Ibragimov-Müller' in text and 'between-cluster spread' in text
 
 
 @pytest.mark.parametrize('model',['poisson','wls'])
-def test_unvalidated_model_families_refused(model):
+def test_unvalidated_model_families_refused(model,monkeypatch):
+    monkeypatch.setitem(sc.IM_ACS_VALIDATED,'poisson',False)
     f,c=sample()
     with pytest.raises(ValueError,match='not validated'):
         fit_replicate('y ~ x',f,model=model,coords=c,spatial_clusters={'k':8,'method':'im'})

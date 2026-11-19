@@ -82,3 +82,76 @@ def test_smoke_limit_and_absent_criterion_refuse_without_simulation(monkeypatch)
     for args in (['--smoke-draws','21'],[]):
         monkeypatch.setattr(sys,'argv',['validation',*args])
         with pytest.raises(SystemExit):validation.main()
+
+
+@pytest.mark.parametrize('model',['ols','binomial','poisson'])
+def test_engine_c1_uses_replicates_state_rule_and_fixed_offsets(model):
+    from tests.test_round26 import sample as geo_sample
+    from census import spatial_clusters as sc
+    from census.models import fit_replicate
+    from census.simulation import make_replicates,replicate_long
+    from census.manifest.run import _statistic
+    f,coords=geo_sample();labels=sc.cluster_points(coords,8);rng=np.random.default_rng(91)
+    f['state']=(labels>=4).astype(float);f['y']+=f.state*.3
+    f['trials']=1000.;f['E']=np.exp(rng.normal(4,.3,len(f)))
+    if model=='binomial':f['y']=rng.binomial(1000,expit(-2+.3*f.x+.2*f.state))/1000
+    if model=='poisson':f['y']=rng.poisson(f.E*np.exp(.3*f.x+.2*f.state))
+    values=f[['x']].to_numpy();reps=make_replicates(values,np.full_like(values,.02),rng)
+    long=replicate_long(f.GEOID,['x'],values,reps);long['Year']=2019
+    extra={'trials':'trials'} if model=='binomial' else {'exposure':'E'} if model=='poisson' else {}
+    result=fit_replicate('y ~ x + state',f,long,model=model,coords=coords,
+                         spatial_clusters={'k':8,'method':'im'},replicate_policy='strict',**extra)
+    info=result.diagnostics['spatial_clusters'];assert info['not_estimable_terms']==['state']
+    expected=cluster_coefficients(np.column_stack((np.ones(len(f)),f.x)),f.y.to_numpy(),labels,
+                                  'linear' if model=='ols' else model,trials=f.trials,exposure=f.E)
+    np.testing.assert_allclose(info['cluster_estimates'],expected,atol=1e-9)
+    row=result.coefficients.set_index('term').loc['x'];z=summarize(expected)
+    assert row.estimate==pytest.approx(z['estimate'][1]) and row.se_cluster_mean==pytest.approx(z['se'][1])
+    assert np.isnan(result.coefficients.set_index('term').loc['state','estimate'])
+    with pytest.raises(ValueError,match='not estimable'):_statistic({'statistic':'coefficient','term':'state'},result)
+    assert 'as observed' in ' '.join(result.notes) and 'between-cluster spread' in ' '.join(result.notes)
+
+
+@pytest.mark.parametrize('model',['ols','binomial','poisson'])
+def test_c1_audit_gate_restores_unvalidated_refusal(monkeypatch,model):
+    from tests.test_round26 import sample as geo_sample,manifest
+    from census import spatial_clusters as sc
+    from census.models import fit_replicate
+    from census.manifest import validate_manifest
+    monkeypatch.setitem(sc.IM_ACS_VALIDATED,model,False)
+    frame,coords=geo_sample()
+    with pytest.raises(ValueError,match='not validated'):
+        fit_replicate('y ~ x',frame,pd.DataFrame({'variable':['x']}),model=model,coords=coords,
+                      spatial_clusters={'k':8,'method':'im'})
+    m=manifest();m['analyses'][0]['args']['model']=model;m['analyses'][0]['replicates']='required'
+    assert any('not validated' in e for e in validate_manifest(m,resolve=False))
+
+
+@pytest.mark.parametrize('extra',[{}, {'weights':'w'}, {'cluster':'group'}, {'cluster_se':'jackknife'},
+                                  {'spatial_se':{'cutoff_km':100}}, {'model':'binomial'}])
+def test_failed_eiv_is_refused_without_fallback(extra):
+    from census.models import fit_eiv
+    from tests.test_round26 import sample as geo_sample
+    f,c=geo_sample()
+    with pytest.raises(ValueError,match='IM EIV'):
+        fit_eiv('y ~ x',f,coords=c,spatial_clusters={'k':8,'method':'im'},**extra)
+
+
+def test_failed_eiv_offline_manifest_with_state_factor_is_unavailable(tmp_path):
+    from tests.test_round26 import manifest
+    from census.manifest import run_manifest,validate_manifest
+    m=manifest();a=m['analyses'][0];a['method']='fit_eiv';a['replicates']='required'
+    a['formula']='income ~ pop + C(GEOID.str[:2])'
+    errors=validate_manifest(m,resolve=False)
+    assert any('C2 failed validation' in e and 'im_acs_validation.md' in e for e in errors)
+    out=run_manifest(m,tmp_path)
+    assert not out['success'] and any('C2 failed validation' in e for e in out['errors'])
+
+
+def test_audit_flags_equal_the_fixed_full_run():
+    import json
+    from pathlib import Path
+    from census import spatial_clusters as sc
+    audit=json.loads((Path(__file__).resolve().parents[1]/'docs/audits/im_acs_validation.json').read_text())
+    assert sc.IM_ACS_VALIDATED=={('ols' if k=='linear' else k):v for k,v in audit['passed']['C1'].items()}
+    assert sc.IM_EIV_VALIDATED==audit['passed']['C2']['linear']==False

@@ -342,11 +342,19 @@ def _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites):
                          f"t({k-1}), critical value {critical:.8g}. ")
                 refs = ["cluster_bch", "vre"]
             elif cm == "im":
+                from ..spatial_clusters import supports_im_acs
                 text += (f"Ibragimov-Müller inference averages coefficients from separately fitted, full-rank "
                          f"cluster regressions; a one-sample t({k-1}) test uses between-cluster sd/sqrt(G), "
                          f"critical value {critical:.8g}. Only population target is supported. "
-                         "No additive full-sample model SE is available, and ACS sampling error is not included; "
-                         "analysed variables with ACS replicates are refused. ")
+                         "No additive full-sample model SE is available. ")
+                if supports_im_acs(clusters,args.get('model','ols')) and a['method']=='fit_replicate':
+                    text += ("Round 30 C1 targets coefficients on ACS estimates as observed, not true measurement-error-corrected slopes. "
+                             "Independent ACS error enters between-cluster spread; no additive ACS replicate variance is used. "
+                             "Terms constant within every cluster are absorbed by cluster intercepts and reported not estimable; "
+                             "partial constancy is refused. Poisson expected-death offsets stay fixed. "
+                             "C2 EIV failed and remains refused (docs/audits/im_acs_validation.md). ")
+                else:
+                    text += "ACS sampling error is not included; analysed variables with ACS replicates are refused. "
                 refs = ["cluster_im"]
             else:
                 text += ("Restricted wild cluster inference uses 999 Webb six-point weight draws: residual "

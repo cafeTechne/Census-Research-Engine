@@ -221,16 +221,30 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    SMR refuses negative band replicates under its pre-specified validation domain.
    Log statistics test zero and report exponentiated ratio columns. R1 applies
    to external outcomes/counts; reused MI/NY LBW associations remain exploratory.
-9. Spatial clusters use analyses[].args.spatial_clusters in existing manifest tools;
-   only {"k":8,"method":"im"} passed for unweighted OLS/binomial.
-   IM reports cluster-mean coefficients and t(7), with se_cluster_mean (not additive
-   model SE). Population target only; analysed inputs with ACS replicates refused.
-   Do not drop ACS uncertainty to run it. EIV/Poisson/WLS are unsupported. Fixed
-   projected-point clusters need >=5 analysed units and full-rank designs; assignment
-   is in the bundle. CR1-t (8/12) and WCR (12) failed and are exploratory only.
-   Cluster args exclude spatial_se/scale:robust. IM/WCR cannot combine ACS SEs.
-   Registered county IM re-checks are unavailable under this protocol; consult the
-   regression_sampling_error recipe and the Round 26 audit/report.
+9. Round 30 C1 passed the fixed ACS-error validation for unweighted OLS, binomial
+   and Poisson: use fit_replicate with spatial_clusters={"k":8,"method":"im"},
+   target="population". Keep supplied ACS replicates; independent sampling error
+   enters between-cluster spread, without adding replicate variance. The IM estimate
+   is the unweighted mean of eight cluster coefficients; se_cluster_mean and t(7)
+   drive intervals and p-values. The estimand is the coefficient on ACS estimates
+   as observed, not a measurement-error-corrected true slope. Sampling error can
+   attenuate it; noisy controls can bias it in either direction. A zero naive slope
+   equates to a zero true slope only with a single error-prone covariate and errors
+   independent of the outcome's error; do not extend that claim to noisy controls.
+   Poisson exposure/expected-death offsets remain fixed.
+   
+   C2 IM-EIV failed (unstable corrected moment matrices) and stays refused, even
+   in exploratory manifests; never substitute C1 for registered EIV without a new
+   specification. WLS remains unsupported. Only k=8 passed. CR1/WCR refusals remain.
+   IM still requires population target; scale:robust and spatial_se are mutually
+   exclusive with spatial_clusters. Labels are fixed before complete-case filtering
+   (50 seeded EPSG:5070 restarts); every retained group needs >=5 units and full rank.
+   Whole terms constant within every cluster are absorbed by cluster intercepts,
+   reported not estimable and cannot be tested. Partial constancy is refused.
+   R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
+   author self-review, not independent. OH/PA is outside this validation geometry.
+   See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
+   
 10. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
