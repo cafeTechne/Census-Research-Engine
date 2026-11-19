@@ -329,7 +329,13 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      (validated .885-.901, including overdispersion and excess zeros); Poisson HC3 under-covered
      with strong overdispersion (.81-.87) and zero-inflated Poisson failed (exploratory).
 
-19. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+19. Round 40: fit_model(model="beta") (shares in 0-1; logit mean; HC0 sandwich) and
+     fit_model(model="median") (median regression; kernel SE) passed validation (.885-.917; naive
+     target; independent areas). Beta model-based SEs failed. Adding replicate variance
+     over-covered, so it is not added. PUMS ordinal/multinomial/weighted-quantile models and GEE
+     are not available yet (no survey weights in the statsmodels versions).
+
+20. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
@@ -342,7 +348,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-20. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+21. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts

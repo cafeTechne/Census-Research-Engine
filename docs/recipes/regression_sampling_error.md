@@ -42,3 +42,7 @@ with up to two error-prone covariates (`docs/audits/spatial_eiv_validation.md`).
 **Count outcomes (Round 39).** For counts with an exposure, `fit_model(model="negbin", exposure=...)`
 uses NB2 with HC3 SEs, validated even with strong overdispersion and excess zeros; Poisson HC3
 under-covered (.81) when overdispersion was strong (`docs/audits/manova_counts_validation.md`).
+
+**Shares and skewed outcomes (Round 40).** For a share in 0-1 use `fit_model(model="beta")` (divide
+percentages by 100); for skewed outcomes `fit_model(model="median")`. Both validated for the naive
+target (`docs/audits/beta_median_validation.md`).

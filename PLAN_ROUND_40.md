@@ -52,9 +52,9 @@ statsmodels; flags against the audit. Goldens unchanged; full suite; STATUS, CHA
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit, targets | | |
-| B1–B3 / Q1–Q2 results | | |
-| Engine, tests | | |
-| Example | | |
+| Criterion commit, targets | `d5c9b02` | Pushed before the full run. |
+| B1–B3 / Q1–Q2 results | Done | B2 and Q1 selected; B1 failed. |
+| Engine, tests | Done | regression_families; MCP routing; 4 tests. |
+| Example | Done | Poverty models compared. |
 | Goldens, final suite | | |
-| Exceptions | | |
+| Exceptions | None | |

@@ -387,6 +387,14 @@ comparison). Count slopes: fit_model(model="negbin", exposure=...) uses NB2 with
 (validated .885-.901, including overdispersion and excess zeros); Poisson HC3 under-covered
 with strong overdispersion (.81-.87) and zero-inflated Poisson failed (exploratory).
 
+## Beta and median regression (Round 40)
+
+Round 40: fit_model(model="beta") (shares in 0-1; logit mean; HC0 sandwich) and
+fit_model(model="median") (median regression; kernel SE) passed validation (.885-.917; naive
+target; independent areas). Beta model-based SEs failed. Adding replicate variance
+over-covered, so it is not added. PUMS ordinal/multinomial/weighted-quantile models and GEE
+are not available yet (no survey weights in the statsmodels versions).
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event
