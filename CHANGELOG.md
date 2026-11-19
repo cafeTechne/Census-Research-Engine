@@ -5,6 +5,22 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.28.0 (Round 31): omnibus tests and group comparisons
+
+- Freeze candidates, script and criterion at `3e3094a` before the 36-cell run (6 designs × 3
+  models × 2 fields; 2,000 null and 500 alternative draws per cell).
+- F references (W1, HTZ W2) failed everywhere. The wild score bootstrap (W3) passed OLS factor
+  tests and binomial/Poisson spline tests; IM-8 Hotelling T² (W4) passed OLS/Poisson factor tests.
+  Holm pairwise passed all models; simultaneous max-|t| passed OLS only.
+- New manifest statistic `joint_test` (variable or term; two-sided) with confirmatory refusals for
+  unvalidated combinations and fewer than 145 areas. `joint_wald` unchanged and exploratory.
+  Binomial/Poisson splines are confirmatory with `joint_test` hypotheses.
+- New `census.group_compare.compare_groups` and MCP tool `compare_groups` (core profile; cap 15):
+  t-test, one-way ANOVA, ANCOVA and two-way interactions with ACS replicates, adjusted means,
+  Holm or simultaneous pairwise differences, partial η²/ω², Brown–Forsythe and classical
+  comparison diagnostics. Recipe `group_comparison`.
+- Exploratory MI/NY example (county poverty by metro class); outputs in `r31_example_outputs.tar.gz`.
+
 ## 0.27.0 (Round 30): IM-8 with ACS sampling error
 
 - Freeze script, criterion and twelve 400,000-area beta-star references at `2774140`

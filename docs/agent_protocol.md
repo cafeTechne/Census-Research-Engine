@@ -300,6 +300,19 @@ R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
 author self-review, not independent. OH/PA is outside this validation geometry.
 See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
+## Group comparisons (Round 31)
+
+Round 31 group comparisons: compare_groups (recipe group_comparison) runs t-tests,
+one-way ANOVA, ANCOVA and two-way interactions through fit_replicate. Joint tests
+use joint_test (manifest statistic; variable or term, two_sided only). Validated
+(docs/audits/omnibus_validation.md, n=145): wild score bootstrap for OLS factor tests
+and binomial/Poisson spline tests; IM-8 Hotelling for OLS/Poisson factor tests;
+Holm pairwise for OLS/binomial/Poisson; simultaneous pairwise for OLS only. F
+references failed. Binomial/Poisson factor tests, OLS splines, fewer than 145 areas
+and population-target tests with replicates are exploratory. Groups need >=5 areas;
+spatial tests need every group in every cluster. Round 27 joint_wald (chi-squared)
+stays exploratory; confirmatory binomial/Poisson splines need joint_test hypotheses.
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event
@@ -325,6 +338,11 @@ OLS/WLS/binomial/Poisson; no EIV, Fay–Herriot, SIMEX/calibration or spatial fi
 `cr` uses centered constraints and default full-sample quantile knots, frozen in
 every replicate. df is required; custom knots and nested spline expressions are
 unsupported. The same state is retained when assessing high-CV influence.
+
+Round 31 update: binomial and Poisson `cr` splines are confirmatory-eligible when every
+hypothesis on that analysis is a `joint_test` of the spline variable (wild score
+bootstrap, validated). OLS splines, individual spline coefficients and `joint_wald` stay
+exploratory.
 
 A joint hypothesis uses `statistic: "joint_wald", variable: "x"`, without `term`,
 and `direction: "two_sided"` (existing `"two-sided"` is accepted). It jointly tests

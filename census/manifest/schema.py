@@ -74,6 +74,8 @@ REFERENCES = {
              "(1995). JASA 90, 1247-1256; Devanarayan, V. & Stefanski, L.A. (2002). Stat. Prob. "
              "Letters 59, 219-225.",
     "fuller": "Fuller, W.A. (1987). Measurement Error Models. Wiley, sections 2.2 and 3.1.",
+    "kline_santos": "Kline, P. and Santos, A. (2012). A score based approach to wild bootstrap inference. Journal of Econometric Methods 1(1), 23-41.",
+    "hotelling_im": "Ibragimov, R. and Mueller, U.K. (2010). t-Statistic based correlation and heterogeneity robust inference. Journal of Business and Economic Statistics 28(4), 453-468; Hotelling, H. (1931). The generalization of Student's ratio. Annals of Mathematical Statistics 2(3), 360-378.",
     "cluster": "Cameron, A.C. & Miller, D.L. (2015). A practitioner's guide to cluster-robust inference. "
                "J. Human Resources 50, 317-372.",
     "standard_pop": "Klein, R.J. & Schoenborn, C.A. (2001). Age adjustment using the 2000 projected U.S. "

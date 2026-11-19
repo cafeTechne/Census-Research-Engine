@@ -41,6 +41,7 @@ PROFILES: Dict[str, Optional[List[str]]] = {
         "minimum_detectable_difference",
         "build_analysis_frame",
         "fit_model",
+        "compare_groups",
         "make_figure",
         "make_map",
         "run_manifest",  # registered by workstream D; skipped while absent
@@ -155,6 +156,14 @@ DESCRIPTION_OVERRIDES: Dict[str, str] = {
         "Example: fit_model(input_path=\"downloads/analysis_frame.parquet\", "
         "formula=\"poverty_rate ~ median_rent\")"
     ),
+    "compare_groups": (
+        "Compare an area outcome across groups: t-test, ANOVA, ANCOVA or interaction, with ACS error.\n"
+        "input_path: analysis frame. outcome: column. group: category column or 'state'. "
+        "design: two_group | oneway | ancova | twoway. covariates (ancova). group2 (twoway).\n"
+        "model: ols|binomial|poisson. replicates_path: from build_analysis_frame. posthoc: holm | simultaneous | none.\n"
+        "spatial: true for 8 fixed spatial clusters. Results say validated or exploratory.\n"
+        "Example: compare_groups(input_path=\"frame.parquet\", outcome=\"poverty_rate\", group=\"metro_class\")"
+    ),
     "make_map": (
         "Write a journal-ready map (PDF, SVG, PNG) of one variable with Census boundaries.\n"
         "input_path: CSV/Parquet with GEOID. column: variable. level: tract | county | state | place.\n"
@@ -245,19 +254,31 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    author self-review, not independent. OH/PA is outside this validation geometry.
    See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
-10. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+10. Round 31 group comparisons: compare_groups (recipe group_comparison) runs t-tests,
+     one-way ANOVA, ANCOVA and two-way interactions through fit_replicate. Joint tests
+     use joint_test (manifest statistic; variable or term, two_sided only). Validated
+     (docs/audits/omnibus_validation.md, n=145): wild score bootstrap for OLS factor tests
+     and binomial/Poisson spline tests; IM-8 Hotelling for OLS/Poisson factor tests;
+     Holm pairwise for OLS/binomial/Poisson; simultaneous pairwise for OLS only. F
+     references failed. Binomial/Poisson factor tests, OLS splines, fewer than 145 areas
+     and population-target tests with replicates are exploratory. Groups need >=5 areas;
+     spatial tests need every group in every cluster. Round 27 joint_wald (chi-squared)
+     stays exploratory; confirmatory binomial/Poisson splines need joint_test hypotheses.
+
+11. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
    intervals passed Round 27; reference-rate/spatial uncertainty is excluded.
    cr(x,df=3|4|5) and joint_wald FAILED Round 27 and are exploratory only;
-   confirmatory manifests refuse either. Only non-spatial fit_replicate
+   confirmatory manifests refuse either, except binomial/Poisson cr tested with
+   joint_test (Round 31). Only non-spatial fit_replicate
    OLS/WLS/binomial/Poisson; centered full-sample knots stay fixed in refits.
    Joint hypotheses give variable, no term, two_sided (or two-sided); R2 applies
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-11. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+12. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts

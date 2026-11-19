@@ -323,8 +323,16 @@ def _check_analysis(i, a, manifest, names, ext_names, ids, folded_ids,
             spline_formula(a["formula"])
         except Exception as exc:
             errors.append(f"invalid cr spline: {exc}")
-        if not JOINT_WALD_VALIDATED and not manifest.get("exploratory", False):
-            errors.append("cr spline failed or was not validated; exploratory only (docs/audits/joint_wald_validation.md)")
+        from ..joint_tests import VALIDATED as _JOINT_VALIDATED
+        spline_ok = (args.get("model", "ols"), "spline") in _JOINT_VALIDATED
+        if not (JOINT_WALD_VALIDATED or spline_ok) and not manifest.get("exploratory", False):
+            errors.append("cr spline failed or was not validated for this model; exploratory only "
+                          "(docs/audits/omnibus_validation.md: binomial/Poisson splines with joint_test only)")
+        if spline_ok and not manifest.get("exploratory", False):
+            for h in manifest.get("hypotheses") or []:
+                if h.get("analysis") == a.get("id") and h.get("statistic") != "joint_test":
+                    errors.append(f"hypothesis {h.get('id')}: confirmatory spline analyses support only joint_test "
+                                  "on the spline variable (individual spline coefficients are not tested)")
     used = _formula_names(a["formula"]) if a.get("formula") else []
     for key in ("variables", "error_covariates", "groups"):
         values = a.get(key) or []
@@ -407,7 +415,7 @@ def _check_manifest_hypotheses(manifest, ids, errors):
         if not h.get("id") or h["id"] in hids:
             errors.append(f"hypotheses[{i}]: id must be present and unique")
         hids.add(h.get("id"))
-        if h.get("direction", "two-sided") not in DIRECTIONS and not (h.get("statistic") == "joint_wald" and h.get("direction") == "two_sided"):
+        if h.get("direction", "two-sided") not in DIRECTIONS and not (h.get("statistic") in ("joint_wald", "joint_test") and h.get("direction") == "two_sided"):
             errors.append(f"hypotheses[{i}]: direction must be one of {DIRECTIONS}")
         method = ids.get(h.get("analysis"))
         if method is None:

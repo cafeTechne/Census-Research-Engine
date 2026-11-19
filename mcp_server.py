@@ -149,6 +149,17 @@ R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
 author self-review, not independent. OH/PA is outside this validation geometry.
 See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
+Round 31 group comparisons: compare_groups (recipe group_comparison) runs t-tests,
+one-way ANOVA, ANCOVA and two-way interactions through fit_replicate. Joint tests
+use joint_test (manifest statistic; variable or term, two_sided only). Validated
+(docs/audits/omnibus_validation.md, n=145): wild score bootstrap for OLS factor tests
+and binomial/Poisson spline tests; IM-8 Hotelling for OLS/Poisson factor tests;
+Holm pairwise for OLS/binomial/Poisson; simultaneous pairwise for OLS only. F
+references failed. Binomial/Poisson factor tests, OLS splines, fewer than 145 areas
+and population-target tests with replicates are exploratory. Groups need >=5 areas;
+spatial tests need every group in every cluster. Round 27 joint_wald (chi-squared)
+stays exploratory; confirmatory binomial/Poisson splines need joint_test hypotheses.
+
 Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
 and scale:"robust"; Poisson counts use exposure
 and scale:"robust". New external-count manifests refuse scale:"X2" (failed coverage validation).
@@ -205,7 +216,7 @@ method. Preserve WONDER interval-censored counts, fixed expected counts and vali
 never invent suppressed counts or ACS MOEs from EB limits. Posterior 90% and 200-refit
 Laird-Louis intervals passed; reference-rate and spatial uncertainty are excluded.
 cr(x,df=3|4|5) and joint_wald FAILED the fixed false-positive criterion: exploratory only,
-confirmatory manifests refused. Only non-spatial fit_replicate OLS/WLS/binomial/Poisson;
+confirmatory manifests refused, except binomial/Poisson cr tested with joint_test (Round 31). Only non-spatial fit_replicate OLS/WLS/binomial/Poisson;
 centered full-sample knots stay fixed. Joint hypotheses use variable, no term, two_sided
 (or two-sided); R2 applies to variable. HC3/sampling/summed covariance matches target.
 Singular covariance is not tested; W is chi-squared(q), with df, no coefficient CI or odds
@@ -1217,6 +1228,7 @@ for _fn in (
     workflows.cache_import,
     workflows_inference.build_analysis_frame,
     workflows_inference.fit_model,
+    workflows_inference.compare_groups,
     workflows_inference.small_area_estimates,
     workflows_inference.correlation_matrix,
     workflows_inference.minimum_detectable_difference,
@@ -1261,6 +1273,7 @@ download_table = workflows.download_table
 cache_import = workflows.cache_import
 build_analysis_frame = workflows_inference.build_analysis_frame
 fit_model = workflows_inference.fit_model
+compare_groups = workflows_inference.compare_groups
 small_area_estimates = workflows_inference.small_area_estimates
 correlation_matrix = workflows_inference.correlation_matrix
 minimum_detectable_difference = workflows_inference.minimum_detectable_difference

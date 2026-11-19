@@ -283,6 +283,62 @@ def fit_model(
                **{k: v for k, v in out.items() if k != "summary"})
 
 
+def compare_groups(
+    input_path: str,
+    outcome: str,
+    group: str,
+    design: str = "oneway",
+    covariates: Optional[List[str]] = None,
+    group2: Optional[str] = None,
+    model: str = "ols",
+    replicates_path: Optional[str] = None,
+    trials: Optional[str] = None,
+    exposure: Optional[str] = None,
+    posthoc: str = "holm",
+    reference_group: Optional[str] = None,
+    spatial: bool = False,
+    confidence_level: float = 0.90,
+) -> Dict[str, Any]:
+    """Compare an area outcome across groups of areas: t-test, ANOVA, ANCOVA or two-way interaction.
+
+    Args:
+        input_path: Analysis frame from build_analysis_frame, with a group column.
+        outcome: Outcome column, e.g. "poverty_rate".
+        group: Categorical column (e.g. "metro_class"), or "state" (first two GEOID digits).
+        design: "two_group" (t-test), "oneway" (ANOVA), "ancova" (adjusted for covariates)
+            or "twoway" (tests the group x group2 interaction).
+        covariates: Adjustment columns (design="ancova"; optional for "twoway").
+        group2: Second categorical column (design="twoway").
+        model: "ols" (default), "binomial" (needs trials) or "poisson" (needs exposure).
+        replicates_path: From build_analysis_frame (includes ACS sampling error).
+        posthoc: "holm" (default), "simultaneous" (OLS only) or "none".
+        reference_group: Group used as the baseline (default: first in sort order).
+        spatial: True uses 8 fixed spatial clusters (IM-8) for spatially dependent areas.
+        confidence_level: 0.90 matches ACS margins of error.
+
+    Returns the joint (omnibus) test, adjusted group means with intervals, pairwise
+    differences, effect sizes (OLS), and whether each result is validated or exploratory.
+    Example: compare_groups("downloads/frame.parquet", "poverty_rate", "metro_class")
+    """
+    from census.group_compare import compare_groups as _compare
+
+    try:
+        frame = _load_frame(input_path)
+        result = _compare(frame, outcome, group, replicates=_read_replicates(replicates_path) if replicates_path else None,
+                          covariates=covariates or (), design=design, group2=group2, model=model, trials=trials,
+                          exposure=exposure, posthoc=posthoc, reference_group=reference_group,
+                          spatial_clusters={"k": 8, "method": "im"} if spatial else None,
+                          confidence_level=confidence_level)
+    except _INPUT_ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
+                     "check the column names, design and group sizes (at least 5 areas per group), then retry")
+    out = result.to_dict()
+    validated = result.validation["omnibus"] and (posthoc == "none" or design == "twoway" or result.validation["posthoc_validated"])
+    next_step = ("report the joint test, then the pairwise differences" if validated else
+                 "treat these results as exploratory: see notes for why; do not use them as confirmatory evidence")
+    return _ok(result.summary(), next_step, **out)
+
+
 def small_area_estimates(
     input_path: str,
     formula: str,

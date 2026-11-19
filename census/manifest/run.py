@@ -670,7 +670,7 @@ def _test_hypotheses(state: RunState) -> None:
                 if refusal and not state.m.get("exploratory", False):
                     raise ValueError(refusal)
                 row.update(s, status="tested",
-                           p_value=s["p_two_sided"] if hyp["statistic"] == "joint_wald" else _one_sided(s["p_two_sided"], s.get("test_estimate", s["estimate"]), row["direction"]))
+                           p_value=s["p_two_sided"] if hyp["statistic"] in ("joint_wald", "joint_test") else _one_sided(s["p_two_sided"], s.get("test_estimate", s["estimate"]), row["direction"]))
             except Exception as exc:
                 row.update(status="not_tested", estimate=None, p_value=None)
                 state.deviations.append({"kind": "hypothesis_not_tested", "hypothesis": hyp["id"], "detail": str(exc)})

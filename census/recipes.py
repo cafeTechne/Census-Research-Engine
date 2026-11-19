@@ -9,6 +9,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RECIPE_DIR = os.path.join(ROOT, "docs", "recipes")
 
 RECIPES: Dict[str, str] = {
+    "group_comparison": "Compare an area outcome across groups of areas: t-test, ANOVA, ANCOVA, interactions (Round 31)",
     "segregation": "County residential segregation from tract counts with strict ACS replicate uncertainty",
     "health_inequality": "Area health inequality indices and indirectly standardized ratios with ACS uncertainty",
     "compare_counties": "Compare a rate between two counties in one release",
@@ -23,7 +24,7 @@ RECIPES: Dict[str, str] = {
 
 RecipeName = Literal[
     "compare_counties", "tract_trend", "regression_sampling_error", "small_area", "preregistered",
-    "decennial_counts", "external_health_outcome", "health_inequality", "segregation",
+    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison",
 ]
 
 
@@ -32,7 +33,8 @@ def get_recipe(name: Optional[RecipeName] = None) -> Dict[str, Any]:
 
     Args:
         name: compare_counties, tract_trend, regression_sampling_error,
-            small_area, preregistered, decennial_counts, external_health_outcome, health_inequality, or segregation.
+            small_area, preregistered, decennial_counts, external_health_outcome, health_inequality, segregation,
+            or group_comparison.
 
     Example: get_recipe(name="compare_counties")
     """
