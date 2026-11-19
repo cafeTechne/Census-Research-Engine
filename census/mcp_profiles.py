@@ -323,7 +323,13 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      advance) and z-test power/minimum detectable effects are validated. Pooling states is a
      new analysis, never a reinterpretation of a registered study.
 
-18. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+18. Round 39: compare_groups(outcomes=[...]) adds a joint MANOVA/MANCOVA test (multivariate wild
+     score bootstrap, one sign per area; validated, size .090-.101; Pillai's trace shown for
+     comparison). Count slopes: fit_model(model="negbin", exposure=...) uses NB2 with HC3
+     (validated .885-.901, including overdispersion and excess zeros); Poisson HC3 under-covered
+     with strong overdispersion (.81-.87) and zero-inflated Poisson failed (exploratory).
+
+19. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
@@ -336,7 +342,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-19. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+20. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts

@@ -5,6 +5,15 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.36.0 (Round 39): multivariate tests and count models
+
+- Freeze procedures, script, criterion and targets at `0686bc0` before the run.
+- Passed: multivariate wild score bootstrap (MANOVA/MANCOVA); NB2 with HC3 for count slopes. Failed:
+  Poisson HC3 under strong overdispersion; zero-inflated Poisson.
+- New `census.manova_counts_core` (frozen) and `census.count_models`; MCP `compare_groups(outcomes=...)`
+  and validated `fit_model(model="negbin")`.
+- Exploratory MANOVA example (poverty and share 65+ by metro class).
+
 ## 0.35.0 (Round 38): combining evidence
 
 - Freeze procedures, script and criterion at `3edd5f4` before the run.

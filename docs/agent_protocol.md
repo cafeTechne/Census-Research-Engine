@@ -379,6 +379,14 @@ DerSimonian-Laird under-covers with heterogeneity. TOST equivalence (margin set 
 advance) and z-test power/minimum detectable effects are validated. Pooling states is a
 new analysis, never a reinterpretation of a registered study.
 
+## Multivariate tests and count models (Round 39)
+
+Round 39: compare_groups(outcomes=[...]) adds a joint MANOVA/MANCOVA test (multivariate wild
+score bootstrap, one sign per area; validated, size .090-.101; Pillai's trace shown for
+comparison). Count slopes: fit_model(model="negbin", exposure=...) uses NB2 with HC3
+(validated .885-.901, including overdispersion and excess zeros); Poisson HC3 under-covered
+with strong overdispersion (.81-.87) and zero-inflated Poisson failed (exploratory).
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event

@@ -29,3 +29,6 @@
 7. In a manifest, use `fit_replicate` with a group term in the formula and the hypothesis
    statistic `joint_test` with `term` (for example `"C(metro)"`) or `variable`; one-sided
    directions are refused. The Round 27 `joint_wald` (chi-squared) stays exploratory.
+
+8. **Several outcomes at once (Round 39):** `compare_groups(..., outcomes=[a, b, c])` gives one joint
+   test (MANOVA/MANCOVA; multivariate wild score bootstrap, validated) before the per-outcome tests.

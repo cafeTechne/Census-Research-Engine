@@ -212,6 +212,12 @@ DerSimonian-Laird under-covers with heterogeneity. TOST equivalence (margin set 
 advance) and z-test power/minimum detectable effects are validated. Pooling states is a
 new analysis, never a reinterpretation of a registered study.
 
+Round 39: compare_groups(outcomes=[...]) adds a joint MANOVA/MANCOVA test (multivariate wild
+score bootstrap, one sign per area; validated, size .090-.101; Pillai's trace shown for
+comparison). Count slopes: fit_model(model="negbin", exposure=...) uses NB2 with HC3
+(validated .885-.901, including overdispersion and excess zeros); Poisson HC3 under-covered
+with strong overdispersion (.81-.87) and zero-inflated Poisson failed (exploratory).
+
 Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
 and scale:"robust"; Poisson counts use exposure
 and scale:"robust". New external-count manifests refuse scale:"X2" (failed coverage validation).
