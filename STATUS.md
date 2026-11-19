@@ -55,6 +55,7 @@ manifests refuse them in confirmatory analyses.
 | Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. `joint_wald` stays exploratory; binomial/Poisson splines are confirmatory only with `joint_test` (Round 31) | `joint_wald_validation.md`, criterion `376ce69` |
 | Joint (omnibus) tests: `joint_test` | **Passed selected** (nominal .10 size in [.07,.13]): wild score bootstrap for OLS factor tests (.098–.110) and binomial/Poisson spline tests (.072–.103); IM-8 Hotelling for OLS/Poisson factor tests (.093–.103). F references failed everywhere. n = 145; other combinations exploratory | `omnibus_validation.md`, criterion `3e3094a` |
 | Missing data, censored counts, interrupted series | **Multiple imputation passed** (.907–.919; complete case .871 when missingness depends on the outcome). Interval-censored Poisson for hidden 1–9 counts failed narrowly (.839–.856; complete case .824–.828): exploratory. Interrupted series with 20 annual points failed for OLS, Newey–West and AR(1) GLS (.47–.81): exploratory | `missing_censored_its_validation.md`, criterion `5f81de2` |
+| Segregation under realistic ACS error (Round 50) | **Passed** (real 2024 MI/NY tract counts and MOEs; Gamma counts; group correlation 0 and −.3): bias-corrected D, isolation and H (two groups) and bias-corrected three-group H up to county noise level .50 (largest group median tract CV); naive isolation/H to .30. **Failed**: naive D (the Round 28 default) and naive three-group H. Defaults now all bias-corrected; 132 of 140 MI/NY counties validated (Round 28 gate: 0–1) | `segregation_realistic_validation.md`, criterion `686d121` |
 | Survey-weighted PUMS models (Round 49) | **Passed**: ordered logit and probit, multinomial logit, weighted median regression and probit with the SDR replicate variance (80 warm-started refits; .875–.915 with household clustering ρ up to .4 and weight CV up to 1). Model-based SEs with normalised weights under-cover (.62–.887) | `pums_models_validation.md`, criterion `c0dfd0a` |
 | Small samples and spatial dependence (Round 48) | **Passed**: effective-sample-size intervals under spatial dependence for Spearman (.875–.917), Kendall (.862–.905), Pearson with replicates (.864–.967) and Feldt α (.912–.926) (`spatial=True`; partial correlations stay exploratory; IM-8 versions failed); Hartung–Knapp for 5–10 estimates with the variance factor truncated at 1 (.874–.918); Bland–Altman limits with moment-based SEs (.884–.936); interrupted series AR(1) bootstrap-t at 30+ points (.883–.896). **Failed**: REML AR(1) at 15–30 points (.79–.88) and bootstrap-t below 30 points | `small_spatial_validation.md`, criterion `3fb07d3` |
 | Causal robustness (Round 47) | **Passed**: AIPW with confounders calibrated within treatment groups (`calibrate=True`; .889–.905 with same-sign noisy confounders, plain AIPW .77–.87); calibrated mediator (.883–.898; naive .58–.86); Anderson–Rubin interval at any first-stage F (.894–.908); the 2SLS Wald interval also covered at every F (pre-set cut-off 0) but its estimate is unstable below F = 10; chained-equations MI for two incomplete covariates (.898–.916; complete case .84 under MAR) | `causal_robustness_validation.md`, criterion `cbdc97f` |
@@ -71,7 +72,7 @@ manifests refuse them in confirmatory analyses.
 | Rank/partial correlation and rank group tests | **Passed selected** (coverage ≥ .86, independent areas): Spearman and Kendall Fisher-type intervals; Pearson and partial (one control) only with the ACS replicate variance added (plain Fisher-z under-covered, .84); Brunner–Munzel superiority; Kruskal–Wallis size .095–.106. All correlation intervals under-cover with spatial dependence (.60–.89; Round 48 effective-n repair for Spearman, Kendall, Pearson). **Manifest `correlation` statistics still use the plain Fisher-z interval (not validated for Pearson)** | `rank_validation.md`, criterion `f660e9c` |
 | PUMS design-based tests (`test_association`) | **Passed selected**: first-order Rao–Scott for tables up to 3 × 4 (size .097–.115); k-group mean tests (design F, z); differences, OR, RR, mean/median differences (coverage .877–.913); Korn–Graubard proportions (.902–.947). Design-blind Pearson (.13–.53) and Wald proportions (.848) failed. Medians of heaped values exploratory | `pums_tests_validation.md`, criterion `d65d034` |
 | Pairwise post hoc (`compare_groups`) | **Passed**: Holm for OLS/binomial/Poisson (FWER ≤ .117); simultaneous max-\|t\| for OLS only (.067–.070) | `omnibus_validation.md` |
-| County segregation, two groups: D / isolation / H | **Passed selected variants**: naive D .898–.911; corrected isolation .877–.901; corrected H .896–.961. Corrected D and naive isolation/H failed. Strict 80 replicates; CV .15 fixed design; multigroup H exploratory. **Range gate:** a county with any tract group-count CV > .15 is exploratory and confirmatory tests on it are refused; no MI/NY county's 2018–2022 white/Black tract counts meet it, so segregation is effectively exploratory | `segregation_validation.md`, criterion `4791763` |
+| County segregation, two groups: D / isolation / H (Round 28) | **Passed selected variants** at CV .15 (Gaussian): naive D .898–.911; corrected isolation .877–.901; corrected H .896–.961. Corrected D and naive isolation/H failed there. Superseded as the main gate by Round 50 (below); the max-CV ≤ .15 range still validates | `segregation_validation.md`, criterion `4791763` |
 | SMR period scaling and Poisson reference-rate uncertainty | **Passed** .8995–.9105; known reference person-years, independent bands, 50/500/5000 reference deaths and E=10/100. Common reference covariance preserved when pooling. No-reference coverage reached .724 | `smr_reference_validation.md`, criterion `134bf7f` |
 | Conley spatial HAC SEs (`spatial_se`) | **Failed** (0.71–0.87 at 150 km); exploratory only | `spatial_hac_validation.md` |
 | Spatial error model λ correction (ME-SEM) | Validated for λ > 0 (0.86–0.93); lag model at γ 0.6 under-covers | `spatial_regression_validation.md` |
@@ -123,6 +124,12 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 50 (v0.47.0; merged, release pending owner approval; implemented by the maintainer agent):**
+segregation under realistic ACS error (criterion `686d121`): bias-corrected D, isolation and H and
+three-group H valid to county noise level .50; naive D failed, so all defaults are bias-corrected.
+`segregation_replicate` reports `noise_level` and gates on it (`REALISTIC_RANGES`). Exploratory example
+(`r50_segregation_example.md`). Goldens unchanged. Acceptance: 2058 passed, 37 skipped; 0 failures.
 
 **Round 49 (v0.46.0; merged, release pending owner approval; implemented by the maintainer agent):**
 survey-weighted PUMS models (criterion `c0dfd0a`): ordered logit/probit, multinomial logit, median
@@ -272,6 +279,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 50 | County poverty and income segregation, MI/NY 2024 (exploratory example) | 132 of 140 counties validated (0–1 under Round 28); Washtenaw has the highest poverty H (0.19); 5 counties per design refused for negative VRE replicates; `r50_segregation_example.md` |
 | 49 | Disability, poverty band, insurance and earnings, MI PUMS models (exploratory example) | Disability: ordered logit −1.30 (odds 0.27 of a higher poverty band); uninsured probit −0.06; median earnings 36% lower; `r49_pums_models_example.md` |
 | 45 | Round 29 counts with the count repairs (exploratory example) | H2 stays positive with hidden counts as [1, 9]; under IM-8 NB2 the MI/NY overdose slope includes zero (as in Round 30), H1/H3 hold; `r45_count_example.md` |
 | 44 | Round 29 under NB2 (post hoc) | H1–H3 hold under NB2-HC3 in MI/NY and OH/PA; hidden H2 counts as [1, 9] give the same slope; `r44_posthoc_r29.md` |
@@ -315,13 +323,11 @@ models, and MI/NY-only validation geography).
    exports pass inventory. Later causes with suppressed national child-age reference cells need a
    separately pre-registered rule before analysis; do not replace them by zero, an invented count or
    an unregistered pooling rule. The 2013–2017 and MCD files remain inventory-only.
-6. Further validation: Round 28 delivered two-group segregation defaults and SMR
-   Poisson reference-rate uncertainty. Segregation is validated only for tract
-   group-count CV <= .15, which real MI/NY counties do not meet: a realistic-error
-   validation (heterogeneous CVs from real tract MOEs, non-negative counts,
-   correlated group errors) is needed before confirmatory use. Multigroup H,
-   failed index variants, contrasts and uncertain reference denominators also need
-   separate coverage studies. Round 27 splines/joint tests remain exploratory and require a
+6. Further validation: closed for segregation in Round 50 (realistic error, real MI/NY tract MOEs;
+   bias-corrected indices and three-group H valid to noise level .50). Remaining: race/ethnicity group
+   structures, four or more groups, contrasts, MI/NY-only geography, and counties whose VRE files contain
+   negative replicate estimates (refused; 2024 Bronx, Kings, Wayne and others). Uncertain reference
+   denominators for SMRs also need a separate coverage study. Round 27 splines/joint tests remain exploratory and require a
    separately pre-specified finite-sample validation before confirmatory use.
    Not yet planned: microdata inequality measures.
 7. Closed in Round 43: a saturated `fit_replicate` (residual df 0) now reports missing model SEs,

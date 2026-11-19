@@ -69,9 +69,10 @@ def test_replicate_se_and_correction_with_fixed_array_and_frozen_kernel():
     assert row.se==pytest.approx(np.sqrt(.05*sum((reps-raw)**2)))
     assert row.estimate==pytest.approx(raw-4*(np.mean(reps)-raw))
     ref=reference('segregation_validation');np.testing.assert_array_equal(sg._indices(np.stack(batches)),ref.indices(np.stack(batches)))
-    assert not row.validated # Corrected D failed; default must remain naive.
+    assert not row.validated # Corrected D failed Round 28; Round 50 validates it only at noise level >= .15.
     default=sg.segregation_replicate(f,['a','b'],r).set_index('statistic')
-    assert not default.loc['dissimilarity','bias_correction'] and default.loc['isolation','bias_correction'] and default.loc['theil_h','bias_correction']
+    # Round 50: naive D failed realistic error, so every default is now bias-corrected.
+    assert default.loc['dissimilarity','bias_correction'] and default.loc['isolation','bias_correction'] and default.loc['theil_h','bias_correction']
 
 
 @pytest.mark.parametrize('bad',['missing_column','missing_row','missing_group','duplicate','negative','missing_year','none'])
@@ -150,17 +151,23 @@ def test_manifest_rules(case):
     elif case=='wrong_release':h['release']=2024
     elif case=='multigroup_confirmatory':
         m['variables'].append({'name':'extra','ref':'2019:B01003_001'});a['groups']=['pop','income','extra'];h['statistic']='theil_h'
+        a['args']={'bias_correction':False} # Round 50: corrected three-group H passed; naive multigroup H failed.
     assert validate_manifest(m,resolve=False)
 
 
 def test_per_index_variant_gate_patches_imported_flag(monkeypatch):
+    # Round 50: the D default is bias-corrected, validated through REALISTIC_RANGES.
     m=segregation_manifest();assert validate_manifest(m,resolve=False)==[]
-    monkeypatch.setitem(sg.SEGREGATION_VALIDATED['dissimilarity'],'naive',False)
+    monkeypatch.setitem(sg.REALISTIC_RANGES,('dissimilarity','bias_corrected',2),None)
     assert any('exploratory only' in e for e in validate_manifest(m,resolve=False))
     m['exploratory']=True;assert not any('exploratory only' in e for e in validate_manifest(m,resolve=False))
-    m=segregation_manifest();m['analyses'][0]['args']={'bias_correction':True}
-    assert any('dissimilarity/bias_corrected' in e for e in validate_manifest(m,resolve=False))
+    m=segregation_manifest();m['analyses'][0]['args']={'bias_correction':False}
+    assert validate_manifest(m,resolve=False)==[]
+    monkeypatch.setitem(sg.SEGREGATION_VALIDATED['dissimilarity'],'naive',False)
+    assert any('dissimilarity/naive' in e for e in validate_manifest(m,resolve=False))
     m=segregation_manifest('isolation');m['analyses'][0]['args']={'bias_correction':False}
+    assert validate_manifest(m,resolve=False)==[] # Round 50: naive isolation valid at noise .15-.30
+    monkeypatch.setitem(sg.REALISTIC_RANGES,('isolation','naive',2),None)
     assert any('isolation/naive' in e for e in validate_manifest(m,resolve=False))
 
 
@@ -253,7 +260,8 @@ def test_offline_segregation_bundle_and_one_sided_nonzero_null(tmp_path,monkeypa
     from census.manifest.run import _prepare,_extract,_build_frame
     state=_prepare(m,tmp_path/'source',client,None,False,None,None);_extract(state);_build_frame(state)
     f=state.frame;x=f[['income','pop']].to_numpy();rng=np.random.default_rng(228)
-    reps=make_replicates(x,.03*x,rng);r=replicate_long(f.GEOID,['income','pop'],x,reps);r['Year']=f.Year.iloc[0]
+    # Round 50: default (corrected) D is validated at noise levels .15-.50, so use CV .2.
+    reps=make_replicates(x,.2*x,rng);r=replicate_long(f.GEOID,['income','pop'],x,reps);r['Year']=f.Year.iloc[0]
     m['hypotheses'][0].update(direction='less',null_value=.9)
     out=run_manifest(m,tmp_path/'run',client=client,replicates=r,replicates_synthetic=True,use_cache=False)
     assert out['success'],dict(errors=out.get('errors'),deviations=out.get('deviations'),output_error=out.get('output_error'))
@@ -288,10 +296,12 @@ def test_multigroup_h_exploratory_and_nondefault_level_persists():
     assert h['ci_upper']-h['estimate']==pytest.approx(norm.ppf(.975)*h['se'])
 
 
-def test_corrected_variant_manifest_and_optional_null_defaults_are_consistent():
+def test_corrected_variant_manifest_and_optional_null_defaults_are_consistent(monkeypatch):
     m=segregation_manifest('isolation');m['analyses'][0]['args']={'bias_correction':None}
     assert validate_manifest(m,resolve=False)==[]
     m['analyses'][0]['args']['bias_correction']=False
+    assert validate_manifest(m,resolve=False)==[] # Round 50: naive isolation valid at noise .15-.30.
+    monkeypatch.setitem(sg.REALISTIC_RANGES,('isolation','naive',2),None)
     assert any('exploratory' in e for e in validate_manifest(m,resolve=False))
     m['exploratory']=True;assert validate_manifest(m,resolve=False)==[]
 
@@ -338,11 +348,12 @@ def high_cv_sample(cv):
 
 
 def test_count_cv_above_validated_range_is_exploratory_and_reported():
-    f,r=high_cv_sample(.03);ok=sg.segregation_replicate(f,['a','b'],r).set_index('statistic')
+    # Naive D has only the Round 28 range (max tract CV .15); Round 50 validated other variants to higher noise.
+    f,r=high_cv_sample(.03);ok=sg.segregation_replicate(f,['a','b'],r,bias_correction=False).set_index('statistic')
     assert ok.loc['dissimilarity','validated'] and ok.loc['dissimilarity','max_count_cv']<=.15
-    f,r=high_cv_sample(.25);out=sg.segregation_replicate(f,['a','b'],r).set_index('statistic')
-    assert not out.validated.any() and (out.max_count_cv>.15).all()
-    assert all(any('exceeds .15' in n for n in notes) for notes in out.notes)
+    f,r=high_cv_sample(.25);out=sg.segregation_replicate(f,['a','b'],r,bias_correction=False).set_index('statistic')
+    assert not out.loc['dissimilarity','validated'] and (out.max_count_cv>.15).all()
+    assert any('exceeds the Round 28 .15' in n for n in out.loc['dissimilarity','notes'])
     t=sg.segregation_test(out.reset_index(),'dissimilarity','36061',null_value=.5)
     assert t['validated'] is False and 'confirmatory test refused' in t['confirmatory_refusal']
     assert sg.segregation_test(ok.reset_index(),'dissimilarity','36061',null_value=.5)['confirmatory_refusal'] is None
@@ -355,6 +366,7 @@ def test_confirmatory_manifest_refuses_high_cv_county_and_exploratory_tests_it(t
         client=fixtures.FakeClient();client.synthetic=True;m=segregation_manifest()
         m['data_source']={'synthetic':True,'description':'Offline Round 28 CV gate'}
         if exploratory:m['exploratory']=True
+        m['analyses'][0]['args']={'bias_correction':False} # naive D: Round 28 CV gate only (Round 50)
         state=_prepare(m,tmp_path/f'src{tag}',client,None,False,None,None);_extract(state);_build_frame(state)
         f=state.frame;x=f[['income','pop']].to_numpy()
         reps=make_replicates(x,cv*x,np.random.default_rng(2829));r=replicate_long(f.GEOID,['income','pop'],x,reps);r['Year']=f.Year.iloc[0]

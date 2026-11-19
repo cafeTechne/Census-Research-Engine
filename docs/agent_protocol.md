@@ -500,8 +500,8 @@ the exploratory results for confirmatory claims.
 Start with `get_recipe("segregation")`; use existing manifest tools. Method
 `segregation` requires tract-level `groups` (mutually exclusive count variables)
 and `within: "county"`. Declared groups' sum is tract population. D and isolation
-require two groups; isolation refers to group one. H supports multiple groups,
-but only two-group coverage was simulated, so multigroup H stays exploratory.
+require two groups; isolation refers to group one. H supports multiple groups;
+three-group bias-corrected H passed Round 50, four or more groups are exploratory.
 No CBSA/metro pooling or pre-aggregation. Tract GEOIDs are eleven-digit strings;
 county hypotheses use five digits, preserving leading zeros.
 
@@ -510,7 +510,7 @@ No negative-count clipping, missing-row fixing or failed-refit deletion. Zero-to
 tracts are excluded in each index refit, recomputing totals. An absent county
 group makes the index undefined, noted, and its hypothesis is not tested.
 SE=sqrt(4/80 sum(Ir-I)^2). Fixed correction I-4(mean(Ir)-I) uses the same SE.
-The fixed coverage result chose naive D, corrected isolation and corrected H.
+Round 50 (realistic ACS error) made every default bias-corrected: naive D failed it.
 An explicit bias_correction override that failed validation is exploratory only;
 confirmatory hypotheses refuse it. Normal intervals/adjusted points are not
 clipped to [0,1]. Report selected versions and each row's validation notes.
@@ -522,11 +522,17 @@ require release; compare_release selects the other release (same county if
 compare_geoid omitted). Independent non-overlapping five-year releases add
 variances, not matched replicate deviations. Overlaps/self-comparisons are refused.
 One-sided tests use estimate-null. These are finite-area ACS sampling intervals,
-not causal or superpopulation inference. Coverage acceptance covered independent
-Gaussian errors CV .15, 20/100 tracts and two groups; high CV and contrasts lack
-separate passing coverage studies. A county with any tract group-count CV above
-.15 (`max_count_cv`) is not validated: exploratory only, and confirmatory
-hypotheses on it are refused at run time. Most real counties exceed it. No new dependencies or MCP tools.
+not causal or superpopulation inference. Validation gate (Round 50, real MI/NY
+tract MOEs, non-negative counts, correlated groups): a row is validated when the
+county's noise level (`noise_level`: the largest, over groups, of the median tract
+CV) is below .50 for bias-corrected D (from .15), isolation and H (two or three
+groups), or below .30 for naive isolation/H (from .15), with at least five
+populated tracts; or when every tract group-count CV is <= .15 (Round 28,
+`max_count_cv`; the only range for naive D). Otherwise rows are exploratory and
+confirmatory hypotheses are refused at run time. About 132 of 140 MI/NY counties
+pass with 2024 poverty or income groups. Race groups and contrasts were not in the
+validation. Counties with a negative replicate estimate are refused. No new
+dependencies or MCP tools.
 
 
 Round 29 manual WONDER references: all county and national files are manual
