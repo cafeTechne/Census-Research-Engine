@@ -4,7 +4,7 @@ The single current summary of the Census Research Engine: what it does, which me
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
 **Current release:** v0.27.0 (Round 30: IM-8 spatial-cluster inference with ACS sampling error for naive
-OLS/binomial/Poisson targets; cluster EIV failed; DOI pending). Previous: v0.26.0 (Round 29: manual CDC WONDER
+OLS/binomial/Poisson targets; cluster EIV failed; DOI 10.5281/zenodo.24357238). Previous: v0.26.0 (Round 29: manual CDC WONDER
 mortality inputs, MI/NY mortality study replicated in OH/PA; DOI 10.5281/zenodo.24356572); v0.25.0 (Round 28;
 DOI 10.5281/zenodo.24329678). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
