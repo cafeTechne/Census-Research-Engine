@@ -4,7 +4,7 @@ The single current summary of the Census Research Engine: what it does, which me
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
 **Current release:** v0.26.0 (Round 29: manual CDC WONDER mortality inputs, suppression-safe outputs, MI/NY
-mortality study replicated in OH/PA; DOI pending). Previous: v0.25.0 (Round 28: segregation indices, exploratory
+mortality study replicated in OH/PA; DOI 10.5281/zenodo.24356572). Previous: v0.25.0 (Round 28: segregation indices, exploratory
 pending a realistic-error validation; reference-aware SMR; DOI 10.5281/zenodo.24329678); v0.24.0 (Round 27;
 DOI 10.5281/zenodo.24329544). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
