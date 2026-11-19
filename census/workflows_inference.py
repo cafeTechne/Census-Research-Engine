@@ -193,6 +193,7 @@ def fit_model(
     weights: Optional[str] = None,
     exposure: Optional[str] = None,
     trials: Optional[str] = None,
+    spatial: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Fit a regression whose standard errors account for ACS sampling error.
 
@@ -217,6 +218,10 @@ def fit_model(
         exposure: Exposure column (model="poisson"/"negbin").
         trials: Trials column (model="binomial"; default effective sample size).
 
+        spatial: method="eiv" only: "clusters" (8 fixed spatial clusters, pooled correction) or
+            "error" (spatial-error whitening) for corrected slopes when areas are spatially
+            correlated (Round 35; linear; validated with up to two error-prone covariates).
+
     target applies to method="replicate" only; corrected methods report se_total.
     Results report se_model, se_sampling, se_total and which sources are included.
     Example: fit_model("downloads/analysis_frame.parquet", "rate ~ rent", replicates_path="...")
@@ -236,6 +241,19 @@ def fit_model(
     extra = {"weights": weights, "exposure": exposure, "trials": trials}
     try:
         frame = _load_frame(input_path)
+        if method == "eiv" and spatial:
+            if spatial not in ("clusters", "error") or not replicates_path or model != "ols" or weights:
+                return _fail(errors.INVALID_INPUT, "spatial EIV needs spatial='clusters' or 'error', replicates_path, "
+                             "model='ols' and no weights.")
+            from census.spatial_eiv import fit_spatial_eiv
+            outcome = formula.split("~", 1)[0].strip()
+            res = fit_spatial_eiv(formula, frame, _read_replicates(replicates_path),
+                                  method="g1" if spatial == "clusters" else "g2", level=confidence_level)
+            from census.results import _jsonable
+            res["table"] = res["table"].to_dict("records")
+            return _ok(f"Corrected slopes with spatially robust inference ({spatial}); "
+                       f"{'validated' if res['validated'] else 'exploratory'}.",
+                       "report the corrected slope with its interval", **_jsonable(res))
         if method == "eiv":
             if not replicates_path:
                 return _fail(errors.INVALID_INPUT, "method='eiv' needs replicates_path (from build_analysis_frame).",

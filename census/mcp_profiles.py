@@ -297,7 +297,14 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      simultaneous) passed validation. Report rank intervals, not point ranks; bootstrap
      percentile ranks under-cover and are not offered; suppressed values are never ranked.
 
-14. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+14. Round 35 spatial EIV: corrected (error-free) linear slopes when areas are spatially
+     correlated: fit_model(method="eiv", spatial="clusters"|"error") or
+     census.spatial_eiv.fit_spatial_eiv. Both passed (coverage .863-.918; 145 MI/NY counties;
+     up to two error-prone covariates; reliability .7-.9); more error-prone covariates are
+     exploratory. Not yet in manifests (fit_eiv spatial_clusters stays refused there).
+     R21b post hoc: H1 and H4 still hold under both.
+
+15. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
@@ -310,7 +317,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-15. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+16. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts

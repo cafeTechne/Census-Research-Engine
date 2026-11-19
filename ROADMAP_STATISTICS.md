@@ -279,7 +279,7 @@ version bump. Dependencies are noted; anything without one can move.
 | 32 | PUMS design-based tests | merged (PR #30, v0.29.0) |
 | 33 | Rank methods and diagnostics | merged (v0.30.0) |
 | 34 | Ranking areas, simultaneous comparisons | merged (v0.31.0) |
-| 35 | Spatial random effects → corrected EIV under spatial dependence | in progress |
+| 35 | Spatial random effects → corrected EIV under spatial dependence | merged (v0.32.0) |
 | 36 | Composite indices and typologies | proposed |
 | 37 | Agreement between sources | proposed |
 | 38 | Meta-analysis, equivalence, power | proposed |

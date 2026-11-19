@@ -33,3 +33,8 @@ reported not estimable and cannot be tested. Partial constancy is refused.
 R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
 author self-review, not independent. OH/PA is outside this validation geometry.
 See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
+
+**Spatially correlated areas (Round 35).** For corrected (EIV) slopes when neighbouring areas are
+correlated, use `fit_model(method="eiv", spatial="clusters")` (eight fixed clusters, pooled
+correction) or `spatial="error"` (spatial-error whitening). Both were validated for linear models
+with up to two error-prone covariates (`docs/audits/spatial_eiv_validation.md`).

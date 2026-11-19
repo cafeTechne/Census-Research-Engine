@@ -345,6 +345,15 @@ Validated; conservative. Report rank intervals, not point ranks. Bootstrap perce
 ranks under-covered badly and are not offered. Non-numeric (suppressed) values are
 excluded, never ranked. Areas are treated as independent samples.
 
+## Spatial EIV (Round 35)
+
+Round 35 spatial EIV: corrected (error-free) linear slopes when areas are spatially
+correlated: fit_model(method="eiv", spatial="clusters"|"error") or
+census.spatial_eiv.fit_spatial_eiv. Both passed (coverage .863-.918; 145 MI/NY counties;
+up to two error-prone covariates; reliability .7-.9); more error-prone covariates are
+exploratory. Not yet in manifests (fit_eiv spatial_clusters stays refused there).
+R21b post hoc: H1 and H4 still hold under both.
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event
