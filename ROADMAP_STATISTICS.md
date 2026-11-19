@@ -275,8 +275,8 @@ version bump. Dependencies are noted; anything without one can move.
 
 | Round | Theme | Status |
 | :--- | :--- | :--- |
-| 31 | Omnibus tests, ANOVA/ANCOVA, t-tests (area) | proposed |
-| 32 | PUMS design-based tests | proposed |
+| 31 | Omnibus tests, ANOVA/ANCOVA, t-tests (area) | merged (PR #29, v0.28.0) |
+| 32 | PUMS design-based tests | in progress |
 | 33 | Rank methods and diagnostics | proposed |
 | 34 | Ranking areas, simultaneous comparisons | proposed |
 | 35 | Spatial random effects | proposed (backlog item 1) |
