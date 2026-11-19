@@ -710,7 +710,7 @@ def _check_segregation(stage, ctx):
         return _check_spatial(stage,ctx)
     if stage not in ("hypothesis", "before_spatial"):
         return
-    from ..segregation import SEGREGATION_VALIDATED, DEFAULT_BIAS_CORRECTION
+    from ..segregation import SEGREGATION_VALIDATED, DEFAULT_BIAS_CORRECTION, variant_validated
     from .schema import manifest_releases, release_overlap_message
     a, manifest, errors = ctx["a"], ctx["manifest"], ctx["errors"]
     args=a.get("args") or {}; groups=a.get("groups")
@@ -756,7 +756,7 @@ def _check_segregation(stage, ctx):
         corrected=args.get("bias_correction")
         if corrected is None: corrected=DEFAULT_BIAS_CORRECTION[stat]
         variant="bias_corrected" if corrected else "naive"
-        passed=SEGREGATION_VALIDATED[stat][variant] and isinstance(groups,list) and len(groups)==2
+        passed=isinstance(groups,list) and variant_validated(stat,variant,len(groups))
         if not passed and not manifest.get("exploratory",False):
             errors.append(f"segregation {stat}/{variant}/group count failed or lacks coverage validation; exploratory only")
 

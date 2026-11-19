@@ -5,6 +5,21 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.47.0 (Round 50): segregation under realistic ACS error
+
+- Freeze the truth file (2024 MI/NY tract counts and published SEs, built reproducibly from the cache),
+  the script and the criterion at `686d121` before the run. Gamma-copula counts and replicates; group
+  error correlation 0 and −.3; counties judged by noise level (largest group median tract CV).
+- Passed to noise level .50: bias-corrected D (county-bin mean coverage .870–.921; every county ≥ .827),
+  isolation (.883–.920) and H (.925–.968), and bias-corrected three-group H (.944–.999). Naive isolation
+  and H pass only to .30. Failed: naive D (.713–.870), the Round 28 default, and naive three-group H.
+- `segregation_replicate`: every default is now bias-corrected; new `noise_level` column and gate
+  (`REALISTIC_RANGES`, `MAX_VALIDATED_MEDIAN_CV = .50`, at least five populated tracts); the Round 28
+  max-CV ≤ .15 range still validates. Three-group H can be confirmatory. Manifests use the same gate.
+- Exploratory example: county poverty and income segregation in MI/NY, 132 of 140 counties validated
+  (`docs/studies/r50_segregation_example.md`). New backlog issues N20 (negative VRE replicates refuse
+  some counties) and N21 (race groups untested).
+
 ## 0.46.0 (Round 49): survey-weighted PUMS models
 
 - Freeze `census/pums_models_core.py`, the reference targets, the script and the criterion at `c0dfd0a`

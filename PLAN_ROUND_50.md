@@ -79,9 +79,9 @@ index function (frozen) and the same SE and bias-correction formulas as `segrega
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Counts file, criterion commit | | |
-| Results by CV bin | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Counts file, criterion commit | done | 8,414 tracts, byte-reproducible; `686d121` |
+| Results by CV bin | done | corrected D/I/H and 3-group H to .50; naive I/H to .30; naive D and naive 3-group H fail (`03f6e18`) |
+| Engine, tests | done | defaults bias-corrected; `noise_level` gate; 8 new tests, 7 R28 tests updated |
+| Example | done | 132 of 140 MI/NY counties validated; `/tmp/r50_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2058 passed, 37 skipped |
+| Exceptions | see notes | replicate SD SE/2 (plan said SE), rounding, all variants judged, noise = max group median CV; engine lower bound .15 for R28-failed variants and 5-tract minimum; negative VRE replicates refuse 5 counties per design (N20) |

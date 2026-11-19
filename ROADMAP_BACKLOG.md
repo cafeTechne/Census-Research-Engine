@@ -37,6 +37,8 @@ implementing Rounds 31–42. The second group was never collected in one place; 
 | N17 | Pooled k-means clusters can straddle adjacent states (OH/PA), leaving a state term partly constant; the engine now flags it, but has no state-respecting option | R44 | missing capability | 45 |
 | N18 | NB2 alpha's default optimizer fails on large counts with little overdispersion (real WONDER data); fixed with a Nelder–Mead fallback | R44 | code (fixed) | 44 |
 | N19 | Naive IM-8 (Round 30 C1) failed the OH/PA re-check with spatially correlated fields; corrected G1/G2 replicated | R44 | external validity | 45 |
+| N20 | 2024 tract VRE files contain negative replicate estimates (B17001: 5 NY counties incl. Bronx, Kings; B19001: Wayne, Bronx, Kings and 2 MI counties); the strict segregation policy refuses those counties | R50 | data / failed input | not planned |
+| N21 | Realistic-error segregation was validated on poverty and income groups only; sparse race/ethnicity groups, four or more groups and contrasts untested (the noise gate applies, but structure may differ) | R50 | external validity | not planned |
 | N16 | ZIP and beta model-based SEs failed; Kruskal–Wallis passed but rank bootstrap (R34 R3) failed | R34, R39, R40 | failed method (low priority) | not planned |
 
 Pre-Round-31 backlog items (STATUS "Open backlog"): 1 spatial routing and GLM EIV, 2 NB2 for R29,
@@ -55,7 +57,7 @@ saturated-model bundle crash.
 | 47 | Causal and missing-data robustness | N5–N8 | merged (v0.44.0) |
 | 48 | Small samples and spatial dependence | N10, N12, N13 | merged (v0.45.0) |
 | 49 | Survey-weighted PUMS models | N14 | merged (v0.46.0) |
-| 50 | Segregation with realistic error | backlog 6 (realistic-error validation, multigroup H) | in progress |
+| 50 | Segregation with realistic error | backlog 6 (realistic-error validation, multigroup H) | merged (v0.47.0) |
 
 ### Round 43: manifest routing and housekeeping (no new statistics)
 
