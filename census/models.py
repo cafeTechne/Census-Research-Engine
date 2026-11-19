@@ -841,6 +841,13 @@ def _setup(formula, frame, error_covariates, model, weights, exposure, trials):
     return model, spec, data, n_trials, notes, others
 
 
+# Validated per model (90% coverage of the true slope >= .86 in every cell): linear models in
+# docs/audits/simulation_validation.md; GLMs in Round 46 (docs/audits/glm_correction_validation.md:
+# Poisson .869-.893, NB2 .887-.918; binomial failed at .851 with reliability .9 and correlated errors).
+RC_AUDIT = "docs/audits/glm_correction_validation.md"
+RC_VALIDATED = {"ols": True, "wls": True, "binomial": False, "poisson": True, "negbin": True}
+
+
 def regression_calibration(
     formula: str,
     frame: pd.DataFrame,
@@ -864,6 +871,8 @@ def regression_calibration(
     Crainiceanu (2006), "Measurement Error in Nonlinear Models", 2nd ed., ch. 4.
     Exact for linear models; an approximation for GLMs (ch. 4.8). SEs from
     ``n_boot`` row-bootstrap replicates that re-estimate the calibration.
+    Validated for ols, wls, poisson and negbin (``RC_VALIDATED``; Round 46); binomial is
+    exploratory (coverage .851-.889 at nominal .90).
     """
     model, spec, data, n_trials, notes, others = _setup(formula, frame, error_covariates, model, weights, exposure, trials)
     naive = _fit(formula, data, model, weights, exposure, n_trials)
@@ -884,9 +893,15 @@ def regression_calibration(
     diagnostics = {"reliability_screen": _screen_summary(data, formula, cv_threshold),
                    "bootstrap_replicates": len(boots),
                    "reliability_ratio": {w: float(1 - np.mean(data[s] ** 2) / np.var(data[w], ddof=1))
-                                         for w, s in spec.items()}}
+                                         for w, s in spec.items()},
+                   "regression_calibration_validated": RC_VALIDATED[model]}
     notes = notes + [f"regression calibration of {list(spec)} given {others}; se_total from {len(boots)} "
                      "row-bootstrap refits including calibration", FH_POINTER]
+    if model in ("poisson", "negbin"):
+        notes.append(f"Validated for {model} slopes against the error-free slope (Round 46, {RC_AUDIT}).")
+    elif not RC_VALIDATED[model]:
+        notes.append(f"EXPLORATORY: regression calibration for {model} slopes under-covered (.851 at nominal "
+                     f".90 with reliability .9 and correlated errors; {RC_AUDIT}); not for confirmatory claims.")
     return _corrected_result(formula, model, naive, cal.params, se_total, confidence_level,
                              "regression_calibration", notes, diagnostics, int(cal.nobs))
 

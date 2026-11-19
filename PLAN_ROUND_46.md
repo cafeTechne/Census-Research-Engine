@@ -46,9 +46,9 @@ full suite, version 0.43.0.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit | | |
-| R / M results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Criterion commit | `4aceb22`, pushed before the full run | script, criterion doc frozen |
+| R / M results | R1 Poisson .869–.893 and NB2 .887–.918 pass; binomial fails (.851); G1/G2 pass with p = 3 and 4 (.876–.927) | unstable point estimates at reliability .7, 100 km (mean bias up to +.17, up to 5.7% failed fits) |
+| Engine, tests | `RC_VALIDATED`, manifest refusal of binomial RC, `VALIDATED_MAX_ERROR_COVARIATES = 4`; 8 tests | rule text mirrored |
+| Example | Round 29 H1–H3 with poverty calibrated (NB2): slopes rise 4–10% | `docs/studies/r46_rc_example.md` |
+| Goldens, final suite | both byte-identical; 2015 passed, 37 skipped | |
+| Exceptions | example swapped from binomial child poverty (binomial RC failed) to the Round 29 NB2 models | |

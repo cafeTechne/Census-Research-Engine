@@ -6,7 +6,7 @@ Goal: a regression whose standard errors include ACS sampling error, not only mo
 2. `build_analysis_frame(input_path=<downloaded file>, use_replicates=true, table_code="B17001", year=2023)`. Keep `output_path` and `replicates_path` from the result.
 3. Check `coverage`: variables with many low-reliability rows (CV > 30%) are noisy; consider a larger geography.
 4. `fit_model(input_path=<output_path>, formula="poverty_rate ~ median_rent", method="replicate", replicates_path=<replicates_path>)`.
-5. No replicates? Use `method="regression_calibration"` with `error_covariates=[...]` (noisy predictors) or `method="fay_herriot"` with `se_col` (noisy outcome). `method="simex"` under-covers (validated coverage about 0.81 for nominal 0.90): use it only as an exploratory sensitivity check, never for confirmatory claims. Replicate refits capture sampling variability of the estimates; they do not remove attenuation bias from noisy predictors.
+5. No replicates? Use `method="regression_calibration"` with `error_covariates=[...]` (noisy predictors; validated for `ols`, `wls`, `poisson` and `negbin` slopes, exploratory for `binomial`, Round 46) or `method="fay_herriot"` with `se_col` (noisy outcome). `method="simex"` under-covers (validated coverage about 0.81 for nominal 0.90): use it only as an exploratory sensitivity check, never for confirmatory claims. Replicate refits capture sampling variability of the estimates; they do not remove attenuation bias from noisy predictors.
 6. Report each coefficient with the SE named in the result's `interval_se_column` (the SE behind its confidence interval and p-value): `se_model` for `target="population"`, `se_sampling` for `"these_areas"`, `se_total` for `"conservative"` and for the corrected methods. Say which uncertainty sources it includes (sampling, model, or both).
 7. Optional: `make_figure` or `fit_model(..., figure_dir="downloads/figures")` for a coefficient plot.
 
@@ -37,7 +37,8 @@ See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 **Spatially correlated areas (Round 35).** For corrected (EIV) slopes when neighbouring areas are
 correlated, use `fit_model(method="eiv", spatial="clusters")` (eight fixed clusters, pooled
 correction) or `spatial="error"` (spatial-error whitening). Both were validated for linear models
-with up to two error-prone covariates (`docs/audits/spatial_eiv_validation.md`).
+with up to four error-prone covariates (`docs/audits/spatial_eiv_validation.md`, Round 46
+`docs/audits/glm_correction_validation.md`).
 
 **Count outcomes (Round 39).** For counts with an exposure, `fit_model(model="negbin", exposure=...)`
 uses NB2 with HC3 SEs, validated even with strong overdispersion and excess zeros; Poisson HC3
@@ -53,5 +54,5 @@ multiply imputes it (validated). Dropping those areas can bias slopes when missi
 **In pre-registered manifests (Round 43).** Counts: `fit_replicate` with `"args": {"model": "negbin",
 "exposure": "<denominator>"}` (NB2-HC3, population target). Corrected slopes with spatial dependence:
 `fit_eiv` with `"args": {"spatial": "clusters"}` (eight fixed clusters, t(7)) or `{"spatial": "error"}`
-(spatial-error whitening), up to two error-prone covariates. `validate_manifest` refuses the options
+(spatial-error whitening), up to four error-prone covariates. `validate_manifest` refuses the options
 outside their validated range.
