@@ -52,7 +52,9 @@ manifests refuse them in confirmatory analyses.
 | IM-8 C2 cluster Fuller EIV | **Failed**: .0695–.9035 coverage; corrected-matrix failures up to 92.6%. Refused, no naive fallback | `im_acs_validation.md` |
 | Restricted wild cluster bootstrap, G=12 (`wcr`, C3-12) | **Failed**: coverage 0.824–0.908; exploratory only, no ACS replicate combination | `spatial_cluster_validation.md` |
 | Poisson–Gamma descriptive EB rate smoothing | **Passed** fixed 90% area-average criterion: posterior 0.8813–0.9000 (default); Laird–Louis 0.8718–0.8914 in six required cells. Fixed E/rates, independent areas; [1,9] censoring; 200 bootstrap refits for LL | `eb_rate_validation.md`, criterion `d4dec47` |
-| Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. Both exploratory only; confirmatory manifests refused | `joint_wald_validation.md`, criterion `376ce69` |
+| Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. `joint_wald` stays exploratory; binomial/Poisson splines are confirmatory only with `joint_test` (Round 31) | `joint_wald_validation.md`, criterion `376ce69` |
+| Joint (omnibus) tests: `joint_test` | **Passed selected** (nominal .10 size in [.07,.13]): wild score bootstrap for OLS factor tests (.098–.110) and binomial/Poisson spline tests (.072–.103); IM-8 Hotelling for OLS/Poisson factor tests (.093–.103). F references failed everywhere. n = 145; other combinations exploratory | `omnibus_validation.md`, criterion `3e3094a` |
+| Pairwise post hoc (`compare_groups`) | **Passed**: Holm for OLS/binomial/Poisson (FWER ≤ .117); simultaneous max-\|t\| for OLS only (.067–.070) | `omnibus_validation.md` |
 | County segregation, two groups: D / isolation / H | **Passed selected variants**: naive D .898–.911; corrected isolation .877–.901; corrected H .896–.961. Corrected D and naive isolation/H failed. Strict 80 replicates; CV .15 fixed design; multigroup H exploratory. **Range gate:** a county with any tract group-count CV > .15 is exploratory and confirmatory tests on it are refused; no MI/NY county's 2018–2022 white/Black tract counts meet it, so segregation is effectively exploratory | `segregation_validation.md`, criterion `4791763` |
 | SMR period scaling and Poisson reference-rate uncertainty | **Passed** .8995–.9105; known reference person-years, independent bands, 50/500/5000 reference deaths and E=10/100. Common reference covariance preserved when pooling. No-reference coverage reached .724 | `smr_reference_validation.md`, criterion `134bf7f` |
 | Conley spatial HAC SEs (`spatial_se`) | **Failed** (0.71–0.87 at 150 km); exploratory only | `spatial_hac_validation.md` |
@@ -106,6 +108,14 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
+**Round 31 (v0.28.0, branch; implemented by the maintainer agent):** omnibus tests and group
+comparisons. Criterion `3e3094a` pushed before the 36-cell run. F references failed; the wild score
+bootstrap and IM-8 Hotelling passed for the combinations above. New `joint_test` statistic,
+`compare_groups` (t-test, ANOVA, ANCOVA, interactions; MCP core tool) and recipe `group_comparison`.
+Exploratory MI/NY example: `docs/studies/r31_group_comparison_example.md`. Execution golden
+unchanged; schema golden changes only in the supported-statistics message
+(`round31_compatibility.md`). Acceptance: 1908 passed, 37 skipped, 54 subtests; 0 failures.
+
 **Round 30 (v0.27.0):** criterion and beta-star targets
 committed/pushed at `2774140` before the fixed 12-cell run; no changes or extra draws. C1 passed all
 three models for observed-ACS coefficients; C2 EIV failed and remains refused. State terms constant
@@ -139,6 +149,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 31 | County poverty by metro class (exploratory example) | Nonmetro poverty higher than large and other metro (joint p = .010; ANCOVA .005); IM-8 unavailable (groups missing from clusters); `r31_group_comparison_example.md` |
 | 30 | Post hoc IM/ACS checks | R21b unavailable (C2 failed); R22 H1/H2 retained; R29 MI/NY H1/H3 retained, H2 not retained (Holm p=.169); `r30_posthoc_im_acs.md` |
 
 ## Open backlog

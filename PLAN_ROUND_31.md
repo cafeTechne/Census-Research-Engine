@@ -173,12 +173,12 @@ open a PR, leave the body at `/tmp/round31-pr-body.md`.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Baseline suite | | |
-| Criterion commit | | |
-| W1 / W2 / W3 / W4 results (per model) | | |
-| P1 / P2 familywise error | | |
-| Engine, `compare_groups`, tests | | |
-| Example | | |
-| Golden changes | | |
-| Final suite | | |
-| Exceptions | | |
+| Baseline suite | Done | 1886 passed, 37 skipped (v0.27.0). |
+| Criterion commit | `3e3094a` | Pushed before the full run; W4 refused-design rule set before freezing. |
+| W1 / W2 / W3 / W4 results (per model) | Mixed | W1/W2 failed all; W3 passed OLS factor, binomial/Poisson spline; W4 passed OLS/Poisson factor. |
+| P1 / P2 familywise error | Done | Holm passed all models; simultaneous OLS only. |
+| Engine, `compare_groups`, tests | Done | `joint_test`, `compare_groups` (core tool), recipe; 22 tests. compare_groups is not a manifest method (no categorical source); manifests use `joint_test` on a formula term. |
+| Example | Done | Joint p = .010 (ANCOVA .005); IM-8 unavailable (groups missing from clusters). |
+| Golden changes | Done | Run golden identical; schema golden: supported-statistics message only. |
+| Final suite | Passed | 1908 passed, 37 skipped; 0 failures. |
+| Exceptions | Recorded | Implemented by the maintainer agent at the owner's request; core cap raised to 15. |
