@@ -39,19 +39,24 @@ refits (as Round 27). `W = (Rb)ᵀ (R V Rᵀ)⁻¹ (Rb)`.
 | W0 | W (Round 27, failed) | χ²(q); kept only as the comparison row |
 | W1 | W / q | F(q, n − p) |
 | W2 | W / q with HC2 in place of HC3 in `V_model` | F(q, ν), ν from the Bell–McCaffrey / Satterthwaite approximation (Pustejovsky–Tipton "HTZ" form with each area its own cluster); GLMs use the working-weighted linearisation |
-| W3 | W | wild score bootstrap (Kline–Santos): fit the null-restricted model once; Rademacher weights; 399 draws; studentised with the same `V_sampling` added in every draw |
+| W3 | restricted score statistic S = Aᵀ Ω⁻¹ A, A = Σᵢ aᵢ, aᵢ = [J⁻¹ xᵢ rᵢ] on the tested columns (null-restricted fit; J the full-model information at it), Ω = Σᵢ aᵢaᵢᵀ + `R V_sampling Rᵀ` | wild score bootstrap (Kline–Santos): Rademacher weights, 399 draws, same Ω; p = (1 + #{S* ≥ S})/400 |
 | W4 (spatial) | Hotelling T² on the IM-8 per-cluster estimates of `Rb` (Round 30 C1): `T² = G · d̄ᵀ S⁻¹ d̄`, `F = (G − q)/(q(G − 1)) · T²` | F(q, G − q), G = 8; needs q ≤ 6 |
 
 - W1–W3 assume independent areas. W4 targets the naive (observed-ACS) coefficients and needs every
   cluster full-rank (Round 30 rules: within-cluster constant terms absorbed; partial constancy refused).
 - A failed fit (W4 rank failure, W3 non-convergent null fit) counts as a **rejection** under the null.
-- **Pre-set selection:** among non-spatial candidates that pass, ship the simplest (W1, then W2, then
-  W3). W4 ships separately if it passes, behind the existing `spatial_clusters` argument.
+- Tested restrictions are always a subset of coefficients set to 0 (factors, interactions, spline
+  columns), so the restricted model drops those columns.
+- **Pre-set selection,** separately per model and design family (**factor**: `oneway4`, `oneway6`,
+  `ancova4`, `twoway`; **spline**: `spline3`, `spline5`): among non-spatial candidates that pass, ship
+  the simplest (W1, then W2, then W3). W4 ships separately where it passes, behind the existing
+  `spatial_clusters` argument.
 
 **Pairwise post hoc.** For k groups, all k(k−1)/2 differences of adjusted group means:
 - **P1 Holm:** marginal t(n − p) tests on each difference, Holm-adjusted.
-- **P2 simultaneous:** max-|t| critical value from `scipy.stats.multivariate_t` (df n − p) with the
-  correlation of the differences implied by `V`; simultaneous intervals.
+- **P2 simultaneous:** max-|t| adjusted p-values and critical value for the multivariate t (df n − p)
+  with the correlation of the differences implied by `V`, by Monte Carlo (20,000 draws of the
+  group-effect vector, fixed seed `SeedSequence([20261218, 31])`); simultaneous intervals.
 
 ## 2. Validation (`scripts/omnibus_validation.py` → `docs/audits/omnibus_validation.md`/`.json`)
 
@@ -80,11 +85,12 @@ refits (as Round 27). `W = (Rb)ᵀ (R V Rᵀ)⁻¹ (Rb)`.
 - **Cells:** 6 designs × 3 models × 2 fields = 36 cells; 2,000 null draws and 500 alternative draws
   per cell. Seed `20261218 + cell index` in that nesting order; bootstrap RNG
   `SeedSequence([20261218, cell, draw, 9])`.
-- **Acceptance (pre-set), per candidate × model:** nominal-.10 null size within [.07, .13] in every
-  cell it is judged on: W1–W3 on the independent cells; W4 on all cells. Report size at .05 as well.
-- **Post hoc (judged on `oneway4` and `oneway6`, all models):** familywise error at .10 ≤ .13 under the
-  global null, for P1 and P2, in the independent cells (and with W4's per-cluster covariance in the
-  spatial cells, informational).
+- **Acceptance (pre-set), per candidate × model × design family:** nominal-.10 null size within
+  [.07, .13] in every cell it is judged on: W1–W3 on the independent cells; W4 on all cells. A failed
+  fit counts as a rejection; failure counts are reported separately. Report size at .05 as well.
+- **Post hoc (judged on `oneway4` and `oneway6`, independent cells, per model):** familywise error at
+  .10 ≤ .13 under the global null, for P1 and P2, using the shipped non-spatial covariance (HC3 +
+  sampling).
 - **Informational:** power, the W0 row (expected to fail again), W1–W3 size in spatial cells (expected
   to be oversized), mean ν for W2, failure counts.
 - **Runtime:** GLM cells with covariate error need 80 refits per draw. Use `multiprocessing` with
