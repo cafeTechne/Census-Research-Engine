@@ -224,6 +224,13 @@ target; independent areas). Beta model-based SEs failed. Adding replicate varian
 over-covered, so it is not added. PUMS ordinal/multinomial/weighted-quantile models and GEE
 are not available yet (no survey weights in the statsmodels versions).
 
+Round 41 causal tools (full profile tool estimate_effect; recipe causal): treatment
+effects (AIPW default) validated with precisely measured confounders; 2SLS with an
+independent second measurement as instrument removes covariate attenuation (validated;
+weak instruments flagged); mediation validated only with an exactly measured mediator
+(ACS mediator error drops coverage to .69-.72). State the assumptions; confirmatory causal
+claims need a registered design.
+
 Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
 and scale:"robust"; Poisson counts use exposure
 and scale:"robust". New external-count manifests refuse scale:"X2" (failed coverage validation).
@@ -1297,6 +1304,7 @@ for _fn in (
     workflows_inference.build_index,
     workflows_inference.check_agreement,
     workflows_inference.combine_estimates,
+    workflows_inference.estimate_effect,
     workflows_inference.small_area_estimates,
     workflows_inference.correlation_matrix,
     workflows_inference.minimum_detectable_difference,
@@ -1347,6 +1355,7 @@ rank_areas = workflows_inference.rank_areas
 build_index = workflows_inference.build_index
 check_agreement = workflows_inference.check_agreement
 combine_estimates = workflows_inference.combine_estimates
+estimate_effect = workflows_inference.estimate_effect
 small_area_estimates = workflows_inference.small_area_estimates
 correlation_matrix = workflows_inference.correlation_matrix
 minimum_detectable_difference = workflows_inference.minimum_detectable_difference

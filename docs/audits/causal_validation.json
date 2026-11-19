@@ -1,0 +1,218 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "kind": "treatment",
+      "reliability": 1.0,
+      "instrument_reliability": null,
+      "draws": 2000,
+      "target": 0.5,
+      "coverage": {
+        "T1": 0.8935,
+        "T2": 0.896,
+        "T3": 0.8955
+      },
+      "bias": {
+        "T1": -0.0076040327851208955,
+        "T2": -0.007354506620681767,
+        "T3": -0.0073686798838558665
+      },
+      "failures": {
+        "T1": 0,
+        "T2": 0,
+        "T3": 0
+      },
+      "seconds": 114.7746319770813
+    },
+    {
+      "cell": 1,
+      "kind": "treatment",
+      "reliability": 0.9,
+      "instrument_reliability": null,
+      "draws": 2000,
+      "target": 0.5,
+      "coverage": {
+        "T1": 0.896,
+        "T2": 0.896,
+        "T3": 0.8985
+      },
+      "bias": {
+        "T1": 0.003803562552353701,
+        "T2": 0.0039925946002158375,
+        "T3": 0.004839623238958701
+      },
+      "failures": {
+        "T1": 0,
+        "T2": 0,
+        "T3": 0
+      },
+      "seconds": 113.75168013572693
+    },
+    {
+      "cell": 2,
+      "kind": "treatment",
+      "reliability": 0.7,
+      "instrument_reliability": null,
+      "draws": 2000,
+      "target": 0.5,
+      "coverage": {
+        "T1": 0.8875,
+        "T2": 0.8855,
+        "T3": 0.8895
+      },
+      "bias": {
+        "T1": 0.0017288103520751719,
+        "T2": 0.0016486472269737762,
+        "T3": 0.002167901290227481
+      },
+      "failures": {
+        "T1": 0,
+        "T2": 0,
+        "T3": 0
+      },
+      "seconds": 111.46492576599121
+    },
+    {
+      "cell": 3,
+      "kind": "iv",
+      "reliability": 0.9,
+      "instrument_reliability": 0.9,
+      "draws": 2000,
+      "target": 0.5,
+      "coverage": {
+        "I0": 0.8025,
+        "I1": 0.8815
+      },
+      "bias": {
+        "I0": -0.05377840333556172,
+        "I1": -0.003220343176193574
+      },
+      "failures": {
+        "I0": 0,
+        "I1": 0
+      },
+      "seconds": 0.32657837867736816
+    },
+    {
+      "cell": 4,
+      "kind": "iv",
+      "reliability": 0.9,
+      "instrument_reliability": 0.7,
+      "draws": 2000,
+      "target": 0.5,
+      "coverage": {
+        "I0": 0.8185,
+        "I1": 0.884
+      },
+      "bias": {
+        "I0": -0.04936264846763028,
+        "I1": 0.0024542657168346027
+      },
+      "failures": {
+        "I0": 0,
+        "I1": 0
+      },
+      "seconds": 0.32201719284057617
+    },
+    {
+      "cell": 5,
+      "kind": "iv",
+      "reliability": 0.7,
+      "instrument_reliability": 0.9,
+      "draws": 2000,
+      "target": 0.5,
+      "coverage": {
+        "I0": 0.3075,
+        "I1": 0.9
+      },
+      "bias": {
+        "I0": -0.15097467190801284,
+        "I1": 0.002012549970893285
+      },
+      "failures": {
+        "I0": 0,
+        "I1": 0
+      },
+      "seconds": 0.3342111110687256
+    },
+    {
+      "cell": 6,
+      "kind": "iv",
+      "reliability": 0.7,
+      "instrument_reliability": 0.7,
+      "draws": 2000,
+      "target": 0.5,
+      "coverage": {
+        "I0": 0.3,
+        "I1": 0.907
+      },
+      "bias": {
+        "I0": -0.1517170557125691,
+        "I1": 0.0023206934569296456
+      },
+      "failures": {
+        "I0": 0,
+        "I1": 0
+      },
+      "seconds": 0.3182229995727539
+    },
+    {
+      "cell": 7,
+      "kind": "mediation",
+      "reliability": 1.0,
+      "instrument_reliability": null,
+      "draws": 2000,
+      "target": 0.2,
+      "coverage": {
+        "S1": 0.876,
+        "S2": 0.891
+      },
+      "bias": {
+        "S1": -0.0012456900391583925,
+        "S2": -0.0012456900391583925
+      },
+      "failures": {
+        "S1": 0,
+        "S2": 0
+      },
+      "seconds": 336.9098482131958
+    },
+    {
+      "cell": 8,
+      "kind": "mediation",
+      "reliability": 0.8,
+      "instrument_reliability": null,
+      "draws": 2000,
+      "target": 0.2,
+      "coverage": {
+        "S1": 0.6905,
+        "S2": 0.7245
+      },
+      "bias": {
+        "S1": -0.045979219457590786,
+        "S2": -0.045979219457590786
+      },
+      "failures": {
+        "S1": 0,
+        "S2": 0
+      },
+      "seconds": 336.8344247341156
+    }
+  ],
+  "passed": {
+    "T1": true,
+    "T2": true,
+    "T3": true,
+    "I1": true,
+    "S1": true,
+    "S2": true
+  },
+  "draws_per_cell": 2000,
+  "criterion": "90% coverage >= .86: treatment in reliability 1.0 and 0.9 cells; 2SLS in all IV cells; mediation in the exact-mediator cell; failures count as non-coverage; other cells informational",
+  "criterion_commit": "b7464e5",
+  "frozen_sha256": {
+    "scripts/causal_validation.py": "1fa7b6cb185b26ff5915f252a62522f7fb14221a8e6f215133483be03c87cd7f",
+    "census/causal_core.py": "5bc7c11fe7c1e31b60e7d2324a6eda06192aac7291e391dc1c29886a5c457a90",
+    "docs/audits/causal_validation_criterion.md": "254cbe40989678b32a31f97d6e8d18af889594da2b7d695daa984d4cdda7c795"
+  }
+}

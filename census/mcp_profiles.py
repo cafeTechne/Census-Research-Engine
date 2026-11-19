@@ -335,7 +335,14 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      over-covered, so it is not added. PUMS ordinal/multinomial/weighted-quantile models and GEE
      are not available yet (no survey weights in the statsmodels versions).
 
-20. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+20. Round 41 causal tools (full profile tool estimate_effect; recipe causal): treatment
+     effects (AIPW default) validated with precisely measured confounders; 2SLS with an
+     independent second measurement as instrument removes covariate attenuation (validated;
+     weak instruments flagged); mediation validated only with an exactly measured mediator
+     (ACS mediator error drops coverage to .69-.72). State the assumptions; confirmatory causal
+     claims need a registered design.
+
+21. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
@@ -348,7 +355,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-21. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+22. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts

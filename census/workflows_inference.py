@@ -573,6 +573,54 @@ def combine_estimates(
     return _ok(summary, "report the estimate with its interval and say whether it is validated", **_jsonable(out))
 
 
+def estimate_effect(
+    input_path: str,
+    kind: str,
+    outcome: str,
+    treatment: Optional[str] = None,
+    confounders: Optional[List[str]] = None,
+    x: Optional[str] = None,
+    instrument: Optional[str] = None,
+    mediator: Optional[str] = None,
+    controls: Optional[List[str]] = None,
+    method: Optional[str] = None,
+    replicates_path: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Causal-style estimates for areas (state the assumptions; register designs for confirmatory claims).
+
+    Args:
+        kind: "treatment" (binary 0/1 treatment column, confounders; method aipw|ipw|ra),
+            "iv" (error-prone x instrumented by an independent second measurement, controls) or
+            "mediation" (x -> mediator -> outcome; method bootstrap|sobel).
+        replicates_path: Lets the tool flag error-prone confounders or mediators.
+    Validated (Round 41): treatment effects with precisely measured confounders; 2SLS with a second
+    measurement; mediation with an exactly measured mediator.
+    Example: estimate_effect("frame.parquet", "iv", "mortality", x="poverty", instrument="poverty_2017")
+    """
+    from census import causal
+
+    reps = _read_replicates(replicates_path) if replicates_path else None
+    try:
+        frame = _load_frame(input_path)
+        if kind == "treatment":
+            out = causal.estimate_effect(frame, outcome, treatment, confounders or [], method or "aipw", reps)
+            e = out["ate"]; summary = f"Average treatment effect {e['estimate']:.4g} (90% CI {e['lower']:.4g} to {e['upper']:.4g})."
+        elif kind == "iv":
+            out = causal.iv_slope(frame, outcome, x, instrument, controls or [])
+            e = out["iv"]; summary = (f"2SLS slope {e['estimate']:.4g} ({e['lower']:.4g} to {e['upper']:.4g}); "
+                                      f"naive OLS {out['ols_naive']['estimate']:.4g}.")
+        elif kind == "mediation":
+            out = causal.mediation(frame, x, mediator, outcome, controls or [], method or "bootstrap", reps)
+            e = out["indirect"]; summary = f"Indirect effect {e['estimate']:.4g} ({e['lower']:.4g} to {e['upper']:.4g})."
+        else:
+            return _fail(errors.INVALID_INPUT, "kind must be 'treatment', 'iv' or 'mediation'.")
+    except (_INPUT_ERRORS + (AttributeError,)) as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}", "check the columns for this kind, then retry")
+    from census.results import _jsonable
+    return _ok(summary + (" Validated." if out["validated"] else " Exploratory: see notes."),
+               "report the estimate with its interval and the assumptions in notes", **_jsonable(out))
+
+
 def small_area_estimates(
     input_path: str,
     formula: str,
