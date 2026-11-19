@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.29.0 (Round 32): design-based PUMS tests
+
+- Freeze procedures, script, criterion and 2,000,000-household reference targets at `d65d034` before
+  the 8-cell run (household ICC 0.1/0.4, weight CV 0.3/1.0, 800/3,000 households; SDR replicate
+  weights from a Paley order-80 Hadamard matrix, as the ACS).
+- Passed and selected: first-order Rao–Scott independence tests (tables up to 3 × 4), design F and
+  z tests for group means, differences of proportions, odds ratios, relative risks, differences of
+  means and medians, Korn–Graubard proportions. Failed: design-blind Pearson, Wald proportions,
+  design Wald F for 3 × 4 tables.
+- New `census.pums_tests` (frozen procedures), `census.pums_inference` (PUMS wrappers), MCP core tool
+  `test_association` (core cap 16), recipe `pums_tests`.
+- Exploratory Michigan PUMS example; it showed that medians of heaped amounts get zero replicate SEs,
+  now detected (`heaping_share`) and labelled exploratory.
+
 ## 0.28.0 (Round 31): omnibus tests and group comparisons
 
 - Freeze candidates, script and criterion at `3e3094a` before the 36-cell run (6 designs × 3

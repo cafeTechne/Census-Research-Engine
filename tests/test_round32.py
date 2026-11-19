@@ -119,6 +119,10 @@ def test_wrappers_universe_missing_values_and_flags():
     assert any("fewer than 30" in n for n in small["notes"])
     with pytest.raises(ValueError, match="exactly two"):
         pi.compare_medians(df, "PINCP", "REG")
+    assert med["validated"] and med["heaping_share"] < .02
+    heaped = df.assign(PINCP=np.round(df.PINCP, -4))           # round-number reporting
+    hm = pi.compare_medians(heaped, "PINCP", "SEX")
+    assert not hm["validated"] and any("heaped" in n for n in hm["notes"])
 
 
 def test_large_tables_are_exploratory():

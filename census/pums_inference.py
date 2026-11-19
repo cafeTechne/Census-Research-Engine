@@ -26,6 +26,7 @@ from . import pums, pums_tests as pt
 AUDIT = "docs/audits/pums_tests_validation.md"
 INDEPENDENCE_MAX_Q = 6
 VALIDATED_PROPORTION_METHOD = "korn_graubard"
+HEAPING_LIMIT = .02   # share of a group's weight exactly at its median above which median SEs are not trusted
 
 
 def _frame(df, columns, where, weight):
@@ -120,9 +121,25 @@ def compare_medians(df: pd.DataFrame, var: Any, by: Any, weight: str = "person",
     codes = (v["by"] == levels[1]).astype(int)
     out = pt.difference_of_medians(v["var"], codes, W)
     counts = [int((codes == k).sum()) for k in (0, 1)]
-    return dict(groups=[_label(g) for g in levels], difference=out, validated=True,
-                notes=_flags(min(counts), min_n) + ["Weighted medians (no bracket interpolation); SDR standard error."],
-                audit=AUDIT)
+    notes = _flags(min(counts), min_n) + ["Weighted medians (no bracket interpolation); SDR standard error."]
+    # Validation used continuous values. Reported dollar amounts are heaped (round numbers), so
+    # replicate medians can coincide and the SDR SE collapses toward 0: label such results.
+    shares = []
+    for k in (0, 1):
+        x, w = v["var"][codes == k], W[codes == k, 0]
+        shares.append(float(w[x == _median(x, w)].sum()/w.sum()))
+    heap = max(shares)
+    validated = out["se"] > 0 and heap <= HEAPING_LIMIT
+    if not validated:
+        notes.append(f"EXPLORATORY: {heap:.0%} of a group's weight sits exactly at its median (heaped values); "
+                     "replicate SEs of medians are unreliable here (validation used continuous values). "
+                     "Use bracket-interpolated medians (pums_tabulate statistic='median' with bins) or compare means.")
+    return dict(groups=[_label(g) for g in levels], difference=out, validated=validated, heaping_share=heap,
+                notes=notes, audit=AUDIT)
+
+
+def _median(x, w):
+    return float(pums.weighted_median(np.asarray(x, float), np.asarray(w, float))[0])
 
 
 def proportion_interval(df: pd.DataFrame, var: Any, weight: str = "person", where: Any = None,
