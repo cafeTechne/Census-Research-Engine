@@ -404,6 +404,14 @@ weak instruments flagged); mediation validated only with an exactly measured med
 (ACS mediator error drops coverage to .69-.72). State the assumptions; confirmatory causal
 claims need a registered design.
 
+## Missing data, censored counts, time series (Round 42)
+
+Round 42: fit_model(impute="w") multiply imputes one incomplete covariate (20 draws, Rubin's
+rules; validated, also when missingness depends on the outcome). Exploratory library functions:
+census.missing_censored_its.fit_censored_poisson uses WONDER counts hidden as 1-9 as interval
+information without estimating them (under-covered .84-.86, though better than dropping them);
+interrupted_series for annual series (20-point series: every method under-covered, .47-.81).
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event

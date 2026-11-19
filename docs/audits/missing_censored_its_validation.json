@@ -1,0 +1,98 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "kind": "missing",
+      "parameter": "MAR",
+      "draws": 2000,
+      "coverage": {
+        "D0": 0.871,
+        "D1": 0.907
+      },
+      "failed_draws": 0,
+      "seconds": 7.396298170089722
+    },
+    {
+      "cell": 1,
+      "kind": "missing",
+      "parameter": "MCAR",
+      "draws": 2000,
+      "coverage": {
+        "D0": 0.913,
+        "D1": 0.919
+      },
+      "failed_draws": 0,
+      "seconds": 7.4390709400177
+    },
+    {
+      "cell": 2,
+      "kind": "censored",
+      "parameter": 10,
+      "draws": 2000,
+      "coverage": {
+        "C0": 0.824,
+        "C1": 0.856
+      },
+      "failed_draws": 0,
+      "seconds": 10.554883241653442
+    },
+    {
+      "cell": 3,
+      "kind": "censored",
+      "parameter": 30,
+      "draws": 2000,
+      "coverage": {
+        "C0": 0.8275,
+        "C1": 0.839
+      },
+      "failed_draws": 0,
+      "seconds": 11.316836595535278
+    },
+    {
+      "cell": 4,
+      "kind": "its",
+      "parameter": 0.3,
+      "draws": 2000,
+      "coverage": {
+        "A0_level": 0.8145,
+        "A0_slope": 0.7955,
+        "A1_level": 0.6355,
+        "A1_slope": 0.603,
+        "A2_level": 0.7855,
+        "A2_slope": 0.7615
+      },
+      "failed_draws": 0,
+      "seconds": 2.1707000732421875
+    },
+    {
+      "cell": 5,
+      "kind": "its",
+      "parameter": 0.6,
+      "draws": 2000,
+      "coverage": {
+        "A0_level": 0.689,
+        "A0_slope": 0.5885,
+        "A1_level": 0.545,
+        "A1_slope": 0.4655,
+        "A2_level": 0.7305,
+        "A2_slope": 0.6285
+      },
+      "failed_draws": 0,
+      "seconds": 2.3925487995147705
+    }
+  ],
+  "passed": {
+    "D1": true,
+    "C1": false,
+    "A1": false,
+    "A2": false
+  },
+  "draws_per_cell": 2000,
+  "criterion": "90% coverage >= .86 in every cell of the problem (ITS: level and slope change); failures count as non-coverage; D0, C0, A0 are comparisons",
+  "criterion_commit": "5f81de2",
+  "frozen_sha256": {
+    "scripts/missing_censored_its_validation.py": "921ebe4ae882e4ec55b9e857245a449b59ea95fe94a6a64b03493880b7b9f985",
+    "census/mci_core.py": "d31a846cd90b890192ed107dac4c665efb30f56d61f466ec98638021972d9944",
+    "docs/audits/missing_censored_its_validation_criterion.md": "68754f7aeef156cf68e7d2e216a0ef29ca6d3992fe12f76b9f5e64c11937f042"
+  }
+}

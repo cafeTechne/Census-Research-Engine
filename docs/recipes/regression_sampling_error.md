@@ -46,3 +46,6 @@ under-covered (.81) when overdispersion was strong (`docs/audits/manova_counts_v
 **Shares and skewed outcomes (Round 40).** For a share in 0-1 use `fit_model(model="beta")` (divide
 percentages by 100); for skewed outcomes `fit_model(model="median")`. Both validated for the naive
 target (`docs/audits/beta_median_validation.md`).
+
+**Missing covariates (Round 42).** If one covariate is missing for some areas, `fit_model(..., impute="w")`
+multiply imputes it (validated). Dropping those areas can bias slopes when missingness depends on the outcome.
