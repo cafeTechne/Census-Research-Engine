@@ -20,3 +20,18 @@
 5. Records under 30 in a group are flagged, not suppressed. Empty 2 x 2 cells are refused (no
    continuity correction). PUMA is the smallest PUMS geography.
 6. Validation: `docs/audits/pums_tests_validation.md` (Round 32).
+
+## Models on PUMS records (Round 49)
+
+`pums_regression(state, year, formula, model=...)` with `model` one of:
+
+- `ordered_logit` / `ordered_probit`: an ordered outcome (codes sorted ascending; e.g. income-to-poverty
+  bands). No intercept; thresholds are reported separately.
+- `mnlogit`: an unordered outcome; the lowest code is the baseline, and each slope is "[k vs base]".
+- `median`: weighted median regression (e.g. log earnings), robust to heavy tails.
+- `probit`: a 0/1 outcome.
+
+Each model is refitted with the 80 replicate weights; the intervals use Var = 4/80 sum of squared
+deviations. All five passed validation (90% coverage .875–.915 with household clustering and weight CV
+up to 1; `docs/audits/pums_models_validation.md`). Model-based SEs that ignore the design covered only
+.62–.887: do not use them. Library: `census.pums_models.fit_pums_model(formula, df, model)`.

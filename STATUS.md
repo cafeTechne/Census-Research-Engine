@@ -18,7 +18,7 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (46), drafted from `ROADMAP_BACKLOG.md` (Rounds 43–50). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (50), drafted from `ROADMAP_BACKLOG.md` (Rounds 43–50). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–50): the backlog below plus issues found in Rounds 31–42. Plans are drafted from it |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -55,10 +55,11 @@ manifests refuse them in confirmatory analyses.
 | Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. `joint_wald` stays exploratory; binomial/Poisson splines are confirmatory only with `joint_test` (Round 31) | `joint_wald_validation.md`, criterion `376ce69` |
 | Joint (omnibus) tests: `joint_test` | **Passed selected** (nominal .10 size in [.07,.13]): wild score bootstrap for OLS factor tests (.098–.110) and binomial/Poisson spline tests (.072–.103); IM-8 Hotelling for OLS/Poisson factor tests (.093–.103). F references failed everywhere. n = 145; other combinations exploratory | `omnibus_validation.md`, criterion `3e3094a` |
 | Missing data, censored counts, interrupted series | **Multiple imputation passed** (.907–.919; complete case .871 when missingness depends on the outcome). Interval-censored Poisson for hidden 1–9 counts failed narrowly (.839–.856; complete case .824–.828): exploratory. Interrupted series with 20 annual points failed for OLS, Newey–West and AR(1) GLS (.47–.81): exploratory | `missing_censored_its_validation.md`, criterion `5f81de2` |
+| Survey-weighted PUMS models (Round 49) | **Passed**: ordered logit and probit, multinomial logit, weighted median regression and probit with the SDR replicate variance (80 warm-started refits; .875–.915 with household clustering ρ up to .4 and weight CV up to 1). Model-based SEs with normalised weights under-cover (.62–.887) | `pums_models_validation.md`, criterion `c0dfd0a` |
 | Small samples and spatial dependence (Round 48) | **Passed**: effective-sample-size intervals under spatial dependence for Spearman (.875–.917), Kendall (.862–.905), Pearson with replicates (.864–.967) and Feldt α (.912–.926) (`spatial=True`; partial correlations stay exploratory; IM-8 versions failed); Hartung–Knapp for 5–10 estimates with the variance factor truncated at 1 (.874–.918); Bland–Altman limits with moment-based SEs (.884–.936); interrupted series AR(1) bootstrap-t at 30+ points (.883–.896). **Failed**: REML AR(1) at 15–30 points (.79–.88) and bootstrap-t below 30 points | `small_spatial_validation.md`, criterion `3fb07d3` |
 | Causal robustness (Round 47) | **Passed**: AIPW with confounders calibrated within treatment groups (`calibrate=True`; .889–.905 with same-sign noisy confounders, plain AIPW .77–.87); calibrated mediator (.883–.898; naive .58–.86); Anderson–Rubin interval at any first-stage F (.894–.908); the 2SLS Wald interval also covered at every F (pre-set cut-off 0) but its estimate is unstable below F = 10; chained-equations MI for two incomplete covariates (.898–.916; complete case .84 under MAR) | `causal_robustness_validation.md`, criterion `cbdc97f` |
 | Causal tools (`estimate_effect`) | **Passed**: treatment effects (IPW/AIPW/RA) with precise confounders (.894–.899; residual confounding from noisy confounders not tested: design limitation); 2SLS with an independent second measurement (.882–.907 vs naive OLS .30); mediation with an exact mediator (.876–.891; mediator error .69–.72, exploratory) | `causal_validation.md`, criterion `b7464e5` |
-| Beta and median regression (`fit_model` beta/median) | **Passed selected**: beta with HC0 (.885–.903; model-based SEs failed); median regression with the kernel SE (.912–.917). Replicate-augmented variants over-cover. PUMS ordinal/multinomial/weighted-quantile and GEE deferred | `beta_median_validation.md`, criterion `d5c9b02` |
+| Beta and median regression (`fit_model` beta/median) | **Passed selected**: beta with HC0 (.885–.903; model-based SEs failed); median regression with the kernel SE (.912–.917). Replicate-augmented variants over-cover. PUMS models: Round 49 row; GEE deferred | `beta_median_validation.md`, criterion `d5c9b02` |
 | Multivariate group tests and count models | **Passed**: multivariate wild score bootstrap (MANOVA/MANCOVA; size .090–.101); NB2 with HC3 (.885–.901, overdispersion and excess zeros). **Poisson HC3 under-covered with strong overdispersion (.808–.867)**; zero-inflated Poisson failed | `manova_counts_validation.md`, criterion `0686bc0` |
 | Combining evidence (`combine_estimates`) | **Passed selected**: Paule–Mandel + Hartung–Knapp pooling for 2–4 estimates (.885–.911; 5–10 with truncation since Round 48); fixed effect only when homogeneity is declared in advance; TOST equivalence; z-test power. DerSimonian–Laird failed with heterogeneity (.82–.84) | `evidence_validation.md`, criterion `3edd5f4` |
 | Agreement between sources (`check_agreement`) | **Passed selected**: bias (.894–.900) and kappa of quintile classes (.883–.912). Failed (estimates only, intervals exploratory): Bland–Altman limits observed (.838) and error-free (.826; both repaired in Round 48), Lin's CCC (.859) and corrected CCC (.38–.77) | `agreement_validation.md`, criterion `e6d4be6` |
@@ -122,6 +123,12 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 49 (v0.46.0; merged, release pending owner approval; implemented by the maintainer agent):**
+survey-weighted PUMS models (criterion `c0dfd0a`): ordered logit/probit, multinomial logit, median
+regression and probit with the SDR replicate variance all pass. New frozen `census.pums_models_core`;
+`census.pums_models.fit_pums_model`; MCP `pums_regression(model=...)`. Exploratory example
+(`r49_pums_models_example.md`). Goldens unchanged. Acceptance: 2050 passed, 37 skipped; 0 failures.
 
 **Round 48 (v0.45.0; merged, release pending owner approval; implemented by the maintainer agent):**
 small samples and spatial dependence (criterion `3fb07d3`): effective-n correlation and α intervals,
@@ -265,6 +272,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 49 | Disability, poverty band, insurance and earnings, MI PUMS models (exploratory example) | Disability: ordered logit −1.30 (odds 0.27 of a higher poverty band); uninsured probit −0.06; median earnings 36% lower; `r49_pums_models_example.md` |
 | 45 | Round 29 counts with the count repairs (exploratory example) | H2 stays positive with hidden counts as [1, 9]; under IM-8 NB2 the MI/NY overdose slope includes zero (as in Round 30), H1/H3 hold; `r45_count_example.md` |
 | 44 | Round 29 under NB2 (post hoc) | H1–H3 hold under NB2-HC3 in MI/NY and OH/PA; hidden H2 counts as [1, 9] give the same slope; `r44_posthoc_r29.md` |
 | 40 | Poverty by metro class and share 65+, beta and median models (exploratory example) | Metro gaps agree across models; the share-65+ slope halves in median regression (tails drive OLS); `r40_beta_median_example.md` |

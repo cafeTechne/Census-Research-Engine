@@ -5,6 +5,19 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.46.0 (Round 49): survey-weighted PUMS models
+
+- Freeze `census/pums_models_core.py`, the reference targets, the script and the criterion at `c0dfd0a`
+  before the run; the generator is Round 32's (household clustering, unequal weights, ACS-style SDR
+  replicate weights).
+- Passed: ordered logit (.879–.906) and ordered probit (.875–.906), multinomial logit (.879–.912),
+  weighted median regression (.887–.915) and probit (.878–.907) with the SDR replicate variance (80
+  warm-started refits). Model-based SEs with normalised weights under-cover (.62–.887).
+- `census.pums_models.fit_pums_model(formula, df, model)`; MCP `pums_regression(model="ordered_logit" |
+  "ordered_probit" | "mnlogit" | "median" | "probit")`.
+- Exploratory example: disability with poverty band, insurance and earnings in the Michigan PUMS
+  (`docs/studies/r49_pums_models_example.md`).
+
 ## 0.45.0 (Round 48): small samples and spatial dependence
 
 - Freeze `census/small_spatial_core.py`, the script and the criterion at `3fb07d3` before the run; the

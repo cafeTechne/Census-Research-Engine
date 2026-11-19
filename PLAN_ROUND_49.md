@@ -70,9 +70,9 @@ model (O, P, M, Q, G) is judged separately, and failed fits count as non-coverag
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Targets, criterion commit | | |
-| O / P / M / Q / G results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Targets, criterion commit | done | `c0dfd0a`; O/M pseudo-true values from a 400,000-household reference |
+| O / P / M / Q / G results | all passed | V1 .875–.915; V0 .62–.887; no failed fits (`d81f7e7`) |
+| Engine, tests | done | `census.pums_models`, MCP routing; 15 tests |
+| Example | done | MI PUMS adults 25–64; `r49_pums_models_example.md`; `/tmp/r49_example_outputs.tar.gz` |
+| Goldens, final suite | done | goldens identical; 2050 passed, 37 skipped |
+| Exceptions | none | smoke-run solver fixes made before freezing (criterion) |
