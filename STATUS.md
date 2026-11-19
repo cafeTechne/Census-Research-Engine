@@ -19,7 +19,7 @@ DOI 10.5281/zenodo.24329678). All versions: concept record
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (39). Rounds are drafted from `ROADMAP_STATISTICS.md`. Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (40). Rounds are drafted from `ROADMAP_STATISTICS.md`. Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `ROADMAP_STATISTICS.md` | Multi-round roadmap (Rounds 31–42): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 

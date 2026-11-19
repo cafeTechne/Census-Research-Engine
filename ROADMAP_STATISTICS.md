@@ -284,7 +284,7 @@ version bump. Dependencies are noted; anything without one can move.
 | 37 | Agreement between sources | merged (v0.34.0) |
 | 38 | Meta-analysis, equivalence, power | merged (v0.35.0) |
 | 39 | MANOVA/MANCOVA, count families | merged (v0.36.0) |
-| 40 | Regression families (beta, quantile, ordinal, multinomial, GEE) | proposed |
+| 40 | Regression families: beta and median (ordinal, multinomial, weighted quantile, GEE deferred) | in progress |
 | 41 | Treatment effects, mediation, instrumental variables | proposed |
 | 42 | Missing data, censoring, time series | proposed |
 
