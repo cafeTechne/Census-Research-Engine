@@ -409,6 +409,13 @@ weak instruments flagged); mediation validated only with an exactly measured med
 (ACS mediator error drops coverage to .69-.72). State the assumptions; confirmatory causal
 claims need a registered design.
 
+Round 47 (docs/audits/causal_robustness_validation.md): estimate_effect(calibrate=True) corrects
+noisy confounders (AIPW, regression calibration within treatment groups, bootstrap; .889-.905 where
+plain AIPW fell to .77-.87) and a noisy mediator (no controls; .883-.898); both need _se or _moe
+columns. Without calibrate, noisy confounders make the result exploratory. iv always reports an
+Anderson-Rubin interval (.894-.908 at any instrument strength; can be unbounded); the 2SLS Wald interval
+also covered at every F, but its estimate is unstable below F = 10, so report the AR interval there.
+
 ## Manifest routing (Round 43)
 
 Round 43 manifest options (opt-in; registered manifests unchanged): correlation_matrix
@@ -432,7 +439,8 @@ covered (.888-.891). within_states=True assigns the eight clusters within each s
 ## Missing data, censored counts, time series (Round 42)
 
 Round 42: fit_model(impute="w") multiply imputes one incomplete covariate (20 draws, Rubin's
-rules; validated, also when missingness depends on the outcome). Exploratory library functions:
+rules; validated, also when missingness depends on the outcome). Round 47: impute=["w", "v"] imputes
+two by chained equations (validated .898-.916; complete case .84 when missingness depends on the outcome). Exploratory library functions:
 census.missing_censored_its.fit_censored_poisson uses WONDER counts hidden as 1-9 as interval
 information without estimating them (under-covered .84-.86, though better than dropping them);
 interrupted_series for annual series (20-point series: every method under-covered, .47-.81).

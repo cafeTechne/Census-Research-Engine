@@ -49,7 +49,7 @@ percentages by 100); for skewed outcomes `fit_model(model="median")`. Both valid
 target (`docs/audits/beta_median_validation.md`).
 
 **Missing covariates (Round 42).** If one covariate is missing for some areas, `fit_model(..., impute="w")`
-multiply imputes it (validated). Dropping those areas can bias slopes when missingness depends on the outcome.
+multiply imputes it (validated); `impute=["w", "v"]` imputes two by chained equations (Round 47, validated). Dropping those areas can bias slopes when missingness depends on the outcome.
 
 **In pre-registered manifests (Round 43).** Counts: `fit_replicate` with `"args": {"model": "negbin",
 "exposure": "<denominator>"}` (NB2-HC3, population target). Corrected slopes with spatial dependence:

@@ -20,8 +20,23 @@ from . import mci_core as mi
 AUDIT = "docs/audits/missing_censored_its_validation.md"
 
 
-def impute_and_fit(formula: str, frame: pd.DataFrame, incomplete: str, m: int = 20, seed: int = 20270304) -> Dict[str, Any]:
-    """OLS of ``formula`` with ``incomplete`` (a plain numeric covariate) multiply imputed."""
+CHAINED_AUDIT = "docs/audits/causal_robustness_validation.md"
+CHAINED_VALIDATED = True   # Round 47 D1: .898-.916 (MCAR/MAR, 20-40% missing in each of two covariates)
+
+
+def impute_and_fit(formula: str, frame: pd.DataFrame, incomplete, m: int = 20, seed: int = 20270304) -> Dict[str, Any]:
+    """OLS of ``formula`` with ``incomplete`` (a plain numeric covariate) multiply imputed.
+
+    ``incomplete`` may be a list of two covariates (Round 47): chained equations, 10 cycles, Rubin's rules
+    with the Barnard-Rubin df (``causal_robustness_core.chained_mi``). One name keeps the Round 42 routine."""
+    if not isinstance(incomplete, str):
+        names = list(incomplete)
+        if len(names) == 1:
+            incomplete = names[0]
+        elif len(names) == 2:
+            return _impute_two(formula, frame, names, m, seed)
+        else:
+            raise ValueError("impute supports one or two incomplete covariates (validated)")
     outcome = formula.split("~", 1)[0].strip()
     data = frame.dropna(subset=[outcome]).reset_index(drop=True)
     y, X = patsy.dmatrices(formula, data, return_type="dataframe", NA_action=patsy.NAAction(NA_types=[]))
@@ -40,6 +55,30 @@ def impute_and_fit(formula: str, frame: pd.DataFrame, incomplete: str, m: int = 
     return dict(table=pd.DataFrame(rows), n=len(y), n_missing=miss, imputations=m, validated=True, audit=AUDIT,
                 notes=[f"{miss} areas with {incomplete!r} missing were imputed {m} times (Rubin's rules). Assumes "
                        "missing at random given the model's other variables and outcome."])
+
+
+def _impute_two(formula, frame, names, m, seed):
+    from .causal_robustness_core import chained_mi
+    outcome = formula.split("~", 1)[0].strip()
+    data = frame.dropna(subset=[outcome]).reset_index(drop=True)
+    y, X = patsy.dmatrices(formula, data, return_type="dataframe", NA_action=patsy.NAAction(NA_types=[]))
+    for v in names:
+        if v not in X.columns:
+            raise ValueError(f"{v!r} must appear as a plain term in the formula")
+        if not X[v].isna().any():
+            raise ValueError(f"{v!r} has no missing values")
+    others = [c for c in X.columns if c not in names]
+    if X[others].isna().any().any():
+        raise ValueError("only the declared covariates may be incomplete")
+    cols = [list(X.columns).index(v) for v in names]
+    res = chained_mi(y.to_numpy(float)[:, 0], X.to_numpy(float), cols, np.random.default_rng(seed), m=m)
+    rows = [dict(term=t, **r) for t, r in zip(X.columns, res) if t != "Intercept"]
+    miss = {v: int(X[v].isna().sum()) for v in names}
+    return dict(table=pd.DataFrame(rows), n=len(y), n_missing=miss, imputations=m, validated=CHAINED_VALIDATED,
+                audit=CHAINED_AUDIT,
+                notes=[f"Missing values of {names} ({miss}) imputed {m} times by chained equations (10 cycles; "
+                       "Rubin's rules, Barnard-Rubin df; Round 47, validated). Assumes missing at random given "
+                       "the model's other variables and outcome."])
 
 
 def _impute_all_terms(y, X, miss_col, rng, m, terms):

@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.44.0 (Round 47): causal and missing-data robustness
+
+- Freeze `census/causal_robustness_core.py`, the script and the criterion at `cbdc97f` before the run.
+- Passed: AIPW on confounders calibrated within treatment groups (.889–.905; plain AIPW .77–.87 with
+  same-sign noisy confounders); calibrated mediator path (.883–.898; naive .58–.86); Anderson–Rubin
+  interval at any first-stage F (.894–.908); chained-equations MI for two incomplete covariates
+  (.898–.916; complete case .84 under MAR).
+- The pre-set 2SLS Wald cut-off came out at F = 0 (it covered in every bin), so the unvalidated corr < .3
+  rule is gone. Below F = 10 the estimate is unstable and the tool points to the AR interval.
+- `estimate_effect(calibrate=True)` for treatment and mediation; `iv` reports `ar_interval`;
+  `fit_model(impute=["w", "v"])`. Plain AIPW with noisy confounders now reports `validated=False`.
+- Exploratory example: instrumented poverty slopes and calibrated metro effects on Round 29 SMRs
+  (`docs/studies/r47_causal_example.md`).
+
 ## 0.43.0 (Round 46): measurement-error-corrected GLM slopes; spatial EIV with more covariates
 
 - Freeze the validation script and criterion at `4aceb22` before the run (2,000 draws per cell).

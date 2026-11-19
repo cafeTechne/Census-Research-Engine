@@ -255,7 +255,7 @@ def test_iv_reports_first_stage_f():
     f = pd.DataFrame(dict(x1=t+rng.normal(size=n)*.6, x2=t+rng.normal(size=n)*.6, y=.5*t+rng.normal(size=n)))
     out = causal.iv_slope(f, "y", "x1", "x2")
     ref = sm.OLS(f.x1, sm.add_constant(f.x2)).fit().fvalue
-    assert out["first_stage_f"] == pytest.approx(ref) and any("not yet validated" in s for s in out["notes"])
+    assert out["first_stage_f"] == pytest.approx(ref) and any("Anderson-Rubin" in s for s in out["notes"])  # Round 47 replaced the unvalidated corr < .3 note
 
 
 def test_m2_external_wonder_style_count_outcome_validates():

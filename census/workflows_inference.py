@@ -194,7 +194,7 @@ def fit_model(
     exposure: Optional[str] = None,
     trials: Optional[str] = None,
     spatial: Optional[str] = None,
-    impute: Optional[str] = None,
+    impute: Optional[Union[str, List[str]]] = None,
 ) -> Dict[str, Any]:
     """Fit a regression whose standard errors account for ACS sampling error.
 
@@ -221,7 +221,8 @@ def fit_model(
         exposure: Exposure column (model="poisson"/"negbin").
         trials: Trials column (model="binomial"; default effective sample size).
 
-        impute: A covariate with missing values to multiply impute (OLS; Round 42; validated).
+        impute: A covariate with missing values to multiply impute (OLS; Round 42; validated), or a
+            list of two (chained equations; Round 47; validated).
         spatial: method="eiv": "clusters" (8 fixed spatial clusters, pooled correction) or
             "error" (spatial-error whitening) for corrected slopes when areas are spatially
             correlated (Rounds 35 and 46; linear; validated with up to four error-prone covariates).
@@ -273,7 +274,8 @@ def fit_model(
             res = impute_and_fit(formula, frame, impute)
             from census.results import _jsonable
             res["table"] = res["table"].to_dict("records")
-            return _ok(f"OLS with {res['n_missing']} missing values of {impute} multiply imputed; validated (Round 42).",
+            rnd = "Round 42" if isinstance(res["n_missing"], int) else "chained equations, Round 47"
+            return _ok(f"OLS with missing values {res['n_missing']} of {impute} multiply imputed; validated ({rnd}).",
                        "report coefficients with intervals and the missing-at-random assumption", **_jsonable(res))
         elif method == "replicate" and model in ("beta", "median"):
             from census.regression_families import fit_beta, fit_median
@@ -600,6 +602,7 @@ def estimate_effect(
     controls: Optional[List[str]] = None,
     method: Optional[str] = None,
     replicates_path: Optional[str] = None,
+    calibrate: bool = False,
 ) -> Dict[str, Any]:
     """Causal-style estimates for areas (state the assumptions; register designs for confirmatory claims).
 
@@ -608,8 +611,12 @@ def estimate_effect(
             "iv" (error-prone x instrumented by an independent second measurement, controls) or
             "mediation" (x -> mediator -> outcome; method bootstrap|sobel).
         replicates_path: Lets the tool flag error-prone confounders or mediators.
+        calibrate: Correct noisy confounders (treatment, AIPW) or a noisy mediator (mediation, no
+            controls) using their _se/_moe columns (Round 47; validated).
     Validated (Round 41): treatment effects with precisely measured confounders; 2SLS with a second
-    measurement; mediation with an exactly measured mediator.
+    measurement; mediation with an exactly measured mediator. Round 47: calibrate=True for noisy
+    confounders or mediators; iv also reports an Anderson-Rubin interval (valid for weak instruments;
+    use it when first-stage F < 10).
     Example: estimate_effect("frame.parquet", "iv", "mortality", x="poverty", instrument="poverty_2017")
     """
     from census import causal
@@ -625,14 +632,20 @@ def estimate_effect(
     try:
         frame = _load_frame(input_path)
         if kind == "treatment":
-            out = causal.estimate_effect(frame, outcome, treatment, confounders or [], method or "aipw", reps)
+            out = causal.estimate_effect(frame, outcome, treatment, confounders or [], method or "aipw", reps,
+                                         calibrate=calibrate)
             e = out["ate"]; summary = f"Average treatment effect {e['estimate']:.4g} (90% CI {e['lower']:.4g} to {e['upper']:.4g})."
         elif kind == "iv":
             out = causal.iv_slope(frame, outcome, x, instrument, controls or [])
-            e = out["iv"]; summary = (f"2SLS slope {e['estimate']:.4g} ({e['lower']:.4g} to {e['upper']:.4g}); "
-                                      f"naive OLS {out['ols_naive']['estimate']:.4g}.")
+            e, ar = out["iv"], out["ar_interval"]
+            ar_text = {"bounded": f"{ar['lower']:.4g} to {ar['upper']:.4g}", "real_line": "unbounded (whole line)",
+                       "disjoint": f"outside ({ar['lower']:.4g}, {ar['upper']:.4g})", "empty": "empty"}[ar["kind"]]
+            summary = (f"2SLS slope {e['estimate']:.4g} ({e['lower']:.4g} to {e['upper']:.4g}); Anderson-Rubin "
+                       f"{ar_text}; first-stage F {out['first_stage_f']:.1f}; naive OLS {out['ols_naive']['estimate']:.4g}."
+                       + (" Weak instrument: report the Anderson-Rubin interval." if out["first_stage_f"] < causal.IV_UNSTABLE_F else ""))
         elif kind == "mediation":
-            out = causal.mediation(frame, x, mediator, outcome, controls or [], method or "bootstrap", reps)
+            out = causal.mediation(frame, x, mediator, outcome, controls or [], method or "bootstrap", reps,
+                                   calibrate=calibrate)
             e = out["indirect"]; summary = f"Indirect effect {e['estimate']:.4g} ({e['lower']:.4g} to {e['upper']:.4g})."
         else:
             return _fail(errors.INVALID_INPUT, "kind must be 'treatment', 'iv' or 'mediation'.")
