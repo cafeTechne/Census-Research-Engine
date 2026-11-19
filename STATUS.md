@@ -117,7 +117,7 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 composite indices. Criterion `e86907d` pushed before the 8-cell run. New `census.index_core`,
 `census.composite_index`, MCP tool `build_index` (full profile), recipe `composite_index`. The MI/NY
 example showed an index dominated by NYC's car-free, high-cost housing (α 0.40): a construct-validity
-warning now in the recipe. Goldens unchanged.
+warning now in the recipe. Goldens unchanged. Acceptance: 1946 passed, 37 skipped; 0 failures.
 
 **Round 35 (v0.32.0; merged, release pending owner approval; implemented by the maintainer agent):**
 corrected EIV slopes under spatial dependence. Criterion `46fab40` pushed before the 8-cell run;

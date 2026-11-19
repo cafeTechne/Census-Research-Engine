@@ -69,5 +69,5 @@ suite; STATUS, CHANGELOG, version 0.33.0, section 8.
 | S1 / A1 / A2 results | Passed | S1 both weights; A1 selected; α under-covers with spatial dependence. |
 | Engine, tool, tests | Done | build_index library and MCP tool; 6 tests. |
 | Example | Done | Construct-validity warning (NYC); α 0.40. |
-| Goldens, final suite | | |
+| Goldens, final suite | Done | Goldens identical; 1946 passed, 37 skipped, 0 failures. |
 | Exceptions | None | |

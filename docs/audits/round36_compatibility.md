@@ -22,4 +22,5 @@ full run (one smoke run, 10 draws per cell, no files); 2,000 draws in each of 8 
 
 ## Goldens and suite
 
-See STATUS (Round 36).
+Both goldens byte-identical to v0.32.0. Suite: 1946 passed, 37 skipped, 60 subtests; 0 failures
+(baseline 1940; 6 new tests).
