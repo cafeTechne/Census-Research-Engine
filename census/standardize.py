@@ -174,7 +174,7 @@ SMR_VALIDATED = True  # docs/audits/smr_validation.md (680707e criterion)
 
 
 def indirect_standardize(observed, band_populations, reference_rates, band_replicates=None, level=0.90,
-                         *, period_years=1, reference_counts=None):
+                         *, period_years=1, reference_counts=None, negative_replicates="refuse"):
     """Indirect SMR and fixed-expected Garwood / combined log-Wald intervals.
 
     ``observed`` is a GEOID-indexed Series of nonnegative integer counts;
@@ -182,8 +182,9 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
     columns in reference-rate order (areas x bands). No implicit joins/drops.
     Replicates are an array (areas, bands, 80) in that order. Positive finite
     expected counts are required in every refit. This validated implementation
-    requires nonnegative band replicates; negative ACS band perturbations are
-    refused even when their total expected count would remain positive. The returned final GEOID
+    by default requires nonnegative band replicates (``negative_replicates="refuse"``). Round 51:
+    ``"accept"`` uses negative band replicates as published (the expected count is linear in the bands;
+    every replicate expected count must still be positive); ``"clip"`` sets them to zero first. The returned final GEOID
     ``all`` pools counts and expected counts BEFORE computing uncertainty.
     Rates are per person-year; period_years multiplies expected counts and every
     replicate. Optional positive integer reference_counts adds independent-Poisson
@@ -237,8 +238,19 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
     ve = np.zeros(len(o))
     if band_replicates is not None:
         rep = np.asarray(band_replicates, float)
-        if rep.shape != (*pop.shape, 80) or not np.isfinite(rep).all() or (rep < 0).any():
+        if negative_replicates not in ("refuse", "accept", "clip"):
+            raise ValueError("negative_replicates must be 'refuse', 'accept' or 'clip'")
+        if rep.shape != (*pop.shape, 80) or not np.isfinite(rep).all():
+            raise ValueError("band_replicates must be finite (areas, bands, 80)")
+        negative = int((rep < 0).sum())
+        if negative and negative_replicates == "refuse":
             raise ValueError("band_replicates must be finite nonnegative (areas, bands, 80)")
+        if negative:
+            if negative_replicates == "clip":
+                rep = np.maximum(rep, 0.)
+            notes.append(f"{negative} negative band replicate value(s) "
+                         + ("set to zero before the expected-count refits." if negative_replicates == "clip"
+                            else "used as published (expected counts are linear in the bands)."))
         er = period_years*np.einsum("abr,b->ar", rep, rates)
         er = np.vstack((er, er.sum(axis=0)))
         if (er <= 0).any():

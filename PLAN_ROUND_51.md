@@ -50,8 +50,8 @@ correction I − 4(mean I_r − I).
 counties cover ≥ .80; validated range from the lowest bin to the first failing judged bin. **Plus** an
 affected-draw check per variant: over all (county, draw) pairs in the validated range where at least one
 replicate cell was clipped, pooled coverage ≥ .86 in both ρ cells (not judged if fewer than 500 such pairs).
-Failed draws count as non-coverage. Clipping is validated for a variant when its validated range is at least
-its Round 50 range and the affected-draw check passes; the engine then uses the smaller of the two ranges.
+Failed draws count as non-coverage. Clipping is validated for a variant when it has a validated range and the
+affected-draw check passes (or is not judged); the engine uses the smaller of that range and its Round 50 range.
 
 ## 3. Validation B: SMR (same script, separate section)
 
