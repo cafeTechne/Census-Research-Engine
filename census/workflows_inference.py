@@ -345,6 +345,61 @@ def compare_groups(
     return _ok(result.summary(), next_step, **out)
 
 
+def rank_areas(
+    input_path: str,
+    variable: str,
+    kind: str = "ranks",
+    replicates_path: Optional[str] = None,
+    se_col: Optional[str] = None,
+    moe_col: Optional[str] = None,
+    joint: bool = False,
+    reference: Optional[float] = None,
+    weights: Optional[str] = None,
+    method: str = "holm",
+    confidence_level: float = 0.90,
+) -> Dict[str, Any]:
+    """Rank areas with honest uncertainty, or find areas that differ from a reference value.
+
+    Args:
+        input_path: Analysis frame (GEOID per row).
+        variable: Estimate column, e.g. "poverty_rate".
+        kind: "ranks" (rank intervals; rank 1 = highest) or "versus_reference"
+            (each area minus the reference).
+        replicates_path / se_col / moe_col: the estimates' uncertainty (replicates preferred).
+        joint: Rank intervals that hold for all areas together (wider) instead of each area.
+        reference: A fixed number; omit it and give weights for the weighted mean of the areas
+            (e.g. weights="population" gives the state value, which shares the areas' errors).
+        method: "holm" or "simultaneous" (versus_reference).
+    Validated (Round 34). Bootstrap percentile ranks are not offered: they under-cover badly.
+    Example: rank_areas("downloads/frame.parquet", "poverty_rate", moe_col="poverty_rate_moe")
+    """
+    from census.ranking import compare_to_reference, rank_intervals
+
+    if kind not in ("ranks", "versus_reference"):
+        return _fail(errors.INVALID_INPUT, "kind must be 'ranks' or 'versus_reference'.")
+    try:
+        frame = _load_frame(input_path)
+        reps = _read_replicates(replicates_path) if replicates_path else None
+        if kind == "ranks":
+            out = rank_intervals(frame, variable, replicates=reps, se_col=se_col, moe_col=moe_col, joint=joint,
+                                 level=confidence_level)
+            summary = (f"{out['K']} areas ranked; median rank interval spans {out['median_interval_width']:.0f} ranks; "
+                       f"{len(out['surely_top_decile'])} area(s) are surely in the top 10%.")
+        else:
+            out = compare_to_reference(frame, variable, replicates=reps, se_col=se_col, moe_col=moe_col,
+                                       reference="weighted_mean" if reference is None else reference,
+                                       weights=weights, method=method, level=confidence_level)
+            summary = (f"{out['n_differ']} of {out['K']} areas differ from the reference "
+                       f"{out['reference_value']:.4g} ({method}).")
+    except _INPUT_ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
+                     "check the variable, its uncertainty column or replicates, and the weights, then retry")
+    from census.results import _jsonable
+    out["table"] = out["table"].to_dict("records")
+    return _ok(summary, "report rank intervals, not point ranks; areas with overlapping intervals cannot be ordered",
+               **_jsonable(out))
+
+
 def small_area_estimates(
     input_path: str,
     formula: str,
