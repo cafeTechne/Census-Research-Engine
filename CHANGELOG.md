@@ -7,6 +7,9 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 
 ## 0.39.0 (Round 42): missing data, censored counts and interrupted series
 
+Released as one bundle (owner decision, 2026-11-19): tag `v0.39.0` contains Rounds 31–42.
+Versions 0.28.0–0.38.0 below were never tagged or released separately.
+
 - Freeze procedures, script and criterion at `5f81de2` before the run.
 - Passed: multiple imputation of one incomplete covariate (Rubin's rules). Failed (exploratory): an
   interval-censored Poisson likelihood for counts hidden as 1–9 (narrowly; better than dropping them) and

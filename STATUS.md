@@ -119,64 +119,64 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 42 (v0.39.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 42 (v0.39.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 missing data, censored counts and interrupted series; the last round of `ROADMAP_STATISTICS.md`.
 Criterion `5f81de2` pushed before the run. New `census.mci_core`, `census.missing_censored_its`; MCP
 `fit_model(impute=...)`. Goldens unchanged. Acceptance: 1977 passed, 37 skipped; 0 failures.
 
-**Round 41 (v0.38.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 41 (v0.38.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 causal tools. Criterion `b7464e5` pushed before the run. New `census.causal_core`, `census.causal`,
 MCP tool `estimate_effect` (full profile), recipe `causal`. Goldens unchanged. Acceptance: 1972 passed,
 37 skipped; 0 failures.
 
-**Round 40 (v0.37.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 40 (v0.37.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 beta and median regression. Criterion `d5c9b02` pushed before the run. New `census.beta_median_core`,
 `census.regression_families`; MCP `fit_model(model="beta"|"median")`. Goldens unchanged. Acceptance:
 1967 passed, 37 skipped; 0 failures.
 
-**Round 39 (v0.36.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 39 (v0.36.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 multivariate tests and count models. Criterion `0686bc0` pushed before the run. New
 `census.manova_counts_core`, `census.count_models`; MCP `compare_groups(outcomes=...)` and
 `fit_model(model="negbin")`. Note for registered Poisson HC3 studies (R29): under strong
 overdispersion that interval under-covered here; a sensitivity with NB2 is backlog, not a
 reinterpretation. Goldens unchanged. Acceptance: 1963 passed, 37 skipped; 0 failures.
 
-**Round 38 (v0.35.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 38 (v0.35.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 combining evidence. Criterion `3edd5f4` pushed before the run. New `census.evidence_core`,
 `census.evidence`, MCP tool `combine_estimates` (full profile), recipe `combine_estimates`. Goldens unchanged.
 Acceptance: 1957 passed, 37 skipped; 0 failures.
 
-**Round 37 (v0.34.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 37 (v0.34.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 agreement between sources. Criterion `e6d4be6` pushed before the 8-cell run. New `census.agreement_core`,
 `census.agreement`, MCP tool `check_agreement` (full profile), recipe `agreement`. Goldens unchanged.
 Acceptance: 1951 passed, 37 skipped; 0 failures.
 
-**Round 36 (v0.33.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 36 (v0.33.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 composite indices. Criterion `e86907d` pushed before the 8-cell run. New `census.index_core`,
 `census.composite_index`, MCP tool `build_index` (full profile), recipe `composite_index`. The MI/NY
 example showed an index dominated by NYC's car-free, high-cost housing (α 0.40): a construct-validity
 warning now in the recipe. Goldens unchanged. Acceptance: 1946 passed, 37 skipped; 0 failures.
 
-**Round 35 (v0.32.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 35 (v0.32.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 corrected EIV slopes under spatial dependence. Criterion `46fab40` pushed before the 8-cell run;
 both candidates passed. New `census.spatial_eiv_core`, `census.spatial_eiv`, MCP
 `fit_model(method="eiv", spatial=...)`. Post hoc: R21b H1 and H4 hold under both
 (`docs/studies/r35_posthoc_spatial_eiv.md`). Goldens unchanged. Acceptance: 1940 passed, 37 skipped;
 0 failures.
 
-**Round 34 (v0.31.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 34 (v0.31.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 ranking areas. Criterion `6286ad9` pushed before the 8-cell run. New `census.ranking_core`,
 `census.ranking`, MCP tool `rank_areas` (full profile), recipe `rank_areas`. Goldens unchanged.
 Acceptance: 1935 passed, 37 skipped; 0 failures.
 
-**Round 33 (v0.30.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 33 (v0.30.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 rank methods and diagnostics. Criterion `f660e9c` pushed before the 8-cell run. New
 `census.rank_methods`, `correlation.validated_correlations` (Kendall, partial), `compare_groups`
 method `rank`, `census.diagnostics` (VIF, Cook's distance, Breusch–Pagan, RESET; information only),
 recipe `rank_methods`. Manifests unchanged (goldens identical); moving manifest correlation intervals
 to the validated variants is backlog. Acceptance: 1930 passed, 37 skipped; 0 failures.
 
-**Round 32 (v0.29.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 32 (v0.29.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 design-based PUMS tests. Criterion `d65d034` pushed before the 8-cell run (household clustering,
 weight CV, sample size; ACS-style SDR replicate weights). New `census.pums_inference`, MCP core tool
 `test_association`, recipe `pums_tests`. Exploratory Michigan example
@@ -184,7 +184,7 @@ weight CV, sample size; ACS-style SDR replicate weights). New `census.pums_infer
 replicate SEs; such results are now labelled exploratory. Goldens unchanged. Acceptance: 1922 passed,
 37 skipped, 57 subtests; 0 failures.
 
-**Round 31 (v0.28.0; merged, release pending owner approval; implemented by the maintainer agent):** omnibus tests and group
+**Round 31 (v0.28.0; released in the bundled v0.39.0; implemented by the maintainer agent):** omnibus tests and group
 comparisons. Criterion `3e3094a` pushed before the 36-cell run. F references failed; the wild score
 bootstrap and IM-8 Hotelling passed for the combinations above. New `joint_test` statistic,
 `compare_groups` (t-test, ANOVA, ANCOVA, interactions; MCP core tool) and recipe `group_comparison`.
