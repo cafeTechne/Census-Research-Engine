@@ -336,6 +336,15 @@ All correlation intervals under-covered (0.60-0.89) with spatially correlated ar
 OLS fit_model/compare_groups add model diagnostics (VIF, Cook's distance, Breusch-Pagan,
 RESET): information only, never a gate.
 
+## Ranking areas (Round 34)
+
+Round 34 ranking (recipe rank_areas): rank_areas gives Klein-Wright-Wieczorek rank
+intervals (individual, or joint for all areas) and each area versus a reference (fixed
+value, or a weighted mean of the areas whose errors it shares; Holm or simultaneous).
+Validated; conservative. Report rank intervals, not point ranks. Bootstrap percentile
+ranks under-covered badly and are not offered. Non-numeric (suppressed) values are
+excluded, never ranked. Areas are treated as independent samples.
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event

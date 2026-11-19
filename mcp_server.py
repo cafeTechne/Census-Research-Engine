@@ -179,6 +179,13 @@ All correlation intervals under-covered (0.60-0.89) with spatially correlated ar
 OLS fit_model/compare_groups add model diagnostics (VIF, Cook's distance, Breusch-Pagan,
 RESET): information only, never a gate.
 
+Round 34 ranking (recipe rank_areas): rank_areas gives Klein-Wright-Wieczorek rank
+intervals (individual, or joint for all areas) and each area versus a reference (fixed
+value, or a weighted mean of the areas whose errors it shares; Holm or simultaneous).
+Validated; conservative. Report rank intervals, not point ranks. Bootstrap percentile
+ranks under-covered badly and are not offered. Non-numeric (suppressed) values are
+excluded, never ranked. Areas are treated as independent samples.
+
 Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
 and scale:"robust"; Poisson counts use exposure
 and scale:"robust". New external-count manifests refuse scale:"X2" (failed coverage validation).
@@ -1248,6 +1255,7 @@ for _fn in (
     workflows_inference.build_analysis_frame,
     workflows_inference.fit_model,
     workflows_inference.compare_groups,
+    workflows_inference.rank_areas,
     workflows_inference.small_area_estimates,
     workflows_inference.correlation_matrix,
     workflows_inference.minimum_detectable_difference,
@@ -1294,6 +1302,7 @@ cache_import = workflows.cache_import
 build_analysis_frame = workflows_inference.build_analysis_frame
 fit_model = workflows_inference.fit_model
 compare_groups = workflows_inference.compare_groups
+rank_areas = workflows_inference.rank_areas
 small_area_estimates = workflows_inference.small_area_estimates
 correlation_matrix = workflows_inference.correlation_matrix
 minimum_detectable_difference = workflows_inference.minimum_detectable_difference

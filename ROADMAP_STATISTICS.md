@@ -278,7 +278,7 @@ version bump. Dependencies are noted; anything without one can move.
 | 31 | Omnibus tests, ANOVA/ANCOVA, t-tests (area) | merged (PR #29, v0.28.0) |
 | 32 | PUMS design-based tests | merged (PR #30, v0.29.0) |
 | 33 | Rank methods and diagnostics | merged (v0.30.0) |
-| 34 | Ranking areas, simultaneous comparisons | in progress |
+| 34 | Ranking areas, simultaneous comparisons | merged (v0.31.0) |
 | 35 | Spatial random effects | proposed (backlog item 1) |
 | 36 | Composite indices and typologies | proposed |
 | 37 | Agreement between sources | proposed |

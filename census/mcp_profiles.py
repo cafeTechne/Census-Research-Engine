@@ -292,7 +292,12 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      OLS fit_model/compare_groups add model diagnostics (VIF, Cook's distance, Breusch-Pagan,
      RESET): information only, never a gate.
 
-13. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+13. Round 34 ranking (full profile tool rank_areas; recipe rank_areas): rank intervals
+     (Klein-Wright-Wieczorek; individual or joint) and areas versus a reference (Holm or
+     simultaneous) passed validation. Report rank intervals, not point ranks; bootstrap
+     percentile ranks under-cover and are not offered; suppressed values are never ranked.
+
+14. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
@@ -305,7 +310,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-14. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+15. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts

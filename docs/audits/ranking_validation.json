@@ -1,0 +1,243 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "K": 40,
+      "snr": 0.5,
+      "ties": false,
+      "draws": 2000,
+      "mean_area_coverage": {
+        "R1": 0.9993875000000001,
+        "R2": 0.99995,
+        "R3": 0.731
+      },
+      "min_area_coverage": {
+        "R1": 0.9965,
+        "R2": 0.999,
+        "R3": 0.4755
+      },
+      "joint_coverage": {
+        "R1": 0.9765,
+        "R2": 0.9985,
+        "R3": 0.0
+      },
+      "reference": {
+        "V1_fwer": 0.079,
+        "V2_fwer": 0.084,
+        "V2_joint": 0.9015
+      },
+      "seconds": 87.48583555221558
+    },
+    {
+      "cell": 1,
+      "K": 40,
+      "snr": 0.5,
+      "ties": true,
+      "draws": 2000,
+      "mean_area_coverage": {
+        "R1": 0.9993624999999999,
+        "R2": 0.9999625,
+        "R3": 0.76625
+      },
+      "min_area_coverage": {
+        "R1": 0.9975,
+        "R2": 0.9995,
+        "R3": 0.4215
+      },
+      "joint_coverage": {
+        "R1": 0.978,
+        "R2": 0.9985,
+        "R3": 0.0
+      },
+      "reference": {
+        "V1_fwer": 0.083,
+        "V2_fwer": 0.101,
+        "V2_joint": 0.898
+      },
+      "seconds": 100.21507096290588
+    },
+    {
+      "cell": 2,
+      "K": 40,
+      "snr": 2.0,
+      "ties": false,
+      "draws": 2000,
+      "mean_area_coverage": {
+        "R1": 0.9996875,
+        "R2": 0.9999874999999999,
+        "R3": 0.8555125
+      },
+      "min_area_coverage": {
+        "R1": 0.9975,
+        "R2": 0.9995,
+        "R3": 0.7745
+      },
+      "joint_coverage": {
+        "R1": 0.988,
+        "R2": 0.9995,
+        "R3": 0.0045
+      },
+      "reference": {
+        "V1_fwer": 0.081,
+        "V2_fwer": 0.0815,
+        "V2_joint": 0.9065
+      },
+      "seconds": 90.00048327445984
+    },
+    {
+      "cell": 3,
+      "K": 40,
+      "snr": 2.0,
+      "ties": true,
+      "draws": 2000,
+      "mean_area_coverage": {
+        "R1": 0.9997999999999999,
+        "R2": 1.0,
+        "R3": 0.8939
+      },
+      "min_area_coverage": {
+        "R1": 0.999,
+        "R2": 1.0,
+        "R3": 0.745
+      },
+      "joint_coverage": {
+        "R1": 0.992,
+        "R2": 1.0,
+        "R3": 0.0165
+      },
+      "reference": {
+        "V1_fwer": 0.0895,
+        "V2_fwer": 0.093,
+        "V2_joint": 0.9055
+      },
+      "seconds": 90.03247857093811
+    },
+    {
+      "cell": 4,
+      "K": 145,
+      "snr": 0.5,
+      "ties": false,
+      "draws": 2000,
+      "mean_area_coverage": {
+        "R1": 0.9998448275862069,
+        "R2": 1.0,
+        "R3": 0.7030689655172414
+      },
+      "min_area_coverage": {
+        "R1": 0.9985,
+        "R2": 1.0,
+        "R3": 0.3325
+      },
+      "joint_coverage": {
+        "R1": 0.979,
+        "R2": 1.0,
+        "R3": 0.0
+      },
+      "reference": {
+        "V1_fwer": 0.09,
+        "V2_fwer": 0.094,
+        "V2_joint": 0.899
+      },
+      "seconds": 295.6901435852051
+    },
+    {
+      "cell": 5,
+      "K": 145,
+      "snr": 0.5,
+      "ties": true,
+      "draws": 2000,
+      "mean_area_coverage": {
+        "R1": 0.9998758620689655,
+        "R2": 1.0,
+        "R3": 0.7089689655172414
+      },
+      "min_area_coverage": {
+        "R1": 0.9985,
+        "R2": 1.0,
+        "R3": 0.327
+      },
+      "joint_coverage": {
+        "R1": 0.9825,
+        "R2": 1.0,
+        "R3": 0.0
+      },
+      "reference": {
+        "V1_fwer": 0.1015,
+        "V2_fwer": 0.109,
+        "V2_joint": 0.9005
+      },
+      "seconds": 308.5780882835388
+    },
+    {
+      "cell": 6,
+      "K": 145,
+      "snr": 2.0,
+      "ties": false,
+      "draws": 2000,
+      "mean_area_coverage": {
+        "R1": 0.9999655172413793,
+        "R2": 1.0,
+        "R3": 0.8298655172413792
+      },
+      "min_area_coverage": {
+        "R1": 0.999,
+        "R2": 1.0,
+        "R3": 0.4945
+      },
+      "joint_coverage": {
+        "R1": 0.995,
+        "R2": 1.0,
+        "R3": 0.0
+      },
+      "reference": {
+        "V1_fwer": 0.0865,
+        "V2_fwer": 0.0885,
+        "V2_joint": 0.896
+      },
+      "seconds": 313.00119256973267
+    },
+    {
+      "cell": 7,
+      "K": 145,
+      "snr": 2.0,
+      "ties": true,
+      "draws": 2000,
+      "mean_area_coverage": {
+        "R1": 0.9999551724137931,
+        "R2": 1.0,
+        "R3": 0.8333379310344827
+      },
+      "min_area_coverage": {
+        "R1": 0.9985,
+        "R2": 1.0,
+        "R3": 0.471
+      },
+      "joint_coverage": {
+        "R1": 0.9935,
+        "R2": 1.0,
+        "R3": 0.0
+      },
+      "reference": {
+        "V1_fwer": 0.092,
+        "V2_fwer": 0.099,
+        "V2_joint": 0.8935
+      },
+      "seconds": 312.3142204284668
+    }
+  ],
+  "passed": {
+    "R1": true,
+    "R2": true,
+    "R3": false,
+    "V1": true,
+    "V2": true
+  },
+  "draws_per_cell": 2000,
+  "criterion": "R1: mean per-area coverage >= .86 and every area >= .80; R2: joint coverage >= .86; R3 judged like R1 (comparison); V1/V2: familywise error <= .13 under the global null; V2: joint coverage >= .86 under the alternative",
+  "criterion_commit": "6286ad9",
+  "frozen_sha256": {
+    "scripts/ranking_validation.py": "8eca19bf080d78eb3e0f9b99ae1205d2ecf458bc8adb73d6b81c0c01d256b196",
+    "census/ranking_core.py": "d79ba996d87d13333a201b7213bef346c4cc45f0db90dfc5ee22dc6b6bec7653",
+    "docs/audits/ranking_validation_criterion.md": "1de6647ef720629727543f3d551157d9cdb0edda6a2e43d6ee630a5632aa44dc"
+  }
+}
