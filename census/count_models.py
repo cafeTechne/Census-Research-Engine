@@ -22,10 +22,17 @@ VALIDATED_FAMILIES = {"negbin": True, "poisson": False, "zip": False}
 
 
 def fit_count_model(formula: str, frame: pd.DataFrame, exposure: str, family: str = "negbin",
-                    level: float = 0.90) -> Dict[str, Any]:
-    """Coefficient table for a count outcome with an exposure (offset log exposure)."""
+                    level: float = 0.90, spatial: Optional[str] = None, coords: Optional[pd.DataFrame] = None,
+                    within_states: bool = False) -> Dict[str, Any]:
+    """Coefficient table for a count outcome with an exposure (offset log exposure).
+
+    ``spatial="clusters"``: IM-8 (Round 45, ``docs/audits/count_repairs_validation.md``): per-cluster count
+    GLMs (negbin at the full-sample alpha, or poisson) averaged over the eight fixed clusters, t(7); validated
+    for negbin and poisson (.894-.909, MI/NY geometry, spatially correlated residuals)."""
     if family not in VALIDATED_FAMILIES:
         raise ValueError("family must be negbin (validated), poisson or zip")
+    if spatial is not None:
+        return _fit_count_im(formula, frame, exposure, family, level, spatial, coords, within_states)
     data = frame.dropna(subset=[exposure]).copy()
     y, X = patsy.dmatrices(formula, data, return_type="dataframe", NA_action="drop")
     E = data.loc[X.index, exposure].to_numpy(float)
@@ -44,6 +51,46 @@ def fit_count_model(formula: str, frame: pd.DataFrame, exposure: str, family: st
     if not validated:
         notes.append(f"EXPLORATORY: {family} intervals failed validation ({AUDIT}); prefer family='negbin'.")
     return dict(family=family, table=pd.DataFrame(rows), n=len(X), validated=validated, notes=notes, audit=AUDIT)
+
+
+SPATIAL_VALIDATED = {"negbin": True, "poisson": True, "zip": False}
+REPAIRS_AUDIT = "docs/audits/count_repairs_validation.md"
+
+
+def _fit_count_im(formula, frame, exposure, family, level, spatial, coords, within_states):
+    from scipy import stats
+    from . import count_repairs_core as cr
+    from .spatial_clusters import assignment_for_frame, geography_notes
+    if spatial != "clusters":
+        raise ValueError("spatial must be 'clusters' for count models")
+    if family == "zip":
+        raise ValueError("spatial clusters support negbin and poisson")
+    if abs(level-.90) > 1e-12:
+        raise ValueError("IM-8 count intervals are validated at the 90% level only")
+    data = frame.dropna(subset=[exposure]).copy()
+    assign = assignment_for_frame(data, coords, {"k": 8, "method": "im"}, within_states=within_states).set_index("GEOID")
+    y, X = patsy.dmatrices(formula, data, return_type="dataframe", NA_action="drop")
+    E = data.loc[X.index, exposure].to_numpy(float)
+    labels = assign.loc[data.loc[X.index, "GEOID"].astype(str), "cluster"].to_numpy()
+    Xa = X.to_numpy(float)
+    rows, absorbed = [], []
+    for j, term in enumerate(X.columns):
+        if term == "Intercept":
+            continue
+        per = [np.ptp(Xa[labels == g, j]) > 0 for g in np.unique(labels)]
+        if not any(per):
+            absorbed.append(term); continue
+        if not all(per):
+            raise ValueError(f"term {term!r} is constant in some clusters but not others")
+        r = cr.im_counts(y.to_numpy(float)[:, 0], Xa, E, labels, family, j)
+        rows.append(dict(term=term, df=7, **r))
+    notes = [f"IM-8 {family} slopes: per-cluster count GLMs averaged over eight fixed clusters, t(7) "
+             f"({REPAIRS_AUDIT}); exposure held fixed (NB2 with noisy ACS exposures covered .888-.891)."]
+    if absorbed:
+        notes.append(f"Absorbed by the cluster intercepts (not estimable): {absorbed}")
+    notes += geography_notes(assign.reset_index())
+    return dict(family=family, spatial="clusters", table=pd.DataFrame(rows), n=len(X), validated=SPATIAL_VALIDATED[family],
+                notes=notes, audit=REPAIRS_AUDIT)
 
 
 def _negbin_slope(y, X, exposure, level=.90):

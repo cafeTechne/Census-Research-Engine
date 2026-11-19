@@ -221,9 +221,10 @@ def fit_model(
         trials: Trials column (model="binomial"; default effective sample size).
 
         impute: A covariate with missing values to multiply impute (OLS; Round 42; validated).
-        spatial: method="eiv" only: "clusters" (8 fixed spatial clusters, pooled correction) or
+        spatial: method="eiv": "clusters" (8 fixed spatial clusters, pooled correction) or
             "error" (spatial-error whitening) for corrected slopes when areas are spatially
             correlated (Round 35; linear; validated with up to two error-prone covariates).
+            model="negbin": "clusters" gives IM-8 count slopes (Round 45; validated).
 
     target applies to method="replicate" only; corrected methods report se_total.
     Results report se_model, se_sampling, se_total and which sources are included.
@@ -284,11 +285,13 @@ def fit_model(
             from census.count_models import fit_count_model
             if not exposure:
                 return _fail(errors.INVALID_INPUT, "model='negbin' needs exposure (expected counts or population).")
-            res = fit_count_model(formula, frame, exposure, "negbin", confidence_level)
+            if spatial not in (None, "clusters"):
+                return _fail(errors.INVALID_INPUT, "model='negbin' takes spatial='clusters' only.")
+            res = fit_count_model(formula, frame, exposure, "negbin", confidence_level, spatial=spatial)
             from census.results import _jsonable
             res["table"] = res["table"].to_dict("records")
-            return _ok("Negative binomial (NB2, HC3) slopes; validated (Round 39).",
-                       "report slopes with their intervals", **_jsonable(res))
+            what = "IM-8 negative binomial slopes (Round 45)" if spatial else "Negative binomial (NB2, HC3) slopes (Round 39)"
+            return _ok(f"{what}; validated.", "report slopes with their intervals", **_jsonable(res))
         elif method == "replicate":
             result = models.fit_replicate(formula, frame, _read_replicates(replicates_path), model=model,
                                           confidence_level=confidence_level, target=target, **extra)

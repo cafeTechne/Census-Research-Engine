@@ -418,6 +418,14 @@ counts allowed as for Poisson). fit_eiv args.spatial "clusters" (G1) or "error" 
 unweighted OLS, no cluster/spatial_se/spatial_clusters; more than two error-prone
 covariates are not tested in a confirmatory run.
 
+## Count repairs (Round 45)
+
+Round 45 count repairs: interval-censored NB2 (census.missing_censored_its.fit_censored_negbin)
+uses WONDER counts hidden as 1-9 as interval information, validated (.869-.898), and never outputs a
+hidden value; fit_model(model="negbin", spatial="clusters") gives IM-8 count slopes (validated on
+the MI/NY geometry; outside it the result carries a note); NB2 with noisy ACS exposures held fixed
+covered (.888-.891). within_states=True assigns the eight clusters within each state.
+
 ## Missing data, censored counts, time series (Round 42)
 
 Round 42: fit_model(impute="w") multiply imputes one incomplete covariate (20 draws, Rubin's

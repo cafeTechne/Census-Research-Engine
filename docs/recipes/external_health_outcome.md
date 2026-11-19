@@ -51,3 +51,10 @@ under-covered with strong overdispersion in Round 39, so prefer NB2 for new regi
 and OH/PA (`docs/studies/r44_posthoc_r29.md`), so the Round 39 Poisson caveat does not change them. For
 spatial inference outside MI/NY, prefer the corrected-slope `fit_eiv` `spatial` options (replicated on
 OH/PA); naive IM-8 failed the OH/PA re-check with spatially correlated fields.
+
+**Hidden counts and spatial clustering (Round 45).** Prefer
+`census.missing_censored_its.fit_censored_negbin` (validated) to dropping counties whose WONDER counts are
+hidden as 1–9; it never estimates or reports a hidden value. For spatially correlated counties,
+`fit_model(model="negbin", exposure=..., spatial="clusters")` gives IM-8 slopes (validated on MI/NY; for
+adjacent states use `within_states=True` in the library). Holding ACS-based expected counts fixed is fine
+for NB2 (validated); Poisson HC3 under-covers.

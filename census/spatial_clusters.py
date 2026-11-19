@@ -198,21 +198,37 @@ def _im_acs_table(full, X, y, labels, trials, model, level, info):
     return table,info
 
 
-def spatial_clusters(geoids, level, acs_year, k, seed=20261126):
+def within_state_points(coords, k, seed=20261126):
+    """Round 45 (N17): k clusters split equally across the states in ``coords`` (GEOID prefix), k-means within
+    each state, labels offset by state order. Used by the Round 44 OH/PA re-check (two states x four
+    clusters), where the corrected-slope G1 replicated; other splits are unvalidated."""
+    states = sorted(set(coords.GEOID.astype(str).str[:2]))
+    if k % len(states):
+        raise ValueError(f"within_states needs k divisible by the number of states ({len(states)})")
+    per = k//len(states)
+    labels = np.empty(len(coords), int)
+    for s, st in enumerate(states):
+        idx = np.flatnonzero(coords.GEOID.astype(str).str.startswith(st).to_numpy())
+        labels[idx] = cluster_points(coords.iloc[idx].reset_index(drop=True), per, seed)+per*s
+    return labels
+
+
+def spatial_clusters(geoids, level, acs_year, k, seed=20261126, within_states=False):
     """Fixed geographic assignment; output GEOID/lon/lat/cluster plus attrs provenance.
 
     Input IDs are sorted before k-means to make assignment invariant to row order.
     No outcome or covariate values enter the clustering. All groups need >=5 units.
+    ``within_states``: split k equally across states (adjacent-state studies; Round 45).
     """
     ids = sorted(set(map(str, geoids)))
     coords, provenance = unit_coordinates(ids, level, acs_year)
     assignment = coords.copy()
-    assignment["cluster"] = cluster_points(coords, k, seed)
+    assignment["cluster"] = within_state_points(coords, k, seed) if within_states else cluster_points(coords, k, seed)
     assignment.attrs.update(provenance=provenance, k=k, seed=seed, crs="EPSG:5070")
     return assignment
 
 
-def assignment_for_frame(frame, coords, config):
+def assignment_for_frame(frame, coords, config, within_states=False):
     """Compute assignment before formula/outcome complete-case filtering."""
     check_config(config)
     if "GEOID" not in frame:
@@ -223,7 +239,7 @@ def assignment_for_frame(frame, coords, config):
         level = "county" if lengths == {5} else "tract" if lengths == {11} else None
         if level is None or "Year" not in frame:
             raise ValueError("spatial_clusters needs county/tract GEOIDs and Year, or explicit coordinates")
-        return spatial_clusters(ids, level, int(frame.Year.max()), config["k"])
+        return spatial_clusters(ids, level, int(frame.Year.max()), config["k"], within_states=within_states)
     if not {"GEOID", "lon", "lat"} <= set(coords):
         raise ValueError("coordinates require GEOID, lon, lat")
     coords = coords.assign(GEOID=coords.GEOID.astype(str))
@@ -232,8 +248,8 @@ def assignment_for_frame(frame, coords, config):
     ordered = coords.set_index("GEOID").reindex(ids).reset_index()
     if ordered[["lon", "lat"]].isna().any().any():
         raise ValueError("missing coordinates for analysed GEOIDs")
-    ordered["cluster"] = cluster_points(ordered, config["k"])
-    ordered.attrs.update(k=config["k"], seed=20261126, crs="EPSG:5070")
+    ordered["cluster"] = within_state_points(ordered, config["k"]) if within_states else cluster_points(ordered, config["k"])
+    ordered.attrs.update(k=config["k"], seed=20261126, crs="EPSG:5070", within_states=bool(within_states))
     return ordered
 
 
