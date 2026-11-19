@@ -5,6 +5,14 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.37.0 (Round 40): beta and median regression
+
+- Freeze procedures, script, criterion and targets at `d5c9b02` before the run.
+- Passed and selected: beta regression with the HC0 sandwich; median regression with the kernel SE.
+  Failed: beta model-based SEs. Replicate-augmented variants over-cover and are not used.
+- New `census.beta_median_core` (frozen), `census.regression_families`; MCP `fit_model(model="beta"|"median")`.
+- Deferred: PUMS ordinal/multinomial/weighted quantile regression and GEE.
+
 ## 0.36.0 (Round 39): multivariate tests and count models
 
 - Freeze procedures, script, criterion and targets at `0686bc0` before the run.

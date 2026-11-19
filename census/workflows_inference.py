@@ -208,7 +208,8 @@ def fit_model(
         target: "population" (default: the general relationship, model SE),
             "these_areas" (these areas in this period, replicate SE), or
             "conservative" (both added; intervals too wide).
-        model: "ols", "wls", "binomial", "poisson", or "negbin".
+        model: "ols", "wls", "binomial", "poisson", "negbin", "beta" (shares in 0-1) or "median"
+            (median regression for skewed outcomes).
         replicates_path: From build_analysis_frame (needed for exact sampling error).
         error_covariates: Predictors measured with error (regression_calibration/simex).
         se_col: Outcome SE column (fay_herriot).
@@ -263,6 +264,13 @@ def fit_model(
                              "call fit_model again with model='ols' (or 'wls' and weights)")
             result = models.fit_eiv(formula, frame, _read_replicates(replicates_path), model=model,
                                     weights=weights, confidence_level=confidence_level)
+        elif method == "replicate" and model in ("beta", "median"):
+            from census.regression_families import fit_beta, fit_median
+            res = (fit_beta if model == "beta" else fit_median)(formula, frame, confidence_level)
+            from census.results import _jsonable
+            res["table"] = res["table"].to_dict("records")
+            return _ok(f"{res['model']} coefficients; validated (Round 40).", "report coefficients with intervals",
+                       **_jsonable(res))
         elif method == "replicate" and model == "negbin":
             from census.count_models import fit_count_model
             if not exposure:
