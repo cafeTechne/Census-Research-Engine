@@ -304,7 +304,14 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      exploratory. Not yet in manifests (fit_eiv spatial_clusters stays refused there).
      R21b post hoc: H1 and H4 still hold under both.
 
-15. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+15. Round 36 composite indices (full profile tool build_index; recipe composite_index):
+     first principal component or equal weights; full-sample standardisation and loadings
+     fixed in every replicate. Validated: per-area score intervals (with replicates) and the
+     Feldt interval for Cronbach's alpha (independent areas; it under-covers with spatial
+     dependence). Quintile stability and typologies are descriptive. An outcome cannot be an
+     indicator of the index used to explain it (circularity).
+
+16. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
@@ -317,7 +324,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-16. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+17. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts

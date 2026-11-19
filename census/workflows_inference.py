@@ -418,6 +418,46 @@ def rank_areas(
                **_jsonable(out))
 
 
+def build_index(
+    input_path: str,
+    indicators: List[str],
+    replicates_path: Optional[str] = None,
+    method: str = "pca",
+    reverse: Optional[List[str]] = None,
+    outcome: Optional[str] = None,
+    typology_k: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Build a composite (e.g. deprivation) index from three or more ACS estimates, with
+    per-area score intervals, quintiles and their stability, Cronbach's alpha and an
+    optional typology (k groups).
+
+    Args:
+        input_path: Analysis frame (GEOID per row).
+        indicators: Estimate columns; higher = more deprived unless listed in reverse.
+        replicates_path: From build_analysis_frame (needed for score intervals).
+        method: "pca" (first principal component) or "equal" weights.
+        reverse: Indicators where higher means less deprived (e.g. median income).
+        outcome: The outcome you will relate the index to; refused if it is an indicator.
+        typology_k: Also group areas into k types (descriptive), with replicate stability.
+    Example: build_index("frame.parquet", ["poverty", "no_vehicle", "cost_burden"], replicates_path="reps.parquet")
+    """
+    from census.composite_index import build_index as _build
+
+    try:
+        out = _build(_load_frame(input_path), indicators, replicates=_read_replicates(replicates_path) if replicates_path else None,
+                     method=method, reverse=reverse or (), outcome=outcome, typology_k=typology_k)
+    except _INPUT_ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
+                     "check the indicator names (at least three) and replicates, then retry")
+    from census.results import _jsonable
+    out["table"] = out["table"].to_dict("records")
+    a = out["cronbach_alpha"]
+    return _ok(f"{method.upper()} index of {len(indicators)} indicators over {out['n']} areas; alpha {a['estimate']:.2f} "
+               f"({a['lower']:.2f}-{a['upper']:.2f}); score intervals {'validated' if out['validated_scores'] else 'unavailable'}.",
+               "report scores with intervals and quintile stability; do not use the outcome as an indicator",
+               **_jsonable(out))
+
+
 def small_area_estimates(
     input_path: str,
     formula: str,

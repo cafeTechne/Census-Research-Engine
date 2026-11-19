@@ -1,0 +1,150 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "reliability": 0.9,
+      "range_km": 0,
+      "method": "pca",
+      "draws": 2000,
+      "score_mean_coverage": 0.8976689655172414,
+      "score_min_coverage": 0.8805,
+      "alpha_coverage": {
+        "A1": 0.8955,
+        "A2": 0.934
+      },
+      "alpha_target": 0.7724046519325961,
+      "failures": 0,
+      "seconds": 9.877965450286865
+    },
+    {
+      "cell": 1,
+      "reliability": 0.9,
+      "range_km": 0,
+      "method": "equal",
+      "draws": 2000,
+      "score_mean_coverage": 0.898403448275862,
+      "score_min_coverage": 0.8775,
+      "alpha_coverage": {
+        "A1": 0.912,
+        "A2": 0.9395
+      },
+      "alpha_target": 0.7723008589779445,
+      "failures": 0,
+      "seconds": 6.443037271499634
+    },
+    {
+      "cell": 2,
+      "reliability": 0.9,
+      "range_km": 100,
+      "method": "pca",
+      "draws": 2000,
+      "score_mean_coverage": 0.8982931034482758,
+      "score_min_coverage": 0.8805,
+      "alpha_coverage": {
+        "A1": 0.6015,
+        "A2": 0.6615
+      },
+      "alpha_target": 0.7741934636470018,
+      "failures": 0,
+      "seconds": 9.930509805679321
+    },
+    {
+      "cell": 3,
+      "reliability": 0.9,
+      "range_km": 100,
+      "method": "equal",
+      "draws": 2000,
+      "score_mean_coverage": 0.8984275862068966,
+      "score_min_coverage": 0.8745,
+      "alpha_coverage": {
+        "A1": 0.583,
+        "A2": 0.6375
+      },
+      "alpha_target": 0.7737259193534172,
+      "failures": 0,
+      "seconds": 6.363909959793091
+    },
+    {
+      "cell": 4,
+      "reliability": 0.7,
+      "range_km": 0,
+      "method": "pca",
+      "draws": 2000,
+      "score_mean_coverage": 0.8982275862068966,
+      "score_min_coverage": 0.8825,
+      "alpha_coverage": {
+        "A1": 0.8905,
+        "A2": 0.9685
+      },
+      "alpha_target": 0.7282834946102517,
+      "failures": 0,
+      "seconds": 6.4589080810546875
+    },
+    {
+      "cell": 5,
+      "reliability": 0.7,
+      "range_km": 0,
+      "method": "equal",
+      "draws": 2000,
+      "score_mean_coverage": 0.8978862068965517,
+      "score_min_coverage": 0.8735,
+      "alpha_coverage": {
+        "A1": 0.8985,
+        "A2": 0.9765
+      },
+      "alpha_target": 0.7275274984864823,
+      "failures": 0,
+      "seconds": 6.284490585327148
+    },
+    {
+      "cell": 6,
+      "reliability": 0.7,
+      "range_km": 100,
+      "method": "pca",
+      "draws": 2000,
+      "score_mean_coverage": 0.897996551724138,
+      "score_min_coverage": 0.879,
+      "alpha_coverage": {
+        "A1": 0.652,
+        "A2": 0.8095
+      },
+      "alpha_target": 0.7306258891024081,
+      "failures": 0,
+      "seconds": 6.498145341873169
+    },
+    {
+      "cell": 7,
+      "reliability": 0.7,
+      "range_km": 100,
+      "method": "equal",
+      "draws": 2000,
+      "score_mean_coverage": 0.8989793103448276,
+      "score_min_coverage": 0.881,
+      "alpha_coverage": {
+        "A1": 0.665,
+        "A2": 0.8235
+      },
+      "alpha_target": 0.7265519126893917,
+      "failures": 0,
+      "seconds": 6.463660717010498
+    }
+  ],
+  "passed": {
+    "S1/pca": true,
+    "S1/equal": true,
+    "A1": true,
+    "A2": true
+  },
+  "draws_per_cell": 2000,
+  "criterion": "S1: mean per-area 90% coverage >= .86 and every area >= .80, per weighting (all cells); A1/A2: 90% coverage of the population alpha >= .86 in every independent cell; failures count as non-coverage",
+  "criterion_commit": "e86907d",
+  "frozen_sha256": {
+    "scripts/index_validation.py": "2c78b8ac76b4b613f2a91f791fd6196c5490b559fe8b35debca4c6c4b35be80a",
+    "census/index_core.py": "44cfdbd08bce2c3cc9ead65ec61804c67bcbffaee6e4f6c3b5136d73acba3078",
+    "census/simulation.py": "b0ba4c803939d8803fc8a7e702b4f70bda5f486736bd651b8630d7e1262b198e",
+    "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+    "docs/audits/index_validation_criterion.md": "8a1ee96c9adcc7819ec2c3bbdb74318d5bf50bafe2cebf26645b4730dfc84205",
+    "docs/audits/index_targets.json": "9926ac2d1b67699087d4c2c3822125d82d191b94aa1c7ef54184d7a2960d2471",
+    "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f"
+  }
+}

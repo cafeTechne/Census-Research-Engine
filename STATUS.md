@@ -54,6 +54,7 @@ manifests refuse them in confirmatory analyses.
 | Poisson–Gamma descriptive EB rate smoothing | **Passed** fixed 90% area-average criterion: posterior 0.8813–0.9000 (default); Laird–Louis 0.8718–0.8914 in six required cells. Fixed E/rates, independent areas; [1,9] censoring; 200 bootstrap refits for LL | `eb_rate_validation.md`, criterion `d4dec47` |
 | Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. `joint_wald` stays exploratory; binomial/Poisson splines are confirmatory only with `joint_test` (Round 31) | `joint_wald_validation.md`, criterion `376ce69` |
 | Joint (omnibus) tests: `joint_test` | **Passed selected** (nominal .10 size in [.07,.13]): wild score bootstrap for OLS factor tests (.098–.110) and binomial/Poisson spline tests (.072–.103); IM-8 Hotelling for OLS/Poisson factor tests (.093–.103). F references failed everywhere. n = 145; other combinations exploratory | `omnibus_validation.md`, criterion `3e3094a` |
+| Composite index scores and Cronbach's α (`build_index`) | **Passed**: per-area score intervals (PCA and equal weights; mean coverage .898–.899, every area ≥ .874); Feldt α interval for independent areas (.891–.912; under-covers with spatial dependence, .58–.67). Quintile stability and typologies descriptive | `index_validation.md`, criterion `e86907d` |
 | Corrected EIV slopes under spatial dependence (`fit_spatial_eiv`) | **Passed**: G1 pooled-correction IM-8 .879–.899; G2 SAR-whitened Fuller .863–.918 (true slope; reliability .7–.9; independent and 100 km fields; up to two error-prone covariates). Library and MCP only; manifests still refuse EIV spatial clusters | `spatial_eiv_validation.md`, criterion `46fab40` |
 | Rank intervals and area-versus-reference comparisons (`rank_areas`) | **Passed** (conservative): Klein–Wright–Wieczorek individual (coverage ≥ .999) and joint rank intervals; Holm and simultaneous comparisons with a weighted reference (FWER ≤ .109; joint coverage .894–.907). Bootstrap percentile ranks failed (per-area coverage down to .33) and are not offered | `ranking_validation.md`, criterion `6286ad9` |
 | Rank/partial correlation and rank group tests | **Passed selected** (coverage ≥ .86, independent areas): Spearman and Kendall Fisher-type intervals; Pearson and partial (one control) only with the ACS replicate variance added (plain Fisher-z under-covered, .84); Brunner–Munzel superiority; Kruskal–Wallis size .095–.106. All correlation intervals under-cover with spatial dependence (.60–.89). **Manifest `correlation` statistics still use the plain Fisher-z interval (not validated for Pearson)** | `rank_validation.md`, criterion `f660e9c` |
@@ -111,6 +112,12 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 36 (v0.33.0; merged, release pending owner approval; implemented by the maintainer agent):**
+composite indices. Criterion `e86907d` pushed before the 8-cell run. New `census.index_core`,
+`census.composite_index`, MCP tool `build_index` (full profile), recipe `composite_index`. The MI/NY
+example showed an index dominated by NYC's car-free, high-cost housing (α 0.40): a construct-validity
+warning now in the recipe. Goldens unchanged. Acceptance: 1946 passed, 37 skipped; 0 failures.
 
 **Round 35 (v0.32.0; merged, release pending owner approval; implemented by the maintainer agent):**
 corrected EIV slopes under spatial dependence. Criterion `46fab40` pushed before the 8-cell run;
@@ -180,6 +187,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 36 | MI/NY county deprivation index (exploratory example) | α 0.40 (0.25–0.52); "no vehicle" and cost burden make NYC boroughs the top scorers: construct-validity warning; `r36_index_example.md` |
 | 35 | Post hoc spatial EIV re-check of R21b | H1 (poverty) and H4 hold under G1 and G2; H2/H3 still unsupported (outside the validated design); `r35_posthoc_spatial_eiv.md` |
 | 34 | Michigan counties ranked by poverty (exploratory example) | Median rank interval spans 55 of 83 ranks; only Isabella surely top 10%; 34 counties differ from the state rate (Holm); `r34_ranking_example.md` |
 | 33 | Rank methods on MI/NY county poverty (exploratory example) | Nonmetro > large-metro poverty: superiority 0.72 (0.61–0.83); Kruskal–Wallis p = .001; Bronx most influential in the ANCOVA; `r33_rank_methods_example.md` |

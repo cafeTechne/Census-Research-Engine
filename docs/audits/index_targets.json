@@ -1,0 +1,38 @@
+{
+  "seed": 20270121,
+  "reference_areas": 400000,
+  "rows": [
+    {
+      "cell": 0,
+      "alpha_observed": 0.7724046519325961
+    },
+    {
+      "cell": 1,
+      "alpha_observed": 0.7723008589779445
+    },
+    {
+      "cell": 2,
+      "alpha_observed": 0.7741934636470018
+    },
+    {
+      "cell": 3,
+      "alpha_observed": 0.7737259193534172
+    },
+    {
+      "cell": 4,
+      "alpha_observed": 0.7282834946102517
+    },
+    {
+      "cell": 5,
+      "alpha_observed": 0.7275274984864823
+    },
+    {
+      "cell": 6,
+      "alpha_observed": 0.7306258891024081
+    },
+    {
+      "cell": 7,
+      "alpha_observed": 0.7265519126893917
+    }
+  ]
+}

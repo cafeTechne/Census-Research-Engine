@@ -193,6 +193,13 @@ up to two error-prone covariates; reliability .7-.9); more error-prone covariate
 exploratory. Not yet in manifests (fit_eiv spatial_clusters stays refused there).
 R21b post hoc: H1 and H4 still hold under both.
 
+Round 36 composite indices (full profile tool build_index; recipe composite_index):
+first principal component or equal weights; full-sample standardisation and loadings
+fixed in every replicate. Validated: per-area score intervals (with replicates) and the
+Feldt interval for Cronbach's alpha (independent areas; it under-covers with spatial
+dependence). Quintile stability and typologies are descriptive. An outcome cannot be an
+indicator of the index used to explain it (circularity).
+
 Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
 and scale:"robust"; Poisson counts use exposure
 and scale:"robust". New external-count manifests refuse scale:"X2" (failed coverage validation).
@@ -1263,6 +1270,7 @@ for _fn in (
     workflows_inference.fit_model,
     workflows_inference.compare_groups,
     workflows_inference.rank_areas,
+    workflows_inference.build_index,
     workflows_inference.small_area_estimates,
     workflows_inference.correlation_matrix,
     workflows_inference.minimum_detectable_difference,
@@ -1310,6 +1318,7 @@ build_analysis_frame = workflows_inference.build_analysis_frame
 fit_model = workflows_inference.fit_model
 compare_groups = workflows_inference.compare_groups
 rank_areas = workflows_inference.rank_areas
+build_index = workflows_inference.build_index
 small_area_estimates = workflows_inference.small_area_estimates
 correlation_matrix = workflows_inference.correlation_matrix
 minimum_detectable_difference = workflows_inference.minimum_detectable_difference

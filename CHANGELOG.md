@@ -5,6 +5,17 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.33.0 (Round 36): composite indices
+
+- Freeze procedures, script, criterion and α targets at `e86907d` before the 8-cell run.
+- Passed: per-area index-score intervals with fixed full-sample standardisation and weights (PCA and
+  equal); Feldt α interval for independent areas.
+- New `census.index_core` (frozen) and `census.composite_index.build_index` (scores with intervals,
+  quintile stability, α, optional typology with replicate adjusted Rand index; circularity guard);
+  MCP tool `build_index`; recipe `composite_index`.
+- Exploratory MI/NY example exposed a construct-validity problem (NYC's car-free housing drives the
+  index; α 0.40), recorded in the recipe.
+
 ## 0.32.0 (Round 35): corrected EIV slopes under spatial dependence
 
 - Freeze candidates, script and criterion at `46fab40` before the 8-cell run (Round 30's linear design
