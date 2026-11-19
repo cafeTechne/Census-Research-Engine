@@ -38,3 +38,7 @@ See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 correlated, use `fit_model(method="eiv", spatial="clusters")` (eight fixed clusters, pooled
 correction) or `spatial="error"` (spatial-error whitening). Both were validated for linear models
 with up to two error-prone covariates (`docs/audits/spatial_eiv_validation.md`).
+
+**Count outcomes (Round 39).** For counts with an exposure, `fit_model(model="negbin", exposure=...)`
+uses NB2 with HC3 SEs, validated even with strong overdispersion and excess zeros; Poisson HC3
+under-covered (.81) when overdispersion was strong (`docs/audits/manova_counts_validation.md`).

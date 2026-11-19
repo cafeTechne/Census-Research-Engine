@@ -263,6 +263,15 @@ def fit_model(
                              "call fit_model again with model='ols' (or 'wls' and weights)")
             result = models.fit_eiv(formula, frame, _read_replicates(replicates_path), model=model,
                                     weights=weights, confidence_level=confidence_level)
+        elif method == "replicate" and model == "negbin":
+            from census.count_models import fit_count_model
+            if not exposure:
+                return _fail(errors.INVALID_INPUT, "model='negbin' needs exposure (expected counts or population).")
+            res = fit_count_model(formula, frame, exposure, "negbin", confidence_level)
+            from census.results import _jsonable
+            res["table"] = res["table"].to_dict("records")
+            return _ok("Negative binomial (NB2, HC3) slopes; validated (Round 39).",
+                       "report slopes with their intervals", **_jsonable(res))
         elif method == "replicate":
             result = models.fit_replicate(formula, frame, _read_replicates(replicates_path), model=model,
                                           confidence_level=confidence_level, target=target, **extra)
@@ -320,6 +329,7 @@ def compare_groups(
     spatial: bool = False,
     confidence_level: float = 0.90,
     method: str = "model",
+    outcomes: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     """Compare an area outcome across groups of areas: t-test, ANOVA, ANCOVA or two-way interaction.
 
@@ -339,6 +349,8 @@ def compare_groups(
         confidence_level: 0.90 matches ACS margins of error.
         method: "model" (default) or "rank" (Brunner-Munzel for two groups, Kruskal-Wallis for more;
             no covariates; robust to skewed values).
+        outcomes: Two or more outcome columns for a joint (MANOVA/MANCOVA) test of the group effect
+            on all of them (Round 39; OLS; covariates allowed); outcome is then ignored.
 
     Returns the joint (omnibus) test, adjusted group means with intervals, pairwise
     differences, effect sizes (OLS), and whether each result is validated or exploratory.
@@ -346,6 +358,17 @@ def compare_groups(
     """
     from census.group_compare import compare_groups as _compare
 
+    if outcomes:
+        from census.count_models import compare_groups_multivariate
+        try:
+            res = compare_groups_multivariate(_load_frame(input_path), outcomes, group,
+                                              replicates=_read_replicates(replicates_path) if replicates_path else None,
+                                              covariates=covariates or ())
+        except _INPUT_ERRORS as exc:
+            return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}", "check the outcomes, group and covariates")
+        from census.results import _jsonable
+        return _ok(f"Joint test of {group} on {len(outcomes)} outcomes: p = {res['p_value']:.3g} (validated).",
+                   "then compare each outcome with compare_groups", **_jsonable(res))
     try:
         frame = _load_frame(input_path)
         result = _compare(frame, outcome, group, replicates=_read_replicates(replicates_path) if replicates_path else None,
