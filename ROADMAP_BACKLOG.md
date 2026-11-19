@@ -1,6 +1,7 @@
-# Backlog roadmap: repairs and follow-ups after the statistics roadmap (Rounds 43–50)
+# Backlog roadmap: repairs and follow-ups after the statistics roadmap (Rounds 43–56)
 
-**Status: drafted 2026-11-19, after v0.39.0 (Rounds 31–42, DOI 10.5281/zenodo.24371310).** The source
+**Status: drafted 2026-11-19, after v0.39.0 (Rounds 31–42, DOI 10.5281/zenodo.24371310); Rounds 43–50
+merged 2026-11-19; Rounds 51–56 (section 5) added 2026-11-19.** The source
 from which `PLAN_ROUND_43.md` onward are drafted; it is not itself a plan. **Implementing agents: do not
 read this file unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.** Update
 the status column in section 3 when a round merges.
@@ -37,9 +38,17 @@ implementing Rounds 31–42. The second group was never collected in one place; 
 | N17 | Pooled k-means clusters can straddle adjacent states (OH/PA), leaving a state term partly constant; the engine now flags it, but has no state-respecting option | R44 | missing capability | 45 |
 | N18 | NB2 alpha's default optimizer fails on large counts with little overdispersion (real WONDER data); fixed with a Nelder–Mead fallback | R44 | code (fixed) | 44 |
 | N19 | Naive IM-8 (Round 30 C1) failed the OH/PA re-check with spatially correlated fields; corrected G1/G2 replicated | R44 | external validity | 45 |
-| N20 | 2024 tract VRE files contain negative replicate estimates (B17001: 5 NY counties incl. Bronx, Kings; B19001: Wayne, Bronx, Kings and 2 MI counties); the strict segregation policy refuses those counties | R50 | data / failed input | not planned |
-| N21 | Realistic-error segregation was validated on poverty and income groups only; sparse race/ethnicity groups, four or more groups and contrasts untested (the noise gate applies, but structure may differ) | R50 | external validity | not planned |
-| N16 | ZIP and beta model-based SEs failed; Kruskal–Wallis passed but rank bootstrap (R34 R3) failed | R34, R39, R40 | failed method (low priority) | not planned |
+| N20 | 2024 tract VRE files contain negative replicate estimates (B17001: 5 NY counties incl. Bronx, Kings; B19001: Wayne, Bronx, Kings and 2 MI counties); the strict segregation policy refuses those counties | R50 | data / failed input | 51 |
+| N21 | Realistic-error segregation was validated on poverty and income groups only; sparse race/ethnicity groups, four or more groups and contrasts untested (the noise gate applies, but structure may differ) | R50 | external validity | 52 |
+| N16 | ZIP and beta model-based SEs failed; Kruskal–Wallis passed but rank bootstrap (R34 R3) failed | R34, R39, R40 | failed method (low priority) | closed: validated alternatives (HC0 beta, NB2-HC3, KWW rank intervals) |
+| N22 | Binomial regression calibration failed narrowly (.851–.889); no likelihood-based correction tried | R46 | failed method | 53 |
+| N23 | Corrected GLM slopes are validated for independent areas only; corrected linear EIV only up to four error-prone covariates | R45, R46 | validation gap | 53 |
+| N24 | Rounds 45–48 (count repairs, regression calibration, calibrated causal tools, effective-n intervals) were validated on MI/NY geometry only | R45–R48 | external validity | 54 |
+| N25 | Interrupted series below 30 annual points still fail (REML AR(1) .79–.88; bootstrap-t below 30) | R48 | failed method | 55 |
+| N26 | SMR intervals treat the reference population as fixed; an ACS-estimated reference denominator (backlog 6) is untested | R24, R28 | validation gap | 55 |
+| N27 | No microdata inequality measures (Gini, Theil, Atkinson, percentile ratios) with SDR replicate variance (backlog 6) | R49 | missing capability | 56 |
+| N28 | SMR refuses negative band replicates although the expected count is linear in the bands | R24 | code / failed input | 51 |
+| N29 | IM-8 versions of correlation and α intervals failed; partial correlations under spatial dependence exploratory; PUMS GEE deferred (SDR replicates already carry the design) | R48, R49 | failed method / deferred | not planned |
 
 Pre-Round-31 backlog items (STATUS "Open backlog"): 1 spatial routing and GLM EIV, 2 NB2 for R29,
 3 manifest correlation intervals, 4 GLM measurement-error correction, 5 WONDER child-age reference
@@ -114,3 +123,54 @@ MOEs, non-negative counts, correlated group errors; two-group D/isolation and mu
 1. Order as above (housekeeping first; it shrinks the agent-facing text before more is added).
 2. Round 44's post hoc R29 checks report alongside, never replace, the registered results.
 3. Releases: proposed to bundle at milestones (as with v0.39.0); each release still needs the owner's yes.
+
+## 5. Rounds 51–56 (drafted 2026-11-19, after Rounds 43–50)
+
+Same ground rules (section 1 above). Open issues N19–N28 plus the remaining STATUS backlog items 1, 4 and 6.
+
+| Round | Theme | Covers | Status |
+| :--- | :--- | :--- | :--- |
+| 51 | Negative replicate estimates | N20, N28 | planned |
+| 52 | Segregation beyond poverty and income | N21 (race/ethnicity groups, 4–5 groups, period contrasts, OH/PA) | planned |
+| 53 | Corrected GLM slopes, part 2 | N22, N23 (binomial repair, corrected counts under IM-8, 5–6 error-prone covariates) | planned |
+| 54 | OH/PA external validity, part 2 | N19, N24 (Rounds 45–48 re-checked; naive IM-8 repair outside MI/NY) | planned |
+| 55 | Short series and estimated reference populations | N25, N26 | planned |
+| 56 | Microdata inequality measures | N27 | planned |
+
+### Round 51: negative replicate estimates
+
+The 2024 VRE files contain negative replicate estimates for small tract cells (B17001: 7 NY rows; B19001:
+656 rows). Segregation refuses any county with one; SMR refuses any negative band replicate. Validate, under
+Gaussian replicate perturbations that produce negatives at small counts, (a) clipping replicate group counts at
+zero for segregation and (b) accepting negative band replicates for SMR when every replicate expected count is
+positive (the expected count is linear in the bands). Judge coverage in affected counties and overall.
+
+### Round 52: segregation beyond poverty and income
+
+Round 50's design with real B03002 tract counts and MOEs: two-group race/ethnicity contrasts (e.g. Black vs
+all others, Hispanic vs non-Hispanic), four- and five-group Theil H, the difference between two non-overlapping
+five-year periods (2015–2019 vs 2020–2024), and the OH/PA counties (B17001 and B03002) for external validity.
+
+### Round 53: corrected GLM slopes, part 2
+
+A likelihood-based binomial correction (structural normal exposure model, Gauss–Hermite integration) and
+SIMEX with a nonlinear extrapolant, judged against the true slope; regression calibration combined with IM-8
+clusters for Poisson and NB2 under spatially correlated fields; G1/G2 with five and six error-prone covariates.
+
+### Round 54: OH/PA external validity, part 2
+
+Re-run the Round 45 (censored NB2, IM-8 counts, noisy offsets), Round 46 (regression calibration) and Round 48
+(effective-n intervals) designs on OH/PA geometry with fixed seeds and a pre-set criterion; try IM-8 C1 with
+`within_states` clusters and with 6 and 10 clusters on OH/PA (N19).
+
+### Round 55: short series and estimated reference populations
+
+Interrupted series at 15–29 points: AR(1) with a bias-corrected autocorrelation and t reference, and a fixed-b
+(Kiefer–Vogelsang) HAC test. SMRs whose reference population is itself an ACS estimate (internal and external
+standardization) with the reference variance in the combined interval.
+
+### Round 56: microdata inequality measures
+
+Gini, Theil T, Atkinson (ε = 0.5, 1), P90/P10 and P80/P20 ratios and top-decile share from PUMS income with
+the SDR replicate variance, and differences between groups or states; validated by resampling a synthetic
+population with the PUMS design, as in Round 49.
