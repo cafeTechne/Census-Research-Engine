@@ -5,6 +5,16 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.34.0 (Round 37): agreement between sources
+
+- Freeze procedures, script, criterion and targets at `e6d4be6` before the 8-cell run.
+- Passed: bias with a t interval, Cohen's kappa of quintile classes. Failed (estimates only):
+  Bland–Altman limits of agreement (observed and error-free) and Lin's concordance correlation (plain
+  and error-corrected) intervals.
+- New `census.agreement_core` (frozen), `census.agreement.check_agreement`, MCP tool `check_agreement`,
+  recipe `agreement`.
+- Exploratory example: ACS vs Census population estimates for MI/NY counties.
+
 ## 0.33.0 (Round 36): composite indices
 
 - Freeze procedures, script, criterion and α targets at `e86907d` before the 8-cell run.

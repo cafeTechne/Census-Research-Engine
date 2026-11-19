@@ -363,6 +363,13 @@ Feldt interval for Cronbach's alpha (independent areas; it under-covers with spa
 dependence). Quintile stability and typologies are descriptive. An outcome cannot be an
 indicator of the index used to explain it (circularity).
 
+## Agreement between sources (Round 37)
+
+Round 37 agreement (full profile tool check_agreement; recipe agreement): bias (b - a)
+and Cohen's kappa of quintile classes passed validation for independent areas. Bland-Altman
+limits of agreement (observed and error-free) and Lin's concordance correlation are reported,
+but their intervals failed (exploratory): differences of noisy estimates are heavy-tailed.
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event
