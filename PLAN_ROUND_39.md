@@ -57,5 +57,5 @@ against the audit. Goldens unchanged; full suite; STATUS, CHANGELOG, version 0.3
 | V1 / N0–N2 results | Mixed | V1 and NB2 pass; Poisson HC3 and ZIP fail. |
 | Engine, tests | Done | count_models; MCP paths; 6 tests. |
 | Example | Done | MANOVA of poverty and share 65+. |
-| Goldens, final suite | | |
+| Goldens, final suite | Done | Goldens identical; 1963 passed, 37 skipped, 0 failures. |
 | Exceptions | Recorded | Pre-freeze ZIP changes; WIP commit before freeze. |

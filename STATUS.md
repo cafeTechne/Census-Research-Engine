@@ -121,7 +121,7 @@ multivariate tests and count models. Criterion `0686bc0` pushed before the run. 
 `census.manova_counts_core`, `census.count_models`; MCP `compare_groups(outcomes=...)` and
 `fit_model(model="negbin")`. Note for registered Poisson HC3 studies (R29): under strong
 overdispersion that interval under-covered here; a sensitivity with NB2 is backlog, not a
-reinterpretation. Goldens unchanged.
+reinterpretation. Goldens unchanged. Acceptance: 1963 passed, 37 skipped; 0 failures.
 
 **Round 38 (v0.35.0; merged, release pending owner approval; implemented by the maintainer agent):**
 combining evidence. Criterion `3edd5f4` pushed before the run. New `census.evidence_core`,
