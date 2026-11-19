@@ -49,5 +49,5 @@ flags against the audit; goldens unchanged; full suite; STATUS, CHANGELOG, versi
 | Criterion commit | `5f81de2` | Pushed before the full run. |
 | D / C / A results | Mixed | D1 passed; C1 failed narrowly; A0–A2 failed. |
 | Engine, tests | Done | missing_censored_its; fit_model(impute); 5 tests. |
-| Goldens, final suite | | |
+| Goldens, final suite | Done | Goldens identical; 1977 passed, 37 skipped, 0 failures. |
 | Exceptions | Recorded | Pre-freeze: direct MI implementation; missingness on y. |

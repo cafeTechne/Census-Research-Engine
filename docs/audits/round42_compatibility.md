@@ -24,4 +24,5 @@ manifest change.
 
 ## Goldens and suite
 
-See STATUS (Round 42).
+Both goldens byte-identical to v0.38.0. Suite: 1977 passed, 37 skipped, 63 subtests; 0 failures
+(baseline 1972; 5 new tests).

@@ -122,7 +122,7 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 **Round 42 (v0.39.0; merged, release pending owner approval; implemented by the maintainer agent):**
 missing data, censored counts and interrupted series; the last round of `ROADMAP_STATISTICS.md`.
 Criterion `5f81de2` pushed before the run. New `census.mci_core`, `census.missing_censored_its`; MCP
-`fit_model(impute=...)`. Goldens unchanged.
+`fit_model(impute=...)`. Goldens unchanged. Acceptance: 1977 passed, 37 skipped; 0 failures.
 
 **Round 41 (v0.38.0; merged, release pending owner approval; implemented by the maintainer agent):**
 causal tools. Criterion `b7464e5` pushed before the run. New `census.causal_core`, `census.causal`,
