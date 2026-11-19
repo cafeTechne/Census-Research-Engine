@@ -2,7 +2,8 @@
 
 1. **Pool** several estimates of the same effect (e.g. the same coefficient in MI/NY and OH/PA):
    `combine_estimates("pool", estimates=[...], ses=[...])`. The default (Paule-Mandel with the
-   Hartung-Knapp interval) is validated for up to 4 estimates; with 2 it is valid but very wide.
+   Hartung-Knapp interval) is validated for up to 10 estimates (from 5 on, the variance factor is truncated
+   at 1; Round 48); with 2 it is valid but very wide.
    Fixed-effect pooling is validated only if you declared, before seeing results, that the studies
    share one effect (`assume_homogeneous=True`). DerSimonian-Laird is not validated.
 2. Pooling states is a new analysis: register it, or label it exploratory. It never changes what a

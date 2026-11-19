@@ -37,7 +37,9 @@ def test_tost_and_power_by_hand():
 def test_engine_flags():
     out = evidence.combine_estimates([.027, .035], [.0055, .0048])
     assert out["validated"] and out["k"] == 2
-    assert not evidence.combine_estimates(TH.tolist()+[.3], SE.tolist()+[.2])["validated"]     # k = 5
+    k5 = evidence.combine_estimates(TH.tolist()+[.3], SE.tolist()+[.2])        # k = 5: truncated HKSJ since Round 48
+    assert k5["validated"] and k5["pooled"]["method"] == "hksj_truncated"
+    assert not evidence.combine_estimates(list(range(11)), [1.]*11)["validated"]     # k = 11
     assert not evidence.combine_estimates([.027, .035], [.0055, .0048], method="fixed")["validated"]
     assert evidence.combine_estimates([.027, .035], [.0055, .0048], method="fixed", assume_homogeneous=True)["validated"]
     with pytest.raises(ValueError, match="margin"):

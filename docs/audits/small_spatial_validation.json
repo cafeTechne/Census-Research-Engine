@@ -1,0 +1,666 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "kind": "I",
+      "parameters": {
+        "n": 15,
+        "phi": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "I0_a": 0.7495,
+        "I0_b": 0.711,
+        "I1_a": 0.825,
+        "I1_b": 0.8555,
+        "I2_a": 0.8735,
+        "I2_b": 0.8855
+      },
+      "failed": {
+        "I0": 0,
+        "I1": 0,
+        "I2": 0
+      }
+    },
+    {
+      "cell": 1,
+      "kind": "I",
+      "parameters": {
+        "n": 15,
+        "phi": 0.6
+      },
+      "draws": 2000,
+      "coverage": {
+        "I0_a": 0.7095,
+        "I0_b": 0.585,
+        "I1_a": 0.8295,
+        "I1_b": 0.7915,
+        "I2_a": 0.893,
+        "I2_b": 0.846
+      },
+      "failed": {
+        "I0": 0,
+        "I1": 0,
+        "I2": 0
+      }
+    },
+    {
+      "cell": 2,
+      "kind": "I",
+      "parameters": {
+        "n": 20,
+        "phi": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "I0_a": 0.782,
+        "I0_b": 0.773,
+        "I1_a": 0.842,
+        "I1_b": 0.863,
+        "I2_a": 0.888,
+        "I2_b": 0.894
+      },
+      "failed": {
+        "I0": 0,
+        "I1": 0,
+        "I2": 0
+      }
+    },
+    {
+      "cell": 3,
+      "kind": "I",
+      "parameters": {
+        "n": 20,
+        "phi": 0.6
+      },
+      "draws": 2000,
+      "coverage": {
+        "I0_a": 0.7395,
+        "I0_b": 0.6345,
+        "I1_a": 0.831,
+        "I1_b": 0.812,
+        "I2_a": 0.885,
+        "I2_b": 0.8565
+      },
+      "failed": {
+        "I0": 0,
+        "I1": 0,
+        "I2": 0
+      }
+    },
+    {
+      "cell": 4,
+      "kind": "I",
+      "parameters": {
+        "n": 30,
+        "phi": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "I0_a": 0.8145,
+        "I0_b": 0.797,
+        "I1_a": 0.86,
+        "I1_b": 0.88,
+        "I2_a": 0.8935,
+        "I2_b": 0.8955
+      },
+      "failed": {
+        "I0": 0,
+        "I1": 0,
+        "I2": 0
+      }
+    },
+    {
+      "cell": 5,
+      "kind": "I",
+      "parameters": {
+        "n": 30,
+        "phi": 0.6
+      },
+      "draws": 2000,
+      "coverage": {
+        "I0_a": 0.787,
+        "I0_b": 0.7055,
+        "I1_a": 0.846,
+        "I1_b": 0.853,
+        "I2_a": 0.895,
+        "I2_b": 0.883
+      },
+      "failed": {
+        "I0": 0,
+        "I1": 0,
+        "I2": 0
+      }
+    },
+    {
+      "cell": 6,
+      "kind": "C",
+      "parameters": {
+        "r33_cell": 0
+      },
+      "draws": 2000,
+      "coverage": {
+        "C1_spearman": 0.9165,
+        "C2_spearman": 0.908,
+        "C1_kendall": 0.903,
+        "C2_kendall": 0.9065,
+        "C1_pearson": 0.94,
+        "C2_pearson": 0.9085
+      },
+      "failed": {
+        "C1_spearman": 0,
+        "C2_spearman": 0,
+        "C1_kendall": 0,
+        "C2_kendall": 0,
+        "C1_pearson": 0,
+        "C2_pearson": 0
+      }
+    },
+    {
+      "cell": 7,
+      "kind": "C",
+      "parameters": {
+        "r33_cell": 1
+      },
+      "draws": 2000,
+      "coverage": {
+        "C1_spearman": 0.906,
+        "C2_spearman": 0.901,
+        "C1_kendall": 0.894,
+        "C2_kendall": 0.8975,
+        "C1_pearson": 0.903,
+        "C2_pearson": 0.895
+      },
+      "failed": {
+        "C1_spearman": 0,
+        "C2_spearman": 0,
+        "C1_kendall": 0,
+        "C2_kendall": 0,
+        "C1_pearson": 0,
+        "C2_pearson": 0
+      }
+    },
+    {
+      "cell": 8,
+      "kind": "C",
+      "parameters": {
+        "r33_cell": 2
+      },
+      "draws": 2000,
+      "coverage": {
+        "C1_spearman": 0.9165,
+        "C2_spearman": 0.904,
+        "C1_kendall": 0.9045,
+        "C2_kendall": 0.9065,
+        "C1_pearson": 0.9665,
+        "C2_pearson": 0.901
+      },
+      "failed": {
+        "C1_spearman": 0,
+        "C2_spearman": 0,
+        "C1_kendall": 0,
+        "C2_kendall": 0,
+        "C1_pearson": 0,
+        "C2_pearson": 0
+      }
+    },
+    {
+      "cell": 9,
+      "kind": "C",
+      "parameters": {
+        "r33_cell": 3
+      },
+      "draws": 2000,
+      "coverage": {
+        "C1_spearman": 0.907,
+        "C2_spearman": 0.8865,
+        "C1_kendall": 0.894,
+        "C2_kendall": 0.8885,
+        "C1_pearson": 0.955,
+        "C2_pearson": 0.897
+      },
+      "failed": {
+        "C1_spearman": 0,
+        "C2_spearman": 0,
+        "C1_kendall": 0,
+        "C2_kendall": 0,
+        "C1_pearson": 0,
+        "C2_pearson": 0
+      }
+    },
+    {
+      "cell": 10,
+      "kind": "C",
+      "parameters": {
+        "r33_cell": 4
+      },
+      "draws": 2000,
+      "coverage": {
+        "C1_spearman": 0.9095,
+        "C2_spearman": 0.906,
+        "C1_kendall": 0.899,
+        "C2_kendall": 0.9065,
+        "C1_pearson": 0.898,
+        "C2_pearson": 0.9115
+      },
+      "failed": {
+        "C1_spearman": 0,
+        "C2_spearman": 0,
+        "C1_kendall": 0,
+        "C2_kendall": 0,
+        "C1_pearson": 0,
+        "C2_pearson": 0
+      }
+    },
+    {
+      "cell": 11,
+      "kind": "C",
+      "parameters": {
+        "r33_cell": 5
+      },
+      "draws": 2000,
+      "coverage": {
+        "C1_spearman": 0.875,
+        "C2_spearman": 0.8825,
+        "C1_kendall": 0.862,
+        "C2_kendall": 0.887,
+        "C1_pearson": 0.864,
+        "C2_pearson": 0.877
+      },
+      "failed": {
+        "C1_spearman": 0,
+        "C2_spearman": 0,
+        "C1_kendall": 0,
+        "C2_kendall": 0,
+        "C1_pearson": 0,
+        "C2_pearson": 0
+      }
+    },
+    {
+      "cell": 12,
+      "kind": "C",
+      "parameters": {
+        "r33_cell": 6
+      },
+      "draws": 2000,
+      "coverage": {
+        "C1_spearman": 0.9105,
+        "C2_spearman": 0.8975,
+        "C1_kendall": 0.9005,
+        "C2_kendall": 0.8935,
+        "C1_pearson": 0.9605,
+        "C2_pearson": 0.8955
+      },
+      "failed": {
+        "C1_spearman": 0,
+        "C2_spearman": 0,
+        "C1_kendall": 0,
+        "C2_kendall": 0,
+        "C1_pearson": 0,
+        "C2_pearson": 0
+      }
+    },
+    {
+      "cell": 13,
+      "kind": "C",
+      "parameters": {
+        "r33_cell": 7
+      },
+      "draws": 2000,
+      "coverage": {
+        "C1_spearman": 0.8875,
+        "C2_spearman": 0.8585,
+        "C1_kendall": 0.8805,
+        "C2_kendall": 0.871,
+        "C1_pearson": 0.922,
+        "C2_pearson": 0.8475
+      },
+      "failed": {
+        "C1_spearman": 0,
+        "C2_spearman": 0,
+        "C1_kendall": 0,
+        "C2_kendall": 0,
+        "C1_pearson": 0,
+        "C2_pearson": 0
+      }
+    },
+    {
+      "cell": 14,
+      "kind": "A",
+      "parameters": {
+        "r36_cell": 0
+      },
+      "draws": 2000,
+      "coverage": {
+        "A3": 0.919,
+        "A4": 0.9
+      },
+      "failed": {
+        "A3": 0,
+        "A4": 0
+      }
+    },
+    {
+      "cell": 15,
+      "kind": "A",
+      "parameters": {
+        "r36_cell": 1
+      },
+      "draws": 2000,
+      "coverage": {
+        "A3": 0.912,
+        "A4": 0.8945
+      },
+      "failed": {
+        "A3": 0,
+        "A4": 0
+      }
+    },
+    {
+      "cell": 16,
+      "kind": "A",
+      "parameters": {
+        "r36_cell": 2
+      },
+      "draws": 2000,
+      "coverage": {
+        "A3": 0.925,
+        "A4": 0.803
+      },
+      "failed": {
+        "A3": 0,
+        "A4": 0
+      }
+    },
+    {
+      "cell": 17,
+      "kind": "A",
+      "parameters": {
+        "r36_cell": 3
+      },
+      "draws": 2000,
+      "coverage": {
+        "A3": 0.9245,
+        "A4": 0.8145
+      },
+      "failed": {
+        "A3": 0,
+        "A4": 0
+      }
+    },
+    {
+      "cell": 18,
+      "kind": "A",
+      "parameters": {
+        "r36_cell": 4
+      },
+      "draws": 2000,
+      "coverage": {
+        "A3": 0.9145,
+        "A4": 0.8835
+      },
+      "failed": {
+        "A3": 0,
+        "A4": 0
+      }
+    },
+    {
+      "cell": 19,
+      "kind": "A",
+      "parameters": {
+        "r36_cell": 5
+      },
+      "draws": 2000,
+      "coverage": {
+        "A3": 0.9255,
+        "A4": 0.9
+      },
+      "failed": {
+        "A3": 0,
+        "A4": 0
+      }
+    },
+    {
+      "cell": 20,
+      "kind": "A",
+      "parameters": {
+        "r36_cell": 6
+      },
+      "draws": 2000,
+      "coverage": {
+        "A3": 0.9205,
+        "A4": 0.7485
+      },
+      "failed": {
+        "A3": 0,
+        "A4": 0
+      }
+    },
+    {
+      "cell": 21,
+      "kind": "A",
+      "parameters": {
+        "r36_cell": 7
+      },
+      "draws": 2000,
+      "coverage": {
+        "A3": 0.925,
+        "A4": 0.7585
+      },
+      "failed": {
+        "A3": 0,
+        "A4": 0
+      }
+    },
+    {
+      "cell": 22,
+      "kind": "H",
+      "parameters": {
+        "k": 5,
+        "tau_ratio": 0.5
+      },
+      "draws": 2000,
+      "coverage": {
+        "H1": 0.8635,
+        "H2": 0.9175
+      },
+      "failed": {
+        "H1": 0,
+        "H2": 0
+      }
+    },
+    {
+      "cell": 23,
+      "kind": "H",
+      "parameters": {
+        "k": 5,
+        "tau_ratio": 2.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "H1": 0.885,
+        "H2": 0.892
+      },
+      "failed": {
+        "H1": 0,
+        "H2": 0
+      }
+    },
+    {
+      "cell": 24,
+      "kind": "H",
+      "parameters": {
+        "k": 7,
+        "tau_ratio": 0.5
+      },
+      "draws": 2000,
+      "coverage": {
+        "H1": 0.8615,
+        "H2": 0.884
+      },
+      "failed": {
+        "H1": 0,
+        "H2": 0
+      }
+    },
+    {
+      "cell": 25,
+      "kind": "H",
+      "parameters": {
+        "k": 7,
+        "tau_ratio": 2.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "H1": 0.877,
+        "H2": 0.8785
+      },
+      "failed": {
+        "H1": 0,
+        "H2": 0
+      }
+    },
+    {
+      "cell": 26,
+      "kind": "H",
+      "parameters": {
+        "k": 10,
+        "tau_ratio": 0.5
+      },
+      "draws": 2000,
+      "coverage": {
+        "H1": 0.8695,
+        "H2": 0.874
+      },
+      "failed": {
+        "H1": 0,
+        "H2": 0
+      }
+    },
+    {
+      "cell": 27,
+      "kind": "H",
+      "parameters": {
+        "k": 10,
+        "tau_ratio": 2.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "H1": 0.889,
+        "H2": 0.89
+      },
+      "failed": {
+        "H1": 0,
+        "H2": 0
+      }
+    },
+    {
+      "cell": 28,
+      "kind": "B",
+      "parameters": {
+        "r37_cell": 0
+      },
+      "draws": 2000,
+      "coverage": {
+        "B1r_a": 0.8985,
+        "B1r_b": 0.8945,
+        "B2r_a": 0.8965,
+        "B2r_b": 0.8895
+      },
+      "failed": {
+        "B1r": 0,
+        "B2r": 0
+      }
+    },
+    {
+      "cell": 29,
+      "kind": "B",
+      "parameters": {
+        "r37_cell": 2
+      },
+      "draws": 2000,
+      "coverage": {
+        "B1r_a": 0.898,
+        "B1r_b": 0.8975,
+        "B2r_a": 0.907,
+        "B2r_b": 0.903
+      },
+      "failed": {
+        "B1r": 0,
+        "B2r": 1
+      }
+    },
+    {
+      "cell": 30,
+      "kind": "B",
+      "parameters": {
+        "r37_cell": 4
+      },
+      "draws": 2000,
+      "coverage": {
+        "B1r_a": 0.8895,
+        "B1r_b": 0.891,
+        "B2r_a": 0.9085,
+        "B2r_b": 0.9095
+      },
+      "failed": {
+        "B1r": 0,
+        "B2r": 4
+      }
+    },
+    {
+      "cell": 31,
+      "kind": "B",
+      "parameters": {
+        "r37_cell": 6
+      },
+      "draws": 2000,
+      "coverage": {
+        "B1r_a": 0.886,
+        "B1r_b": 0.8835,
+        "B2r_a": 0.9355,
+        "B2r_b": 0.932
+      },
+      "failed": {
+        "B1r": 0,
+        "B2r": 39
+      }
+    }
+  ],
+  "passed": {
+    "I1_min_n": null,
+    "I2_min_n": 30,
+    "C1_spearman": true,
+    "C1_kendall": true,
+    "C1_pearson": true,
+    "C2_spearman": false,
+    "C2_kendall": true,
+    "C2_pearson": false,
+    "A3": true,
+    "A4": false,
+    "H1": true,
+    "H2": true,
+    "B1r": true,
+    "B2r": true
+  },
+  "draws_per_cell": 2000,
+  "criterion": "90% coverage >= .86 in every cell of the problem (failed fits count as non-coverage); I: smallest n with both changes >= .86 there and at every larger n, both phi; C per method; B both limits; I0 is the Round 42 GLSAR comparison",
+  "criterion_commit": "3fb07d3",
+  "frozen_sha256": {
+    "scripts/small_spatial_validation.py": "9ae221d4e7e88dfe315b9e143969e910001bb5d1b37abeb68573e55dfe62e7a5",
+    "census/small_spatial_core.py": "da408026794b3fa4caffd3b2388dbf026d2ec78a0e9455852e55cf54aef9face",
+    "census/evidence_core.py": "276c81b01a02195972f010d9f059c0e72aab795b96be88d17e0f7d6f834abc41",
+    "census/rank_methods.py": "f757e7d469e597d07cf094dd9125b142fa22a8ff789ece3988c1b2dd624050cc",
+    "census/mci_core.py": "d31a846cd90b890192ed107dac4c665efb30f56d61f466ec98638021972d9944",
+    "census/index_core.py": "44cfdbd08bce2c3cc9ead65ec61804c67bcbffaee6e4f6c3b5136d73acba3078",
+    "docs/audits/small_spatial_validation_criterion.md": "10b8df5ab1c4e01a782ff2bd96f1eee3d5dee0b65f60800a9ffc46a01b646fed",
+    "scripts/rank_validation.py": "57d2a5793268512012c64da5591c6013f361b5ea40c7969fa50585ac062743dc",
+    "scripts/index_validation.py": "2c78b8ac76b4b613f2a91f791fd6196c5490b559fe8b35debca4c6c4b35be80a",
+    "scripts/agreement_validation.py": "fc0765b3b3b2477ef5c361b9f06aef5cae54b4119e12b3884f944e7f016dadb2",
+    "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+    "docs/audits/rank_targets.json": "ed5912168fdb1b8a2ee3dad59e92549ccac70357e54c02b6df188ddbe7fdd23d",
+    "docs/audits/index_targets.json": "9926ac2d1b67699087d4c2c3822125d82d191b94aa1c7ef54184d7a2960d2471",
+    "docs/audits/agreement_targets.json": "1e59cee5a677c416c859ba1011986e5100c36f110f92a6c11b90ab8efe665cd9",
+    "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f"
+  }
+}

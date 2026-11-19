@@ -258,13 +258,16 @@ RANK_AUDIT = "docs/audits/rank_validation.md"
 
 def validated_correlations(frame: pd.DataFrame, variables: Sequence[str], method: str = "spearman",
                            replicates: Optional[pd.DataFrame] = None, controls: Sequence[str] = (),
-                           confidence_level: float = 0.90) -> pd.DataFrame:
+                           confidence_level: float = 0.90, coords: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """One row per pair with the Round 33 validated interval (or an exploratory label).
 
     ``method``: pearson, spearman, kendall or partial (Pearson partial given ``controls``,
     one control validated). Estimand: the coefficient on the ACS estimates as observed
-    (attenuated by sampling error, not corrected). Areas are assumed independent: under
-    spatial dependence every interval under-covered (0.60-0.89) in validation.
+    (attenuated by sampling error, not corrected). Without ``coords`` areas are assumed
+    independent: under spatial dependence every interval under-covered (0.60-0.89) in validation.
+    ``coords`` (GEOID, lon, lat; Round 48) replaces n by the Clifford-Richardson-Hemon effective
+    sample size (validated for spearman, kendall and pearson with replicates under spatial
+    dependence; partial stays exploratory).
     """
     from . import rank_methods as rm
     if method not in VALIDATED_VARIANT:
@@ -279,6 +282,12 @@ def validated_correlations(frame: pd.DataFrame, variables: Sequence[str], method
     data = {v: pd.to_numeric(frame[v], errors="coerce").to_numpy(float) for v in cols}
     reps = _replicate_cube(frame, replicates, cols) if replicates is not None else {}
     want = VALIDATED_VARIANT[method]
+    cls_all = None
+    if coords is not None:
+        from . import small_spatial as ss
+        if "GEOID" not in frame:
+            raise ValueError("coords needs a GEOID column in the frame")
+        cls_all = ss.distance_classes(frame, coords)
     rows = []
     for i, a in enumerate(variables):
         for b in variables[i + 1:]:
@@ -291,10 +300,16 @@ def validated_correlations(frame: pd.DataFrame, variables: Sequence[str], method
             z = np.column_stack([data[c][ok] for c in controls]) if controls and method == "partial" else None
             rz = (np.stack([reps[c][ok] for c in controls], axis=1)[:, 0, :] if (z is not None and variant == 2) else None)
             try:
-                out = rm.correlation_interval(data[a][ok], data[b][ok], method, variant, confidence_level,
-                                              reps_x=reps[a][ok] if variant == 2 else None,
-                                              reps_y=reps[b][ok] if variant == 2 else None,
-                                              z=z, reps_z=rz)
+                if cls_all is not None and method != "partial":
+                    from . import small_spatial_core as ssc
+                    out = ssc.correlation_neff(data[a][ok], data[b][ok], method, cls_all[np.ix_(ok, ok)], variant,
+                                               reps[a][ok] if variant == 2 else None, reps[b][ok] if variant == 2 else None,
+                                               confidence_level)
+                else:
+                    out = rm.correlation_interval(data[a][ok], data[b][ok], method, variant, confidence_level,
+                                                  reps_x=reps[a][ok] if variant == 2 else None,
+                                                  reps_y=reps[b][ok] if variant == 2 else None,
+                                                  z=z, reps_z=rz)
             except ValueError as exc:
                 rows.append(dict(var_a=a, var_b=b, n=int(ok.sum()), estimate=math.nan, ci_lower=math.nan,
                                  ci_upper=math.nan, variant=variant, validated=False, note=str(exc)))
@@ -303,6 +318,11 @@ def validated_correlations(frame: pd.DataFrame, variables: Sequence[str], method
             note = "" if validated else (
                 "EXPLORATORY: needs ACS replicates for a validated interval" if variant != want else
                 "EXPLORATORY: partial correlation validated with one control")
-            rows.append(dict(var_a=a, var_b=b, n=int(ok.sum()), estimate=out["estimate"], ci_lower=out["lower"],
-                             ci_upper=out["upper"], variant=variant, validated=validated, note=note))
+            if cls_all is not None and method == "partial":
+                validated, note = False, "EXPLORATORY: no spatial correction for partial correlations (Round 48)"
+            row = dict(var_a=a, var_b=b, n=int(ok.sum()), estimate=out["estimate"], ci_lower=out["lower"],
+                       ci_upper=out["upper"], variant=variant, validated=validated, note=note)
+            if "n_eff" in out:
+                row["n_eff"] = out["n_eff"]
+            rows.append(row)
     return pd.DataFrame(rows)
