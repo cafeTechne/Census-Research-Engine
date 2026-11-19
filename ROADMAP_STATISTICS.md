@@ -283,7 +283,7 @@ version bump. Dependencies are noted; anything without one can move.
 | 36 | Composite indices and typologies | merged (v0.33.0) |
 | 37 | Agreement between sources | merged (v0.34.0) |
 | 38 | Meta-analysis, equivalence, power | merged (v0.35.0) |
-| 39 | MANOVA/MANCOVA, count families | proposed |
+| 39 | MANOVA/MANCOVA, count families | in progress |
 | 40 | Regression families (beta, quantile, ordinal, multinomial, GEE) | proposed |
 | 41 | Treatment effects, mediation, instrumental variables | proposed |
 | 42 | Missing data, censoring, time series | proposed |
