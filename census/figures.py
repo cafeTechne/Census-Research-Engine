@@ -320,7 +320,7 @@ def coefficient_plot(
         for i, m in enumerate(models):
             sub = values[values["model"] == m]
             # undefined uncertainty: draw the point without whiskers (never a zero-width interval)
-            err = np.nan_to_num(_err(sub["estimate"], sub["ci_lower"], sub["ci_upper"]), nan=0.0)
+            err = np.nan_to_num(_err(sub["estimate"], sub["ci_lower"], sub["ci_upper"]), nan=0.0, posinf=0.0, neginf=0.0)
             ax.errorbar(sub["estimate"].to_numpy(float), sub["position"].to_numpy(float),
                         xerr=err,
                         fmt=MARKERS[i % len(MARKERS)], color=SERIES_COLORS[i % len(SERIES_COLORS)],

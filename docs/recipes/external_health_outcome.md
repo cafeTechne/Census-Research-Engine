@@ -42,3 +42,7 @@ exclusive. Do not drop existing ACS uncertainty to force this fit.
 **Hidden WONDER counts (Round 42, exploratory).** `census.missing_censored_its.fit_censored_poisson` uses
 counties whose counts are hidden as 1-9 as interval information instead of dropping them; it never estimates
 or outputs a hidden value. Its interval under-covered slightly (.84-.86): use it as a sensitivity analysis.
+
+**Overdispersed counts in manifests (Round 43).** `fit_replicate` accepts `"model": "negbin"` for a
+`<name>_numerator` outcome with exposure `<name>_denominator`, the same way as Poisson; Poisson HC3
+under-covered with strong overdispersion in Round 39, so prefer NB2 for new registrations.

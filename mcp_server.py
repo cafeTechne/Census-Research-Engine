@@ -190,7 +190,7 @@ Round 35 spatial EIV: corrected (error-free) linear slopes when areas are spatia
 correlated: fit_model(method="eiv", spatial="clusters"|"error") or
 census.spatial_eiv.fit_spatial_eiv. Both passed (coverage .863-.918; 145 MI/NY counties;
 up to two error-prone covariates; reliability .7-.9); more error-prone covariates are
-exploratory. Not yet in manifests (fit_eiv spatial_clusters stays refused there).
+exploratory. In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
 R21b post hoc: H1 and H4 still hold under both.
 
 Round 36 composite indices (full profile tool build_index; recipe composite_index):
@@ -230,6 +230,15 @@ independent second measurement as instrument removes covariate attenuation (vali
 weak instruments flagged); mediation validated only with an exactly measured mediator
 (ACS mediator error drops coverage to .69-.72). State the assumptions; confirmatory causal
 claims need a registered design.
+
+Round 43 manifest options (opt-in; registered manifests unchanged): correlation_matrix
+args.interval "validated" uses the Round 33 intervals (Spearman/Kendall; Pearson/partial
+with one control need declared ACS replicates), and a pair the engine labels exploratory
+is not tested in a confirmatory run. fit_replicate args.model "negbin" with exposure
+(NB2-HC3, population target only; no weights, scale or spatial options; external WONDER
+counts allowed as for Poisson). fit_eiv args.spatial "clusters" (G1) or "error" (G2):
+unweighted OLS, no cluster/spatial_se/spatial_clusters; more than two error-prone
+covariates are not tested in a confirmatory run.
 
 Round 42: fit_model(impute="w") multiply imputes one incomplete covariate (20 draws, Rubin's
 rules; validated, also when missingness depends on the outcome). Exploratory library functions:

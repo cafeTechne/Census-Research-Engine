@@ -10,7 +10,7 @@ Multi-year panels are built from **concepts**, not raw variable codes. ACS codes
 
 | Interface | Entry point | Intended user |
 | :--- | :--- | :--- |
-| MCP server | `mcp_server.py` (63 tools; `--profile core` gives 14 for local models) | Agents in Claude Code, Claude Desktop, other MCP clients |
+| MCP server | `mcp_server.py` (70 tools; `--profile core` gives 16 for local models) | Agents in Claude Code, Claude Desktop, other MCP clients |
 | Command line | `python -m census <command> --json` | Agents and scripts without MCP |
 | Python library | `census` package (`plan_extraction`, `run_batch`) | Notebooks, pipelines |
 | Desktop GUI | `acs_downloader.py` (Tkinter) | Legacy point-and-click use; maintenance mode |
@@ -237,7 +237,7 @@ Models and figures that keep ACS sampling error in view, validated by simulation
 
 SIMEX is available but under-covers (0.81) and is not recommended for confirmatory use. Statistics use `scipy` and `statsmodels`; figures use `matplotlib`.
 
-**Local models.** `python mcp_server.py --profile core` serves a 14-tool profile with short descriptions, `summary`/`next_step` in every result, and step-by-step recipes (`get_recipe`). Qwen3 8B on CPU completed 5 of 6 evaluation tasks ([docs/audits/local_model_eval.md](docs/audits/local_model_eval.md)); setup in [docs/local_models.md](docs/local_models.md).
+**Local models.** `python mcp_server.py --profile core` serves a 16-tool profile (14 when the evaluation below ran) with short descriptions, `summary`/`next_step` in every result, and step-by-step recipes (`get_recipe`). Qwen3 8B on CPU completed 5 of 6 evaluation tasks ([docs/audits/local_model_eval.md](docs/audits/local_model_eval.md)); setup in [docs/local_models.md](docs/local_models.md).
 
 ## Geography, maps, and spatial analysis
 
@@ -336,7 +336,7 @@ census/
   workflows.py     File-level workflows shared by the MCP server and CLI
   panel.py         Slugs, codebooks, tidy panels, Parquet
   geo.py, tables.py, export.py, errors.py, __main__.py (CLI)
-mcp_server.py      MCP server (instructions + 32 tools)
+mcp_server.py      MCP server (instructions + 70 tools)
 acs_downloader.py  Tkinter GUI (maintenance mode)
 metadata/          Per-vintage ACS metadata archive with manifest
 crosswalks/        Reviewed concordance overrides and their evidence

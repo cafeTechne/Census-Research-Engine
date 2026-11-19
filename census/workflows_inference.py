@@ -608,6 +608,13 @@ def estimate_effect(
     """
     from census import causal
 
+    needs = {"treatment": {"treatment": treatment, "confounders": confounders},
+             "iv": {"x": x, "instrument": instrument}, "mediation": {"x": x, "mediator": mediator}}
+    if kind not in needs:
+        return _fail(errors.INVALID_INPUT, "kind must be 'treatment', 'iv' or 'mediation'.")
+    missing = [k for k, v in needs[kind].items() if not v]
+    if missing:
+        return _fail(errors.INVALID_INPUT, f"kind={kind!r} needs {missing}.", f"pass {', '.join(missing)}, then retry")
     reps = _read_replicates(replicates_path) if replicates_path else None
     try:
         frame = _load_frame(input_path)
@@ -623,7 +630,7 @@ def estimate_effect(
             e = out["indirect"]; summary = f"Indirect effect {e['estimate']:.4g} ({e['lower']:.4g} to {e['upper']:.4g})."
         else:
             return _fail(errors.INVALID_INPUT, "kind must be 'treatment', 'iv' or 'mediation'.")
-    except (_INPUT_ERRORS + (AttributeError,)) as exc:
+    except _INPUT_ERRORS as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}", "check the columns for this kind, then retry")
     from census.results import _jsonable
     return _ok(summary + (" Validated." if out["validated"] else " Exploratory: see notes."),

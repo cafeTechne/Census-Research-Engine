@@ -5,6 +5,21 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.40.0 (Round 43): manifest routing and housekeeping
+
+- Manifests can opt in to methods validated in Rounds 33, 35 and 39: `correlation_matrix`
+  `args.interval: "validated"`, `fit_replicate` `args.model: "negbin"` (NB2-HC3) and `fit_eiv`
+  `args.spatial: "clusters" | "error"`. `validate_manifest` refuses each outside its validated range;
+  exploratory correlation pairs and spatial EIV with more than two error-prone covariates are not tested
+  in confirmatory runs. Registered manifests and both goldens are unchanged.
+- Saturated fits (residual df 0) report missing, not infinite, model SEs; the coefficient plot no longer
+  crashes on them (STATUS backlog 7).
+- Core-profile MCP instructions rewritten compactly (12,480 to under 4,000 characters, test-bounded at
+  8,000); tool counts in README, STATUS and `docs/local_models.md` corrected and tested.
+- `estimate_effect` names missing arguments instead of catching `AttributeError`; `impute_and_fit` draws
+  the imputations once for all terms (identical results); 2SLS reports the first-stage F and says the
+  weak-instrument cut-off is not yet validated.
+
 ## 0.39.0 (Round 42): missing data, censored counts and interrupted series
 
 Released as one bundle (owner decision, 2026-11-19): tag `v0.39.0` contains Rounds 31–42.

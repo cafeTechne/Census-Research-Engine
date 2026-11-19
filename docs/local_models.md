@@ -7,8 +7,8 @@ The MCP server is standard MCP over stdio with plain JSON results, so any MCP-ca
 | Profile | Tools | Use for |
 | :--- | :--- | :--- |
 | `full` (default) | every tool, full descriptions | frontier models, Claude Code |
-| `core` | 14 tools: `get_recipe`, `search_tables`, `describe_variable`, `plan_extraction`, `download_table`, `derive_estimate`, `calculate_significance`, `trend_test`, `minimum_detectable_difference`, `build_analysis_frame`, `fit_model`, `make_figure`, `make_map`, `run_manifest` | local models |
-| `core_spatial` | `core` plus `spatial_autocorrelation` (15 tools), same short descriptions | local models doing spatial work; the evaluation's spatial task |
+| `core` | 16 tools: `get_recipe`, `search_tables`, `describe_variable`, `plan_extraction`, `download_table`, `derive_estimate`, `calculate_significance`, `trend_test`, `minimum_detectable_difference`, `build_analysis_frame`, `fit_model`, `compare_groups`, `test_association`, `make_figure`, `make_map`, `run_manifest` | local models |
+| `core_spatial` | `core` plus `spatial_autocorrelation` (17 tools), same short descriptions | local models doing spatial work; the evaluation's spatial task |
 | `review` | concordance and rule review tools | reviewer agents |
 
 Select a profile with a flag or an environment variable (the flag wins):

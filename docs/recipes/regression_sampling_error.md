@@ -49,3 +49,9 @@ target (`docs/audits/beta_median_validation.md`).
 
 **Missing covariates (Round 42).** If one covariate is missing for some areas, `fit_model(..., impute="w")`
 multiply imputes it (validated). Dropping those areas can bias slopes when missingness depends on the outcome.
+
+**In pre-registered manifests (Round 43).** Counts: `fit_replicate` with `"args": {"model": "negbin",
+"exposure": "<denominator>"}` (NB2-HC3, population target). Corrected slopes with spatial dependence:
+`fit_eiv` with `"args": {"spatial": "clusters"}` (eight fixed clusters, t(7)) or `{"spatial": "error"}`
+(spatial-error whitening), up to two error-prone covariates. `validate_manifest` refuses the options
+outside their validated range.

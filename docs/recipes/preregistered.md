@@ -17,3 +17,7 @@ Worked example on real data (two states, RPP-adjusted): docs/case_study_mi_ny.md
 Worked example across releases (two states, CPI- and RPP-adjusted, Census VRE replicates): docs/case_study_mi_ny.md section 8 runs examples/manifests/mi_ny_income_change.json.
 
 Worked example (synthetic, offline, executable): docs/reference_workflow.md runs examples/manifests/income_population_tracts.json end to end, including a rerun check and a blocked incomplete-replicates case.
+
+**Validated options added in Round 43.** `correlation_matrix` `"interval": "validated"`,
+`fit_replicate` `"model": "negbin"` and `fit_eiv` `"spatial": "clusters" | "error"`; see the
+`rank_methods` and `regression_sampling_error` recipes.
