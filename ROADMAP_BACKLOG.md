@@ -34,6 +34,9 @@ implementing Rounds 31–42. The second group was never collected in one place; 
 | N13 | HKSJ meta-analysis validated only for k ≤ 4; DerSimonian–Laird failed; Bland–Altman limits and CCC failed | R37, R38 | failed method | 48 |
 | N14 | Statsmodels-based tools (treatment effects, beta, median, count models) take no survey weights; PUMS ordinal, multinomial, weighted-quantile models and GEE were deferred | R40, R41 | missing capability | 49 |
 | N15 | Validations are MI/NY-specific (145 counties, the R26 cluster assignment); none of Rounds 31–42 was re-checked on OH/PA | R31–R42 | external validity | 44 |
+| N17 | Pooled k-means clusters can straddle adjacent states (OH/PA), leaving a state term partly constant; the engine now flags it, but has no state-respecting option | R44 | missing capability | 45 |
+| N18 | NB2 alpha's default optimizer fails on large counts with little overdispersion (real WONDER data); fixed with a Nelder–Mead fallback | R44 | code (fixed) | 44 |
+| N19 | Naive IM-8 (Round 30 C1) failed the OH/PA re-check with spatially correlated fields; corrected G1/G2 replicated | R44 | external validity | 45 |
 | N16 | ZIP and beta model-based SEs failed; Kruskal–Wallis passed but rank bootstrap (R34 R3) failed | R34, R39, R40 | failed method (low priority) | not planned |
 
 Pre-Round-31 backlog items (STATUS "Open backlog"): 1 spatial routing and GLM EIV, 2 NB2 for R29,
@@ -46,7 +49,7 @@ saturated-model bundle crash.
 | Round | Theme | Covers | Status |
 | :--- | :--- | :--- | :--- |
 | 43 | Manifest routing and housekeeping | backlog 1 (routing), 2 (manifest NB2), 3, 7; N1–N4 | merged (v0.40.0) |
-| 44 | Post hoc sensitivity and replication checks | backlog 2 (R29 NB2), N11, N15 | in progress |
+| 44 | Post hoc sensitivity and replication checks | backlog 2 (R29 NB2), N11, N15 | merged (v0.41.0) |
 | 45 | Count-model repairs | N9; NB2 with IM-8 clusters; Poisson-offset uncertainty (backlog 1) | proposed |
 | 46 | Measurement-error-corrected GLM slopes | backlog 1 and 4; linear EIV with 3–4 error-prone covariates | proposed |
 | 47 | Causal and missing-data robustness | N5–N8 | proposed |

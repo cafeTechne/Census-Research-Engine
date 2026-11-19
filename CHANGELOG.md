@@ -5,6 +5,18 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.41.0 (Round 44): Round 29 under NB2 and an OH/PA re-check of the spatial validations
+
+- Post hoc (author self-review): Round 29's H1–H3 hold under NB2-HC3 in MI/NY and OH/PA; an exploratory
+  interval-censored fit of H2's hidden counts gives the same slope. Registered results unchanged.
+- OH/PA re-check (criterion `09ecd91`; state-respecting eight-cluster geometry, 155 counties): the
+  corrected-slope G1/G2 replicate (.863–.921); naive IM-8 C1 fails with spatially correlated fields
+  (.70–.85; independent cells .89–.91). IM-8 fits outside MI/NY and clusters crossing state borders now
+  carry notes.
+- NB2 alpha falls back to Nelder–Mead when BFGS fails (found on real WONDER counts); identical results
+  whenever BFGS converges.
+- STATUS "Current release" corrected to v0.39.0.
+
 ## 0.40.0 (Round 43): manifest routing and housekeeping
 
 - Manifests can opt in to methods validated in Rounds 33, 35 and 39: `correlation_matrix`

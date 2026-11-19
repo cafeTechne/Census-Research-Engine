@@ -46,3 +46,8 @@ or outputs a hidden value. Its interval under-covered slightly (.84-.86): use it
 **Overdispersed counts in manifests (Round 43).** `fit_replicate` accepts `"model": "negbin"` for a
 `<name>_numerator` outcome with exposure `<name>_denominator`, the same way as Poisson; Poisson HC3
 under-covered with strong overdispersion in Round 39, so prefer NB2 for new registrations.
+
+**Round 29 under NB2 (Round 44, post hoc).** All three Round 29 associations hold with NB2-HC3 in MI/NY
+and OH/PA (`docs/studies/r44_posthoc_r29.md`), so the Round 39 Poisson caveat does not change them. For
+spatial inference outside MI/NY, prefer the corrected-slope `fit_eiv` `spatial` options (replicated on
+OH/PA); naive IM-8 failed the OH/PA re-check with spatially correlated fields.

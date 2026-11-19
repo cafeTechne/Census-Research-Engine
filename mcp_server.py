@@ -146,7 +146,10 @@ exclusive with spatial_clusters. Labels are fixed before complete-case filtering
 Whole terms constant within every cluster are absorbed by cluster intercepts,
 reported not estimable and cannot be tested. Partial constancy is refused.
 R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
-author self-review, not independent. OH/PA is outside this validation geometry.
+author self-review, not independent. Round 44 re-ran the C1 design on OH/PA: it held with
+independent areas but under-covered with spatially correlated fields (.70-.85), so C1 is
+exploratory outside MI/NY (results carry a note); clusters crossing a state border are flagged.
+The corrected-slope G1/G2 replicated on OH/PA (docs/audits/ohpa_revalidation.md).
 See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
 Round 31 group comparisons: compare_groups (recipe group_comparison) runs t-tests,

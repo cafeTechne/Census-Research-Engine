@@ -672,6 +672,8 @@ def fit_replicate(
             notes.append("Independent ACS error enters between-cluster spread; ACS replicates are not added to se_cluster_mean. Population target only; docs/audits/im_acs_validation.md.")
             if cluster_info['not_estimable_terms']:
                 notes.append(f"Within-cluster constant nuisance terms absorbed by cluster intercepts, not estimable under IM: {cluster_info['not_estimable_terms']}")
+            from .spatial_clusters import geography_notes
+            notes.extend(geography_notes(cluster_assignment))
         elif spatial_clusters["method"] in ("im", "wcr"):
             notes.append("ACS sampling error is not included. IM's cluster-mean SE / WCR test cannot be combined with ACS replicates.")
         if spatial_clusters["method"] == "im":
