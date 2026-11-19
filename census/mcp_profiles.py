@@ -232,7 +232,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    equates to a zero true slope only with a single error-prone covariate and errors
    independent of the outcome's error; do not extend that claim to noisy controls.
    Poisson exposure/expected-death offsets remain fixed.
-   
+
    C2 IM-EIV failed (unstable corrected moment matrices) and stays refused, even
    in exploratory manifests; never substitute C1 for registered EIV without a new
    specification. WLS remains unsupported. Only k=8 passed. CR1/WCR refusals remain.
@@ -244,7 +244,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
    author self-review, not independent. OH/PA is outside this validation geometry.
    See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
-   
+
 10. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed

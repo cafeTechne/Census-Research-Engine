@@ -203,11 +203,11 @@ cached analysed-file hashes first. Registered outputs are not changed.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Baseline suite | | |
-| Criterion commit, `β*` values | | |
-| C1 linear / C1 binomial / C1 Poisson / C2 results | | |
-| Engine gates and tests | | |
-| Post hoc R21b / R22 / R29 MI/NY | | |
-| Golden changes | | |
-| Final suite | | |
-| Exceptions | | |
+| Baseline suite | Recorded | v0.26.0 baseline 1860 passed / 37 skipped; initial target file absent, then created. |
+| Criterion commit, `β*` values | Frozen | `2774140` committed/pushed before full run; 12 references of 400,000 areas; no changes. Two-draw smoke, no audit files. |
+| C1 linear / C1 binomial / C1 Poisson / C2 results | Complete | C1 passed: .8790–.9130 / .8690–.9060 / .8695–.9235. C2 failed: .0695–.9035. |
+| Engine gates and tests | Complete | C1 OLS/binomial/Poisson enabled; C2 refused. 26 new offline tests; constant terms absorbed/not estimable; no additive ACS SE. |
+| Post hoc R21b / R22 / R29 MI/NY | Complete | R21b unavailable; R22 H1/H2 retained; R29 H1/H3 retained, H2 not (Holm .169). Hash-verified, HTTP blocked; R29 disclosure/key scans pass. |
+| Golden changes | None | 640 schema snapshots / 14 manifests and all 29 run scenarios byte-identical; see compatibility audit. |
+| Final suite | Passed | 1886 passed, 37 skipped, 4 warnings, 50 subtests; 0 failures. 26 new tests (baseline 1860/37). |
+| Exceptions | Recorded | Positive EIV end-to-end check unavailable because C2 failed. Final constant-nuisance fix follows post hoc commit, without altering its fits or rewriting history. No private WONDER checkout access. |
