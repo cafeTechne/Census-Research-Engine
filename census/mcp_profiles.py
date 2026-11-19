@@ -316,7 +316,14 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      limits of agreement (observed and error-free) and Lin's concordance correlation are reported,
      but their intervals failed (exploratory): differences of noisy estimates are heavy-tailed.
 
-17. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+17. Round 38 combining evidence (full profile tool combine_estimates; recipe
+     combine_estimates): pooling uses Paule-Mandel + Hartung-Knapp (validated for up to 4
+     estimates); the fixed-effect interval only if homogeneity is declared in advance;
+     DerSimonian-Laird under-covers with heterogeneity. TOST equivalence (margin set in
+     advance) and z-test power/minimum detectable effects are validated. Pooling states is a
+     new analysis, never a reinterpretation of a registered study.
+
+18. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
@@ -329,7 +336,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-18. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+19. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts

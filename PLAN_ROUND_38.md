@@ -50,9 +50,9 @@ STATUS, CHANGELOG, version 0.35.0, section 8.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit | | |
-| M1–M3 / E1 / P1 results | | |
-| Engine, tool, tests | | |
-| Example | | |
+| Criterion commit | `3edd5f4` | Pushed before the full run. |
+| M1–M3 / E1 / P1 results | Mixed | HKSJ k≤4, fixed (homogeneous), TOST, power pass; DL fails. |
+| Engine, tool, tests | Done | census.evidence, combine_estimates tool; 6 tests. |
+| Example | Done | R29 replications pooled. |
 | Goldens, final suite | | |
-| Exceptions | | |
+| Exceptions | None | |
