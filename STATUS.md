@@ -54,6 +54,7 @@ manifests refuse them in confirmatory analyses.
 | Poisson–Gamma descriptive EB rate smoothing | **Passed** fixed 90% area-average criterion: posterior 0.8813–0.9000 (default); Laird–Louis 0.8718–0.8914 in six required cells. Fixed E/rates, independent areas; [1,9] censoring; 200 bootstrap refits for LL | `eb_rate_validation.md`, criterion `d4dec47` |
 | Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. `joint_wald` stays exploratory; binomial/Poisson splines are confirmatory only with `joint_test` (Round 31) | `joint_wald_validation.md`, criterion `376ce69` |
 | Joint (omnibus) tests: `joint_test` | **Passed selected** (nominal .10 size in [.07,.13]): wild score bootstrap for OLS factor tests (.098–.110) and binomial/Poisson spline tests (.072–.103); IM-8 Hotelling for OLS/Poisson factor tests (.093–.103). F references failed everywhere. n = 145; other combinations exploratory | `omnibus_validation.md`, criterion `3e3094a` |
+| Rank/partial correlation and rank group tests | **Passed selected** (coverage ≥ .86, independent areas): Spearman and Kendall Fisher-type intervals; Pearson and partial (one control) only with the ACS replicate variance added (plain Fisher-z under-covered, .84); Brunner–Munzel superiority; Kruskal–Wallis size .095–.106. All correlation intervals under-cover with spatial dependence (.60–.89). **Manifest `correlation` statistics still use the plain Fisher-z interval (not validated for Pearson)** | `rank_validation.md`, criterion `f660e9c` |
 | PUMS design-based tests (`test_association`) | **Passed selected**: first-order Rao–Scott for tables up to 3 × 4 (size .097–.115); k-group mean tests (design F, z); differences, OR, RR, mean/median differences (coverage .877–.913); Korn–Graubard proportions (.902–.947). Design-blind Pearson (.13–.53) and Wald proportions (.848) failed. Medians of heaped values exploratory | `pums_tests_validation.md`, criterion `d65d034` |
 | Pairwise post hoc (`compare_groups`) | **Passed**: Holm for OLS/binomial/Poisson (FWER ≤ .117); simultaneous max-\|t\| for OLS only (.067–.070) | `omnibus_validation.md` |
 | County segregation, two groups: D / isolation / H | **Passed selected variants**: naive D .898–.911; corrected isolation .877–.901; corrected H .896–.961. Corrected D and naive isolation/H failed. Strict 80 replicates; CV .15 fixed design; multigroup H exploratory. **Range gate:** a county with any tract group-count CV > .15 is exploratory and confirmatory tests on it are refused; no MI/NY county's 2018–2022 white/Black tract counts meet it, so segregation is effectively exploratory | `segregation_validation.md`, criterion `4791763` |
@@ -109,6 +110,13 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
+**Round 33 (v0.30.0; merged, release pending owner approval; implemented by the maintainer agent):**
+rank methods and diagnostics. Criterion `f660e9c` pushed before the 8-cell run. New
+`census.rank_methods`, `correlation.validated_correlations` (Kendall, partial), `compare_groups`
+method `rank`, `census.diagnostics` (VIF, Cook's distance, Breusch–Pagan, RESET; information only),
+recipe `rank_methods`. Manifests unchanged (goldens identical); moving manifest correlation intervals
+to the validated variants is backlog.
+
 **Round 32 (v0.29.0; merged, release pending owner approval; implemented by the maintainer agent):**
 design-based PUMS tests. Criterion `d65d034` pushed before the 8-cell run (household clustering,
 weight CV, sample size; ACS-style SDR replicate weights). New `census.pums_inference`, MCP core tool
@@ -158,6 +166,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 33 | Rank methods on MI/NY county poverty (exploratory example) | Nonmetro > large-metro poverty: superiority 0.72 (0.61–0.83); Kruskal–Wallis p = .001; Bronx most influential in the ANCOVA; `r33_rank_methods_example.md` |
 | 32 | Disability, insurance, poverty and earnings, MI PUMS (exploratory example) | Poverty OR 3.15 (3.04–3.26) with vs without disability; insurance type differs (Rao–Scott, design effect 3.15); median earnings difference not estimable with replicate SEs (heaped); `r32_pums_tests_example.md` |
 | 31 | County poverty by metro class (exploratory example) | Nonmetro poverty higher than large and other metro (joint p = .010; ANCOVA .005); IM-8 unavailable (groups missing from clusters); `r31_group_comparison_example.md` |
 | 30 | Post hoc IM/ACS checks | R21b unavailable (C2 failed); R22 H1/H2 retained; R29 MI/NY H1/H3 retained, H2 not retained (Holm p=.169); `r30_posthoc_im_acs.md` |
@@ -169,13 +178,16 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
    unresolved: spatial random effects are next for that target. No extra cluster counts or retuned
    simulations were tried. Do not substitute naive C1 for registered EIV. Validation is MI/NY-specific;
    OH/PA was not re-checked. Fixed Poisson-offset uncertainty and GLM measurement-error bias remain.
-2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
-3. Held-out OH/PA mortality replication completed in Round 29 under the unchanged registered protocol;
+2. Manifest `correlation` statistics use the plain Fisher-z interval; Round 33 found it valid for
+   Spearman/Kendall but not Pearson/partial without replicate variance. Move manifests to
+   `validated_correlations` (additive golden change) in a later round.
+3. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
+4. Held-out OH/PA mortality replication completed in Round 29 under the unchanged registered protocol;
    all three associations replicate, including both H2 suppression sensitivities. All 62 manual WONDER
    exports pass inventory. Later causes with suppressed national child-age reference cells need a
    separately pre-registered rule before analysis; do not replace them by zero, an invented count or
    an unregistered pooling rule. The 2013–2017 and MCD files remain inventory-only.
-4. Further validation: Round 28 delivered two-group segregation defaults and SMR
+5. Further validation: Round 28 delivered two-group segregation defaults and SMR
    Poisson reference-rate uncertainty. Segregation is validated only for tract
    group-count CV <= .15, which real MI/NY counties do not meet: a realistic-error
    validation (heterogeneous CVs from real tract MOEs, non-negative counts,
@@ -184,7 +196,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
    separate coverage studies. Round 27 splines/joint tests remain exploratory and require a
    separately pre-specified finite-sample validation before confirmatory use.
    Not yet planned: microdata inequality measures.
-5. Saturated-model results bundles (Round 25 observation): a two-observation, two-coefficient OLS
+6. Saturated-model results bundles (Round 25 observation): a two-observation, two-coefficient OLS
    fit can crash while plotting the bundle (`ValueError: arange: cannot compute length`). Preserve
    estimable coefficients, explicitly mark unavailable uncertainty when residual degrees of freedom
    are zero, and skip or adapt plots requiring finite intervals. Add a regression ensuring the bundle

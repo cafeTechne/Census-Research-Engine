@@ -123,7 +123,7 @@ Priority: **H** high value for public-health county work, **M** useful, **L** la
 | Penalised splines (revisit Round 27) | `gam.api.GLMGam`, `BSplines` | A | L | 40 |
 | Treatment effects (IPW, AIPW, regression adjustment) | `treatment.treatment_effects.TreatmentEffect` | A, B | M | 41 |
 | Mediation | `stats.mediation.Mediation` | A, B | M | 41 |
-| Instrumental variables (measurement error in GLM covariates, backlog item 2) | `sandbox.regression.gmm.IV2SLS` | A | M | 41 |
+| Instrumental variables (measurement error in GLM covariates, STATUS backlog) | `sandbox.regression.gmm.IV2SLS` | A | M | 41 |
 | Multiple imputation | `imputation.mice.MICE` (never for WONDER suppressed counts in outputs) | A, B | M | 42 |
 | Time series / interrupted series | `tsa.statespace.SARIMAX` (state or national series only) | C | L | 42 |
 
@@ -258,7 +258,7 @@ version bump. Dependencies are noted; anything without one can move.
 - **Methods:** propensity-score treatment effects (IPW, AIPW, regression adjustment) for area-level
   exposures (for example a state policy), with overlap and balance diagnostics; mediation (for
   example poverty → uninsurance → mortality) with its sequential-ignorability caveat; instrumental
-  variables for error-prone covariates (backlog item 2: measurement error in GLMs).
+  variables for error-prone covariates (STATUS backlog: measurement error in GLMs).
 - **Rules:** causal language only with stated assumptions; DiD (existing) stays the default for policy
   timing; R1/R2 circularity checks apply to mediators.
 - **Ships:** `estimate_effect`. Validation: coverage of the effect under the assumptions, and
@@ -277,7 +277,7 @@ version bump. Dependencies are noted; anything without one can move.
 | :--- | :--- | :--- |
 | 31 | Omnibus tests, ANOVA/ANCOVA, t-tests (area) | merged (PR #29, v0.28.0) |
 | 32 | PUMS design-based tests | merged (PR #30, v0.29.0) |
-| 33 | Rank methods and diagnostics | in progress |
+| 33 | Rank methods and diagnostics | merged (v0.30.0) |
 | 34 | Ranking areas, simultaneous comparisons | proposed |
 | 35 | Spatial random effects | proposed (backlog item 1) |
 | 36 | Composite indices and typologies | proposed |

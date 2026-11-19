@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.30.0 (Round 33): rank methods and model diagnostics
+
+- Freeze procedures, script, criterion and 400,000-area reference targets at `f660e9c` before the
+  8-cell run (correlation 0/0.4 × reliability 0.9/0.7 × independent/spatial fields).
+- Passed: Spearman and Kendall Fisher-type intervals; Pearson and partial (one control) intervals
+  with the ACS replicate variance added; Brunner–Munzel superiority; Kruskal–Wallis. Failed: plain
+  Fisher-z Pearson and partial intervals (.84). All correlation intervals under-cover with spatial
+  dependence.
+- New `census.rank_methods`, `correlation.validated_correlations` (methods pearson, spearman,
+  kendall, partial; `validated_intervals` in the MCP correlation tool), `compare_groups(method="rank")`,
+  `census.diagnostics.model_diagnostics` (attached to OLS `fit_model` and `compare_groups`), recipe
+  `rank_methods`. Manifests unchanged.
+- Exploratory MI/NY example (`docs/studies/r33_rank_methods_example.md`).
+
 ## 0.29.0 (Round 32): design-based PUMS tests
 
 - Freeze procedures, script, criterion and 2,000,000-household reference targets at `d65d034` before

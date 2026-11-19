@@ -83,9 +83,9 @@ changes (then only additive). Full suite, STATUS, CHANGELOG, version 0.30.0. Com
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit, targets | | |
-| Correlation / partial / B / KW results | | |
-| Engine, diagnostics, tests | | |
-| Example | | |
+| Criterion commit, targets | `f660e9c` | Pushed before the full run. |
+| Correlation / partial / B / KW results | Done | Spearman/Kendall v1, Pearson/partial v2, B1, KW pass; Pearson/partial v1 fail. |
+| Engine, diagnostics, tests | Done | validated_correlations (separate function: correlation_matrix and manifests unchanged), rank compare_groups, diagnostics; 8 tests. |
+| Example | Done | Uses the Round 31 example frame. |
 | Goldens, final suite | | |
-| Exceptions | | |
+| Exceptions | Recorded | Kendall interval form corrected to Fieller-Hartley-Pearson before the freeze; manifest correlation intervals left for a later round (backlog). |
