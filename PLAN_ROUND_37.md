@@ -51,9 +51,9 @@ audit, tool offline. Goldens unchanged; full suite; STATUS, CHANGELOG, version 0
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit, targets | | |
-| B0–B2 / C1–C2 / K1 results | | |
-| Engine, tool, tests | | |
-| Example | | |
+| Criterion commit, targets | `e6d4be6` | Pushed before the full run; δ added before freezing. |
+| B0–B2 / C1–C2 / K1 results | Mixed | B0, K1 passed; B1, B2, C1, C2 failed. |
+| Engine, tool, tests | Done | check_agreement library and tool; 5 tests. |
+| Example | Done | ACS vs population estimates. |
 | Goldens, final suite | | |
-| Exceptions | | |
+| Exceptions | Recorded | Design change (δ) before freezing. |

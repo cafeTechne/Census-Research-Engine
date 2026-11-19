@@ -458,6 +458,40 @@ def build_index(
                **_jsonable(out))
 
 
+def check_agreement(
+    input_path: str,
+    a: str,
+    b: str,
+    replicates_path: Optional[str] = None,
+    a_se: Optional[str] = None,
+    b_se: Optional[str] = None,
+) -> Dict[str, Any]:
+    """How well do two sources of the same quantity agree (e.g. ACS vs PLACES, ACS vs
+    population estimates)? Bias (b minus a), Cohen's kappa of quintile classes, limits of
+    agreement and concordance, for the observed and (with SEs) the error-free values.
+
+    Args:
+        input_path: Frame with both columns, one row per area.
+        a, b: The two sources' columns (difference = b - a).
+        replicates_path / a_se / b_se: Standard errors (needed for error-free quantities).
+    Validated: bias and kappa. Limits and concordance intervals failed validation (exploratory).
+    Example: check_agreement("frame.parquet", "acs_population", "pep_population")
+    """
+    from census.agreement import check_agreement as _check
+
+    try:
+        out = _check(_load_frame(input_path), a, b, a_se=a_se, b_se=b_se,
+                     replicates=_read_replicates(replicates_path) if replicates_path else None)
+    except _INPUT_ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}", "check both column names, then retry")
+    from census.results import _jsonable
+    bias, kap = out["bias"], out["kappa_quintiles"]
+    return _ok(f"{b} minus {a}: bias {bias['estimate']:.4g} ({bias['lower']:.4g} to {bias['upper']:.4g}); "
+               f"quintile kappa {kap['estimate']:.2f}.",
+               "report bias and kappa; treat limits of agreement and concordance intervals as exploratory",
+               **_jsonable(out))
+
+
 def small_area_estimates(
     input_path: str,
     formula: str,

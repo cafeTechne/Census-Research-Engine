@@ -311,7 +311,12 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      dependence). Quintile stability and typologies are descriptive. An outcome cannot be an
      indicator of the index used to explain it (circularity).
 
-16. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+16. Round 37 agreement (full profile tool check_agreement; recipe agreement): bias (b - a)
+     and Cohen's kappa of quintile classes passed validation for independent areas. Bland-Altman
+     limits of agreement (observed and error-free) and Lin's concordance correlation are reported,
+     but their intervals failed (exploratory): differences of noisy estimates are heavy-tailed.
+
+17. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
@@ -324,7 +329,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-17. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+18. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts
