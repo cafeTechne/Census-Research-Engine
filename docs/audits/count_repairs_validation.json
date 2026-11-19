@@ -1,0 +1,215 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "kind": "K1",
+      "parameters": {
+        "median": 10,
+        "shape": 4.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "K1a": 0.8925,
+        "K1b": 0.841,
+        "K1c": 0.8685
+      },
+      "failed": {
+        "K1a": 0,
+        "K1b": 0,
+        "K1c": 0
+      },
+      "seconds": 51.1433687210083
+    },
+    {
+      "cell": 1,
+      "kind": "K1",
+      "parameters": {
+        "median": 10,
+        "shape": 1.5
+      },
+      "draws": 2000,
+      "coverage": {
+        "K1a": 0.8775,
+        "K1b": 0.841,
+        "K1c": 0.8775
+      },
+      "failed": {
+        "K1a": 0,
+        "K1b": 0,
+        "K1c": 0
+      },
+      "seconds": 43.5657000541687
+    },
+    {
+      "cell": 2,
+      "kind": "K1",
+      "parameters": {
+        "median": 30,
+        "shape": 4.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "K1a": 0.898,
+        "K1b": 0.8625,
+        "K1c": 0.8575
+      },
+      "failed": {
+        "K1a": 0,
+        "K1b": 0,
+        "K1c": 0
+      },
+      "seconds": 48.17800760269165
+    },
+    {
+      "cell": 3,
+      "kind": "K1",
+      "parameters": {
+        "median": 30,
+        "shape": 1.5
+      },
+      "draws": 2000,
+      "coverage": {
+        "K1a": 0.869,
+        "K1b": 0.8265,
+        "K1c": 0.8305
+      },
+      "failed": {
+        "K1a": 0,
+        "K1b": 0,
+        "K1c": 0
+      },
+      "seconds": 43.69541549682617
+    },
+    {
+      "cell": 4,
+      "kind": "K2",
+      "parameters": {
+        "median": 10,
+        "range_km": 0
+      },
+      "draws": 2000,
+      "coverage": {
+        "K2a": 0.909,
+        "K2b": 0.9035,
+        "K2c": 0.884
+      },
+      "failed": {
+        "K2a": 0,
+        "K2b": 0,
+        "K2c": 0
+      },
+      "seconds": 30.40921902656555
+    },
+    {
+      "cell": 5,
+      "kind": "K2",
+      "parameters": {
+        "median": 10,
+        "range_km": 100
+      },
+      "draws": 2000,
+      "coverage": {
+        "K2a": 0.9055,
+        "K2b": 0.894,
+        "K2c": 0.8045
+      },
+      "failed": {
+        "K2a": 0,
+        "K2b": 0,
+        "K2c": 0
+      },
+      "seconds": 29.867562770843506
+    },
+    {
+      "cell": 6,
+      "kind": "K2",
+      "parameters": {
+        "median": 30,
+        "range_km": 0
+      },
+      "draws": 2000,
+      "coverage": {
+        "K2a": 0.9045,
+        "K2b": 0.8965,
+        "K2c": 0.8775
+      },
+      "failed": {
+        "K2a": 0,
+        "K2b": 0,
+        "K2c": 0
+      },
+      "seconds": 30.172963619232178
+    },
+    {
+      "cell": 7,
+      "kind": "K2",
+      "parameters": {
+        "median": 30,
+        "range_km": 100
+      },
+      "draws": 2000,
+      "coverage": {
+        "K2a": 0.8955,
+        "K2b": 0.9045,
+        "K2c": 0.795
+      },
+      "failed": {
+        "K2a": 0,
+        "K2b": 0,
+        "K2c": 0
+      },
+      "seconds": 29.56974720954895
+    },
+    {
+      "cell": 8,
+      "kind": "K3",
+      "parameters": {
+        "c": 0.05
+      },
+      "draws": 2000,
+      "coverage": {
+        "K3a": 0.891,
+        "K3b": 0.855
+      },
+      "failed": {
+        "K3a": 0,
+        "K3b": 0
+      },
+      "seconds": 6.766329765319824
+    },
+    {
+      "cell": 9,
+      "kind": "K3",
+      "parameters": {
+        "c": 0.15
+      },
+      "draws": 2000,
+      "coverage": {
+        "K3a": 0.8875,
+        "K3b": 0.8325
+      },
+      "failed": {
+        "K3a": 0,
+        "K3b": 0
+      },
+      "seconds": 6.793109178543091
+    }
+  ],
+  "passed": {
+    "K1a": true,
+    "K2a": true,
+    "K2b": true,
+    "K3a": true
+  },
+  "draws_per_cell": 2000,
+  "criterion": "90% coverage of the true slope 0.3 >= .86 in every cell of the problem, per procedure; failed fits count as non-coverage; K1b, K1c, K2c, K3b are comparisons",
+  "criterion_commit": "0c368dd",
+  "frozen_sha256": {
+    "scripts/count_repairs_validation.py": "ee8d53593940f4a0529753605472eaf69163f210a082bfd1f647645fe26d9862",
+    "census/count_repairs_core.py": "48a47b6fcfd65f760b0f201262d2319674eec457d4dd81c1fb2de7ec04d49deb",
+    "census/mci_core.py": "d31a846cd90b890192ed107dac4c665efb30f56d61f466ec98638021972d9944",
+    "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+    "docs/audits/count_repairs_validation_criterion.md": "9f25db56e360eb524e5c2b0e4846df24e628467a80610db8139843836ca49dd2",
+    "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f"
+  }
+}

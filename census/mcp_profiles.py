@@ -239,7 +239,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      with replicates. Independent areas only (spatial dependence breaks every interval).
    - rank_areas [full]: report rank intervals, never point ranks.
    - fit_model: method="eiv" with spatial="clusters"|"error" (corrected slopes, <=2 noisy
-     covariates); model="negbin" for counts (Poisson HC3 under-covers when overdispersed);
+     covariates); model="negbin" for counts (Poisson HC3 under-covers when overdispersed;
+     spatial="clusters" gives IM-8 count slopes);
      model="beta" for shares; model="median"; impute="w" for one incomplete covariate.
    - build_index [full] (composite_index): score intervals, Feldt alpha; no outcome as indicator.
    - check_agreement [full] (agreement): bias and kappa only; Bland-Altman limits/CCC exploratory.
@@ -251,7 +252,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    In manifests (Round 43): args interval "validated" for correlations, model
    "negbin" for fit_replicate, spatial "clusters"|"error" for fit_eiv.
 11. Exploratory only: cr() splines except binomial/Poisson with joint_test; joint_wald;
-   censored Poisson for hidden WONDER counts; interrupted series under 20+ points.
+   censored Poisson for hidden WONDER counts (use the validated censored NB2 in the
+   library, Round 45); interrupted series under 20+ points.
 12. Event-count EB smoothing (small_area): fixed expected counts, keep WONDER [1,9]
    suppression, never impute suppressed counts or call EB limits ACS MOEs.
 13. Segregation: get_recipe('segregation'). Tract groups are mutually exclusive

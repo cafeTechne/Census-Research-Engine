@@ -54,8 +54,11 @@ def _design(formula, frame, replicates, fixed_variables):
 
 def fit_spatial_eiv(formula: str, frame: pd.DataFrame, replicates: pd.DataFrame, *, method: str = "g1",
                     coords: Optional[pd.DataFrame] = None, fixed_variables: Sequence[str] = (),
-                    level: float = 0.90) -> Dict[str, Any]:
-    """Corrected slopes with spatially robust inference. ``coords``: GEOID, lon, lat (else Census boundaries)."""
+                    level: float = 0.90, within_states: bool = False) -> Dict[str, Any]:
+    """Corrected slopes with spatially robust inference. ``coords``: GEOID, lon, lat (else Census boundaries).
+
+    ``within_states``: assign the eight clusters equally within each state (adjacent states; G1 replicated
+    on OH/PA with two states x four clusters, Round 44)."""
     if method not in VALIDATED:
         raise ValueError("method must be 'g1' or 'g2'")
     data, X, y, D, e, names, error_prone = _design(formula, frame, replicates, fixed_variables)
@@ -63,7 +66,7 @@ def fit_spatial_eiv(formula: str, frame: pd.DataFrame, replicates: pd.DataFrame,
         raise ValueError("no design column has replicates: use fit_replicate (no correction is needed)")
     from .spatial_clusters import assignment_for_frame
     config = {"k": 8, "method": "im"}
-    assign = assignment_for_frame(data, coords, config).set_index("GEOID")
+    assign = assignment_for_frame(data, coords, config, within_states=within_states).set_index("GEOID")
     ids = data["GEOID"].astype(str)
     notes = [f"Estimand: the error-free slope (corrected for ACS sampling error in {error_prone})."]
     if method == "g1":

@@ -18,7 +18,7 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (45), drafted from `ROADMAP_BACKLOG.md` (Rounds 43–50). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (46), drafted from `ROADMAP_BACKLOG.md` (Rounds 43–50). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–50): the backlog below plus issues found in Rounds 31–42. Plans are drafted from it |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -61,6 +61,7 @@ manifests refuse them in confirmatory analyses.
 | Combining evidence (`combine_estimates`) | **Passed selected**: Paule–Mandel + Hartung–Knapp pooling for 2–4 estimates (.885–.911); fixed effect only when homogeneity is declared in advance; TOST equivalence; z-test power. DerSimonian–Laird failed with heterogeneity (.82–.84) | `evidence_validation.md`, criterion `3edd5f4` |
 | Agreement between sources (`check_agreement`) | **Passed selected**: bias (.894–.900) and kappa of quintile classes (.883–.912). Failed (estimates only, intervals exploratory): Bland–Altman limits observed (.838) and error-free (.826), Lin's CCC (.859) and corrected CCC (.38–.77) | `agreement_validation.md`, criterion `e6d4be6` |
 | Composite index scores and Cronbach's α (`build_index`) | **Passed**: per-area score intervals (PCA and equal weights; mean coverage .898–.899, every area ≥ .874); Feldt α interval for independent areas (.891–.912; under-covers with spatial dependence, .58–.67). Quintile stability and typologies descriptive | `index_validation.md`, criterion `e86907d` |
+| Count repairs (Round 45) | **Passed**: interval-censored NB2 for hidden 1–9 counts .869–.898 (censored Poisson .83–.86); IM-8 count slopes, NB2 at the full-sample α .896–.909 and Poisson .894–.905 (pooled NB2-HC3 fell to .80 with spatial correlation; MI/NY geometry); NB2 with noisy ACS exposures held fixed .888–.891 (Poisson .83–.86) | `count_repairs_validation.md`, criterion `0c368dd` |
 | Corrected EIV slopes under spatial dependence (`fit_spatial_eiv`) | **Passed**: G1 pooled-correction IM-8 .879–.899; G2 SAR-whitened Fuller .863–.918 (true slope; reliability .7–.9; independent and 100 km fields; up to two error-prone covariates). Library, MCP and (Round 43) manifests via `fit_eiv` `args.spatial`. **Replicated on OH/PA (Round 44):** G1 .867–.909, G2 .863–.921 | `spatial_eiv_validation.md`, criterion `46fab40`; `ohpa_revalidation.md` |
 | Rank intervals and area-versus-reference comparisons (`rank_areas`) | **Passed** (conservative): Klein–Wright–Wieczorek individual (coverage ≥ .999) and joint rank intervals; Holm and simultaneous comparisons with a weighted reference (FWER ≤ .109; joint coverage .894–.907). Bootstrap percentile ranks failed (per-area coverage down to .33) and are not offered | `ranking_validation.md`, criterion `6286ad9` |
 | Rank/partial correlation and rank group tests | **Passed selected** (coverage ≥ .86, independent areas): Spearman and Kendall Fisher-type intervals; Pearson and partial (one control) only with the ACS replicate variance added (plain Fisher-z under-covered, .84); Brunner–Munzel superiority; Kruskal–Wallis size .095–.106. All correlation intervals under-cover with spatial dependence (.60–.89). **Manifest `correlation` statistics still use the plain Fisher-z interval (not validated for Pearson)** | `rank_validation.md`, criterion `f660e9c` |
@@ -118,6 +119,11 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 45 (v0.42.0; merged, release pending owner approval; implemented by the maintainer agent):**
+count-model repairs (criterion `0c368dd`): censored NB2, IM-8 count slopes and NB2 with noisy offsets pass.
+New `census.count_repairs_core`; `fit_censored_negbin`; `fit_count_model(spatial="clusters")` and MCP
+`fit_model(model="negbin", spatial="clusters")`; `within_states` cluster assignment. Goldens unchanged. Acceptance: 2007 passed, 37 skipped; 0 failures.
 
 **Round 44 (v0.41.0; merged, release pending owner approval; implemented by the maintainer agent):**
 post hoc NB2 sensitivity of Round 29 (all three associations hold in both regions) and an OH/PA re-check of
@@ -236,6 +242,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 45 | Round 29 counts with the count repairs (exploratory example) | H2 stays positive with hidden counts as [1, 9]; under IM-8 NB2 the MI/NY overdose slope includes zero (as in Round 30), H1/H3 hold; `r45_count_example.md` |
 | 44 | Round 29 under NB2 (post hoc) | H1–H3 hold under NB2-HC3 in MI/NY and OH/PA; hidden H2 counts as [1, 9] give the same slope; `r44_posthoc_r29.md` |
 | 40 | Poverty by metro class and share 65+, beta and median models (exploratory example) | Metro gaps agree across models; the share-65+ slope halves in median regression (tails drive OLS); `r40_beta_median_example.md` |
 | 39 | Poverty and share 65+ by metro class, MANOVA (exploratory example) | Joint p = .0025 (validated) vs Pillai p ≈ 3e-11 (iid); `r39_manova_example.md` |
@@ -261,8 +268,9 @@ models, and MI/NY-only validation geography).
    (Round 35 G1/G2, library, MCP and, since Round 43, manifests via `fit_eiv` `args.spatial`) are
    validated. Round 44 re-checked both on OH/PA: G1/G2 replicate; naive C1 under-covers there with
    spatially correlated fields (exploratory outside MI/NY). Pooled k-means clusters can straddle adjacent
-   states, leaving a state term partly constant (refused): the engine now says so; a library option for
-   state-respecting clusters is open. Remaining: more than two error-prone covariates; corrected GLM slopes. No extra cluster counts or retuned
+   states, leaving a state term partly constant (refused): the engine says so, and `within_states=True`
+   (Round 45; `fit_spatial_eiv`, `fit_count_model`) assigns clusters within each state. Count slopes under
+   IM-8 and NB2 with noisy exposures were validated in Round 45. Remaining: more than two error-prone covariates; corrected GLM slopes. No extra cluster counts or retuned
    simulations were tried. Do not substitute naive C1 for registered EIV. Validation is MI/NY-specific;
    OH/PA was not re-checked. Fixed Poisson-offset uncertainty and GLM measurement-error bias remain.
 2. Closed in Round 44: Poisson HC3 (used by R29) under-covered with strong overdispersion in Round 39;

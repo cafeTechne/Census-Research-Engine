@@ -85,6 +85,25 @@ def fit_censored_poisson(frame: pd.DataFrame, count: str, censored: str, exposur
                        "Hidden counts enter only as 'between 1 and 9'; no county value is estimated or reported."])
 
 
+def fit_censored_negbin(frame: pd.DataFrame, count: str, censored: str, exposure: str, covariates: Sequence[str]) -> Dict[str, Any]:
+    """Validated (Round 45, ``docs/audits/count_repairs_validation.md``): NB2 slopes using areas whose counts are
+    hidden as 1-9 (``censored`` true) as interval information; coverage .869-.898 where the censored Poisson
+    gave .83-.86. No hidden value is estimated or output (WONDER rule)."""
+    from . import count_repairs_core as cr
+    f = frame.dropna(subset=[exposure]+list(covariates)).reset_index(drop=True)
+    cens = f[censored].astype(bool).to_numpy()
+    y = pd.to_numeric(f[count].where(~cens), errors="coerce")
+    if y[~cens].isna().any():
+        raise ValueError("non-hidden counts must be present")
+    X = np.column_stack([np.ones(len(f))]+[f[c].to_numpy(float) for c in covariates])
+    E = f[exposure].to_numpy(float)
+    rows = [dict(term=c, **cr.censored_negbin(y.fillna(0).to_numpy(float), X, E, cens, j+1)) for j, c in enumerate(covariates)]
+    return dict(table=pd.DataFrame(rows), n=len(f), n_censored=int(cens.sum()), validated=True,
+                audit="docs/audits/count_repairs_validation.md",
+                notes=["Hidden counts enter only as 'between 1 and 9'; no county value is estimated or reported.",
+                       "Interval-censored NB2 (validated Round 45); prefer it to fit_censored_poisson."])
+
+
 def interrupted_series(values: Sequence[float], interruption_index: int, method: str = "ar1") -> Dict[str, Any]:
     """EXPLORATORY. Level and slope change after ``interruption_index`` (0-based position) in an annual series."""
     y = np.asarray(values, float)

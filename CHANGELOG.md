@@ -5,6 +5,17 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.42.0 (Round 45): count-model repairs
+
+- Freeze procedures, script and criterion at `0c368dd` before the run.
+- Passed: interval-censored NB2 for hidden 1–9 counts (.869–.898; censored Poisson .83–.86); IM-8 count
+  slopes with per-cluster NB2 (full-sample α) or Poisson GLMs (.894–.909; pooled NB2-HC3 .80 under spatial
+  correlation); NB2-HC3 with noisy ACS exposures held fixed (.888–.891; Poisson HC3 .83–.86).
+- New `census.count_repairs_core` (frozen), `missing_censored_its.fit_censored_negbin`,
+  `count_models.fit_count_model(spatial="clusters")`, MCP `fit_model(model="negbin", spatial="clusters")`,
+  and `within_states` cluster assignment for adjacent states.
+- Exploratory example: Round 29 counts (`docs/studies/r45_count_example.md`).
+
 ## 0.41.0 (Round 44): Round 29 under NB2 and an OH/PA re-check of the spatial validations
 
 - Post hoc (author self-review): Round 29's H1–H3 hold under NB2-HC3 in MI/NY and OH/PA; an exploratory
