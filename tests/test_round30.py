@@ -155,3 +155,55 @@ def test_audit_flags_equal_the_fixed_full_run():
     audit=json.loads((Path(__file__).resolve().parents[1]/'docs/audits/im_acs_validation.json').read_text())
     assert sc.IM_ACS_VALIDATED=={('ols' if k=='linear' else k):v for k,v in audit['passed']['C1'].items()}
     assert sc.IM_EIV_VALIDATED==audit['passed']['C2']['linear']==False
+
+
+def test_posthoc_loader_verifies_inputs_and_reference_results(tmp_path,monkeypatch):
+    import json,hashlib
+    from scripts import r30_posthoc_im_acs as posthoc
+    from tests.test_round26 import manifest
+    from census.manifest import manifest_hash
+    monkeypatch.setattr(posthoc,'ROOT',tmp_path)
+    m=manifest();examples=tmp_path/'examples/manifests';examples.mkdir(parents=True)
+    (examples/'registered.json').write_text(json.dumps(m))
+    folder=tmp_path/'cached';(folder/'bundle/results').mkdir(parents=True);(folder/'bundle/tables').mkdir()
+    (folder/'analysed').mkdir();(folder/'manifest.json').write_text(json.dumps(m))
+    frame=folder/'analysed/frame.csv';frame.write_text('GEOID,x\n36001,2\n')
+    run={'manifest_hash':manifest_hash(m),'analysed_data':{'analysis_frame':{'path':'analysed/frame.csv','sha256':posthoc.digest(frame)}}}
+    (folder/'bundle/results/run.json').write_text(json.dumps(run))
+    model=folder/'bundle/results/m1.json';model.write_text('{}')
+    (folder/'bundle/tables/hypotheses.csv').write_text('id,p_adjusted\nH1,.2\n')
+    inventory={str(p.relative_to(folder/'bundle')):posthoc.digest(p) for p in (folder/'bundle').rglob('*') if p.is_file()}
+    (folder/'bundle/bundle.json').write_text(json.dumps({'files':inventory}))
+    _,_,data,_=posthoc.load_verified(folder,'registered.json');assert data['analysis_frame'].GEOID.iloc[0]=='36001'
+    frame.write_text('GEOID,x\n36001,3\n')
+    with pytest.raises(ValueError,match='analysed checksum'):posthoc.load_verified(folder,'registered.json')
+    frame.write_text('GEOID,x\n36001,2\n');model.write_text('{"changed":true}')
+    with pytest.raises(ValueError,match='result checksum'):posthoc.load_verified(folder,'registered.json')
+
+
+@pytest.mark.parametrize('kind',['traversal','link'])
+def test_posthoc_archive_refuses_unsafe_members(tmp_path,kind):
+    import io,tarfile
+    from scripts.r30_posthoc_im_acs import extract_r29
+    path=tmp_path/'bad.tar.gz'
+    with tarfile.open(path,'w:gz') as tar:
+        member=tarfile.TarInfo('r29/mi_ny/confirmatory/../../escape.json' if kind=='traversal' else 'r29/mi_ny/confirmatory/link')
+        if kind=='link':member.type=tarfile.SYMTYPE;member.linkname='/tmp/escape'
+        else:member.size=2
+        tar.addfile(member,io.BytesIO(b'{}') if kind=='traversal' else None)
+    with pytest.raises(ValueError,match='unsafe'):extract_r29(path,tmp_path/'extracted')
+    assert not (tmp_path/'extracted').exists()
+
+
+def test_smoke_writes_no_audit_and_full_refuses_existing_audit(tmp_path,monkeypatch):
+    import sys
+    from scripts import im_acs_validation as validation
+    monkeypatch.setattr(validation,'ROOT',tmp_path)
+    called=[];monkeypatch.setattr(validation,'run',lambda draws:called.append(draws))
+    monkeypatch.setattr(sys,'argv',['validation','--smoke-draws','2'])
+    validation.main();assert called==[2] and list(tmp_path.iterdir())==[]
+    (tmp_path/'docs/audits').mkdir(parents=True);(tmp_path/'docs/audits/im_acs_validation.json').write_text('{}')
+    monkeypatch.setattr(validation,'validate_pins',lambda commit:None)
+    monkeypatch.setattr(sys,'argv',['validation','--criterion-commit','fixed'])
+    with pytest.raises(SystemExit):validation.main()
+    assert called==[2]
