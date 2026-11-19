@@ -14,12 +14,12 @@ DOI 10.5281/zenodo.24329678). All versions: concept record
 | Path | What |
 | :--- | :--- |
 | `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
-| `mcp_server.py` | MCP server (63 tools; profiles in `census/mcp_profiles.py`) |
+| `mcp_server.py` | MCP server (70 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | Round 43 queued (`PLAN_ROUND_43.md`), drafted from `ROADMAP_BACKLOG.md` (Rounds 43–50). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (44), drafted from `ROADMAP_BACKLOG.md` (Rounds 43–50). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–50): the backlog below plus issues found in Rounds 31–42. Plans are drafted from it |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -119,6 +119,11 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 43 (v0.40.0; merged, release pending owner approval; implemented by the maintainer agent):**
+manifest routing and housekeeping, no new statistics. Opt-in manifest options: validated correlation
+intervals, NB2 counts and spatial EIV. Saturated-model fix. Core-profile instructions cut from 12,480
+to under 4,000 characters (bounded by a test at 8,000); tool counts corrected and tested. Acceptance: goldens identical; 1993 passed, 37 skipped; 0 failures.
 
 **Round 42 (v0.39.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 missing data, censored counts and interrupted series; the last round of `ROADMAP_STATISTICS.md`.
@@ -247,15 +252,14 @@ interrupted series, spatially robust correlations and α, small-k meta-analysis,
 models, and MI/NY-only validation geography).
 
 1. Spatial dependence: naive-target IM-8 (Round 30 C1, OLS/binomial/Poisson) and corrected linear EIV
-   (Round 35 G1/G2, library and MCP) are validated. Remaining: route manifests' `fit_eiv` spatial
-   options to G1/G2; more than two error-prone covariates; corrected GLM slopes. No extra cluster counts or retuned
+   (Round 35 G1/G2, library, MCP and, since Round 43, manifests via `fit_eiv` `args.spatial`) are
+   validated. Remaining: more than two error-prone covariates; corrected GLM slopes. No extra cluster counts or retuned
    simulations were tried. Do not substitute naive C1 for registered EIV. Validation is MI/NY-specific;
    OH/PA was not re-checked. Fixed Poisson-offset uncertainty and GLM measurement-error bias remain.
-2. Poisson HC3 (used by R29) under-covered with strong overdispersion in Round 39; a post hoc NB2
-   sensitivity of R29 and manifest support for NB2 are open.
-3. Manifest `correlation` statistics use the plain Fisher-z interval; Round 33 found it valid for
-   Spearman/Kendall but not Pearson/partial without replicate variance. Move manifests to
-   `validated_correlations` (additive golden change) in a later round.
+2. Poisson HC3 (used by R29) under-covered with strong overdispersion in Round 39. Manifests accept
+   `fit_replicate` `model: "negbin"` since Round 43; the post hoc NB2 sensitivity of R29 is Round 44.
+3. Closed in Round 43: manifests opt in to the Round 33 intervals with `correlation_matrix`
+   `args.interval: "validated"`; registered manifests keep the Fisher-z interval (their bytes are fixed).
 4. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 5. Held-out OH/PA mortality replication completed in Round 29 under the unchanged registered protocol;
    all three associations replicate, including both H2 suppression sensitivities. All 62 manual WONDER
@@ -271,11 +275,9 @@ models, and MI/NY-only validation geography).
    separate coverage studies. Round 27 splines/joint tests remain exploratory and require a
    separately pre-specified finite-sample validation before confirmatory use.
    Not yet planned: microdata inequality measures.
-7. Saturated-model results bundles (Round 25 observation): a two-observation, two-coefficient OLS
-   fit can crash while plotting the bundle (`ValueError: arange: cannot compute length`). Preserve
-   estimable coefficients, explicitly mark unavailable uncertainty when residual degrees of freedom
-   are zero, and skip or adapt plots requiring finite intervals. Add a regression ensuring the bundle
-   completes without inventing SEs, confidence intervals or p-values.
+7. Closed in Round 43: a saturated `fit_replicate` (residual df 0) now reports missing model SEs,
+   intervals and p-values with a SATURATED MODEL note instead of infinite ones, and the coefficient
+   plot never draws infinite whiskers.
 
 ## Plan format (keeps agent context small)
 

@@ -681,6 +681,12 @@ def fit_replicate(
             notes.append("EXPLORATORY ONLY: this spatial-cluster method/count did not pass Round 26 validation.")
         notes.append(f"Spatial clusters: {spatial_clusters['method']}, G={spatial_clusters['k']}; see docs/audits/spatial_cluster_validation.md")
     else:
+        if float(getattr(full, "df_resid", 1)) <= 0:  # saturated fit (STATUS backlog 7): no model SE exists
+            bse = pd.Series(np.nan, index=params.index)
+            notes.append("SATURATED MODEL: residual degrees of freedom are 0, so model standard errors, intervals "
+                         "and p-values are undefined (reported as missing, not invented); coefficients are exact "
+                         "interpolations of the data")
+            diagnostics["saturated"] = True
         table = _table(params, bse, se_sampling, confidence_level, target)
     if spatial_clusters is not None and spatial_clusters["method"] in ("im", "wcr"):
         inference_basis = "se_cluster_mean with t(G-1)" if spatial_clusters["method"] == "im" else "restricted bootstrap test inversion"

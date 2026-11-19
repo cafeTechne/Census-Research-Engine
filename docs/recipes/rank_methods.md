@@ -20,3 +20,8 @@
    most influential areas (Cook's distance), Breusch-Pagan and RESET p-values, residual
    skewness. Information only, never a reason to switch methods after seeing results.
 7. Validation: `docs/audits/rank_validation.md` (Round 33).
+
+**In pre-registered manifests (Round 43).** Add `"interval": "validated"` to a `correlation_matrix`
+analysis's `args` (with `"method"`: spearman, kendall, pearson or partial plus one `"controls"` variable).
+Pearson and partial need declared ACS replicates. The default (`"fisher"`) keeps the older interval for
+registered manifests; new manifests should use `"validated"`.

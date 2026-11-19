@@ -59,12 +59,23 @@ def iv_slope(frame: pd.DataFrame, outcome: str, x: str, instrument: str,
     C = np.column_stack(vals[3:]) if controls else None
     iv = cc.iv_2sls(vals[0], vals[1], vals[2], C); ols = cc.ols_slope(vals[0], vals[1], C)
     r = np.corrcoef(vals[1], vals[2])[0, 1]
+    F = first_stage_f(vals[1], vals[2], C)
     notes = ["Valid only if the instrument's error is independent of x's error and of the outcome (exclusion "
-             "restriction): e.g. a non-overlapping ACS release or a different survey of the same quantity."]
+             "restriction): e.g. a non-overlapping ACS release or a different survey of the same quantity.",
+             f"First-stage F = {F:.1f}. Validation used strong instruments only; the weak-instrument cut-off "
+             "(corr < 0.3) is a convention, not yet validated (ROADMAP_BACKLOG.md Round 47)."]
     if abs(r) < .3:
         notes.append(f"WEAK INSTRUMENT: corr(x, instrument) = {r:.2f}; 2SLS is unreliable.")
-    return dict(kind="iv", iv=iv, ols_naive=ols, first_stage_corr=float(r), n=len(vals[0]), validated=abs(r) >= .3,
-                notes=notes, audit=AUDIT)
+    return dict(kind="iv", iv=iv, ols_naive=ols, first_stage_corr=float(r), first_stage_f=F, n=len(vals[0]),
+                validated=abs(r) >= .3, notes=notes, audit=AUDIT)
+
+
+def first_stage_f(x, instrument, controls=None) -> float:
+    """Classical F for the single instrument in the first stage x ~ 1 + instrument (+ controls)."""
+    import statsmodels.api as sm
+    Z = np.column_stack([np.ones(len(x)), instrument] + ([controls] if controls is not None else []))
+    fit = sm.OLS(np.asarray(x, float), Z).fit()
+    return float(fit.tvalues[1]**2)
 
 
 def mediation(frame: pd.DataFrame, x: str, mediator: str, outcome: str, controls: Sequence[str] = (),

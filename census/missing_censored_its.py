@@ -33,16 +33,42 @@ def impute_and_fit(formula: str, frame: pd.DataFrame, incomplete: str, m: int = 
     miss = int(X[incomplete].isna().sum())
     if miss == 0:
         raise ValueError(f"{incomplete!r} has no missing values")
-    rows = []
-    for j, term in enumerate(X.columns):
-        if term == "Intercept":
-            continue
-        r = mi.multiple_imputation(y.to_numpy(float)[:, 0], X.to_numpy(float), list(X.columns).index(incomplete),
-                                   np.random.default_rng(seed), m, j)
-        rows.append(dict(term=term, **r))
+    terms = [j for j, t in enumerate(X.columns) if t != "Intercept"]
+    res = _impute_all_terms(y.to_numpy(float)[:, 0], X.to_numpy(float), list(X.columns).index(incomplete),
+                            np.random.default_rng(seed), m, terms)
+    rows = [dict(term=X.columns[j], **r) for j, r in zip(terms, res)]
     return dict(table=pd.DataFrame(rows), n=len(y), n_missing=miss, imputations=m, validated=True, audit=AUDIT,
                 notes=[f"{miss} areas with {incomplete!r} missing were imputed {m} times (Rubin's rules). Assumes "
                        "missing at random given the model's other variables and outcome."])
+
+
+def _impute_all_terms(y, X, miss_col, rng, m, terms):
+    """``mci_core.multiple_imputation`` (frozen, Round 42) for every term from one set of m imputations.
+
+    Draws the same random numbers in the same order as the frozen routine, so each term's result equals
+    the per-term call with the same seed (tests/test_round43.py)."""
+    import statsmodels.api as sm
+    from scipy import stats
+    miss = ~np.isfinite(X[:, miss_col]); obs = ~miss
+    P = np.column_stack([np.delete(X, miss_col, axis=1), y])
+    fit = sm.OLS(X[obs, miss_col], P[obs]).fit()
+    n_obs, k = P[obs].shape
+    XtX_inv = np.linalg.inv(P[obs].T @ P[obs])
+    est, var = [], []
+    for _ in range(m):
+        sigma2 = fit.ssr/rng.chisquare(n_obs-k)
+        beta = rng.multivariate_normal(fit.params, sigma2*XtX_inv)
+        Xi = X.copy(); Xi[miss, miss_col] = P[miss] @ beta+rng.standard_normal(miss.sum())*np.sqrt(sigma2)
+        r = sm.OLS(y, Xi).fit(cov_type="HC3")
+        est.append(np.asarray(r.params)[terms]); var.append(np.asarray(r.bse)[terms]**2)
+    est, var = np.array(est), np.array(var)
+    out = []
+    for c in range(len(terms)):
+        qbar, ubar, bvar = est[:, c].mean(), var[:, c].mean(), np.var(est[:, c], ddof=1)
+        T = ubar+(1+1/m)*bvar
+        df = (m-1)*(1+ubar/((1+1/m)*bvar))**2 if bvar > 0 else np.inf
+        out.append(mi._ci(qbar, np.sqrt(T), stats.t.ppf(.95, df)))
+    return out
 
 
 def fit_censored_poisson(frame: pd.DataFrame, count: str, censored: str, exposure: str, covariates: Sequence[str]) -> Dict[str, Any]:

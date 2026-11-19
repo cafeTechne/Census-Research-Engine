@@ -217,159 +217,45 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
 6. On failure read error_code and fix; do not guess numbers.
 7. Health outcomes: use the ACS's own measure (disability: B18101); use CDC PLACES
    only for measures the ACS lacks, such as diabetes (get_recipe first).
-8. Area inequality and standardized ratios: get_recipe('health_inequality'), then
-   existing manifest tools. Inequality statistics sii/log_rii/concentration_index
-   have no term; declare higher_is_more_deprived and positive weights. Ridits run
-   least to most deprived; positive indices mean higher outcomes among more deprived
-   areas, reversing the usual income-ranked concentration sign. Default conservative
-   target combines HC3 and ACS replicates; median rank CV <=15% is validated, above
-   which warn about attenuation. External outcome/denominator weights stay fixed;
-   R2 tests rank_by. HC3 assumes independent areas. SMR requires observed integer
-   counts, distinct population_bands, positive reference_rates in events per person-year
-   and a hashed reference_source citation; log_smr hypotheses use geoid or all.
-   Only conservative combined Poisson/replicate log intervals drive SMR tests;
-   fixed-E Garwood intervals omit expected/reference uncertainty. O=0 has only exact limits;
-   absent replicates set expected uncertainty to zero, noted. period_years (positive
-   integer, default 1) scales E; reference_counts adds sum((E_b/E)^2/D_b) to log
-   variance, with positive integer reference deaths per band. Both hashed. Rates
-   are fixed without counts; reference person-years are always fixed. Pool band
-   contributions before squaring (shared rates). Internal-reference covariance
-   omitted makes intervals conservative, noted, not refused.
-   SMR refuses negative band replicates under its pre-specified validation domain.
-   Log statistics test zero and report exponentiated ratio columns. R1 applies
-   to external outcomes/counts; reused MI/NY LBW associations remain exploratory.
-9. Round 30 C1 passed the fixed ACS-error validation for unweighted OLS, binomial
-   and Poisson: use fit_replicate with spatial_clusters={"k":8,"method":"im"},
-   target="population". Keep supplied ACS replicates; independent sampling error
-   enters between-cluster spread, without adding replicate variance. The IM estimate
-   is the unweighted mean of eight cluster coefficients; se_cluster_mean and t(7)
-   drive intervals and p-values. The estimand is the coefficient on ACS estimates
-   as observed, not a measurement-error-corrected true slope. Sampling error can
-   attenuate it; noisy controls can bias it in either direction. A zero naive slope
-   equates to a zero true slope only with a single error-prone covariate and errors
-   independent of the outcome's error; do not extend that claim to noisy controls.
-   Poisson exposure/expected-death offsets remain fixed.
-
-   C2 IM-EIV failed (unstable corrected moment matrices) and stays refused, even
-   in exploratory manifests; never substitute C1 for registered EIV without a new
-   specification. WLS remains unsupported. Only k=8 passed. CR1/WCR refusals remain.
-   IM still requires population target; scale:robust and spatial_se are mutually
-   exclusive with spatial_clusters. Labels are fixed before complete-case filtering
-   (50 seeded EPSG:5070 restarts); every retained group needs >=5 units and full rank.
-   Whole terms constant within every cluster are absorbed by cluster intercepts,
-   reported not estimable and cannot be tested. Partial constancy is refused.
-   R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
-   author self-review, not independent. OH/PA is outside this validation geometry.
-   See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
-
-10. Round 31 group comparisons: compare_groups (recipe group_comparison) runs t-tests,
-     one-way ANOVA, ANCOVA and two-way interactions through fit_replicate. Joint tests
-     use joint_test (manifest statistic; variable or term, two_sided only). Validated
-     (docs/audits/omnibus_validation.md, n=145): wild score bootstrap for OLS factor tests
-     and binomial/Poisson spline tests; IM-8 Hotelling for OLS/Poisson factor tests;
-     Holm pairwise for OLS/binomial/Poisson; simultaneous pairwise for OLS only. F
-     references failed. Binomial/Poisson factor tests, OLS splines, fewer than 145 areas
-     and population-target tests with replicates are exploratory. Groups need >=5 areas;
-     spatial tests need every group in every cluster. Round 27 joint_wald (chi-squared)
-     stays exploratory; confirmatory binomial/Poisson splines need joint_test hypotheses.
-
-11. Round 32 PUMS tests: test_association (recipe pums_tests) on PUMS microdata with
-     the 80 replicate weights. Validated (docs/audits/pums_tests_validation.md, household
-     clustering, weight CV up to 1.0, 800-3000 households): first-order Rao-Scott
-     independence tests for tables up to 3x4; k-group mean tests (design Wald F; z for two
-     groups); differences of proportions, odds ratios, relative risks, differences of means
-     and medians; Korn-Graubard intervals for one proportion. The design-blind Pearson test
-     is far too liberal; Wald proportion intervals under-cover for rare outcomes in small
-     domains; larger tables are exploratory. No continuity corrections: empty 2x2 cells are refused.
-
-12. Round 33 rank methods (recipe rank_methods): correlation_matrix returns
-     validated_intervals per pair. Spearman and Kendall Fisher-type intervals passed
-     without replicates; Pearson and partial (one control) intervals pass only with
-     replicates (ACS replicate variance added), else exploratory. Estimand: the observed-
-     estimate correlation (attenuated). compare_groups(method="rank"): Brunner-Munzel
-     superiority (two groups) and Kruskal-Wallis (3+), validated for independent areas.
-     All correlation intervals under-covered (0.60-0.89) with spatially correlated areas.
-     OLS fit_model/compare_groups add model diagnostics (VIF, Cook's distance, Breusch-Pagan,
-     RESET): information only, never a gate.
-
-13. Round 34 ranking (full profile tool rank_areas; recipe rank_areas): rank intervals
-     (Klein-Wright-Wieczorek; individual or joint) and areas versus a reference (Holm or
-     simultaneous) passed validation. Report rank intervals, not point ranks; bootstrap
-     percentile ranks under-cover and are not offered; suppressed values are never ranked.
-
-14. Round 35 spatial EIV: corrected (error-free) linear slopes when areas are spatially
-     correlated: fit_model(method="eiv", spatial="clusters"|"error") or
-     census.spatial_eiv.fit_spatial_eiv. Both passed (coverage .863-.918; 145 MI/NY counties;
-     up to two error-prone covariates; reliability .7-.9); more error-prone covariates are
-     exploratory. Not yet in manifests (fit_eiv spatial_clusters stays refused there).
-     R21b post hoc: H1 and H4 still hold under both.
-
-15. Round 36 composite indices (full profile tool build_index; recipe composite_index):
-     first principal component or equal weights; full-sample standardisation and loadings
-     fixed in every replicate. Validated: per-area score intervals (with replicates) and the
-     Feldt interval for Cronbach's alpha (independent areas; it under-covers with spatial
-     dependence). Quintile stability and typologies are descriptive. An outcome cannot be an
-     indicator of the index used to explain it (circularity).
-
-16. Round 37 agreement (full profile tool check_agreement; recipe agreement): bias (b - a)
-     and Cohen's kappa of quintile classes passed validation for independent areas. Bland-Altman
-     limits of agreement (observed and error-free) and Lin's concordance correlation are reported,
-     but their intervals failed (exploratory): differences of noisy estimates are heavy-tailed.
-
-17. Round 38 combining evidence (full profile tool combine_estimates; recipe
-     combine_estimates): pooling uses Paule-Mandel + Hartung-Knapp (validated for up to 4
-     estimates); the fixed-effect interval only if homogeneity is declared in advance;
-     DerSimonian-Laird under-covers with heterogeneity. TOST equivalence (margin set in
-     advance) and z-test power/minimum detectable effects are validated. Pooling states is a
-     new analysis, never a reinterpretation of a registered study.
-
-18. Round 39: compare_groups(outcomes=[...]) adds a joint MANOVA/MANCOVA test (multivariate wild
-     score bootstrap, one sign per area; validated, size .090-.101; Pillai's trace shown for
-     comparison). Count slopes: fit_model(model="negbin", exposure=...) uses NB2 with HC3
-     (validated .885-.901, including overdispersion and excess zeros); Poisson HC3 under-covered
-     with strong overdispersion (.81-.87) and zero-inflated Poisson failed (exploratory).
-
-19. Round 40: fit_model(model="beta") (shares in 0-1; logit mean; HC0 sandwich) and
-     fit_model(model="median") (median regression; kernel SE) passed validation (.885-.917; naive
-     target; independent areas). Beta model-based SEs failed. Adding replicate variance
-     over-covered, so it is not added. PUMS ordinal/multinomial/weighted-quantile models and GEE
-     are not available yet (no survey weights in the statsmodels versions).
-
-20. Round 41 causal tools (full profile tool estimate_effect; recipe causal): treatment
-     effects (AIPW default) validated with precisely measured confounders; 2SLS with an
-     independent second measurement as instrument removes covariate attenuation (validated;
-     weak instruments flagged); mediation validated only with an exactly measured mediator
-     (ACS mediator error drops coverage to .69-.72). State the assumptions; confirmatory causal
-     claims need a registered design.
-
-21. Round 42: fit_model(impute="w") multiply imputes one incomplete covariate (20 draws, Rubin's
-     rules; validated, also when missingness depends on the outcome). Exploratory library functions:
-     census.missing_censored_its.fit_censored_poisson uses WONDER counts hidden as 1-9 as interval
-     information without estimating them (under-covered .84-.86, though better than dropping them);
-     interrupted_series for annual series (20-point series: every method under-covered, .47-.81).
-
-22. Event-count EB smoothing is descriptive Python-library work, not a new tool or
-   manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
-   WONDER [1,9] suppression, report validation metadata; never impute suppressed
-   counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
-   intervals passed Round 27; reference-rate/spatial uncertainty is excluded.
-   cr(x,df=3|4|5) and joint_wald FAILED Round 27 and are exploratory only;
-   confirmatory manifests refuse either, except binomial/Poisson cr tested with
-   joint_test (Round 31). Only non-spatial fit_replicate
-   OLS/WLS/binomial/Poisson; centered full-sample knots stay fixed in refits.
-   Joint hypotheses give variable, no term, two_sided (or two-sided); R2 applies
-   to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
-   HC3 / ACS covariance / their sum matches target; singular covariance is not
-   tested. See the protocol for full covariance metadata and validation scope.
-23. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
-   groups are mutually exclusive counts, within county. Defaults: naive D,
-   corrected isolation/H; failed overrides and multigroup H exploratory only.
-   Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts
-   recomputed per refit; absent county groups undefined. One-area tests need
-   null_value; compare_geoid uses replicate differences. release/compare_release
-   select independent non-overlapping releases; variances add. First minus
-   comparison, one-sided tests center on null. No metro pooling. Any tract
-   group-count CV above .15 makes a county exploratory only (most real ones).
+8. Area inequality and SMRs: get_recipe('health_inequality') before any manifest.
+   Declare higher_is_more_deprived and positive weights; median rank CV <=15% is
+   validated (warn about attenuation above it). SMR needs integer observed counts,
+   reference rates per person-year and a hashed reference_source; only the
+   conservative combined log interval drives SMR tests. R1 applies to external outcomes.
+9. Spatial dependence: fit_replicate with spatial_clusters={"k":8,"method":"im"},
+   target="population" is validated for unweighted OLS/binomial/Poisson (Round 30;
+   estimand: the coefficient on ACS estimates as observed, not corrected). IM-EIV,
+   WLS, other k, CR1/WCR stay refused. Terms constant within clusters are not estimable.
+   Validation geometry is MI/NY. See docs/audits/im_acs_validation.md.
+10. Validated methods, Rounds 31-42 (else exploratory; get_recipe(name) has the scope;
+   tools marked [full] exist only in the full profile):
+   - compare_groups (group_comparison): t-tests, ANOVA, ANCOVA, joint_test; wild score
+     bootstrap or IM-8; Holm pairwise. outcomes=[...] adds MANOVA. method="rank":
+     Brunner-Munzel, Kruskal-Wallis. F references failed.
+   - test_association (pums_tests): PUMS Rao-Scott tables up to 3x4, design mean tests,
+     differences/OR/RR, Korn-Graubard. Never the design-blind Pearson test.
+   - correlation_matrix [full] (rank_methods): Spearman/Kendall intervals; Pearson/partial only
+     with replicates. Independent areas only (spatial dependence breaks every interval).
+   - rank_areas [full]: report rank intervals, never point ranks.
+   - fit_model: method="eiv" with spatial="clusters"|"error" (corrected slopes, <=2 noisy
+     covariates); model="negbin" for counts (Poisson HC3 under-covers when overdispersed);
+     model="beta" for shares; model="median"; impute="w" for one incomplete covariate.
+   - build_index [full] (composite_index): score intervals, Feldt alpha; no outcome as indicator.
+   - check_agreement [full] (agreement): bias and kappa only; Bland-Altman limits/CCC exploratory.
+   - combine_estimates [full]: Hartung-Knapp for up to 4 estimates, TOST, power; DL fails.
+     Pooling states is a new analysis, never a reinterpretation of a registered study.
+   - estimate_effect [full] (causal): treatment effects with precise confounders, 2SLS with a
+     second measurement, mediation with an exact mediator. State the assumptions;
+     confirmatory causal claims need a registered design.
+   In manifests (Round 43): args interval "validated" for correlations, model
+   "negbin" for fit_replicate, spatial "clusters"|"error" for fit_eiv.
+11. Exploratory only: cr() splines except binomial/Poisson with joint_test; joint_wald;
+   censored Poisson for hidden WONDER counts; interrupted series under 20+ points.
+12. Event-count EB smoothing (small_area): fixed expected counts, keep WONDER [1,9]
+   suppression, never impute suppressed counts or call EB limits ACS MOEs.
+13. Segregation: get_recipe('segregation'). Tract groups are mutually exclusive
+   counts within county; strict 80 replicates; multigroup H exploratory; a county with
+   any tract group-count CV above .15 is exploratory only (most real ones).
 """
 
 REVIEW_INSTRUCTIONS = """\
