@@ -354,6 +354,15 @@ up to two error-prone covariates; reliability .7-.9); more error-prone covariate
 exploratory. Not yet in manifests (fit_eiv spatial_clusters stays refused there).
 R21b post hoc: H1 and H4 still hold under both.
 
+## Composite indices (Round 36)
+
+Round 36 composite indices (full profile tool build_index; recipe composite_index):
+first principal component or equal weights; full-sample standardisation and loadings
+fixed in every replicate. Validated: per-area score intervals (with replicates) and the
+Feldt interval for Cronbach's alpha (independent areas; it under-covers with spatial
+dependence). Quintile stability and typologies are descriptive. An outcome cannot be an
+indicator of the index used to explain it (circularity).
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event

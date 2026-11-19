@@ -9,6 +9,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RECIPE_DIR = os.path.join(ROOT, "docs", "recipes")
 
 RECIPES: Dict[str, str] = {
+    "composite_index": "Composite (deprivation) index with score intervals, quintile stability and alpha (Round 36)",
     "rank_areas": "Rank areas with rank intervals, and compare each area with the state value (Round 34)",
     "rank_methods": "Rank and partial correlations and rank comparisons of groups with ACS error (Round 33)",
     "pums_tests": "Survey-correct tests and intervals on PUMS microdata: tables, odds ratios, means, medians (Round 32)",
@@ -27,7 +28,7 @@ RECIPES: Dict[str, str] = {
 
 RecipeName = Literal[
     "compare_counties", "tract_trend", "regression_sampling_error", "small_area", "preregistered",
-    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas",
+    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas", "composite_index",
 ]
 
 
@@ -38,7 +39,7 @@ def get_recipe(name: Optional[RecipeName] = None) -> Dict[str, Any]:
         name: compare_counties, tract_trend, regression_sampling_error,
             small_area, preregistered, decennial_counts, external_health_outcome, health_inequality, segregation,
             group_comparison, pums_tests, rank_methods,
-            or rank_areas.
+            rank_areas, or composite_index.
 
     Example: get_recipe(name="compare_counties")
     """

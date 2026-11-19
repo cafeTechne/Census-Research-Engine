@@ -65,9 +65,9 @@ suite; STATUS, CHANGELOG, version 0.33.0, section 8.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit, targets | | |
-| S1 / A1 / A2 results | | |
-| Engine, tool, tests | | |
-| Example | | |
+| Criterion commit, targets | `e86907d` | Pushed before the full run. |
+| S1 / A1 / A2 results | Passed | S1 both weights; A1 selected; α under-covers with spatial dependence. |
+| Engine, tool, tests | Done | build_index library and MCP tool; 6 tests. |
+| Example | Done | Construct-validity warning (NYC); α 0.40. |
 | Goldens, final suite | | |
-| Exceptions | | |
+| Exceptions | None | |
