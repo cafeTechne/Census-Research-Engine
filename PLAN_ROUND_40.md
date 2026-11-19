@@ -56,5 +56,5 @@ statsmodels; flags against the audit. Goldens unchanged; full suite; STATUS, CHA
 | B1–B3 / Q1–Q2 results | Done | B2 and Q1 selected; B1 failed. |
 | Engine, tests | Done | regression_families; MCP routing; 4 tests. |
 | Example | Done | Poverty models compared. |
-| Goldens, final suite | | |
+| Goldens, final suite | Done | Goldens identical; 1967 passed, 37 skipped, 0 failures. |
 | Exceptions | None | |

@@ -119,7 +119,8 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 
 **Round 40 (v0.37.0; merged, release pending owner approval; implemented by the maintainer agent):**
 beta and median regression. Criterion `d5c9b02` pushed before the run. New `census.beta_median_core`,
-`census.regression_families`; MCP `fit_model(model="beta"|"median")`. Goldens unchanged.
+`census.regression_families`; MCP `fit_model(model="beta"|"median")`. Goldens unchanged. Acceptance:
+1967 passed, 37 skipped; 0 failures.
 
 **Round 39 (v0.36.0; merged, release pending owner approval; implemented by the maintainer agent):**
 multivariate tests and count models. Criterion `0686bc0` pushed before the run. New

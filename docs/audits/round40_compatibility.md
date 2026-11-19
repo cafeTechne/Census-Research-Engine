@@ -21,4 +21,5 @@ GEE (no survey weights in statsmodels' versions). No manifest change.
 
 ## Goldens and suite
 
-See STATUS (Round 40).
+Both goldens byte-identical to v0.36.0. Suite: 1967 passed, 37 skipped, 62 subtests; 0 failures
+(baseline 1963; 4 new tests).
