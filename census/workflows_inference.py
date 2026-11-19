@@ -204,7 +204,8 @@ def fit_model(
         method: "replicate" (refit on Census replicates), "eiv" (predictors and outcome
             measured with ACS error; corrects attenuation and correlated errors from the
             replicates; needs replicates_path; model ols or wls), "regression_calibration"
-            (predictors measured with error; corrects attenuation), "simex" (not
+            (predictors measured with error; corrects attenuation; validated for ols, wls,
+            poisson and negbin, exploratory for binomial), "simex" (not
             validated for confirmatory use), "fay_herriot" (outcome with known SE in se_col).
         target: "population" (default: the general relationship, model SE),
             "these_areas" (these areas in this period, replicate SE), or
@@ -223,7 +224,7 @@ def fit_model(
         impute: A covariate with missing values to multiply impute (OLS; Round 42; validated).
         spatial: method="eiv": "clusters" (8 fixed spatial clusters, pooled correction) or
             "error" (spatial-error whitening) for corrected slopes when areas are spatially
-            correlated (Round 35; linear; validated with up to two error-prone covariates).
+            correlated (Rounds 35 and 46; linear; validated with up to four error-prone covariates).
             model="negbin": "clusters" gives IM-8 count slopes (Round 45; validated).
 
     target applies to method="replicate" only; corrected methods report se_total.
@@ -329,6 +330,8 @@ def fit_model(
     next_step = interval_next_step(info)
     if method == "simex":
         next_step += "; SIMEX under-covers and is exploratory only, not for confirmatory claims"
+    if method == "regression_calibration" and model == "binomial":
+        next_step += "; binomial regression calibration under-covers and is exploratory only, not for confirmatory claims"
     return _ok(f"{result_summary(result)}; intervals and p-values use {se_basis}", next_step,
                **{k: v for k, v in out.items() if k != "summary"})
 

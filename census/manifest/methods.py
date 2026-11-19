@@ -213,7 +213,13 @@ def _stat_coefficient(h, res):
         return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
                 "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
                 "confirmatory_refusal": f"spatial EIV with {len(sp['error_prone'])} error-prone covariates is exploratory "
-                                        "(validated with at most 2; docs/audits/spatial_eiv_validation.md)"}
+                                        "(validated with at most 4; docs/audits/spatial_eiv_validation.md, "
+                                        "docs/audits/glm_correction_validation.md)"}
+    if res.diagnostics.get("regression_calibration_validated") is False:
+        return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
+                "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
+                "confirmatory_refusal": f"regression calibration for {res.model_type} slopes is exploratory "
+                                        "(docs/audits/glm_correction_validation.md)"}
     return {"estimate": float(row["estimate"]), "se": (None if se_col == "bootstrap_test" else float(row[se_col])), "se_basis": se_col,
             "p_two_sided": float(row["p_value"]),
             "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"])}
@@ -451,8 +457,8 @@ def _text_fit_eiv(a, text):
     if sp is None:
         return text
     base = ("Coefficients were corrected for ACS sampling error (Fuller moment correction with replicate-estimated "
-            "error covariances) with spatially robust inference, validated by simulation for up to two error-prone "
-            "covariates (docs/audits/spatial_eiv_validation.md). ")
+            "error covariances) with spatially robust inference, validated by simulation for up to four error-prone "
+            "covariates (docs/audits/spatial_eiv_validation.md; docs/audits/glm_correction_validation.md). ")
     if sp == "clusters":
         return base+("Units were split into the eight fixed geographic clusters; each cluster's naive slopes were "
                      "corrected by the pooled within-cluster reliability matrix, and the eight corrected values give a "

@@ -1,0 +1,487 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "kind": "R",
+      "parameters": {
+        "model": "binomial",
+        "reliability": 0.9,
+        "error_corr": 0.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.7815,
+        "R1": 0.8635
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.021526185090455063,
+        "R1": -0.0006934136750060826
+      },
+      "seconds": 3637.040455341339
+    },
+    {
+      "cell": 1,
+      "kind": "R",
+      "parameters": {
+        "model": "binomial",
+        "reliability": 0.9,
+        "error_corr": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.7905,
+        "R1": 0.8505
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.023101871662700835,
+        "R1": -0.004422276088684507
+      },
+      "seconds": 4175.530208826065
+    },
+    {
+      "cell": 2,
+      "kind": "R",
+      "parameters": {
+        "model": "binomial",
+        "reliability": 0.7,
+        "error_corr": 0.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.4515,
+        "R1": 0.8885
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.062339226894349536,
+        "R1": -0.0012113657723037408
+      },
+      "seconds": 3997.4060394763947
+    },
+    {
+      "cell": 3,
+      "kind": "R",
+      "parameters": {
+        "model": "binomial",
+        "reliability": 0.7,
+        "error_corr": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.381,
+        "R1": 0.8795
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.0773687463571146,
+        "R1": -0.01639536207951109
+      },
+      "seconds": 3705.90235042572
+    },
+    {
+      "cell": 4,
+      "kind": "R",
+      "parameters": {
+        "model": "poisson",
+        "reliability": 0.9,
+        "error_corr": 0.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.7995,
+        "R1": 0.869
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.02241746069357431,
+        "R1": 0.00019911910374403874
+      },
+      "seconds": 3686.1770811080933
+    },
+    {
+      "cell": 5,
+      "kind": "R",
+      "parameters": {
+        "model": "poisson",
+        "reliability": 0.9,
+        "error_corr": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.764,
+        "R1": 0.8855
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.03226123621399818,
+        "R1": -0.0036805803877211773
+      },
+      "seconds": 3608.1991312503815
+    },
+    {
+      "cell": 6,
+      "kind": "R",
+      "parameters": {
+        "model": "poisson",
+        "reliability": 0.7,
+        "error_corr": 0.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.541,
+        "R1": 0.8925
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.06340642029873692,
+        "R1": -0.00012207144400278036
+      },
+      "seconds": 4234.074065208435
+    },
+    {
+      "cell": 7,
+      "kind": "R",
+      "parameters": {
+        "model": "poisson",
+        "reliability": 0.7,
+        "error_corr": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.4525,
+        "R1": 0.889
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.07431219306191134,
+        "R1": -0.01645754184993531
+      },
+      "seconds": 4295.464009523392
+    },
+    {
+      "cell": 8,
+      "kind": "R",
+      "parameters": {
+        "model": "negbin",
+        "reliability": 0.9,
+        "error_corr": 0.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.8545,
+        "R1": 0.8985
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.01906454380534922,
+        "R1": 0.002102649059299244
+      },
+      "seconds": 4475.123794078827
+    },
+    {
+      "cell": 9,
+      "kind": "R",
+      "parameters": {
+        "model": "negbin",
+        "reliability": 0.9,
+        "error_corr": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.8385,
+        "R1": 0.8875
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.025813412035902705,
+        "R1": -0.005393293900970708
+      },
+      "seconds": 4686.905846595764
+    },
+    {
+      "cell": 10,
+      "kind": "R",
+      "parameters": {
+        "model": "negbin",
+        "reliability": 0.7,
+        "error_corr": 0.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.5795,
+        "R1": 0.9095
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.06602913069994945,
+        "R1": 0.0010879640422422066
+      },
+      "seconds": 4560.099041223526
+    },
+    {
+      "cell": 11,
+      "kind": "R",
+      "parameters": {
+        "model": "negbin",
+        "reliability": 0.7,
+        "error_corr": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "R0": 0.5035,
+        "R1": 0.9175
+      },
+      "failed": {
+        "R0": 0,
+        "R1": 0
+      },
+      "bias": {
+        "R0": -0.07941339228068489,
+        "R1": -0.016889137557740352
+      },
+      "seconds": 4600.473880529404
+    },
+    {
+      "cell": 12,
+      "kind": "M",
+      "parameters": {
+        "p": 3,
+        "reliability": 0.9,
+        "range_km": 0
+      },
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.9065,
+        "G2": 0.8925
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0
+      },
+      "bias": {
+        "G1": 0.007179021339917213,
+        "G2": 0.002347314019860103
+      },
+      "seconds": 25.570061206817627
+    },
+    {
+      "cell": 13,
+      "kind": "M",
+      "parameters": {
+        "p": 3,
+        "reliability": 0.9,
+        "range_km": 100
+      },
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.887,
+        "G2": 0.8775
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0
+      },
+      "bias": {
+        "G1": 0.003509591532698142,
+        "G2": 0.002890725417288964
+      },
+      "seconds": 39.82794237136841
+    },
+    {
+      "cell": 14,
+      "kind": "M",
+      "parameters": {
+        "p": 3,
+        "reliability": 0.7,
+        "range_km": 0
+      },
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.893,
+        "G2": 0.8935
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0
+      },
+      "bias": {
+        "G1": -0.0049485215737948285,
+        "G2": -0.005802106912779492
+      },
+      "seconds": 42.12506103515625
+    },
+    {
+      "cell": 15,
+      "kind": "M",
+      "parameters": {
+        "p": 3,
+        "reliability": 0.7,
+        "range_km": 100
+      },
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.881,
+        "G2": 0.927
+      },
+      "failed": {
+        "G1": 10,
+        "G2": 35
+      },
+      "bias": {
+        "G1": 0.06101101591196634,
+        "G2": -0.028516708837648508
+      },
+      "seconds": 41.47798490524292
+    },
+    {
+      "cell": 16,
+      "kind": "M",
+      "parameters": {
+        "p": 4,
+        "reliability": 0.9,
+        "range_km": 0
+      },
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.904,
+        "G2": 0.886
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0
+      },
+      "bias": {
+        "G1": 0.0013228927288475578,
+        "G2": 0.0019217556257216106
+      },
+      "seconds": 41.07884073257446
+    },
+    {
+      "cell": 17,
+      "kind": "M",
+      "parameters": {
+        "p": 4,
+        "reliability": 0.9,
+        "range_km": 100
+      },
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.8935,
+        "G2": 0.8765
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0
+      },
+      "bias": {
+        "G1": 0.010274244124314102,
+        "G2": -0.0002401850726993504
+      },
+      "seconds": 41.27561664581299
+    },
+    {
+      "cell": 18,
+      "kind": "M",
+      "parameters": {
+        "p": 4,
+        "reliability": 0.7,
+        "range_km": 0
+      },
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.8925,
+        "G2": 0.9045
+      },
+      "failed": {
+        "G1": 0,
+        "G2": 0
+      },
+      "bias": {
+        "G1": -0.012182660377801746,
+        "G2": -0.0051830098735087815
+      },
+      "seconds": 24.23080587387085
+    },
+    {
+      "cell": 19,
+      "kind": "M",
+      "parameters": {
+        "p": 4,
+        "reliability": 0.7,
+        "range_km": 100
+      },
+      "draws": 2000,
+      "coverage": {
+        "G1": 0.8895,
+        "G2": 0.912
+      },
+      "failed": {
+        "G1": 32,
+        "G2": 114
+      },
+      "bias": {
+        "G1": 0.09065122851763041,
+        "G2": 0.16793699402135753
+      },
+      "seconds": 25.62455177307129
+    }
+  ],
+  "passed": {
+    "R1_binomial": false,
+    "R1_poisson": true,
+    "R1_negbin": true,
+    "G1_p3": true,
+    "G2_p3": true,
+    "G1_p4": true,
+    "G2_p4": true
+  },
+  "draws_per_cell": 2000,
+  "criterion": "90% coverage of the true slope >= .86 in every cell, per procedure (R1 per model; G1/G2 per p); failed fits count as non-coverage; R0 is a comparison",
+  "criterion_commit": "4aceb22",
+  "frozen_sha256": {
+    "scripts/glm_correction_validation.py": "6c984ef3d09480bbfc1e591d8b02106a599df41619b246208433f65615b9821e",
+    "census/models.py": "61b014bd3fc2f1283a28ea4eed10504a46aeba4de75b5288dece22467eb54104",
+    "census/count_models.py": "32c09c9a4cb7e0362145146f322212aca8a75307363dd790c0c0a21185832c66",
+    "census/manova_counts_core.py": "a68b4ee3efe3015f08df890df63abd18bcf0e9a136e5b7ac34b26106adbd3471",
+    "census/spatial_eiv_core.py": "d1136dea82ab42a8afdd6594457f48db7eb2b3f15a19c9d373f683e86ba6885a",
+    "census/simulation.py": "b0ba4c803939d8803fc8a7e702b4f70bda5f486736bd651b8630d7e1262b198e",
+    "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+    "docs/audits/glm_correction_validation_criterion.md": "f520636dd7f45d177e319b63c4648d459c569971e175fd393045d55db04b37b1",
+    "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f"
+  }
+}

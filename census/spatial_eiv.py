@@ -27,7 +27,9 @@ from . import spatial_eiv_core as core
 
 AUDIT = "docs/audits/spatial_eiv_validation.md"
 VALIDATED = {"g1": True, "g2": True}
-VALIDATED_MAX_ERROR_COVARIATES = 2
+# Round 35 validated p <= 2; Round 46 (docs/audits/glm_correction_validation.md) p = 3 and 4.
+VALIDATED_MAX_ERROR_COVARIATES = 4
+MORE_COVARIATES_AUDIT = "docs/audits/glm_correction_validation.md"
 
 
 def _design(formula, frame, replicates, fixed_variables):
@@ -99,8 +101,12 @@ def fit_spatial_eiv(formula: str, frame: pd.DataFrame, replicates: pd.DataFrame,
         from .spatial_clusters import geography_notes
         notes.extend(n for n in geography_notes(assign.loc[ids].reset_index()) if n.startswith("CLUSTERS CROSS"))
     validated = len(error_prone) <= VALIDATED_MAX_ERROR_COVARIATES
+    if 3 <= len(error_prone) <= VALIDATED_MAX_ERROR_COVARIATES:
+        notes.append("With 3-4 error-prone covariates, low reliability (.7) and spatially correlated fields, Round 46 "
+                     "point estimates were unstable (mean bias up to +.17 on a slope of .5; up to 5.7% failed fits) "
+                     f"although interval coverage held (.88-.93; {MORE_COVARIATES_AUDIT}).")
     if not validated:
         notes.append(f"EXPLORATORY: {len(error_prone)} error-prone covariates; validated with at most "
-                     f"{VALIDATED_MAX_ERROR_COVARIATES} ({AUDIT}).")
+                     f"{VALIDATED_MAX_ERROR_COVARIATES} ({AUDIT}; {MORE_COVARIATES_AUDIT}).")
     return dict(method=method, table=table, n=len(y), validated=validated, error_prone=error_prone,
                 notes=notes, audit=AUDIT, **extra)

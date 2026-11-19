@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.43.0 (Round 46): measurement-error-corrected GLM slopes; spatial EIV with more covariates
+
+- Freeze the validation script and criterion at `4aceb22` before the run (2,000 draws per cell).
+- Regression calibration against the true slope: passed for Poisson (.869–.893) and NB2 (.887–.918);
+  failed for binomial (.851 at reliability .9 with correlated errors; .851–.889). Naive GLMs .38–.85.
+  `models.RC_VALIDATED` and a `regression_calibration_validated` diagnostic; binomial results carry an
+  EXPLORATORY note, and manifests refuse binomial regression calibration in confirmatory runs.
+- Spatial EIV G1/G2 with three and four error-prone covariates passed (.876–.927);
+  `spatial_eiv.VALIDATED_MAX_ERROR_COVARIATES` is now 4. At reliability .7 with correlated fields the
+  point estimates were unstable (mean bias up to +.17 on .5; up to 5.7% failed fits); fits with 3–4
+  error-prone covariates say so.
+- Exploratory example: Round 29 slopes with poverty's sampling error corrected (NB2;
+  `docs/studies/r46_rc_example.md`).
+
 ## 0.42.0 (Round 45): count-model repairs
 
 - Freeze procedures, script and criterion at `0c368dd` before the run.
