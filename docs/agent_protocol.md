@@ -370,6 +370,15 @@ and Cohen's kappa of quintile classes passed validation for independent areas. B
 limits of agreement (observed and error-free) and Lin's concordance correlation are reported,
 but their intervals failed (exploratory): differences of noisy estimates are heavy-tailed.
 
+## Combining evidence (Round 38)
+
+Round 38 combining evidence (full profile tool combine_estimates; recipe
+combine_estimates): pooling uses Paule-Mandel + Hartung-Knapp (validated for up to 4
+estimates); the fixed-effect interval only if homogeneity is declared in advance;
+DerSimonian-Laird under-covers with heterogeneity. TOST equivalence (margin set in
+advance) and z-test power/minimum detectable effects are validated. Pooling states is a
+new analysis, never a reinterpretation of a registered study.
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event

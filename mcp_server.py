@@ -205,6 +205,13 @@ and Cohen's kappa of quintile classes passed validation for independent areas. B
 limits of agreement (observed and error-free) and Lin's concordance correlation are reported,
 but their intervals failed (exploratory): differences of noisy estimates are heavy-tailed.
 
+Round 38 combining evidence (full profile tool combine_estimates; recipe
+combine_estimates): pooling uses Paule-Mandel + Hartung-Knapp (validated for up to 4
+estimates); the fixed-effect interval only if homogeneity is declared in advance;
+DerSimonian-Laird under-covers with heterogeneity. TOST equivalence (margin set in
+advance) and z-test power/minimum detectable effects are validated. Pooling states is a
+new analysis, never a reinterpretation of a registered study.
+
 Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
 and scale:"robust"; Poisson counts use exposure
 and scale:"robust". New external-count manifests refuse scale:"X2" (failed coverage validation).
@@ -1277,6 +1284,7 @@ for _fn in (
     workflows_inference.rank_areas,
     workflows_inference.build_index,
     workflows_inference.check_agreement,
+    workflows_inference.combine_estimates,
     workflows_inference.small_area_estimates,
     workflows_inference.correlation_matrix,
     workflows_inference.minimum_detectable_difference,
@@ -1326,6 +1334,7 @@ compare_groups = workflows_inference.compare_groups
 rank_areas = workflows_inference.rank_areas
 build_index = workflows_inference.build_index
 check_agreement = workflows_inference.check_agreement
+combine_estimates = workflows_inference.combine_estimates
 small_area_estimates = workflows_inference.small_area_estimates
 correlation_matrix = workflows_inference.correlation_matrix
 minimum_detectable_difference = workflows_inference.minimum_detectable_difference

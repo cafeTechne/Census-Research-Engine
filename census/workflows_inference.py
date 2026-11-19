@@ -492,6 +492,56 @@ def check_agreement(
                **_jsonable(out))
 
 
+def combine_estimates(
+    kind: str,
+    estimates: Optional[List[float]] = None,
+    ses: Optional[List[float]] = None,
+    labels: Optional[List[str]] = None,
+    method: str = "hksj",
+    assume_homogeneous: bool = False,
+    margin: Optional[float] = None,
+    effect: Optional[float] = None,
+    se: Optional[float] = None,
+    target_power: float = 0.80,
+) -> Dict[str, Any]:
+    """Combine evidence: pool several estimates of one effect, test whether two estimates are
+    equivalent, or compute power / the minimum detectable effect.
+
+    Args:
+        kind: "pool" (estimates, ses; method "hksj" default), "equivalence" (two estimates and
+            ses, margin set in advance) or "power" (se, and effect for its power).
+        assume_homogeneous: Declared in advance; needed for a validated fixed-effect interval.
+    Validated (Round 38): HKSJ pooling for up to 4 estimates; TOST; z-test power.
+    Example: combine_estimates("pool", estimates=[0.027, 0.035], ses=[0.0055, 0.0048])
+    """
+    from census import evidence
+
+    try:
+        if kind == "pool":
+            out = evidence.combine_estimates(estimates or [], ses or [], method=method,
+                                             assume_homogeneous=assume_homogeneous, labels=labels)
+            p = out["pooled"]
+            summary = (f"Pooled {p['estimate']:.4g} (90% CI {p['lower']:.4g} to {p['upper']:.4g}; {method}); "
+                       f"I² {out['heterogeneity']['I2']:.0%}; {'validated' if out['validated'] else 'exploratory'}.")
+        elif kind == "equivalence":
+            if not (estimates and ses and len(estimates) == 2 and len(ses) == 2 and margin):
+                return _fail(errors.INVALID_INPUT, "equivalence needs two estimates, two ses and a margin.")
+            out = evidence.equivalence(estimates[0], ses[0], estimates[1], ses[1], margin)
+            summary = f"Difference {out['difference']:.4g}; {'equivalent' if out['equivalent'] else 'not shown equivalent'} within ±{margin}."
+        elif kind == "power":
+            if se is None:
+                return _fail(errors.INVALID_INPUT, "power needs se.")
+            out = evidence.power(se, effect, target_power)
+            summary = f"Minimum detectable effect {out['minimum_detectable_effect']:.4g} at {target_power:.0%} power" + (
+                f"; power for {effect} is {out['power']:.0%}" if effect is not None else "") + "."
+        else:
+            return _fail(errors.INVALID_INPUT, "kind must be 'pool', 'equivalence' or 'power'.")
+    except _INPUT_ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}", "check the inputs, then retry")
+    from census.results import _jsonable
+    return _ok(summary, "report the estimate with its interval and say whether it is validated", **_jsonable(out))
+
+
 def small_area_estimates(
     input_path: str,
     formula: str,

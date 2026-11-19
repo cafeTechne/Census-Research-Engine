@@ -5,6 +5,16 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.35.0 (Round 38): combining evidence
+
+- Freeze procedures, script and criterion at `3edd5f4` before the run.
+- Passed: Paule–Mandel + Hartung–Knapp–Sidik–Jonkman pooling for 2–4 estimates; fixed effect only
+  without heterogeneity; TOST equivalence; z-test power and minimum detectable effects. Failed:
+  DerSimonian–Laird with heterogeneity; HKSJ at 8 studies with heterogeneity (.855).
+- New `census.evidence_core` (frozen), `census.evidence`, MCP tool `combine_estimates`, recipe
+  `combine_estimates`.
+- Exploratory example: pooling Round 29's replications.
+
 ## 0.34.0 (Round 37): agreement between sources
 
 - Freeze procedures, script, criterion and targets at `e6d4be6` before the 8-cell run.

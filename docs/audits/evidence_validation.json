@@ -1,0 +1,134 @@
+{
+  "meta": [
+    {
+      "cell": 0,
+      "k": 2,
+      "heterogeneous": false,
+      "draws": 2000,
+      "coverage": {
+        "fixed": 0.8975,
+        "dl": 0.923,
+        "hksj": 0.885
+      }
+    },
+    {
+      "cell": 1,
+      "k": 2,
+      "heterogeneous": true,
+      "draws": 2000,
+      "coverage": {
+        "fixed": 0.7245,
+        "dl": 0.818,
+        "hksj": 0.9105
+      }
+    },
+    {
+      "cell": 2,
+      "k": 4,
+      "heterogeneous": false,
+      "draws": 2000,
+      "coverage": {
+        "fixed": 0.8835,
+        "dl": 0.913,
+        "hksj": 0.892
+      }
+    },
+    {
+      "cell": 3,
+      "k": 4,
+      "heterogeneous": true,
+      "draws": 2000,
+      "coverage": {
+        "fixed": 0.703,
+        "dl": 0.8405,
+        "hksj": 0.885
+      }
+    },
+    {
+      "cell": 4,
+      "k": 8,
+      "heterogeneous": false,
+      "draws": 2000,
+      "coverage": {
+        "fixed": 0.89,
+        "dl": 0.916,
+        "hksj": 0.889
+      }
+    },
+    {
+      "cell": 5,
+      "k": 8,
+      "heterogeneous": true,
+      "draws": 2000,
+      "coverage": {
+        "fixed": 0.436,
+        "dl": 0.817,
+        "hksj": 0.855
+      }
+    }
+  ],
+  "tost": [
+    {
+      "se": [
+        1.0,
+        1.0
+      ],
+      "margin": 3.0,
+      "size": 0.0458,
+      "power_at_zero": 0.37165
+    },
+    {
+      "se": [
+        1.0,
+        2.0
+      ],
+      "margin": 3.0,
+      "size": 0.0,
+      "power_at_zero": 0.0
+    }
+  ],
+  "power": [
+    {
+      "predicted": 0.5005014583328204,
+      "alpha": 0.1,
+      "empirical": 0.5079
+    },
+    {
+      "predicted": 0.8000180336372993,
+      "alpha": 0.1,
+      "empirical": 0.79985
+    },
+    {
+      "predicted": 0.5000442877191607,
+      "alpha": 0.05,
+      "empirical": 0.5063
+    },
+    {
+      "predicted": 0.8000009605622266,
+      "alpha": 0.05,
+      "empirical": 0.7958
+    }
+  ],
+  "passed": {
+    "fixed/k2": true,
+    "dl/k2": false,
+    "hksj/k2": true,
+    "fixed/k4": true,
+    "dl/k4": false,
+    "hksj/k4": true,
+    "fixed/k8": true,
+    "dl/k8": false,
+    "hksj/k8": false,
+    "tost": true,
+    "power": true
+  },
+  "draws_per_meta_cell": 2000,
+  "draws_per_setting": 20000,
+  "criterion": "pooled: 90% coverage >= .86 per k (fixed only without heterogeneity; dl, hksj in all cells); TOST: size at the margin <= .07 (nominal .05); power: |predicted - empirical| <= .03",
+  "criterion_commit": "3edd5f4",
+  "frozen_sha256": {
+    "scripts/evidence_validation.py": "8bd095f845ba6f3aefed0d68213d58af3396f4c3005f34de46369e117ff9b65c",
+    "census/evidence_core.py": "276c81b01a02195972f010d9f059c0e72aab795b96be88d17e0f7d6f834abc41",
+    "docs/audits/evidence_validation_criterion.md": "501311e2afdba1ce9e4bad39a237b0946bc115cdd56087949970832518c18348"
+  }
+}
