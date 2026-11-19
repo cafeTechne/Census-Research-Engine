@@ -27,4 +27,5 @@ mirrored; recipe `external_health_outcome`.
 
 ## Goldens and suite
 
-See STATUS (Round 44).
+Both goldens byte-identical to v0.40.0. Suite: 1999 passed, 37 skipped, 63 subtests; 0 failures
+(baseline 1993; 6 new tests).

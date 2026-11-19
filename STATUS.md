@@ -123,7 +123,7 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 post hoc NB2 sensitivity of Round 29 (all three associations hold in both regions) and an OH/PA re-check of
 the spatial validations (criterion `09ecd91`): corrected-slope G1/G2 replicate; naive IM-8 C1 fails with
 spatially correlated fields. Engine notes for IM-8 outside MI/NY and for clusters crossing state borders;
-NB2 optimizer fallback. Goldens unchanged.
+NB2 optimizer fallback. Goldens unchanged. Acceptance: 1999 passed, 37 skipped; 0 failures.
 
 **Round 43 (v0.40.0; merged, release pending owner approval; implemented by the maintainer agent):**
 manifest routing and housekeeping, no new statistics. Opt-in manifest options: validated correlation

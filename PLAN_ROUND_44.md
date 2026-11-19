@@ -63,9 +63,9 @@ the P1 result. CHANGELOG, version 0.41.0, goldens unchanged, full suite.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit | | |
-| A. R29 P0/P1/P2 | | |
-| B. C1 / G1 / G2 on OH/PA | | |
-| Engine notes, tests | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Criterion commit | `09ecd91` | Pushed before both runs. |
+| A. R29 P0/P1/P2 | Done | H1–H3 hold under NB2 in both regions; P2 as complete case. |
+| B. C1 / G1 / G2 on OH/PA | Done | G1/G2 replicate; C1 fails in spatial cells. |
+| Engine notes, tests | Done | geography_notes; NB2 fallback; 6 tests. |
+| Goldens, final suite | Done | Identical; 1999 passed, 0 failures. |
+| Exceptions | Recorded | NB2 BFGS non-convergence stopped the first post hoc run before output; optimizer fallback. |
