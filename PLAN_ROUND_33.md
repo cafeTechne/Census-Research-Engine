@@ -24,7 +24,7 @@ v_rep the replicate variance of atanh(r) (r recomputed on each of the 80 replica
 | :--- | :--- | :--- |
 | P1 / P2 | Pearson | SE² = 1/(n − 3) / plus v_rep |
 | S1 / S2 | Spearman | SE² = 1.06/(n − 3) / plus v_rep |
-| K1 / K2 | Kendall τ_b, on the scale of 2/π·asin | SE² from the iid large-sample variance (Noether) mapped by the delta method / plus v_rep |
+| K1 / K2 | Kendall τ_b | SE² = 0.437/(n − 4) (Fieller, Hartley and Pearson 1957) / plus v_rep |
 | Q1 / Q2 | partial Pearson given z | SE² = 1/(n − 4) / plus v_rep |
 
 Group rank procedures (two groups; areas): **B1** probability of superiority p̂ = P(X > Y) + ½P(X = Y)
