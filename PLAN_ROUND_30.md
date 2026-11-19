@@ -2,30 +2,30 @@
 
 **Goal.** Make spatially robust inference usable on the registered MI/NY county studies. Round 26 found
 that only Ibragimov–Müller with eight fixed clusters (IM-8) holds coverage under spatial dependence, but
-the engine refuses it whenever analysed variables carry ACS replicates, refuses EIV, and refuses designs
-with a state fixed effect. Every registered county study has all three. This round:
+the engine refuses it whenever analysed variables carry ACS replicates, refuses EIV and Poisson, and
+refuses designs with a state fixed effect. Every registered county study has at least three of these;
+Round 29's mortality study (Poisson, ACS replicates, state fixed effect) states spatial dependence as its
+main open limitation. This round:
 
 - **(A)** validates two IM-8 procedures on data with ACS-type sampling error, and a rule for fixed effects
   that are constant within clusters;
 - **(B)** ships whichever pass, behind the existing `spatial_clusters` argument;
-- **(C)** re-runs the R21b and R22 hypotheses with them, post hoc.
+- **(C)** re-runs the R21b, R22 and R29 (MI/NY) hypotheses with them, post hoc.
 
-Version: the next minor version after the current release.
-
-**Ordering.** This round does not depend on Rounds 27–29. If Round 29 is still blocked on the owner's
-exports, the owner may tell you to implement this round first. Otherwise follow the lowest-numbered rule.
+Version: 0.27.0 (current release v0.26.0). Baseline suite at v0.26.0: 1860 passed, 37 skipped.
 
 **Non-goals.**
 
 - No spatial random-effects, SAR or CAR models. If both candidates fail, record that and stop. Spatial
   random effects then become the next backlog step.
-- No measurement-error correction for GLMs. Binomial models get the naive-estimand procedure only (C1).
+- No measurement-error correction for GLMs. Binomial and Poisson models get the naive-estimand
+  procedure only (C1).
 - No other cluster counts. Only k = 8 passed in Round 26; do not try other k.
 - No changes to registered manifests or their outputs. No new MCP tools or dependencies.
 
 ## 0. Ground rules
 
-1. Branch `phase30/im-acs` from `defaultBranch`. Do not merge, tag or release. Never rebase or
+1. Branch `phase30/im-acs` from `defaultBranch` (at or after `89edb41`). Do not merge, tag or release. Never rebase or
    force-push. Work in your own clone or worktree, never in the owner's checkout.
 2. **No AI attribution** in commits or the PR body. Never print, log or commit `.env` or any key or token.
 3. Read `CLAUDE.md` and `STATUS.md` first. Use `.venv/bin/python` and `OPENBLAS_NUM_THREADS=1`. No GitHub CI.
@@ -53,7 +53,7 @@ Both are addressed by simulation, not by argument:
 
 | ID | Models | Per-cluster estimator | Target of the 90% interval |
 | :--- | :--- | :--- | :--- |
-| C1 | OLS, binomial | the existing fit on the observed ACS estimates (naive) | the naive coefficient's probability limit `β*` |
+| C1 | OLS, binomial, Poisson (offset `log E`, E fixed) | the existing fit on the observed ACS estimates (naive) | the naive coefficient's probability limit `β*` |
 | C2 | OLS | Fuller EIV with that cluster's own `S_i`, `s_i` from the replicates | the true coefficient `β` |
 
 - **Common to both:**
@@ -84,6 +84,9 @@ Both are addressed by simulation, not by argument:
 - **Outcomes:**
   - linear: `y = 1 + 0.5·x1 + 0.5·x2 + 0.3·NY + error`;
   - binomial: `logit p = −2.6 + 0.3·x1 + 0.3·x2 + 0.2·NY + 0.15·error`, with trials as in Round 22;
+  - Poisson: `deaths ~ Poisson(E·exp(0.3·x1 + 0.3·x2 + 0.2·NY + 0.15·error))`, with expected counts
+    `E = max(5, round(lognormal(log 100, 1)))` drawn once per cell (like Round 22's trials), fixed and
+    known to the fit as the offset. `error` is the same spatial field as in the binomial model;
   - the outcome is external, so it has no sampling error and no replicates.
 - **Sampling error:**
   - observed `xj = true xj + u_ij`, with `u_ij ~ N(0, se_ij²)` independent across counties;
@@ -91,10 +94,11 @@ Both are addressed by simulation, not by argument:
     `var(x)/(var(x)+mean se²)` equals the cell's value;
   - replicates come from `census.simulation.make_replicates(observed, se, rng)`, with cross-variable
     correlation 0.3.
-- **Cells:** model {linear, binomial} × range {0, 100 km} × reliability {0.9, 0.7}: 8 cells, 2,000
-  draws each. Seed `20261201 + cell index`, nested in that order. Bootstrap or other RNG uses an
+- **Cells:** model {linear, binomial, Poisson} × range {0, 100 km} × reliability {0.9, 0.7}: 12 cells,
+  2,000 draws each. Seed `20261201 + cell index`, nested in that order (linear 0–3, binomial 4–7,
+  Poisson 8–11). Bootstrap or other RNG uses an
   independent `SeedSequence([20261201, cell, draw, 7])`.
-- **Runs:** C1 runs in all 8 cells; C2 runs in the 4 linear cells.
+- **Runs:** C1 runs in all 12 cells; C2 runs in the 4 linear cells.
 - **Target `β*` for C1:**
   - compute it before the full run from one reference dataset of 400,000 independent areas with the same
     marginal distributions;
@@ -114,6 +118,9 @@ Both are addressed by simulation, not by argument:
   variables with replicates.
   - The note states the estimand: "coefficient on the ACS estimates as observed; attenuated toward 0 if
     covariates have sampling error, and not corrected".
+  - Poisson: if C1 passes for Poisson, lift the "EIV/Poisson were not validated" refusal for Poisson
+    only (`exposure` gives the fixed offset in every cluster fit); EIV stays refused unless C2 passes.
+    `spatial_clusters` stays mutually exclusive with `scale="robust"`.
   - `se_cluster_mean` stays the SE column. ACS replicates are not added; the methods text says why.
 - **`fit_eiv`:** new keyword `spatial_clusters`, with the same check as `fit_replicate`.
   - Method `im` only, k = 8, OLS only. It refuses `cluster`, `spatial_se`, `cluster_se` and `weights`.
@@ -140,16 +147,27 @@ cached analysed-file hashes first. Registered outputs are not changed.
   - H1–H3 with C1 binomial, if it passed;
   - state the naive estimand;
   - Holm as registered.
+- **R29 (MI/NY only):**
+  - H1–H3 with C1 Poisson, if it passed; the offset `log E_h` fixed as registered; the state factor
+    dropped within clusters; Holm over H1–H3 as registered; state the naive estimand;
+  - inputs: the analysed frame and replicates in the v0.26.0 release attachment `r29_study_outputs.tar.gz`
+    (`r29/mi_ny/confirmatory/analysed/`; a local copy is at `/tmp/r29_study_outputs.tar.gz`); verify their SHA-256 against that bundle's `run.json` first;
+  - clusters are assigned on all 145 counties before complete-case filtering (the engine's rule), so
+    H2 runs without its 13 suppressed counties; if a cluster then cannot be fitted, H2 is "unavailable";
+  - all WONDER output rules apply (`STATUS.md`): no county death counts or derived values for suppressed
+    counties in any output; per-cluster estimates are coefficients only;
+  - OH/PA is not re-checked: the validation geometry is MI/NY only. Say so in the report.
 - **Report:** a table with the registered Holm p, the IM-8 Holm p and "still holds under IM-8?". Also give
   the per-cluster estimates and the residual Moran's I of each reference fit.
 - **Failures:** if a candidate failed, the corresponding row says "unavailable". No p-values are invented.
-- **Archive:** outputs go in a key-scanned archive (`r30_study_outputs.tar.gz`), attached at release. The
+- **Archive:** outputs go in a key-scanned archive that also passes `census.wonder_outputs.audit_outputs` for the R29 part (`r30_study_outputs.tar.gz`), attached at release. The
   report names that file, not a `/tmp` path.
 
 ## 6. Tests (`tests/test_round30.py`)
 
 - **C1 and C2 estimators:**
-  - the C1 cluster estimates equal separate `statsmodels` fits per cluster;
+  - the C1 cluster estimates equal separate `statsmodels` fits per cluster (OLS, binomial, and Poisson
+    with the offset);
   - each C2 cluster estimate equals `fit_eiv` run on that cluster's rows alone;
   - the IM mean, SE, t(7) interval and one-sided p are checked by hand.
 - **Constant-term rule:**
@@ -187,9 +205,9 @@ cached analysed-file hashes first. Registered outputs are not changed.
 | :--- | :--- | :--- |
 | Baseline suite | | |
 | Criterion commit, `β*` values | | |
-| C1 linear / C1 binomial / C2 results | | |
+| C1 linear / C1 binomial / C1 Poisson / C2 results | | |
 | Engine gates and tests | | |
-| Post hoc R21b / R22 | | |
+| Post hoc R21b / R22 / R29 MI/NY | | |
 | Golden changes | | |
 | Final suite | | |
 | Exceptions | | |
