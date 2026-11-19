@@ -34,8 +34,9 @@ the true counts.
 - Each observed count is a Gamma draw with mean = truth and SD = the published SE, generated through a
   Gaussian copula with correlation ρ between the groups of a tract. Counts are therefore non-negative.
   A true zero stays zero, a documented simplification.
-- The 80 replicates are Gamma draws with mean = the observed count and SD = the SE, from the same
-  copula. They are non-negative, and their 4/80 variance has ACS-like noise.
+- The 80 replicates are Gamma draws with mean = the observed count and SD = SE/2 (so that the
+  4/80 replicate formula estimates SE²; corrected from "SD = the SE" after the smoke run), from the
+  same copula. Draws are rounded to whole counts, as ACS estimates are. They are non-negative, and their 4/80 variance has ACS-like noise.
 
 **Cells (4).** {two groups, three groups} × ρ ∈ {0, −.3}. 2,000 draws per cell; seed `20270801 + cell`.
 
