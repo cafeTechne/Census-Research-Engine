@@ -21,4 +21,5 @@ claims need a registered design); the recipe carries a synthetic one. No manifes
 
 ## Goldens and suite
 
-See STATUS (Round 41).
+Both goldens byte-identical to v0.37.0. Suite: 1972 passed, 37 skipped, 63 subtests; 0 failures
+(baseline 1967; 5 new tests).

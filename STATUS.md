@@ -120,7 +120,8 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 
 **Round 41 (v0.38.0; merged, release pending owner approval; implemented by the maintainer agent):**
 causal tools. Criterion `b7464e5` pushed before the run. New `census.causal_core`, `census.causal`,
-MCP tool `estimate_effect` (full profile), recipe `causal`. Goldens unchanged.
+MCP tool `estimate_effect` (full profile), recipe `causal`. Goldens unchanged. Acceptance: 1972 passed,
+37 skipped; 0 failures.
 
 **Round 40 (v0.37.0; merged, release pending owner approval; implemented by the maintainer agent):**
 beta and median regression. Criterion `d5c9b02` pushed before the run. New `census.beta_median_core`,
