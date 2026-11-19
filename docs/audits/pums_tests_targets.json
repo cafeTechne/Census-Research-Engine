@@ -1,0 +1,17 @@
+{
+  "diff_prop": 0.11361428984227873,
+  "odds_ratio": 1.919790998889749,
+  "relative_risk": 1.6559850511621919,
+  "diff_mean": 5496.56062395234,
+  "diff_median": 4562.506438393029,
+  "rare_prevalence": 0.03011635975532561,
+  "reference": {
+    "households": 2000000,
+    "persons": 4998977,
+    "seed": [
+      20261225,
+      2000000
+    ],
+    "note": "marginal distributions do not depend on rho, weights or m"
+  }
+}

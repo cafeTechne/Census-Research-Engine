@@ -42,8 +42,8 @@ class TestProfileSelection(unittest.TestCase):
         registered = {t.name for t in srv.mcp._tool_manager.list_tools()}
         expected = [n for n in mcp_profiles.PROFILES["core"] if n in registered]
         self.assertEqual(list(CORE_TOOLS), expected)
-        # 15 since Round 31: compare_groups joined core (ROADMAP_STATISTICS.md section 4).
-        self.assertLessEqual(len(CORE_TOOLS), 15)
+        # 16 since Round 32: compare_groups and test_association joined core (ROADMAP_STATISTICS.md section 4).
+        self.assertLessEqual(len(CORE_TOOLS), 16)
         # Every profile name must be a registered tool.
         for profile in ("core", "review"):
             missing = set(mcp_profiles.PROFILES[profile]) - registered
