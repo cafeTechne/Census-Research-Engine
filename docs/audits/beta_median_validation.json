@@ -1,0 +1,103 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "kind": "beta",
+      "reliability": 0.9,
+      "outcome_error": 0.02,
+      "draws": 1000,
+      "coverage": {
+        "B1": 0.888,
+        "B2": 0.892,
+        "B3": 0.95
+      },
+      "failures": 0,
+      "seconds": 194.74349737167358
+    },
+    {
+      "cell": 1,
+      "kind": "beta",
+      "reliability": 0.9,
+      "outcome_error": 0.05,
+      "draws": 1000,
+      "coverage": {
+        "B1": 0.895,
+        "B2": 0.903,
+        "B3": 0.957
+      },
+      "failures": 0,
+      "seconds": 196.16973423957825
+    },
+    {
+      "cell": 2,
+      "kind": "beta",
+      "reliability": 0.7,
+      "outcome_error": 0.02,
+      "draws": 1000,
+      "coverage": {
+        "B1": 0.856,
+        "B2": 0.892,
+        "B3": 0.987
+      },
+      "failures": 0,
+      "seconds": 191.47690057754517
+    },
+    {
+      "cell": 3,
+      "kind": "beta",
+      "reliability": 0.7,
+      "outcome_error": 0.05,
+      "draws": 1000,
+      "coverage": {
+        "B1": 0.859,
+        "B2": 0.885,
+        "B3": 0.991
+      },
+      "failures": 0,
+      "seconds": 197.0535740852356
+    },
+    {
+      "cell": 4,
+      "kind": "median",
+      "reliability": 0.9,
+      "outcome_error": null,
+      "draws": 1000,
+      "coverage": {
+        "Q1": 0.912,
+        "Q2": 0.993
+      },
+      "failures": 0,
+      "seconds": 262.09540367126465
+    },
+    {
+      "cell": 5,
+      "kind": "median",
+      "reliability": 0.7,
+      "outcome_error": null,
+      "draws": 1000,
+      "coverage": {
+        "Q1": 0.917,
+        "Q2": 0.991
+      },
+      "failures": 0,
+      "seconds": 259.8498492240906
+    }
+  ],
+  "passed": {
+    "B1": false,
+    "B2": true,
+    "B3": true,
+    "Q1": true,
+    "Q2": true
+  },
+  "draws_per_cell": 1000,
+  "criterion": "90% coverage of the naive-target slope >= .86 in every cell of the family; failures count as non-coverage",
+  "criterion_commit": "d5c9b02",
+  "frozen_sha256": {
+    "scripts/beta_median_validation.py": "8f9f38bc501e0fbfc1144a8c43f3aa0f2ca5ef143e125bffa3212012ffa49dc7",
+    "census/beta_median_core.py": "a5c3808c2b9f50f3d16c4260f4c2d9a22e3a21d51f9eb986bab0afe8d0fc3d47",
+    "census/simulation.py": "b0ba4c803939d8803fc8a7e702b4f70bda5f486736bd651b8630d7e1262b198e",
+    "docs/audits/beta_median_validation_criterion.md": "f5502c4cb8d44fc835cf649e21f508b9257d5c1f11cf657aca1c6ef7abc6487e",
+    "docs/audits/beta_median_targets.json": "69cc64299fcee876ff9b2a9d98fd6fc314b95c7aa4ccdb41d556dae67ae7a596"
+  }
+}
