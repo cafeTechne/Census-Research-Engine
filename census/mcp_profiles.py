@@ -42,6 +42,7 @@ PROFILES: Dict[str, Optional[List[str]]] = {
         "build_analysis_frame",
         "fit_model",
         "compare_groups",
+        "test_association",
         "make_figure",
         "make_map",
         "run_manifest",  # registered by workstream D; skipped while absent
@@ -156,6 +157,13 @@ DESCRIPTION_OVERRIDES: Dict[str, str] = {
         "Example: fit_model(input_path=\"downloads/analysis_frame.parquet\", "
         "formula=\"poverty_rate ~ median_rent\")"
     ),
+    "test_association": (
+        "Survey-correct tests on PUMS microdata with replicate weights.\n"
+        "state, year. kind: independence (row, col) | two_by_two (exposure, outcome) | means (var, by) | "
+        "medians (var, by) | proportion (var).\n"
+        "Conditions use PUMS codes, e.g. outcome=\"POVPIP < 100\". where: universe. Results say validated or exploratory.\n"
+        "Example: test_association(state=\"26\", year=2022, kind=\"two_by_two\", exposure=\"DIS == 1\", outcome=\"POVPIP < 100\")"
+    ),
     "compare_groups": (
         "Compare an area outcome across groups: t-test, ANOVA, ANCOVA or interaction, with ACS error.\n"
         "input_path: analysis frame. outcome: column. group: category column or 'state'. "
@@ -265,7 +273,16 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      spatial tests need every group in every cluster. Round 27 joint_wald (chi-squared)
      stays exploratory; confirmatory binomial/Poisson splines need joint_test hypotheses.
 
-11. Event-count EB smoothing is descriptive Python-library work, not a new tool or
+11. Round 32 PUMS tests: test_association (recipe pums_tests) on PUMS microdata with
+     the 80 replicate weights. Validated (docs/audits/pums_tests_validation.md, household
+     clustering, weight CV up to 1.0, 800-3000 households): first-order Rao-Scott
+     independence tests for tables up to 3x4; k-group mean tests (design Wald F; z for two
+     groups); differences of proportions, odds ratios, relative risks, differences of means
+     and medians; Korn-Graubard intervals for one proportion. The design-blind Pearson test
+     is far too liberal; Wald proportion intervals under-cover for rare outcomes in small
+     domains; larger tables are exploratory. No continuity corrections: empty 2x2 cells are refused.
+
+12. Event-count EB smoothing is descriptive Python-library work, not a new tool or
    manifest method: get_recipe('small_area'). Use fixed expected counts, preserve
    WONDER [1,9] suppression, report validation metadata; never impute suppressed
    counts or call EB limits ACS MOEs. Posterior 90% and 200-refit Laird-Louis
@@ -278,7 +295,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    to variable. W has chi-squared(q), recorded df, no coefficient CI or odds ratio.
    HC3 / ACS covariance / their sum matches target; singular covariance is not
    tested. See the protocol for full covariance metadata and validation scope.
-12. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
+13. Segregation: get_recipe('segregation'), then existing manifest tools. Tract
    groups are mutually exclusive counts, within county. Defaults: naive D,
    corrected isolation/H; failed overrides and multigroup H exploratory only.
    Strict 80 replicates, no clipping/holding missing counts fixed. Zero tracts

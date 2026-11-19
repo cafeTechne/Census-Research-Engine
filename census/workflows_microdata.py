@@ -87,6 +87,82 @@ def pums_tabulate(
                output_path=path, preview=_records(out, 20), warnings=warns)
 
 
+_ASSOCIATION_KINDS = ("independence", "two_by_two", "means", "medians", "proportion")
+
+
+def test_association(
+    state: str,
+    year: int,
+    kind: str,
+    row: Optional[str] = None,
+    col: Optional[str] = None,
+    var: Optional[str] = None,
+    by: Optional[str] = None,
+    exposure: Optional[str] = None,
+    outcome: Optional[str] = None,
+    where: Optional[str] = None,
+    weight: str = "person",
+    product: str = "5-year",
+    method: str = "korn_graubard",
+) -> Dict[str, Any]:
+    """Survey-correct tests and intervals on ACS PUMS microdata (replicate weights).
+
+    Args:
+        state: 2-digit FIPS. year: release end year. product: "5-year" or "1-year".
+        kind: "independence" (row x col table; Rao-Scott test), "two_by_two"
+            (exposure and outcome conditions; difference, odds ratio, relative risk),
+            "means" (var by groups; difference and test), "medians" (var by two groups),
+            or "proportion" (share with var true; Korn-Graubard interval).
+        row/col, var/by, exposure/outcome: PUMS variables or conditions, e.g. "DIS",
+            "HICOV == 2", "POVPIP < 100".
+        where: pandas query on PUMS codes, e.g. "AGEP >= 19 and AGEP <= 64".
+        weight: "person" (PWGTP) or "housing" (WGTP).
+    Results say whether the procedure was validated; small groups are flagged.
+    Example: test_association("26", 2022, "two_by_two", exposure="DIS == 1", outcome="POVPIP < 100")
+    """
+    from census import pums, pums_inference as pi
+
+    if kind not in _ASSOCIATION_KINDS:
+        return _fail(errors.INVALID_INPUT, f"kind must be one of {_ASSOCIATION_KINDS}.")
+    need = {"independence": ("row", "col"), "two_by_two": ("exposure", "outcome"), "means": ("var", "by"),
+            "medians": ("var", "by"), "proportion": ("var",)}[kind]
+    given = dict(row=row, col=col, var=var, by=by, exposure=exposure, outcome=outcome)
+    missing = [k for k in need if not given[k]]
+    if missing:
+        return _fail(errors.INVALID_INPUT, f"kind={kind!r} needs {', '.join(missing)}.",
+                     f"call test_association again with {', '.join(missing)}")
+    record = "housing" if weight == "housing" else "person"
+    try:
+        columns = _pums_columns(row, col, var, by, exposure, outcome, where)
+        df = pums.fetch_pums(state, year, product=product, record=record, columns=columns or None)
+        if kind == "independence":
+            out = pi.independence_test(df, row, col, weight=weight, where=where)
+            summary = (f"{row} and {col}: Rao-Scott p = {out['p_value']:.3g} "
+                       f"(design effect {out['design_effect_mean']:.2f}; {'validated' if out['validated'] else 'exploratory'})")
+        elif kind == "two_by_two":
+            out = pi.two_by_two(df, exposure, outcome, weight=weight, where=where)
+            o, d = out["odds_ratio"], out["difference_of_proportions"]
+            summary = (f"Odds ratio {o['estimate']:.3g} (90% CI {o['lower']:.3g}-{o['upper']:.3g}); "
+                       f"difference {d['estimate']:.3g} ({d['lower']:.3g} to {d['upper']:.3g})")
+        elif kind == "means":
+            out = pi.compare_means(df, var, by, weight=weight, where=where)
+            summary = f"Means of {var} by {by}: {out['test']} p = {out['p_value']:.3g}"
+        elif kind == "medians":
+            out = pi.compare_medians(df, var, by, weight=weight, where=where)
+            d = out["difference"]
+            summary = f"Median difference {d['estimate']:.4g} (90% CI {d['lower']:.4g} to {d['upper']:.4g})"
+        else:
+            out = pi.proportion_interval(df, var, weight=weight, where=where, method=method)
+            summary = f"Proportion {out['estimate']:.4g} (90% CI {out['lower']:.4g}-{out['upper']:.4g}; {out['method']})"
+    except _ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
+                     "check the variable names, conditions and universe, then retry")
+    from census.results import _jsonable
+    next_step = ("report the estimate with its interval" if out.get("validated", True) else
+                 "treat as exploratory; see notes")
+    return _ok(summary, next_step, **_jsonable(out))
+
+
 def pums_regression(
     state: str,
     year: int,

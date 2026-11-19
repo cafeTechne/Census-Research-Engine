@@ -313,6 +313,17 @@ and population-target tests with replicates are exploratory. Groups need >=5 are
 spatial tests need every group in every cluster. Round 27 joint_wald (chi-squared)
 stays exploratory; confirmatory binomial/Poisson splines need joint_test hypotheses.
 
+## PUMS tests (Round 32)
+
+Round 32 PUMS tests: test_association (recipe pums_tests) on PUMS microdata with
+the 80 replicate weights. Validated (docs/audits/pums_tests_validation.md, household
+clustering, weight CV up to 1.0, 800-3000 households): first-order Rao-Scott
+independence tests for tables up to 3x4; k-group mean tests (design Wald F; z for two
+groups); differences of proportions, odds ratios, relative risks, differences of means
+and medians; Korn-Graubard intervals for one proportion. The design-blind Pearson test
+is far too liberal; Wald proportion intervals under-cover for rare outcomes in small
+domains; larger tables are exploratory. No continuity corrections: empty 2x2 cells are refused.
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event
