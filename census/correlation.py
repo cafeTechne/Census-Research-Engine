@@ -243,3 +243,66 @@ def _replicate_se(reps, vi, vj, data, r_full, method, notes) -> float:
         notes.append(f"({vi}, {vj}): replicate SE uses {int(ok.sum())} units with complete replicates")
     rr = np.array([_corr(ri[ok, c], rj[ok, c], method)[0] for c in range(ri.shape[1])])
     return float(math.sqrt(REPLICATE_FACTOR * np.sum((rr - base) ** 2)))
+
+
+# ---------------------------------------------------------------------------
+# Round 33: validated intervals (docs/audits/rank_validation.md, criterion f660e9c)
+# ---------------------------------------------------------------------------
+
+#: Interval variant validated per coefficient: 1 = iid Fisher-type formula, 2 = plus the ACS
+#: replicate variance of atanh(r). Pearson and partial need replicates; with no replicates their
+#: (variant 1) intervals failed and are labelled exploratory.
+VALIDATED_VARIANT = {"pearson": 2, "spearman": 1, "kendall": 1, "partial": 2}
+RANK_AUDIT = "docs/audits/rank_validation.md"
+
+
+def validated_correlations(frame: pd.DataFrame, variables: Sequence[str], method: str = "spearman",
+                           replicates: Optional[pd.DataFrame] = None, controls: Sequence[str] = (),
+                           confidence_level: float = 0.90) -> pd.DataFrame:
+    """One row per pair with the Round 33 validated interval (or an exploratory label).
+
+    ``method``: pearson, spearman, kendall or partial (Pearson partial given ``controls``,
+    one control validated). Estimand: the coefficient on the ACS estimates as observed
+    (attenuated by sampling error, not corrected). Areas are assumed independent: under
+    spatial dependence every interval under-covered (0.60-0.89) in validation.
+    """
+    from . import rank_methods as rm
+    if method not in VALIDATED_VARIANT:
+        raise ValueError(f"method must be one of {tuple(VALIDATED_VARIANT)}")
+    if method == "partial" and not controls:
+        raise ValueError("method='partial' needs controls")
+    variables, controls = list(variables), list(controls)
+    cols = variables + controls
+    absent = [c for c in cols if c not in frame.columns]
+    if absent:
+        raise ValueError(f"variables not in frame: {absent}")
+    data = {v: pd.to_numeric(frame[v], errors="coerce").to_numpy(float) for v in cols}
+    reps = _replicate_cube(frame, replicates, cols) if replicates is not None else {}
+    want = VALIDATED_VARIANT[method]
+    rows = []
+    for i, a in enumerate(variables):
+        for b in variables[i + 1:]:
+            use = [a, b] + controls
+            ok = np.all([np.isfinite(data[c]) for c in use], axis=0)
+            have_reps = all(c in reps for c in use)
+            if have_reps:
+                ok &= np.all([np.isfinite(reps[c]).all(axis=1) for c in use], axis=0)
+            variant = 2 if (want == 2 and have_reps) else 1
+            z = np.column_stack([data[c][ok] for c in controls]) if controls and method == "partial" else None
+            rz = (np.stack([reps[c][ok] for c in controls], axis=1)[:, 0, :] if (z is not None and variant == 2) else None)
+            try:
+                out = rm.correlation_interval(data[a][ok], data[b][ok], method, variant, confidence_level,
+                                              reps_x=reps[a][ok] if variant == 2 else None,
+                                              reps_y=reps[b][ok] if variant == 2 else None,
+                                              z=z, reps_z=rz)
+            except ValueError as exc:
+                rows.append(dict(var_a=a, var_b=b, n=int(ok.sum()), estimate=math.nan, ci_lower=math.nan,
+                                 ci_upper=math.nan, variant=variant, validated=False, note=str(exc)))
+                continue
+            validated = variant == want and (method != "partial" or len(controls) == 1)
+            note = "" if validated else (
+                "EXPLORATORY: needs ACS replicates for a validated interval" if variant != want else
+                "EXPLORATORY: partial correlation validated with one control")
+            rows.append(dict(var_a=a, var_b=b, n=int(ok.sum()), estimate=out["estimate"], ci_lower=out["lower"],
+                             ci_upper=out["upper"], variant=variant, validated=validated, note=note))
+    return pd.DataFrame(rows)

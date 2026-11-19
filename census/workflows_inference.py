@@ -261,6 +261,9 @@ def fit_model(
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
                      "check the formula, column names, and input file, then retry")
     out = result.to_dict()
+    if method == "replicate" and model == "ols":
+        from census.diagnostics import model_diagnostics
+        out["model_diagnostics"] = model_diagnostics(result)
     if figure_dir:
         from census.figures import coefficient_plot
 
@@ -298,6 +301,7 @@ def compare_groups(
     reference_group: Optional[str] = None,
     spatial: bool = False,
     confidence_level: float = 0.90,
+    method: str = "model",
 ) -> Dict[str, Any]:
     """Compare an area outcome across groups of areas: t-test, ANOVA, ANCOVA or two-way interaction.
 
@@ -315,6 +319,8 @@ def compare_groups(
         reference_group: Group used as the baseline (default: first in sort order).
         spatial: True uses 8 fixed spatial clusters (IM-8) for spatially dependent areas.
         confidence_level: 0.90 matches ACS margins of error.
+        method: "model" (default) or "rank" (Brunner-Munzel for two groups, Kruskal-Wallis for more;
+            no covariates; robust to skewed values).
 
     Returns the joint (omnibus) test, adjusted group means with intervals, pairwise
     differences, effect sizes (OLS), and whether each result is validated or exploratory.
@@ -328,7 +334,7 @@ def compare_groups(
                           covariates=covariates or (), design=design, group2=group2, model=model, trials=trials,
                           exposure=exposure, posthoc=posthoc, reference_group=reference_group,
                           spatial_clusters={"k": 8, "method": "im"} if spatial else None,
-                          confidence_level=confidence_level)
+                          confidence_level=confidence_level, method=method)
     except _INPUT_ERRORS as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
                      "check the column names, design and group sizes (at least 5 areas per group), then retry")
@@ -390,6 +396,7 @@ def correlation_matrix(
     replicates_path: Optional[str] = None,
     disattenuate: bool = False,
     figure_dir: Optional[str] = None,
+    controls: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     """Correlations among ACS variables with confidence intervals, corrected
     p-values, design-based SEs from replicates, and optional correction for the
@@ -398,22 +405,32 @@ def correlation_matrix(
     Args:
         input_path: Analysis frame.
         variables: Two or more variable names.
-        method: "pearson" or "spearman".
-        replicates_path: From build_analysis_frame, for replicate SEs.
+        method: "pearson", "spearman", "kendall", or "partial" (Pearson given controls).
+        replicates_path: From build_analysis_frame, for replicate SEs (Pearson and partial
+            intervals are validated only with replicates).
+        controls: Variables held constant (method="partial").
         disattenuate: Also report correlations corrected for sampling error.
         figure_dir: Also write a heatmap here.
     """
-    from census.correlation import correlation_matrix as _corr
+    from census.correlation import correlation_matrix as _corr, validated_correlations
 
     if len(variables or []) < 2:
         return _fail(errors.INVALID_INPUT, "Pass at least two variables.")
     try:
-        res = _corr(_load_frame(input_path), variables, method=method,
-                    replicates=_read_replicates(replicates_path), disattenuate=disattenuate)
+        frame = _load_frame(input_path)
+        reps = _read_replicates(replicates_path)
+        table = validated_correlations(frame, variables, method, reps, controls or (),)
+        if method in ("kendall", "partial"):
+            n_ok = int(table["validated"].sum())
+            return _ok(f"{method.title()} correlations among {len(variables)} variables; {n_ok} of {len(table)} "
+                       "intervals validated.", "report r with its interval; areas are assumed independent",
+                       validated_intervals=table.to_dict("records"))
+        res = _corr(frame, variables, method=method, replicates=reps, disattenuate=disattenuate)
     except _INPUT_ERRORS as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
                      "check the formula, column names, and input file, then retry")
     payload = res.to_dict()
+    payload["validated_intervals"] = table.to_dict("records")
     if figure_dir:
         from census.figures import correlation_heatmap
 

@@ -91,7 +91,8 @@ def compare_groups(frame: pd.DataFrame, outcome: str, group: str, *, replicates:
                    model: str = "ols", trials: Optional[str] = None, exposure: Optional[str] = None,
                    posthoc: str = "holm", reference_group: Optional[str] = None,
                    spatial_clusters: Optional[Dict[str, Any]] = None, coords: Optional[pd.DataFrame] = None,
-                   confidence_level: float = 0.90, target: Optional[str] = None) -> GroupComparison:
+                   confidence_level: float = 0.90, target: Optional[str] = None,
+                   method: str = "model") -> GroupComparison:
     """Compare an area-level outcome across groups of areas.
 
     ``group`` (and ``group2``) are categorical columns, for example a metro/nonmetro class
@@ -102,6 +103,11 @@ def compare_groups(frame: pd.DataFrame, outcome: str, group: str, *, replicates:
     labelled exploratory. ``spatial_clusters={"k": 8, "method": "im"}`` uses IM-8
     (Round 30 C1, naive estimand).
     """
+    if method == "rank":
+        return _rank_comparison(frame, outcome, group, design, covariates, group2, model, spatial_clusters,
+                                reference_group, confidence_level)
+    if method != "model":
+        raise ValueError("method must be 'model' or 'rank'")
     frame = frame.copy()
     for name in (group, group2):
         if name == "state":
@@ -177,6 +183,9 @@ def compare_groups(frame: pd.DataFrame, outcome: str, group: str, *, replicates:
         notes.append("If covariates have sampling error, adjusted differences can be biased (residual confounding); "
                      "this test targets the adjustment with the ACS estimates as observed.")
     diagnostics.update(_comparison_diagnostics(fit, used, outcome, group, design, model, replicates, covariates))
+    if model == "ols" and not spatial:
+        from .diagnostics import model_diagnostics
+        diagnostics["model"] = model_diagnostics(fit)
     return GroupComparison(design=design, model=model, outcome=outcome, group=group, n_obs=n,
                            group_sizes={str(a): int(b) for a, b in sizes.items()}, reference_group=ref,
                            omnibus=omni, adjusted_means=means, pairwise=pair_table, effect_sizes=effect,
@@ -305,3 +314,49 @@ def _comparison_diagnostics(fit, used, outcome, group, design, model, replicates
                 "welch_anova": {"statistic": float(welch.statistic), "p": float(welch.pvalue)},
                 "note": "ignores sampling error; comparison only"}
     return out
+
+
+def _rank_comparison(frame, outcome, group, design, covariates, group2, model, spatial_clusters, reference_group, level):
+    """Round 33 rank procedures (docs/audits/rank_validation.md): Brunner-Munzel probability of
+    superiority for two groups, Kruskal-Wallis for three or more. Areas assumed independent;
+    the estimand uses the ACS estimates as observed."""
+    from . import rank_methods as rm
+    if design not in ("two_group", "oneway") or covariates or group2:
+        raise ValueError("method='rank' supports design 'two_group' or 'oneway' without covariates")
+    if model != "ols" or spatial_clusters is not None:
+        raise ValueError("method='rank' compares area values directly: no model, exposure or spatial clusters")
+    f = frame.copy()
+    if group == "state":
+        f["state"] = f["GEOID"].astype(str).str[:2]
+    f = f.dropna(subset=[outcome, group])
+    f[group] = f[group].astype(str)
+    sizes = f[group].value_counts().sort_index()
+    small = sizes[sizes < MIN_GROUP_SIZE]
+    if len(small):
+        raise ValueError(f"every group needs at least {MIN_GROUP_SIZE} areas; too small: {small.to_dict()}")
+    if len(sizes) < 2 or (design == "two_group" and len(sizes) != 2):
+        raise ValueError("two_group needs exactly 2 groups; oneway at least 2")
+    ref = str(reference_group) if reference_group is not None else str(sizes.index[0])
+    levels = [ref] + [g for g in sizes.index if g != ref]
+    values = {g: pd.to_numeric(f.loc[f[group] == g, outcome], errors="coerce").dropna().to_numpy(float) for g in levels}
+    medians = pd.DataFrame([dict(group=g, estimate=float(np.median(v)), n=len(v)) for g, v in values.items()])
+    notes = ["Rank comparison of the areas' ACS estimates as observed; areas assumed independent "
+             "(spatial dependence makes p-values too small)."]
+    if len(levels) == 2:
+        sup = rm.superiority_interval(values[levels[0]], values[levels[1]], 1, level)
+        omni = dict(test="Brunner-Munzel", estimate=sup["estimate"], p_two_sided=sup["p_value"], df=sup["df"],
+                    validated=True, confirmatory_refusal=None,
+                    interpretation=f"probability that a {levels[1]} area's value exceeds a {levels[0]} area's (ties count half)")
+        effect = {"probability_of_superiority": sup["estimate"], "ci_lower": sup["lower"], "ci_upper": sup["upper"]}
+    else:
+        kw = rm.kruskal([values[g] for g in levels])
+        omni = dict(test="Kruskal-Wallis", estimate=kw["statistic"], p_two_sided=kw["p"], df=kw["df"], validated=True,
+                    confirmatory_refusal=None)
+        effect = {"epsilon_squared": kw["epsilon_squared"], "note": "descriptive point estimate"}
+    n = int(sum(len(v) for v in values.values()))
+    validation = dict(omnibus=True, omnibus_refusal=None, posthoc="none", posthoc_validated=False,
+                      confidence_level=level, audit="docs/audits/rank_validation.md")
+    return GroupComparison(design=design, model="rank", outcome=outcome, group=group, n_obs=n,
+                           group_sizes={str(a): int(b) for a, b in sizes.items()}, reference_group=ref, omnibus=omni,
+                           adjusted_means=medians, pairwise=None, effect_sizes=effect, validation=validation,
+                           notes=notes, diagnostics={}, fit=None)
