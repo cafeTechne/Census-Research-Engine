@@ -19,8 +19,9 @@ DOI 10.5281/zenodo.24329678). All versions: concept record
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | No rounds queued: `ROADMAP_STATISTICS.md` (Rounds 31–42) is complete; the backlog lists what remains. Implement only the lowest-numbered one. Merged plans are archived (below) |
-| `ROADMAP_STATISTICS.md` | Multi-round roadmap (Rounds 31–42): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
+| `PLAN_ROUND_<n>.md` | Round 43 queued (`PLAN_ROUND_43.md`), drafted from `ROADMAP_BACKLOG.md` (Rounds 43–50). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–50): the backlog below plus issues found in Rounds 31–42. Plans are drafted from it |
+| `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
 **Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`; from Round 24 on, each plan is at tag `plan-r<n>` (for example `git show plan-r29:PLAN_ROUND_29.md`). Code and docs still cite
@@ -238,6 +239,12 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 30 | Post hoc IM/ACS checks | R21b unavailable (C2 failed); R22 H1/H2 retained; R29 MI/NY H1/H3 retained, H2 not retained (Holm p=.169); `r30_posthoc_im_acs.md` |
 
 ## Open backlog
+
+Scheduled in `ROADMAP_BACKLOG.md` (section 2 lists issues N1–N16 found in Rounds 31–42: unbounded
+core-profile instructions, stale tool counts, untested weak-instrument cut-off and noisy-confounder
+robustness, mediator error, MI with several incomplete covariates or ACS error, censored NB2, short
+interrupted series, spatially robust correlations and α, small-k meta-analysis, survey-weighted PUMS
+models, and MI/NY-only validation geography).
 
 1. Spatial dependence: naive-target IM-8 (Round 30 C1, OLS/binomial/Poisson) and corrected linear EIV
    (Round 35 G1/G2, library and MCP) are validated. Remaining: route manifests' `fit_eiv` spatial

@@ -38,7 +38,7 @@ Do not open these unless the task is about them:
 - `docs/audits/round17_bound_protocol/` (a checksummed evidence archive) and any `*.csv`/`*.json` under
   `docs/audits/` or `docs/studies/` (generated outputs; the matching `.md` summarises them).
 - `CHANGELOG.md` beyond its first section.
-- `ROADMAP_STATISTICS.md` (the owner's multi-round roadmap; plans are drafted from it, so implementers never need it).
+- `ROADMAP_STATISTICS.md` and `ROADMAP_BACKLOG.md` (the owner's multi-round roadmaps; plans are drafted from them, so implementers never need them).
 - Large modules: read by function, not whole files. Find a definition with
   `grep -n "^def \|^class " census/<module>.py`, then read that range.
 
