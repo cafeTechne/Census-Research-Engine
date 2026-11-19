@@ -557,7 +557,12 @@ def fit_replicate(
         bse = pd.Series(np.sqrt(np.diag(joint_cov)), index=params.index)
         notes.append("Centered natural cubic splines; full-sample quantile knots and centering are frozen in every replicate; coefficient model SEs use HC3.")
         from .splines import JOINT_WALD_VALIDATED
-        if not JOINT_WALD_VALIDATED:
+        from .joint_tests import VALIDATED as JOINT_TEST_VALIDATED
+        if (model, "spline") in JOINT_TEST_VALIDATED:
+            notes.append("Splines: test the spline variable jointly with census.joint_tests.joint_test (manifest statistic "
+                         "joint_test; Round 31 validated for binomial/Poisson). Individual spline coefficients and the "
+                         "chi-squared joint_wald remain exploratory.")
+        elif not JOINT_WALD_VALIDATED:
             notes.append("EXPLORATORY ONLY: splines/joint Wald did not pass Round 27 validation.")
     provenance: Dict[str, Any] = {"model_library": "statsmodels", "rows_used": int(len(rows))}
     se_sampling = pd.Series(np.nan, index=params.index)
@@ -693,9 +698,22 @@ def fit_replicate(
         diagnostics["joint_has_replicates"] = method == "replicate_refit"
         diagnostics["joint_full_rank"] = np.linalg.matrix_rank(full.model.exog) == len(params)
         diagnostics["joint_columns"] = {v: variable_columns(full.model.data.orig_exog.design_info,v,data.columns) for v in used}
-    return ModelResult(model_type=model, formula=original_formula, n_obs=int(full.nobs), coefficients=table,
-                       method=method, uncertainty_sources=sources, confidence_level=confidence_level,
-                       notes=notes, diagnostics=diagnostics, provenance=provenance)
+    result = ModelResult(model_type=model, formula=original_formula, n_obs=int(full.nobs), coefficients=table,
+                         method=method, uncertainty_sources=sources, confidence_level=confidence_level,
+                         notes=notes, diagnostics=diagnostics, provenance=provenance)
+    # Inputs for census.joint_tests (Round 31), kept off the serialized result.
+    design_info = full.model.data.orig_exog.design_info
+    expo = getattr(full.model, "exposure", None)
+    result.joint_inputs = dict(
+        X=np.asarray(full.model.exog, float), y=np.asarray(full.model.endog, float),
+        trials=np.asarray(n_trials, float)[rows] if model == "binomial" else None,
+        exposure=None if expo is None else np.exp(np.asarray(expo, float)),
+        column_names=list(params.index), target=target, has_replicates=method == "replicate_refit",
+        sampling_covariance=np.nan_to_num(np.asarray(sampling_cov, float)),
+        full_rank=bool(np.linalg.matrix_rank(full.model.exog) == len(params)),
+        term_columns={t.name(): list(design_info.column_names[design_info.term_name_slices[t.name()]])
+                      for t in design_info.terms})
+    return result
 
 
 def _numeric_diagnostics(formula, data, full, model, table, weights, exposure, n_trials, threshold) -> Dict[str, Any]:

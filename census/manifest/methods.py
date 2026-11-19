@@ -140,6 +140,13 @@ def _stat_joint_wald(h, res):
     return joint_wald(res, h["variable"])
 
 
+def _stat_joint_test(h, res):
+    from ..joint_tests import joint_test
+    out = joint_test(res, variable=h.get("variable"), term=h.get("term"))
+    out.pop("columns", None); out.pop("family", None)
+    return out
+
+
 def _stat_correlation(h, res):
     a, b = h["variables"]
     return {"estimate": float(res.matrix.loc[a, b]), "se": None, "p_two_sided": float(res.p_values.loc[a, b]),
@@ -193,7 +200,22 @@ def _check_fit_replicate(stage, ctx):
             if args.get("model", "ols") not in ("ols", "wls", "binomial", "poisson") or args.get("spatial_se") is not None or args.get("spatial_clusters") is not None:
                 errors.append("joint_wald supports only non-spatial fit_replicate OLS/WLS/binomial/Poisson")
             if not JOINT_WALD_VALIDATED and not manifest.get("exploratory", False):
-                errors.append("joint_wald failed or was not validated; exploratory only (docs/audits/joint_wald_validation.md)")
+                errors.append("joint_wald failed or was not validated; exploratory only (docs/audits/joint_wald_validation.md); use joint_test")
+        if h.get("statistic") == "joint_test":
+            from .schema import _formula_names
+            has_var, has_term = isinstance(h.get("variable"), str) and bool(h.get("variable")), isinstance(h.get("term"), str) and bool(h.get("term"))
+            if has_var == has_term:
+                errors.append("joint_test requires exactly one of variable (a manifest variable in the formula) or term (a formula term such as 'C(group)' or 'a:b')")
+            elif has_var and h["variable"] not in _formula_names(a.get("formula", "")):
+                errors.append("joint_test variable must be a manifest variable in the analysis formula")
+            if h.get("direction", "two_sided") not in ("two_sided", "two-sided"):
+                errors.append("joint_test direction must be two_sided (two-sided); one-sided tests are refused")
+            args = a.get("args") or {}
+            clusters = args.get("spatial_clusters")
+            if args.get("model", "ols") not in ("ols", "binomial", "poisson") or args.get("spatial_se") is not None:
+                errors.append("joint_test supports fit_replicate OLS/binomial/Poisson without spatial_se")
+            if clusters is not None and clusters != {"k": 8, "method": "im"}:
+                errors.append("joint_test with spatial clusters supports only IM with k=8")
         return
     from .schema import FORMULA_ID_COLUMNS, LEGACY_X2_MANIFESTS, manifest_hash
     from .replicates import census_vre_source
@@ -577,7 +599,7 @@ def _text_segregation(a, text):
 
 METHODS: Dict[str, MethodSpec] = {
     'fit_replicate': MethodSpec(
-        'fit_replicate', ('formula',), ('coefficient', 'joint_wald'), _run_fit_replicate,
+        'fit_replicate', ('formula',), ('coefficient', 'joint_wald', 'joint_test'), _run_fit_replicate,
         replicate=True,
         external_outcome=True,
         check=_check_fit_replicate,
@@ -745,6 +767,7 @@ METHODS: Dict[str, MethodSpec] = {
 STATISTIC_EXTRACTORS = {
     'coefficient': _stat_coefficient,
     'joint_wald': _stat_joint_wald,
+    'joint_test': _stat_joint_test,
     'correlation': _stat_correlation,
     'trend_slope': _stat_trend_slope,
     'z_difference': _stat_z_difference,

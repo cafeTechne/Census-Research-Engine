@@ -440,6 +440,9 @@ def _methods_hypotheses(m, corr, level, lines, cites):
     from ..splines import has_spline
     if any(h.get("statistic") == "joint_wald" for h in m.get("hypotheses", [])):
         lines.append("Joint Wald tests jointly tested the standalone design columns for the named variable: W=b'V^-1 b against chi-squared(q), using HC3, ACS sampling covariance, or their conservative sum according to target; singular covariance was not tested. No coefficient confidence interval or odds ratio is attached to W.")
+    if any(h.get("statistic") == "joint_test" for h in m.get("hypotheses", [])):
+        lines.append("Joint tests (joint_test) tested that every design column of the named variable or formula term is 0. Without spatial clusters: the restricted (null) model was fitted, and the score statistic S = A' Omega^-1 A (A the summed one-step contributions on the tested columns, Omega their outer-product sum plus the ACS replicate covariance under the conservative target) was compared with 399 Rademacher wild score-bootstrap draws (Kline and Santos 2012). With IM-8 spatial clusters: Hotelling T2 on the eight cluster estimates, F(q, 8-q). Validated by a fixed simulation (docs/audits/omnibus_validation.md): OLS factor tests and binomial/Poisson spline tests without clusters; OLS/Poisson factor tests with IM-8; n = 145 areas. Other combinations are exploratory.")
+        cites += ["kline_santos", "hotelling_im"]
     if any(has_spline(a.get("formula", "")) for a in m.get("analyses", [])):
         lines.append("Natural cubic splines used explicit df=3/4/5, centered constraints and full-sample quantile knots frozen in every replicate; spline coefficient model covariance was HC3.")
 

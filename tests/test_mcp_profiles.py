@@ -42,7 +42,8 @@ class TestProfileSelection(unittest.TestCase):
         registered = {t.name for t in srv.mcp._tool_manager.list_tools()}
         expected = [n for n in mcp_profiles.PROFILES["core"] if n in registered]
         self.assertEqual(list(CORE_TOOLS), expected)
-        self.assertLessEqual(len(CORE_TOOLS), 14)
+        # 15 since Round 31: compare_groups joined core (ROADMAP_STATISTICS.md section 4).
+        self.assertLessEqual(len(CORE_TOOLS), 15)
         # Every profile name must be a registered tool.
         for profile in ("core", "review"):
             missing = set(mcp_profiles.PROFILES[profile]) - registered
@@ -87,6 +88,7 @@ class TestCoreDesignRules(unittest.TestCase):
             "trend_test": dict(years=[2013, 2018, 2023], estimates=[14.1, 13.0, 11.8], moes=[0.4, 0.4, 0.3]),
             "minimum_detectable_difference": dict(moe1=2.1, moe2=2.4),
             "fit_model": dict(input_path="does/not/exist.csv", formula="y ~ x"),
+            "compare_groups": dict(input_path="does/not/exist.csv", outcome="y", group="g"),
             "make_figure": dict(kind="nope", input_path="x.csv"),
             "build_analysis_frame": dict(input_path="does/not/exist.csv"),
             "run_manifest": dict(manifest_path="does/not/exist.json"),
