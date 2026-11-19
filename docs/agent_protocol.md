@@ -267,8 +267,10 @@ contributions are summed before squaring because rates are shared. An internal
 reference makes the independent-count interval conservative (not refused).
 Without reference_counts, rates are fixed as before. No band replicates
 means zero expected-count uncertainty, explicitly noted. Negative ACS band
-replicates are refused under the pre-specified validation domain, even when
-total expected counts would be positive. See recipe
+replicates are used as published (Round 51: library default
+`negative_replicates="accept"`; `"clip"` also passed); every replicate expected count
+must be positive. Manifests keep the strict refusal unless `args.negative_replicates`
+opts in. See recipe
 `health_inequality` and the two fixed simulation audits. Reused MI/NY LBW
 associations are exploratory.
 
@@ -506,7 +508,9 @@ No CBSA/metro pooling or pre-aggregation. Tract GEOIDs are eleven-digit strings;
 county hypotheses use five digits, preserving leading zeros.
 
 Every group/tract needs all 80 replicates, labelled by Year for multiple releases.
-No negative-count clipping, missing-row fixing or failed-refit deletion. Zero-total
+Negative replicate group counts are set to zero before the refits (Round 51; library
+default `negative_replicates="clip"`, manifests opt in with `args.negative_replicates:
+"clip"`, else strict refusal). No other clipping, missing-row fixing or failed-refit deletion. Zero-total
 tracts are excluded in each index refit, recomputing totals. An absent county
 group makes the index undefined, noted, and its hypothesis is not tested.
 SE=sqrt(4/80 sum(Ir-I)^2). Fixed correction I-4(mean(Ir)-I) uses the same SE.
@@ -531,7 +535,8 @@ populated tracts; or when every tract group-count CV is <= .15 (Round 28,
 `max_count_cv`; the only range for naive D). Otherwise rows are exploratory and
 confirmatory hypotheses are refused at run time. About 132 of 140 MI/NY counties
 pass with 2024 poverty or income groups. Race groups and contrasts were not in the
-validation. Counties with a negative replicate estimate are refused. No new
+validation. Counties with clipped negative replicates (Round 51) are validated in the
+same ranges for bias-corrected versions only (`clipped_replicates`). No new
 dependencies or MCP tools.
 
 

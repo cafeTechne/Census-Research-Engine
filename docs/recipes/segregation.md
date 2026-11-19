@@ -14,8 +14,12 @@
    as group counts; the engine cannot infer mutually exclusive definitions.
 3. Supply all 80 ACS VRE replicates for every declared group and tract, either
    through the existing VRE source or an explicit Year-labelled replicate file.
-   Missing rows/groups/columns, negative counts and undefined refits are refused.
-   Do not clip negative counts, silently keep missing groups fixed, or discard
+   Missing rows/groups/columns, negative full-sample counts and undefined refits are
+   refused. Negative **replicate** group counts (small 2024 tract cells) are set to
+   zero before the index refits by default (`negative_replicates="clip"`, Round 51);
+   the count SEs and noise level use the unclipped replicates. Manifests keep the
+   strict refusal unless they set `args.negative_replicates: "clip"`. Do not clip
+   anything else, silently keep missing groups fixed, or discard
    failed refits. Zero-total tracts contribute nothing in the full-sample index;
    totals are recomputed in every replicate. An absent county group makes the
    index undefined, with a note, and its hypothesis is not tested.
@@ -74,8 +78,10 @@
    counties are validated (the rest have under five tracts). Race and ethnicity groups,
    which are sparser, were not in the validation: check their noise level, and treat
    counties above .50 as exploratory. A county with a negative replicate estimate in
-   any tract (found in 2024 VRE files for the Bronx, Kings and Wayne) is refused
-   under the strict policy. Contrasts
+   any tract (2024: the Bronx, Kings, Wayne and seven others) is estimated with clipped
+   replicates (Round 51) and validated in the same noise range for the bias-corrected
+   versions only (`clipped_replicates` > 0); naive isolation and H with clipped cells
+   failed and are exploratory. Contrasts
    have covariance checks but no separate coverage experiment. Wider intervals
    are not a remedy for an unsupported error model.
 

@@ -61,8 +61,9 @@
    If study areas are included in the reference, ignoring the positive covariance
    makes the interval conservative; this is noted, not refused. Reference
    denominators' uncertainty and spatial dependence remain excluded. Negative ACS
-   band replicates are refused under
-   the pre-specified validation domain, even if their expected total is positive.
+   band replicates are used as published (Round 51 validated; the expected count is
+   linear in the bands); every replicate expected count must be positive. Registered
+   manifests refuse them unless `args.negative_replicates` is `"accept"` or `"clip"`.
    No age-specific real death-count example is bundled;
    WONDER exports remain manual.
 7. Circularity R1 applies to external outcomes/counts. R2 treats `rank_by` as the

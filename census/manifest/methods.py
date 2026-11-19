@@ -558,7 +558,8 @@ def _run_smr(a, args, frame, level, replicates, correction, ctx):
     populations = frame[bands].set_axis(idx)
     try:
         result = indirect_standardize(observed, populations, rates, reps, level,
-                                      period_years=a.get("period_years",1), reference_counts=counts)
+                                      period_years=a.get("period_years",1), reference_counts=counts,
+                                      negative_replicates=args.get("negative_replicates", "refuse"))
         if len(frame) != input_rows:
             note = f"Complete-case analysis excluded {input_rows-len(frame)} area row(s) with missing observed counts or populations."
             result["notes"] = result["notes"].map(lambda notes: notes+[note])
@@ -648,8 +649,10 @@ def _check_smr(stage, ctx):
     args = a.get("args") or {}
     if not SMR_VALIDATED and not ctx["manifest"].get("exploratory", False):
         errors.append(prefix+"smr failed validation; exploratory only (docs/audits/smr_validation.md)")
-    if set(args)-{"target"}:
-        errors.append(prefix+f"smr does not take args {sorted(set(args)-{'target'})}")
+    if set(args)-{"target", "negative_replicates"}:
+        errors.append(prefix+f"smr does not take args {sorted(set(args)-{'target', 'negative_replicates'})}")
+    if args.get("negative_replicates", "refuse") not in ("refuse", "accept", "clip"):
+        errors.append(prefix+"smr negative_replicates must be 'refuse' (default for registered manifests), 'accept' or 'clip' (Round 51)")
     if args.get("target", "conservative") != "conservative":
         errors.append(prefix+"smr target must be conservative (combined Poisson and expected-count uncertainty)")
     observed = a.get("observed")
@@ -695,7 +698,8 @@ def _check_smr(stage, ctx):
 def _run_segregation(a, args, frame, level, replicates, correction, ctx):
     from ..segregation import segregation_replicate
     return segregation_replicate(frame, a["groups"], replicates, within=a["within"], level=level,
-                                 bias_correction=args.get("bias_correction"))
+                                 bias_correction=args.get("bias_correction"),
+                                 negative_replicates=args.get("negative_replicates", "refuse"))
 
 
 def _stat_segregation(h, res):
@@ -721,8 +725,10 @@ def _check_segregation(stage, ctx):
             errors.append("segregation groups must be distinct")
         if a.get("within")!="county" or manifest.get("geography",{}).get("level")!="tract" or manifest.get("aggregation"):
             errors.append("segregation requires tract geography, within county, and no pre-aggregation; metro/CBSA unsupported")
-        if set(args)-{"bias_correction"}:
-            errors.append(f"segregation does not take args {sorted(set(args)-{'bias_correction'})}")
+        if set(args)-{"bias_correction", "negative_replicates"}:
+            errors.append(f"segregation does not take args {sorted(set(args)-{'bias_correction', 'negative_replicates'})}")
+        if args.get("negative_replicates", "refuse") not in ("refuse", "clip"):
+            errors.append("segregation negative_replicates must be 'refuse' (default for registered manifests) or 'clip' (Round 51)")
         if args.get("bias_correction") is not None and type(args["bias_correction"]) is not bool:
             errors.append("segregation bias_correction must be boolean")
         overlap=release_overlap_message(manifest_releases(manifest),"segregation releases")
@@ -762,6 +768,11 @@ def _check_segregation(stage, ctx):
 
 
 def _text_smr(a, text):
+    policy=(a.get("args") or {}).get("negative_replicates", "refuse")
+    if policy != "refuse":
+        extra=(" Negative ACS band replicates were used as published (Round 51)." if policy == "accept"
+               else " Negative ACS band replicates were set to zero before the expected-count refits (Round 51).")
+        return _text_smr({**a, "args": {}}, text)+extra
     period=a.get("period_years",1);counts=a.get("reference_counts")
     if a.get("reference_export") is not None:
         counts = "from pinned reference export"
@@ -782,6 +793,9 @@ def _text_segregation(a, text):
     from ..segregation import DEFAULT_BIAS_CORRECTION
     specified=(a.get("args") or {}).get("bias_correction")
     versions=", ".join(f"{name}: {'bias-corrected' if (DEFAULT_BIAS_CORRECTION[name] if specified is None else specified) else 'naive'}" for name in DEFAULT_BIAS_CORRECTION)
+    if (a.get("args") or {}).get("negative_replicates", "refuse") == "clip":
+        text=text.replace("with no negative-count clipping", "with negative replicate counts set to zero before the refits "
+                          "(Round 51; counties with a clipped count are validated only for the bias-corrected versions)")
     return text+" Chosen versions: "+versions+". Groups: "+", ".join(a["groups"])+"."
 
 

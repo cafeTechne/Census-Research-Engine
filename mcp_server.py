@@ -278,7 +278,8 @@ scales E for annual rates. Positive integer reference_counts adds sum((E_b/E)^2/
 variance; zero reference deaths refused. Both fields hashed. Without counts, reference
 rates are fixed. Reference person-years are always fixed. Pool band contributions before
 squaring because reference rates are shared across areas. Internal-reference covariance
-omission is conservative, noted, not refused.
+omission is conservative, noted, not refused. Negative band replicates are refused unless
+args.negative_replicates is "accept" or "clip" (both validated in Round 51).
 
 Round 29 manual WONDER references: all county and national files are manual
 exports; the engine never contacts WONDER. `acs_age_sex_bands` builds the fixed
@@ -319,15 +320,17 @@ ratio. See get_research_protocol for scope, covariance metadata and limitations.
 
 
 Round 28 segregation: get_recipe("segregation"), then existing manifest tools. Tract groups
-are mutually exclusive counts, within county; no metro/pre-aggregation. Defaults selected
-by fixed coverage: naive D, corrected isolation and H. Failed overrides and multigroup H
-are exploratory only. Strict 80 tract/group replicates; no negative clipping or missing
-counts held fixed. Zero tracts recomputed per refit, absent groups undefined. Hypotheses
+are mutually exclusive counts, within county; no metro/pre-aggregation. Defaults are
+bias-corrected (Round 50). Failed overrides and H beyond three groups are exploratory only.
+Strict 80 tract/group replicates; no missing counts held fixed. Negative replicate counts
+are refused unless args.negative_replicates is "clip" (Round 51: validated for the
+bias-corrected versions). Zero tracts recomputed per refit, absent groups undefined. Hypotheses
 need geoid plus explicit null_value for one area; compare_geoid uses per-replicate
 differences. release/compare_release select independent non-overlapping five-year releases;
-variances add. First minus comparison; one-sided tests center on null. A county with any
-tract group-count CV above .15 is exploratory only; confirmatory tests on it are refused
-(most real counties exceed it). See protocol.
+variances add. First minus comparison; one-sided tests center on null. A county is
+validated when its noise level (largest group median tract CV) is below .50 with 5+
+populated tracts (Round 50) or every tract CV is <= .15 (Round 28); otherwise
+exploratory and confirmatory tests on it are refused. See protocol.
 
 
 Inflation: default index is R-CPI-U-RS (the Census Bureau's ACS index); 'c-cpi-u'

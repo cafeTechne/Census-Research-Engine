@@ -5,6 +5,22 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.48.0 (Round 51): negative replicate estimates
+
+- Freeze the script, the SMR policy argument and the criterion at `2837bfb` before the run. Segregation:
+  Round 50's design with Gaussian replicates (negative counts in 2.6–4% of tract-group cells), clipped at zero
+  before the refits; Round 50's bin rule plus an affected-draw check. SMR: eight cells with a high-CV band.
+- Passed: clipping for bias-corrected D, isolation and H and three-group H, keeping their Round 50 ranges
+  (affected county-draws .902–.990); SMR with negative band replicates used as published (.903–.922) or clipped
+  (.891–.917). Failed: naive isolation and H with clipped cells (.847–.860).
+- `segregation_replicate(negative_replicates=...)`, default `"clip"`, new `clipped_replicates` column and
+  `CLIP_RANGES`; `indirect_standardize(negative_replicates=...)`, default `"accept"`. `"refuse"` keeps the
+  strict policy. Manifests (`segregation`, `smr`) keep it unless `args.negative_replicates` opts in; goldens
+  byte-identical.
+- Exploratory example: the ten county-designs Round 50 refused are estimated and validated
+  (`docs/studies/r51_negative_replicates_example.md`). Closes backlog N20 and N28.
+- Acceptance: goldens byte-identical; 2066 passed, 37 skipped; 0 failures (8 new tests).
+
 ## 0.47.0 (Round 50): segregation under realistic ACS error
 
 - Freeze the truth file (2024 MI/NY tract counts and published SEs, built reproducibly from the cache),

@@ -261,7 +261,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
 13. Segregation: get_recipe('segregation'). Tract groups are mutually exclusive
    counts within county; strict 80 replicates; defaults bias-corrected. Validated when the
    county noise level (largest group median tract CV) is below .50 with 5+ populated
-   tracts (Round 50; three-group H too); else exploratory.
+   tracts (Round 50; three-group H too); else exploratory. Negative replicate counts:
+   manifest args.negative_replicates "clip" (Round 51; bias-corrected versions only).
 """
 
 REVIEW_INSTRUCTIONS = """\
