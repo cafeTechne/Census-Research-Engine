@@ -36,5 +36,5 @@ cell) wrote no files. The full run used exactly 2,000 draws in each of 8 cells.
 
 ## Goldens and suite
 
-Both goldens byte-identical to v0.28.0 (no manifest or model-path change). Suite: see STATUS
-(Round 32).
+Both goldens byte-identical to v0.28.0 (no manifest or model-path change). Suite: 1922 passed,
+37 skipped, 57 subtests; 0 failures (baseline 1908; 14 new tests in `tests/test_round32.py`).

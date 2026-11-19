@@ -147,5 +147,5 @@ STATUS validation rows, roadmap status, studies table; CHANGELOG; version 0.29.0
 | T / M / I / P results | Done | T1 (and T2) passed; T3 failed 3x4; M1/M2/M3, I1–I5, P2 passed; P1 failed. |
 | Engine, tool, tests | Done | `pums_inference`, `test_association` (core), recipe; 14 tests. |
 | Example | Done | MI 2019–2023 PUMS (single PUMA vintage); medians of heaped earnings flagged. |
-| Goldens, final suite | Done | Goldens identical; suite in STATUS. |
+| Goldens, final suite | Done | Goldens identical; 1922 passed, 37 skipped, 0 failures. |
 | Exceptions | Recorded | Example uses 2019–2023 (2018–2022 splits PUMA vintages); heaping guard added after the example. |

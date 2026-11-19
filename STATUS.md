@@ -114,7 +114,8 @@ design-based PUMS tests. Criterion `d65d034` pushed before the 8-cell run (house
 weight CV, sample size; ACS-style SDR replicate weights). New `census.pums_inference`, MCP core tool
 `test_association`, recipe `pums_tests`. Exploratory Michigan example
 (`docs/studies/r32_pums_tests_example.md`) found that medians of heaped dollar amounts get zero
-replicate SEs; such results are now labelled exploratory. Goldens unchanged.
+replicate SEs; such results are now labelled exploratory. Goldens unchanged. Acceptance: 1922 passed,
+37 skipped, 57 subtests; 0 failures.
 
 **Round 31 (v0.28.0; merged, release pending owner approval; implemented by the maintainer agent):** omnibus tests and group
 comparisons. Criterion `3e3094a` pushed before the 36-cell run. F references failed; the wild score
