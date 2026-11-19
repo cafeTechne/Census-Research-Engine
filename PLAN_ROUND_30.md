@@ -211,3 +211,4 @@ cached analysed-file hashes first. Registered outputs are not changed.
 | Golden changes | None | 640 schema snapshots / 14 manifests and all 29 run scenarios byte-identical; see compatibility audit. |
 | Final suite | Passed | 1886 passed, 37 skipped, 4 warnings, 50 subtests; 0 failures. 26 new tests (baseline 1860/37). |
 | Exceptions | Recorded | Positive EIV end-to-end check unavailable because C2 failed. Final constant-nuisance fix follows post hoc commit, without altering its fits or rewriting history. No private WONDER checkout access. |
+| Delivery | Pushed | PR creation returned integration 403; body saved at `/tmp/round30-pr-body.md`. No merge, tag, release or CI. |
