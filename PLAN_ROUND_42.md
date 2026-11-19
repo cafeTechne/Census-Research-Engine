@@ -25,7 +25,7 @@ releases wait).
 ## 2. Validation (`scripts/missing_censored_its_validation.py` → `docs/audits/missing_censored_its_validation.md`/`.json`)
 
 - Missing: 145 areas; y = 1 + 0.5x + 0.5w + e; corr(x, w) = 0.5; w missing with probability depending
-  on x (MAR: logistic, 20% on average) or completely at random (MCAR). 2 cells; target 0.5 (x's slope).
+  on the observed outcome (MAR: logistic, ≈20%) or completely at random (MCAR). 2 cells; target 0.5 (x's slope).
 - Censored: 145 counties, expected counts lognormal with median 10 or 30; log-rate 0.3x; gamma
   overdispersion (shape 4); counts 1–9 censored. 2 cells; target 0.3.
 - ITS: 20 years, interruption at year 11; level change 1, slope change 0.2, AR(1) φ ∈ {0.3, 0.6},
@@ -46,8 +46,8 @@ flags against the audit; goldens unchanged; full suite; STATUS, CHANGELOG, versi
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit | | |
-| D / C / A results | | |
-| Engine, tests | | |
+| Criterion commit | `5f81de2` | Pushed before the full run. |
+| D / C / A results | Mixed | D1 passed; C1 failed narrowly; A0–A2 failed. |
+| Engine, tests | Done | missing_censored_its; fit_model(impute); 5 tests. |
 | Goldens, final suite | | |
-| Exceptions | | |
+| Exceptions | Recorded | Pre-freeze: direct MI implementation; missingness on y. |

@@ -194,6 +194,7 @@ def fit_model(
     exposure: Optional[str] = None,
     trials: Optional[str] = None,
     spatial: Optional[str] = None,
+    impute: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Fit a regression whose standard errors account for ACS sampling error.
 
@@ -219,6 +220,7 @@ def fit_model(
         exposure: Exposure column (model="poisson"/"negbin").
         trials: Trials column (model="binomial"; default effective sample size).
 
+        impute: A covariate with missing values to multiply impute (OLS; Round 42; validated).
         spatial: method="eiv" only: "clusters" (8 fixed spatial clusters, pooled correction) or
             "error" (spatial-error whitening) for corrected slopes when areas are spatially
             correlated (Round 35; linear; validated with up to two error-prone covariates).
@@ -264,6 +266,13 @@ def fit_model(
                              "call fit_model again with model='ols' (or 'wls' and weights)")
             result = models.fit_eiv(formula, frame, _read_replicates(replicates_path), model=model,
                                     weights=weights, confidence_level=confidence_level)
+        elif method == "replicate" and impute:
+            from census.missing_censored_its import impute_and_fit
+            res = impute_and_fit(formula, frame, impute)
+            from census.results import _jsonable
+            res["table"] = res["table"].to_dict("records")
+            return _ok(f"OLS with {res['n_missing']} missing values of {impute} multiply imputed; validated (Round 42).",
+                       "report coefficients with intervals and the missing-at-random assumption", **_jsonable(res))
         elif method == "replicate" and model in ("beta", "median"):
             from census.regression_families import fit_beta, fit_median
             res = (fit_beta if model == "beta" else fit_median)(formula, frame, confidence_level)

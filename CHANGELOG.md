@@ -5,6 +5,15 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.39.0 (Round 42): missing data, censored counts and interrupted series
+
+- Freeze procedures, script and criterion at `5f81de2` before the run.
+- Passed: multiple imputation of one incomplete covariate (Rubin's rules). Failed (exploratory): an
+  interval-censored Poisson likelihood for counts hidden as 1–9 (narrowly; better than dropping them) and
+  interrupted time-series intervals with 20 annual points (OLS, Newey–West, AR(1) GLS).
+- New `census.mci_core` (frozen) and `census.missing_censored_its`; MCP `fit_model(impute=...)`.
+- Completes the statistics roadmap (Rounds 31–42).
+
 ## 0.38.0 (Round 41): treatment effects, instrumental variables and mediation
 
 - Freeze procedures, script and criterion at `b7464e5` before the run.

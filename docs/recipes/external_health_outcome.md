@@ -38,3 +38,7 @@ For an explicitly selected spatial-cluster fit, follow the restrictions in
 and population target without analysed ACS replicates. It replaces the ordinary
 binomial robust covariance; `scale: robust` and spatial clusters are mutually
 exclusive. Do not drop existing ACS uncertainty to force this fit.
+
+**Hidden WONDER counts (Round 42, exploratory).** `census.missing_censored_its.fit_censored_poisson` uses
+counties whose counts are hidden as 1-9 as interval information instead of dropping them; it never estimates
+or outputs a hidden value. Its interval under-covered slightly (.84-.86): use it as a sensitivity analysis.

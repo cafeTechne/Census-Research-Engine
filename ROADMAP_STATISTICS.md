@@ -1,6 +1,6 @@
 # Statistics roadmap: SciPy/statsmodels methods for the engine (Rounds 31–42)
 
-**Status: agreed order (owner, 2026-11-18); decisions in section 7.** The owner's multi-round roadmap. It is the source from which each
+**Status: complete (Rounds 31–42 merged, 2026-11-19); decisions in section 7.** The owner's multi-round roadmap. It is the source from which each
 `PLAN_ROUND_<n>.md` is drafted; it is not itself a plan. **Implementing agents: do not read this file
 unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.** Update the status
 column in section 6 when a round merges, and reorder freely.
@@ -286,7 +286,7 @@ version bump. Dependencies are noted; anything without one can move.
 | 39 | MANOVA/MANCOVA, count families | merged (v0.36.0) |
 | 40 | Regression families: beta and median (ordinal, multinomial, weighted quantile, GEE deferred) | merged (v0.37.0) |
 | 41 | Treatment effects, mediation, instrumental variables | merged (v0.38.0) |
-| 42 | Missing data, censoring, time series | in progress |
+| 42 | Missing data, censoring, time series | merged (v0.39.0) |
 
 ## 7. Owner decisions (2026-11-18)
 
