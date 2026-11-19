@@ -193,6 +193,8 @@ def _im_acs_table(full, X, y, labels, trials, model, level, info):
                 estimand='coefficient on the ACS estimates as observed; not measurement-error corrected',
                 sampling_error_handling='independent ACS error enters between-cluster spread; no additive replicate variance',
                 full_sample_reference_coefficients={k:float(v) for k,v in full.params.items()})
+    if np.linalg.matrix_rank(X) != X.shape[1]:
+        info['full_sample_reference_rank_deficient'] = True
     return table,info
 
 
@@ -250,7 +252,7 @@ def inference_table(full, data, n_trials, model, config, assignment, target, lev
     counts = pd.DataFrame({"GEOID":ids.to_numpy(),"cluster":labels}).drop_duplicates().groupby("cluster").size()
     if len(counts) != config["k"] or counts.min() < 5:
         raise ValueError("spatial_clusters requires >=5 analysed counties/tracts in every fixed cluster")
-    if np.linalg.matrix_rank(X) != X.shape[1]:
+    if np.linalg.matrix_rank(X) != X.shape[1] and not supports_im_acs(config,model):
         raise ValueError("spatial-cluster full design is rank deficient")
     trials = np.asarray(n_trials, float)[rows] if model == "binomial" else None
     terms = list(full.params.index); g = config["k"]; critical = t.ppf((1+level)/2,g-1)

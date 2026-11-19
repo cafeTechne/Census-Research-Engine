@@ -207,3 +207,15 @@ def test_smoke_writes_no_audit_and_full_refuses_existing_audit(tmp_path,monkeypa
     monkeypatch.setattr(sys,'argv',['validation','--criterion-commit','fixed'])
     with pytest.raises(SystemExit):validation.main()
     assert called==[2]
+
+
+def test_globally_constant_nuisance_is_absorbed_before_rank_check():
+    from tests.test_round26 import sample as geo_sample
+    from census.models import fit_replicate
+    f,coords=geo_sample();f['constant']=2.
+    result=fit_replicate('y ~ x + constant',f,coords=coords,spatial_clusters={'k':8,'method':'im'})
+    baseline=fit_replicate('y ~ x',f,coords=coords,spatial_clusters={'k':8,'method':'im'})
+    np.testing.assert_allclose(result.coefficients.set_index('term').loc['x',['estimate','se_cluster_mean']].to_numpy(float),
+                               baseline.coefficients.set_index('term').loc['x',['estimate','se_cluster_mean']].to_numpy(float))
+    assert result.diagnostics['spatial_clusters']['not_estimable_terms']==['constant']
+    assert result.diagnostics['spatial_clusters']['full_sample_reference_rank_deficient']
