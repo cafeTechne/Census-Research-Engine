@@ -3,9 +3,10 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.25.0 (Round 28: segregation indices, exploratory pending a realistic-error validation;
-reference-aware SMR; DOI 10.5281/zenodo.24329678). Previous: v0.24.0 (Round 27: descriptive EB rates; splines
-and joint Wald exploratory; DOI 10.5281/zenodo.24329544); v0.23.0 (Round 26; DOI 10.5281/zenodo.24297427). All versions: concept record
+**Current release:** v0.26.0 (Round 29: manual CDC WONDER mortality inputs, suppression-safe outputs, MI/NY
+mortality study replicated in OH/PA; DOI pending). Previous: v0.25.0 (Round 28: segregation indices, exploratory
+pending a realistic-error validation; reference-aware SMR; DOI 10.5281/zenodo.24329678); v0.24.0 (Round 27;
+DOI 10.5281/zenodo.24329544). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
@@ -18,10 +19,10 @@ and joint Wald exploratory; DOI 10.5281/zenodo.24329544); v0.23.0 (Round 26; DOI
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (29–30). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (30). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
-**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`, `PLAN_ROUND_25` at `v0.22.1`, `PLAN_ROUND_26` at `v0.23.0`, `PLAN_ROUND_27` at `v0.24.0`, `PLAN_ROUND_28` at `v0.25.0`. Code and docs still cite
+**Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`, `PLAN_ROUND_24` at `v0.22.0`, `PLAN_ROUND_25` at `v0.22.1`, `PLAN_ROUND_26` at `v0.23.0`, `PLAN_ROUND_27` at `v0.24.0`, `PLAN_ROUND_28` at `v0.25.0`, `PLAN_ROUND_29` at `v0.26.0`. Code and docs still cite
 them as labels (for example "PLAN_ROUND_16 A2"). To read one: `git show v0.21.0:PLAN_ROUND_16.md` (or the later tag), or
 `https://github.com/cafeTechne/Census-Research-Engine/blob/v0.21.0/PLAN_ROUND_16.md`.
 
@@ -94,7 +95,7 @@ Acceptance: 1838 passed, 37 skipped, 50 subtests; 0 failures; 56 added tests. Sc
 supported-method messages; execution golden byte-identical. See
 `docs/audits/round28_compatibility.md`. No real-data study or later round started.
 
-**Round 29 (v0.26.0, branch; merge/release pending):** manual-only WONDER inventory, pinned age/sex standards,
+**Round 29 (v0.26.0):** manual-only WONDER inventory, pinned age/sex standards,
 replicate-aware expected deaths and suppression-safe bundles. Both mortality manifests registered at
 `150e172` before analysis. MI/NY and held-out OH/PA support all three poverty associations after Holm
 correction; H2 is stable under both registered suppression sensitivities. Independence assumptions and
