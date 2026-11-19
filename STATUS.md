@@ -108,7 +108,7 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 31 (v0.28.0, branch; implemented by the maintainer agent):** omnibus tests and group
+**Round 31 (v0.28.0; merged, release pending owner approval; implemented by the maintainer agent):** omnibus tests and group
 comparisons. Criterion `3e3094a` pushed before the 36-cell run. F references failed; the wild score
 bootstrap and IM-8 Hotelling passed for the combinations above. New `joint_test` statistic,
 `compare_groups` (t-test, ANOVA, ANCOVA, interactions; MCP core tool) and recipe `group_comparison`.
