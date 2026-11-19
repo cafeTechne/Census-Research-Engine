@@ -1,0 +1,704 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "kind": "T",
+      "parameters": {
+        "reliability": 0.9,
+        "rho": 0.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "T0": 0.865,
+        "T1": 0.8895
+      },
+      "bias": {
+        "T0": 0.04986546504733713,
+        "T1": -1.164876635401102e-05
+      },
+      "failed": {
+        "T0": 0,
+        "T1": 0
+      }
+    },
+    {
+      "cell": 1,
+      "kind": "T",
+      "parameters": {
+        "reliability": 0.9,
+        "rho": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "T0": 0.866,
+        "T1": 0.8885
+      },
+      "bias": {
+        "T0": 0.05147884251434898,
+        "T1": -0.0012979477004477769
+      },
+      "failed": {
+        "T0": 0,
+        "T1": 0
+      }
+    },
+    {
+      "cell": 2,
+      "kind": "T",
+      "parameters": {
+        "reliability": 0.8,
+        "rho": 0.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "T0": 0.8405,
+        "T1": 0.8905
+      },
+      "bias": {
+        "T0": 0.09645843874905446,
+        "T1": -0.006299463335264099
+      },
+      "failed": {
+        "T0": 0,
+        "T1": 1
+      }
+    },
+    {
+      "cell": 3,
+      "kind": "T",
+      "parameters": {
+        "reliability": 0.8,
+        "rho": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "T0": 0.836,
+        "T1": 0.898
+      },
+      "bias": {
+        "T0": 0.1057679792441717,
+        "T1": -0.003339907647261997
+      },
+      "failed": {
+        "T0": 0,
+        "T1": 0
+      }
+    },
+    {
+      "cell": 4,
+      "kind": "T",
+      "parameters": {
+        "reliability": 0.7,
+        "rho": 0.0
+      },
+      "draws": 2000,
+      "coverage": {
+        "T0": 0.801,
+        "T1": 0.905
+      },
+      "bias": {
+        "T0": 0.14286140885541376,
+        "T1": -0.009395568126812248
+      },
+      "failed": {
+        "T0": 0,
+        "T1": 2
+      }
+    },
+    {
+      "cell": 5,
+      "kind": "T",
+      "parameters": {
+        "reliability": 0.7,
+        "rho": 0.3
+      },
+      "draws": 2000,
+      "coverage": {
+        "T0": 0.771,
+        "T1": 0.8925
+      },
+      "bias": {
+        "T0": 0.1550288280665294,
+        "T1": -0.012790033130305467
+      },
+      "failed": {
+        "T0": 0,
+        "T1": 11
+      }
+    },
+    {
+      "cell": 6,
+      "kind": "W",
+      "parameters": {
+        "expected_f": 2,
+        "reliability": 0.9
+      },
+      "draws": 2000,
+      "coverage": {
+        "W1": 0.992,
+        "W2": 0.9035
+      },
+      "bias": {
+        "W1": 1.071144062934993,
+        "W2": null
+      },
+      "failed": {
+        "W1": 0,
+        "W2": 0
+      },
+      "mean_first_stage_f": 2.007321584461325,
+      "ar_kinds": {
+        "bounded": 512,
+        "disjoint": 319,
+        "real_line": 1169,
+        "empty": 0,
+        "failed": 0
+      }
+    },
+    {
+      "cell": 7,
+      "kind": "W",
+      "parameters": {
+        "expected_f": 5,
+        "reliability": 0.9
+      },
+      "draws": 2000,
+      "coverage": {
+        "W1": 0.9705,
+        "W2": 0.9035
+      },
+      "bias": {
+        "W1": -0.7027848680054577,
+        "W2": null
+      },
+      "failed": {
+        "W1": 0,
+        "W2": 0
+      },
+      "mean_first_stage_f": 5.097128069159944,
+      "ar_kinds": {
+        "bounded": 1269,
+        "disjoint": 206,
+        "real_line": 525,
+        "empty": 0,
+        "failed": 0
+      }
+    },
+    {
+      "cell": 8,
+      "kind": "W",
+      "parameters": {
+        "expected_f": 10,
+        "reliability": 0.9
+      },
+      "draws": 2000,
+      "coverage": {
+        "W1": 0.9515,
+        "W2": 0.9095
+      },
+      "bias": {
+        "W1": -0.0003348939076421864,
+        "W2": null
+      },
+      "failed": {
+        "W1": 0,
+        "W2": 0
+      },
+      "mean_first_stage_f": 10.239478957666638,
+      "ar_kinds": {
+        "bounded": 1793,
+        "disjoint": 79,
+        "real_line": 128,
+        "empty": 0,
+        "failed": 0
+      }
+    },
+    {
+      "cell": 9,
+      "kind": "W",
+      "parameters": {
+        "expected_f": 20,
+        "reliability": 0.9
+      },
+      "draws": 2000,
+      "coverage": {
+        "W1": 0.917,
+        "W2": 0.895
+      },
+      "bias": {
+        "W1": -0.0023480465588579524,
+        "W2": null
+      },
+      "failed": {
+        "W1": 0,
+        "W2": 0
+      },
+      "mean_first_stage_f": 20.146079591377053,
+      "ar_kinds": {
+        "bounded": 1987,
+        "disjoint": 5,
+        "real_line": 8,
+        "empty": 0,
+        "failed": 0
+      }
+    },
+    {
+      "cell": 10,
+      "kind": "W",
+      "parameters": {
+        "expected_f": 30,
+        "reliability": 0.9
+      },
+      "draws": 2000,
+      "coverage": {
+        "W1": 0.9045,
+        "W2": 0.9005
+      },
+      "bias": {
+        "W1": -0.0020859382789263914,
+        "W2": null
+      },
+      "failed": {
+        "W1": 0,
+        "W2": 0
+      },
+      "mean_first_stage_f": 30.600423272224898,
+      "ar_kinds": {
+        "bounded": 2000,
+        "disjoint": 0,
+        "real_line": 0,
+        "empty": 0,
+        "failed": 0
+      }
+    },
+    {
+      "cell": 11,
+      "kind": "W",
+      "parameters": {
+        "expected_f": 2,
+        "reliability": 0.7
+      },
+      "draws": 2000,
+      "coverage": {
+        "W1": 0.9865,
+        "W2": 0.8985
+      },
+      "bias": {
+        "W1": -1.3696953241806507,
+        "W2": null
+      },
+      "failed": {
+        "W1": 0,
+        "W2": 0
+      },
+      "mean_first_stage_f": 2.0135105557019535,
+      "ar_kinds": {
+        "bounded": 532,
+        "disjoint": 330,
+        "real_line": 1138,
+        "empty": 0,
+        "failed": 0
+      }
+    },
+    {
+      "cell": 12,
+      "kind": "W",
+      "parameters": {
+        "expected_f": 5,
+        "reliability": 0.7
+      },
+      "draws": 2000,
+      "coverage": {
+        "W1": 0.966,
+        "W2": 0.892
+      },
+      "bias": {
+        "W1": 0.01725747379033893,
+        "W2": null
+      },
+      "failed": {
+        "W1": 0,
+        "W2": 0
+      },
+      "mean_first_stage_f": 5.05688861990593,
+      "ar_kinds": {
+        "bounded": 1274,
+        "disjoint": 223,
+        "real_line": 503,
+        "empty": 0,
+        "failed": 0
+      }
+    },
+    {
+      "cell": 13,
+      "kind": "W",
+      "parameters": {
+        "expected_f": 10,
+        "reliability": 0.7
+      },
+      "draws": 2000,
+      "coverage": {
+        "W1": 0.949,
+        "W2": 0.904
+      },
+      "bias": {
+        "W1": 0.03359858066799959,
+        "W2": null
+      },
+      "failed": {
+        "W1": 0,
+        "W2": 0
+      },
+      "mean_first_stage_f": 10.178775090143548,
+      "ar_kinds": {
+        "bounded": 1812,
+        "disjoint": 74,
+        "real_line": 114,
+        "empty": 0,
+        "failed": 0
+      }
+    },
+    {
+      "cell": 14,
+      "kind": "W",
+      "parameters": {
+        "expected_f": 20,
+        "reliability": 0.7
+      },
+      "draws": 2000,
+      "coverage": {
+        "W1": 0.9115,
+        "W2": 0.899
+      },
+      "bias": {
+        "W1": 0.005271683944405914,
+        "W2": null
+      },
+      "failed": {
+        "W1": 0,
+        "W2": 0
+      },
+      "mean_first_stage_f": 20.79790815276079,
+      "ar_kinds": {
+        "bounded": 1989,
+        "disjoint": 7,
+        "real_line": 4,
+        "empty": 0,
+        "failed": 0
+      }
+    },
+    {
+      "cell": 15,
+      "kind": "W",
+      "parameters": {
+        "expected_f": 30,
+        "reliability": 0.7
+      },
+      "draws": 2000,
+      "coverage": {
+        "W1": 0.912,
+        "W2": 0.908
+      },
+      "bias": {
+        "W1": 0.009271679900864194,
+        "W2": null
+      },
+      "failed": {
+        "W1": 0,
+        "W2": 0
+      },
+      "mean_first_stage_f": 30.865833835230443,
+      "ar_kinds": {
+        "bounded": 1999,
+        "disjoint": 1,
+        "real_line": 0,
+        "empty": 0,
+        "failed": 0
+      }
+    },
+    {
+      "cell": 16,
+      "kind": "S",
+      "parameters": {
+        "reliability": 0.9,
+        "b": 0.5
+      },
+      "draws": 2000,
+      "coverage": {
+        "S0": 0.843,
+        "S1": 0.898
+      },
+      "bias": {
+        "S0": -0.023174143407090897,
+        "S1": -0.0001562107494928744
+      },
+      "failed": {
+        "S0": 0,
+        "S1": 0
+      }
+    },
+    {
+      "cell": 17,
+      "kind": "S",
+      "parameters": {
+        "reliability": 0.9,
+        "b": 0.25
+      },
+      "draws": 2000,
+      "coverage": {
+        "S0": 0.8575,
+        "S1": 0.891
+      },
+      "bias": {
+        "S0": -0.010734449496213605,
+        "S1": 0.0006940885742911795
+      },
+      "failed": {
+        "S0": 0,
+        "S1": 0
+      }
+    },
+    {
+      "cell": 18,
+      "kind": "S",
+      "parameters": {
+        "reliability": 0.8,
+        "b": 0.5
+      },
+      "draws": 2000,
+      "coverage": {
+        "S0": 0.718,
+        "S1": 0.888
+      },
+      "bias": {
+        "S0": -0.045398543634410704,
+        "S1": 8.784983333914864e-05
+      },
+      "failed": {
+        "S0": 0,
+        "S1": 0
+      }
+    },
+    {
+      "cell": 19,
+      "kind": "S",
+      "parameters": {
+        "reliability": 0.8,
+        "b": 0.25
+      },
+      "draws": 2000,
+      "coverage": {
+        "S0": 0.8045,
+        "S1": 0.896
+      },
+      "bias": {
+        "S0": -0.021837947703364696,
+        "S1": 0.0012489564470112013
+      },
+      "failed": {
+        "S0": 0,
+        "S1": 0
+      }
+    },
+    {
+      "cell": 20,
+      "kind": "S",
+      "parameters": {
+        "reliability": 0.7,
+        "b": 0.5
+      },
+      "draws": 2000,
+      "coverage": {
+        "S0": 0.577,
+        "S1": 0.8825
+      },
+      "bias": {
+        "S0": -0.06502889341209825,
+        "S1": 0.003128942480502911
+      },
+      "failed": {
+        "S0": 0,
+        "S1": 0
+      }
+    },
+    {
+      "cell": 21,
+      "kind": "S",
+      "parameters": {
+        "reliability": 0.7,
+        "b": 0.25
+      },
+      "draws": 2000,
+      "coverage": {
+        "S0": 0.697,
+        "S1": 0.888
+      },
+      "bias": {
+        "S0": -0.033368138788468504,
+        "S1": 0.0005827862657483557
+      },
+      "failed": {
+        "S0": 0,
+        "S1": 0
+      }
+    },
+    {
+      "cell": 22,
+      "kind": "D",
+      "parameters": {
+        "mechanism": "MCAR",
+        "fraction": 0.2
+      },
+      "draws": 2000,
+      "coverage": {
+        "D0_x1": 0.915,
+        "D0_x2": 0.905,
+        "D1_x1": 0.909,
+        "D1_x2": 0.911
+      },
+      "bias": {
+        "D0_x1": -0.0004058200673170975,
+        "D0_x2": 0.0008837067117763997,
+        "D1_x1": -0.00036345285412781037,
+        "D1_x2": -0.0011332081479168976
+      },
+      "failed": {
+        "D0": 0,
+        "D1": 0
+      }
+    },
+    {
+      "cell": 23,
+      "kind": "D",
+      "parameters": {
+        "mechanism": "MCAR",
+        "fraction": 0.4
+      },
+      "draws": 2000,
+      "coverage": {
+        "D0_x1": 0.9005,
+        "D0_x2": 0.9025,
+        "D1_x1": 0.9095,
+        "D1_x2": 0.9145
+      },
+      "bias": {
+        "D0_x1": -0.00266456169461754,
+        "D0_x2": 0.0019600641002701646,
+        "D1_x1": -0.00535989576371515,
+        "D1_x2": 8.933689638135345e-05
+      },
+      "failed": {
+        "D0": 0,
+        "D1": 0
+      }
+    },
+    {
+      "cell": 24,
+      "kind": "D",
+      "parameters": {
+        "mechanism": "MAR",
+        "fraction": 0.2
+      },
+      "draws": 2000,
+      "coverage": {
+        "D0_x1": 0.862,
+        "D0_x2": 0.859,
+        "D1_x1": 0.899,
+        "D1_x2": 0.9155
+      },
+      "bias": {
+        "D0_x1": -0.05148216555478968,
+        "D0_x2": -0.05379562265291293,
+        "D1_x1": -0.0022926104796936464,
+        "D1_x2": -0.0038253724238939135
+      },
+      "failed": {
+        "D0": 0,
+        "D1": 0
+      }
+    },
+    {
+      "cell": 25,
+      "kind": "D",
+      "parameters": {
+        "mechanism": "MAR",
+        "fraction": 0.4
+      },
+      "draws": 2000,
+      "coverage": {
+        "D0_x1": 0.835,
+        "D0_x2": 0.837,
+        "D1_x1": 0.904,
+        "D1_x2": 0.898
+      },
+      "bias": {
+        "D0_x1": -0.07642527128173571,
+        "D0_x2": -0.07712583398327116,
+        "D1_x1": -0.004812338517285408,
+        "D1_x2": -0.0046436036910568745
+      },
+      "failed": {
+        "D0": 0,
+        "D1": 0
+      }
+    }
+  ],
+  "f_bins": {
+    "rel0.9_F0": {
+      "draws": 3451,
+      "W1": 0.9973920602723848,
+      "W2": 0.9066937119675457
+    },
+    "rel0.9_F5": {
+      "draws": 1624,
+      "W1": 0.9501231527093597,
+      "W2": 0.8940886699507389
+    },
+    "rel0.9_F10": {
+      "draws": 2211,
+      "W1": 0.919041157847128,
+      "W2": 0.9054726368159204
+    },
+    "rel0.9_F20": {
+      "draws": 2714,
+      "W1": 0.9042004421518055,
+      "W2": 0.8994104642593957
+    },
+    "rel0.7_F0": {
+      "draws": 3490,
+      "W1": 0.9911174785100286,
+      "W2": 0.8945558739255014
+    },
+    "rel0.7_F5": {
+      "draws": 1615,
+      "W1": 0.9479876160990712,
+      "W2": 0.9015479876160991
+    },
+    "rel0.7_F10": {
+      "draws": 2097,
+      "W1": 0.9170243204577968,
+      "W2": 0.8989031950405341
+    },
+    "rel0.7_F20": {
+      "draws": 2798,
+      "W1": 0.9067190850607577,
+      "W2": 0.9077912794853467
+    }
+  },
+  "passed": {
+    "T1": true,
+    "S1": true,
+    "D1": true,
+    "W2": true,
+    "W1_cutoff_f": 0
+  },
+  "draws_per_cell": 2000,
+  "criterion": "90% coverage >= .86 (failed fits count as non-coverage): T1, S1 in every cell; D1 in every cell for both slopes; W2 in every observed-F bin of both reliabilities (bins need >= 200 draws); W1 cut-off = smallest bin edge with W1 >= .86 there and above in both reliabilities",
+  "criterion_commit": "cbdc97f",
+  "frozen_sha256": {
+    "scripts/causal_robustness_validation.py": "86dd6c1fb42a0c4f55c64e169e403cc9b25223e9ea0ff7262e2651861d842711",
+    "census/causal_robustness_core.py": "08e0530a86b9bd979680d7fc7089c4b1a786015094636593183b4fa903d53a4d",
+    "census/causal_core.py": "5bc7c11fe7c1e31b60e7d2324a6eda06192aac7291e391dc1c29886a5c457a90",
+    "docs/audits/causal_robustness_validation_criterion.md": "5f8f5219d6eae2f5b603500e47f5103602d9e786ac577c4003c902e66b1d5286"
+  }
+}
