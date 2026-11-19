@@ -48,8 +48,8 @@ unchanged; full suite; STATUS, CHANGELOG, version 0.38.0, section 8.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit | | |
-| T / I / S results | | |
-| Engine, tool, tests | | |
+| Criterion commit | `b7464e5` | Pushed before the full run. |
+| T / I / S results | Passed | All judged cells pass; mediator error fails (informational); treatment design limitation recorded. |
+| Engine, tool, tests | Done | census.causal, estimate_effect tool; 5 tests. |
 | Goldens, final suite | | |
-| Exceptions | | |
+| Exceptions | Recorded | Treatment DGP cancels residual confounding (backlog: same-sign design). |

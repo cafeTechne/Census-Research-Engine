@@ -395,6 +395,15 @@ target; independent areas). Beta model-based SEs failed. Adding replicate varian
 over-covered, so it is not added. PUMS ordinal/multinomial/weighted-quantile models and GEE
 are not available yet (no survey weights in the statsmodels versions).
 
+## Causal tools (Round 41)
+
+Round 41 causal tools (full profile tool estimate_effect; recipe causal): treatment
+effects (AIPW default) validated with precisely measured confounders; 2SLS with an
+independent second measurement as instrument removes covariate attenuation (validated;
+weak instruments flagged); mediation validated only with an exactly measured mediator
+(ACS mediator error drops coverage to .69-.72). State the assumptions; confirmatory causal
+claims need a registered design.
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event

@@ -9,6 +9,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RECIPE_DIR = os.path.join(ROOT, "docs", "recipes")
 
 RECIPES: Dict[str, str] = {
+    "causal": "Treatment effects, instrumental variables and mediation with ACS data, and their assumptions (Round 41)",
     "combine_estimates": "Pool replications (meta-analysis), test equivalence, plan power (Round 38)",
     "agreement": "Agreement between two sources of the same quantity: bias, kappa, limits, concordance (Round 37)",
     "composite_index": "Composite (deprivation) index with score intervals, quintile stability and alpha (Round 36)",
@@ -30,7 +31,7 @@ RECIPES: Dict[str, str] = {
 
 RecipeName = Literal[
     "compare_counties", "tract_trend", "regression_sampling_error", "small_area", "preregistered",
-    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas", "composite_index", "agreement", "combine_estimates",
+    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas", "composite_index", "agreement", "combine_estimates", "causal",
 ]
 
 
@@ -42,7 +43,7 @@ def get_recipe(name: Optional[RecipeName] = None) -> Dict[str, Any]:
             small_area, preregistered, decennial_counts, external_health_outcome, health_inequality, segregation,
             group_comparison, pums_tests, rank_methods,
             rank_areas, composite_index, agreement,
-            or combine_estimates.
+            combine_estimates, or causal.
 
     Example: get_recipe(name="compare_counties")
     """

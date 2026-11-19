@@ -5,6 +5,15 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.38.0 (Round 41): treatment effects, instrumental variables and mediation
+
+- Freeze procedures, script and criterion at `b7464e5` before the run.
+- Passed: IPW/AIPW/regression-adjustment treatment effects with precise confounders; 2SLS with an
+  independent second measurement as instrument (removes covariate attenuation); Sobel and bootstrap
+  mediation with an exact mediator. Mediator sampling error broke mediation coverage. Design
+  limitation recorded: the treatment cells did not test residual confounding.
+- New `census.causal_core` (frozen), `census.causal`, MCP tool `estimate_effect`, recipe `causal`.
+
 ## 0.37.0 (Round 40): beta and median regression
 
 - Freeze procedures, script, criterion and targets at `d5c9b02` before the run.
