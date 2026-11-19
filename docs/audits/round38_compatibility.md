@@ -20,4 +20,5 @@ rule text. No manifest change.
 
 ## Goldens and suite
 
-See STATUS (Round 38).
+Both goldens byte-identical to v0.34.0. Suite: 1957 passed, 37 skipped, 62 subtests; 0 failures
+(baseline 1951; 6 new tests).

@@ -54,5 +54,5 @@ STATUS, CHANGELOG, version 0.35.0, section 8.
 | M1–M3 / E1 / P1 results | Mixed | HKSJ k≤4, fixed (homogeneous), TOST, power pass; DL fails. |
 | Engine, tool, tests | Done | census.evidence, combine_estimates tool; 6 tests. |
 | Example | Done | R29 replications pooled. |
-| Goldens, final suite | | |
+| Goldens, final suite | Done | Goldens identical; 1957 passed, 37 skipped, 0 failures. |
 | Exceptions | None | |

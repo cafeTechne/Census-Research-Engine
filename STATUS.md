@@ -118,6 +118,7 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 **Round 38 (v0.35.0; merged, release pending owner approval; implemented by the maintainer agent):**
 combining evidence. Criterion `3edd5f4` pushed before the run. New `census.evidence_core`,
 `census.evidence`, MCP tool `combine_estimates` (full profile), recipe `combine_estimates`. Goldens unchanged.
+Acceptance: 1957 passed, 37 skipped; 0 failures.
 
 **Round 37 (v0.34.0; merged, release pending owner approval; implemented by the maintainer agent):**
 agreement between sources. Criterion `e6d4be6` pushed before the 8-cell run. New `census.agreement_core`,
