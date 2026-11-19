@@ -34,7 +34,7 @@ Per-cluster coefficient estimates (labels 0–7; coefficients only):
 | :--- | ---: | ---: | :--- |
 | H1 (m1: pov_rate) | 2.65109e-12 | 0.0176306 | yes |
 | H2 (m2: cost_burden) | 0.00498352 | 0.0575012 | yes |
-| H3 (m2: no_vehicle) | 0.923584 | 0.223059 | no |
+| H3 (m2: no_vehicle) | 0.923584 | 0.223059 | n/a: not supported as registered; still not supported |
 
 Registered p-values retain the original Pearson X2 inference, later found to under-cover. This table does not endorse X2. C1 tests naive ACS-estimate associations, not corrected true effects.
 

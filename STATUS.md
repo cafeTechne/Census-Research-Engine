@@ -3,10 +3,10 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.26.0 (Round 29: manual CDC WONDER mortality inputs, suppression-safe outputs, MI/NY
-mortality study replicated in OH/PA; DOI 10.5281/zenodo.24356572). Previous: v0.25.0 (Round 28: segregation indices, exploratory
-pending a realistic-error validation; reference-aware SMR; DOI 10.5281/zenodo.24329678); v0.24.0 (Round 27;
-DOI 10.5281/zenodo.24329544). All versions: concept record
+**Current release:** v0.27.0 (Round 30: IM-8 spatial-cluster inference with ACS sampling error for naive
+OLS/binomial/Poisson targets; cluster EIV failed; DOI pending). Previous: v0.26.0 (Round 29: manual CDC WONDER
+mortality inputs, MI/NY mortality study replicated in OH/PA; DOI 10.5281/zenodo.24356572); v0.25.0 (Round 28;
+DOI 10.5281/zenodo.24329678). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
@@ -19,7 +19,7 @@ DOI 10.5281/zenodo.24329544). All versions: concept record
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (30). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (none queued after Round 30). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
 **Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`; from Round 24 on, each plan is at tag `plan-r<n>` (for example `git show plan-r29:PLAN_ROUND_29.md`). Code and docs still cite
@@ -105,7 +105,7 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 30 (v0.27.0 prepared on branch; merge/release pending):** criterion and beta-star targets
+**Round 30 (v0.27.0):** criterion and beta-star targets
 committed/pushed at `2774140` before the fixed 12-cell run; no changes or extra draws. C1 passed all
 three models for observed-ACS coefficients; C2 EIV failed and remains refused. State terms constant
 within every cluster are absorbed and not estimable; partial constancy is refused. The post hoc
