@@ -24,4 +24,5 @@ validation snapshots). Manifest routing is backlog. Post hoc R21b re-check:
 
 ## Goldens and suite
 
-See STATUS (Round 35).
+Both goldens byte-identical to v0.31.0. Suite: 1940 passed, 37 skipped, 59 subtests; 0 failures
+(baseline 1935; 5 new tests).

@@ -116,7 +116,8 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 corrected EIV slopes under spatial dependence. Criterion `46fab40` pushed before the 8-cell run;
 both candidates passed. New `census.spatial_eiv_core`, `census.spatial_eiv`, MCP
 `fit_model(method="eiv", spatial=...)`. Post hoc: R21b H1 and H4 hold under both
-(`docs/studies/r35_posthoc_spatial_eiv.md`). Goldens unchanged.
+(`docs/studies/r35_posthoc_spatial_eiv.md`). Goldens unchanged. Acceptance: 1940 passed, 37 skipped;
+0 failures.
 
 **Round 34 (v0.31.0; merged, release pending owner approval; implemented by the maintainer agent):**
 ranking areas. Criterion `6286ad9` pushed before the 8-cell run. New `census.ranking_core`,

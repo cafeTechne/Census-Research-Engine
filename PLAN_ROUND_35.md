@@ -58,5 +58,5 @@ CHANGELOG; version 0.32.0; section 8.
 | G1 / G2 results | Passed | G1 .879–.899; G2 .863–.918. |
 | Engine, tests | Done | fit_spatial_eiv, MCP fit_model spatial option; 5 tests. |
 | Post hoc R21b | Done | H1, H4 hold under both; m2 outside validated design. |
-| Goldens, final suite | | |
+| Goldens, final suite | Done | Goldens identical; 1940 passed, 37 skipped, 0 failures. |
 | Exceptions | Recorded | Manifest routing of fit_eiv spatial options deferred (backlog). |
