@@ -189,6 +189,7 @@ Validated in `docs/audits/inference_validation.md` by simulation with known trut
 ## 14. Microdata, 1-year estimates, and designs
 
 - **PUMS** (`pums_tabulate`, `pums_regression`): use when no published table crosses the variables you need. Standard errors come from the 80 replicate weights. Cells from fewer than 30 records or with CV above 30% are flagged, not suppressed; report the flag. PUMA is the smallest geography.
+  `pums_regression` also fits `model="ordered_logit"`, `"ordered_probit"`, `"mnlogit"`, `"median"` and `"probit"` with the replicate weights (each refitted 80 times; Var = 4/80 sum of squared deviations). All five passed the Round 49 validation (coverage .875–.915); model-based SEs under-cover with unequal weights (.62–.887), so never report them.
 - **1-year estimates** (`product="1-year"`): only areas of 65,000+ people; the plan lists requested areas with no 1-year data. There is no standard 2020 1-year release. Never compare a 1-year estimate with a 5-year estimate.
 - **Multilevel models and difference-in-differences** (`multilevel_model`, `difference_in_differences`): pass the outcome's SE column so sampling error is included. DiD needs non-overlapping releases and a pre-treatment reference period; with three or more pre-periods, report the parallel-trends test.
 - **Cost of living** (`adjust_for_place`): only on request; say in results that regional price parities were applied and that they carry their own error.
@@ -399,8 +400,8 @@ with strong overdispersion (.81-.87) and zero-inflated Poisson failed (explorato
 Round 40: fit_model(model="beta") (shares in 0-1; logit mean; HC0 sandwich) and
 fit_model(model="median") (median regression; kernel SE) passed validation (.885-.917; naive
 target; independent areas). Beta model-based SEs failed. Adding replicate variance
-over-covered, so it is not added. PUMS ordinal/multinomial/weighted-quantile models and GEE
-are not available yet (no survey weights in the statsmodels versions).
+over-covered, so it is not added. Survey-weighted PUMS ordinal,
+multinomial, median and probit models were added in Round 49 (`pums_regression`); GEE is not available.
 
 ## Causal tools (Round 41)
 

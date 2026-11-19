@@ -178,7 +178,9 @@ def pums_regression(
 
     Args:
         formula: e.g. "np.log(WAGP) ~ AGEP + C(SCHL)" (PUMS codes).
-        model: "ols", "logit", or "poisson". where: pandas query to subset records.
+        model: "ols", "logit", or "poisson"; Round 49: "ordered_logit", "ordered_probit"
+            (ordered categories), "mnlogit" (unordered), "median" (median regression) or
+            "probit" (0/1), always with replicate-weight intervals. where: pandas query.
         target: "these_areas" (default; the coefficient in the surveyed population,
             replicate-weight SE) or "population" (model SE).
     Example: pums_regression("56", 2024, "WAGP ~ AGEP", where="WAGP > 0")
@@ -189,6 +191,14 @@ def pums_regression(
     try:
         df = pums.fetch_pums(state, year, product=product, record=record,
                              columns=_pums_columns(formula, where) or None)
+        from census import pums_models
+        if model in pums_models.MODELS:
+            out = pums_models.fit_pums_model(formula, df, model=model, weight=weight, where=where)
+            from census.results import _jsonable
+            out["table"] = out["table"].to_dict("records")
+            return _ok(f"{model} on {out['n']} PUMS records with replicate-weight intervals; "
+                       + ("validated (Round 49)." if out["validated"] else "exploratory: see notes."),
+                       "report coefficients with their replicate-weight intervals", **_jsonable(out))
         res = pums.pums_regression(formula, df, weight=weight, model=model, where=where, target=target)
     except _ERRORS as exc:
         return _fail(errors.INVALID_INPUT, str(exc))

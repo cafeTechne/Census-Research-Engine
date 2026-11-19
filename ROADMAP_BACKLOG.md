@@ -54,7 +54,7 @@ saturated-model bundle crash.
 | 46 | Measurement-error-corrected GLM slopes | backlog 1 and 4; linear EIV with 3–4 error-prone covariates | merged (v0.43.0) |
 | 47 | Causal and missing-data robustness | N5–N8 | merged (v0.44.0) |
 | 48 | Small samples and spatial dependence | N10, N12, N13 | merged (v0.45.0) |
-| 49 | Survey-weighted PUMS models | N14 | in progress |
+| 49 | Survey-weighted PUMS models | N14 | merged (v0.46.0) |
 | 50 | Segregation with realistic error | backlog 6 (realistic-error validation, multigroup H) | proposed |
 
 ### Round 43: manifest routing and housekeeping (no new statistics)

@@ -235,6 +235,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      Brunner-Munzel, Kruskal-Wallis. F references failed.
    - test_association (pums_tests): PUMS Rao-Scott tables up to 3x4, design mean tests,
      differences/OR/RR, Korn-Graubard. Never the design-blind Pearson test.
+   - pums_regression [full] model=ordered_logit|ordered_probit|mnlogit|median|probit: replicate-weight
+     intervals (Round 49); never model-based SEs on PUMS.
    - correlation_matrix [full] (rank_methods): Spearman/Kendall intervals; Pearson/partial only
      with replicates. Spatially dependent areas: spatial=True (not partial).
    - rank_areas [full]: report rank intervals, never point ranks.

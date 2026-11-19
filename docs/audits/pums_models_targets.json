@@ -1,0 +1,30 @@
+{
+  "O": [
+    1.321499804221445
+  ],
+  "P": [
+    0.8
+  ],
+  "M": [
+    0.8808083244737636,
+    1.744755339515797
+  ],
+  "Q": [
+    0.15,
+    0.3
+  ],
+  "G": [
+    0.4,
+    0.5
+  ],
+  "reference": {
+    "households": 400000,
+    "persons": 998584,
+    "seed": [
+      20270701,
+      400000
+    ],
+    "rho": 0.25,
+    "note": "O and M are pseudo-true values of misspecified logit models (the latent model is probit); P, Q and G are exact"
+  }
+}
