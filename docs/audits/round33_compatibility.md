@@ -30,4 +30,5 @@ correlation tool methods `kendall`/`partial` with `controls` and `validated_inte
 
 ## Goldens and suite
 
-See STATUS (Round 33).
+Both goldens byte-identical to v0.29.0. Suite: 1930 passed, 37 skipped, 58 subtests; 0 failures
+(baseline 1922; 8 new tests). An earlier run caught a transient version mismatch mid-edit; rerun clean.

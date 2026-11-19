@@ -115,7 +115,7 @@ rank methods and diagnostics. Criterion `f660e9c` pushed before the 8-cell run. 
 `census.rank_methods`, `correlation.validated_correlations` (Kendall, partial), `compare_groups`
 method `rank`, `census.diagnostics` (VIF, Cook's distance, Breusch–Pagan, RESET; information only),
 recipe `rank_methods`. Manifests unchanged (goldens identical); moving manifest correlation intervals
-to the validated variants is backlog.
+to the validated variants is backlog. Acceptance: 1930 passed, 37 skipped; 0 failures.
 
 **Round 32 (v0.29.0; merged, release pending owner approval; implemented by the maintainer agent):**
 design-based PUMS tests. Criterion `d65d034` pushed before the 8-cell run (household clustering,
