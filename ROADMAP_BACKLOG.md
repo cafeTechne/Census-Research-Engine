@@ -52,7 +52,7 @@ saturated-model bundle crash.
 | 44 | Post hoc sensitivity and replication checks | backlog 2 (R29 NB2), N11, N15 | merged (v0.41.0) |
 | 45 | Count-model repairs | N9, N17; NB2 with IM-8 clusters; Poisson-offset uncertainty (backlog 1) | merged (v0.42.0) |
 | 46 | Measurement-error-corrected GLM slopes | backlog 1 and 4; linear EIV with 3–4 error-prone covariates | merged (v0.43.0) |
-| 47 | Causal and missing-data robustness | N5–N8 | proposed |
+| 47 | Causal and missing-data robustness | N5–N8 | in progress |
 | 48 | Small samples and spatial dependence | N10, N12, N13 | proposed |
 | 49 | Survey-weighted PUMS models | N14 | proposed |
 | 50 | Segregation with realistic error | backlog 6 (realistic-error validation, multigroup H) | proposed |
