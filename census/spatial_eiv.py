@@ -12,6 +12,9 @@ and independent or spatially correlated (range 100 km) fields.
   replicate deviations; Fuller's estimator and sandwich (as ``fit_eiv``); t(n - p).
 
 Linear models only; the estimand is the true (error-free) slope.
+
+Round 44 re-check on the 155 OH/PA counties (state-respecting clusters, ``docs/audits/ohpa_revalidation.md``):
+G1 .867-.909 and G2 .863-.921, so both replicate outside MI/NY.
 """
 from typing import Any, Dict, Optional, Sequence
 
@@ -89,6 +92,9 @@ def fit_spatial_eiv(formula: str, frame: pd.DataFrame, replicates: pd.DataFrame,
         extra = {"lambda": lam}
         notes.append(f"Spatial-error lambda = {lam:.3f} (k = 6 nearest neighbours).")
     table["p_value"] = 2*stats.t.sf(np.abs(table.estimate/table.se), table.df)
+    if method == "g1":
+        from .spatial_clusters import geography_notes
+        notes.extend(n for n in geography_notes(assign.loc[ids].reset_index()) if n.startswith("CLUSTERS CROSS"))
     validated = len(error_prone) <= VALIDATED_MAX_ERROR_COVARIATES
     if not validated:
         notes.append(f"EXPLORATORY: {len(error_prone)} error-prone covariates; validated with at most "

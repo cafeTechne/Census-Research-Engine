@@ -3,10 +3,9 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.27.0 (Round 30: IM-8 spatial-cluster inference with ACS sampling error for naive
-OLS/binomial/Poisson targets; cluster EIV failed; DOI 10.5281/zenodo.24357238). Previous: v0.26.0 (Round 29: manual CDC WONDER
-mortality inputs, MI/NY mortality study replicated in OH/PA; DOI 10.5281/zenodo.24356572); v0.25.0 (Round 28;
-DOI 10.5281/zenodo.24329678). All versions: concept record
+**Current release:** v0.39.0 (Rounds 31–42, the statistics roadmap, released as one bundle; DOI
+10.5281/zenodo.24371310). Previous: v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
+10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
@@ -19,7 +18,7 @@ DOI 10.5281/zenodo.24329678). All versions: concept record
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (44), drafted from `ROADMAP_BACKLOG.md` (Rounds 43–50). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (45), drafted from `ROADMAP_BACKLOG.md` (Rounds 43–50). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–50): the backlog below plus issues found in Rounds 31–42. Plans are drafted from it |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -49,7 +48,7 @@ manifests refuse them in confirmatory analyses.
 | Spatial CR1-t, G=8 (`cr1_t`, C1-8) | **Failed**: coverage 0.800–0.895; exploratory only | `spatial_cluster_validation.md`, criterion `46ec2ec` |
 | Spatial CR1-t, G=12 (`cr1_t`, C1-12) | **Failed**: coverage 0.773–0.901; exploratory only | `spatial_cluster_validation.md` |
 | Ibragimov–Müller, G=8 (`im`, C2-8) | **Passed**: 0.886–0.912; unweighted OLS/binomial, population only, no analysed ACS replicates; every cluster full-rank and >=5 units | `spatial_cluster_validation.md` |
-| IM-8 C1 with ACS sampling error | **Passed** observed-estimate targets: linear .8790–.9130; binomial .8690–.9060; Poisson .8695–.9235. Population only, fixed Poisson E, no additive ACS variance. Constant cluster terms absorbed; no true-slope correction | `im_acs_validation.md`, criterion `2774140` |
+| IM-8 C1 with ACS sampling error | **Passed** observed-estimate targets: linear .8790–.9130; binomial .8690–.9060; Poisson .8695–.9235. Population only, fixed Poisson E, no additive ACS variance. Constant cluster terms absorbed; no true-slope correction. **OH/PA re-check (Round 44): failed** with spatially correlated fields (.70–.85; independent cells .89–.91): exploratory outside MI/NY, with an engine note | `im_acs_validation.md`, criterion `2774140`; `ohpa_revalidation.md`, criterion `09ecd91` |
 | IM-8 C2 cluster Fuller EIV | **Failed**: .0695–.9035 coverage; corrected-matrix failures up to 92.6%. Refused, no naive fallback | `im_acs_validation.md` |
 | Restricted wild cluster bootstrap, G=12 (`wcr`, C3-12) | **Failed**: coverage 0.824–0.908; exploratory only, no ACS replicate combination | `spatial_cluster_validation.md` |
 | Poisson–Gamma descriptive EB rate smoothing | **Passed** fixed 90% area-average criterion: posterior 0.8813–0.9000 (default); Laird–Louis 0.8718–0.8914 in six required cells. Fixed E/rates, independent areas; [1,9] censoring; 200 bootstrap refits for LL | `eb_rate_validation.md`, criterion `d4dec47` |
@@ -62,7 +61,7 @@ manifests refuse them in confirmatory analyses.
 | Combining evidence (`combine_estimates`) | **Passed selected**: Paule–Mandel + Hartung–Knapp pooling for 2–4 estimates (.885–.911); fixed effect only when homogeneity is declared in advance; TOST equivalence; z-test power. DerSimonian–Laird failed with heterogeneity (.82–.84) | `evidence_validation.md`, criterion `3edd5f4` |
 | Agreement between sources (`check_agreement`) | **Passed selected**: bias (.894–.900) and kappa of quintile classes (.883–.912). Failed (estimates only, intervals exploratory): Bland–Altman limits observed (.838) and error-free (.826), Lin's CCC (.859) and corrected CCC (.38–.77) | `agreement_validation.md`, criterion `e6d4be6` |
 | Composite index scores and Cronbach's α (`build_index`) | **Passed**: per-area score intervals (PCA and equal weights; mean coverage .898–.899, every area ≥ .874); Feldt α interval for independent areas (.891–.912; under-covers with spatial dependence, .58–.67). Quintile stability and typologies descriptive | `index_validation.md`, criterion `e86907d` |
-| Corrected EIV slopes under spatial dependence (`fit_spatial_eiv`) | **Passed**: G1 pooled-correction IM-8 .879–.899; G2 SAR-whitened Fuller .863–.918 (true slope; reliability .7–.9; independent and 100 km fields; up to two error-prone covariates). Library and MCP only; manifests still refuse EIV spatial clusters | `spatial_eiv_validation.md`, criterion `46fab40` |
+| Corrected EIV slopes under spatial dependence (`fit_spatial_eiv`) | **Passed**: G1 pooled-correction IM-8 .879–.899; G2 SAR-whitened Fuller .863–.918 (true slope; reliability .7–.9; independent and 100 km fields; up to two error-prone covariates). Library, MCP and (Round 43) manifests via `fit_eiv` `args.spatial`. **Replicated on OH/PA (Round 44):** G1 .867–.909, G2 .863–.921 | `spatial_eiv_validation.md`, criterion `46fab40`; `ohpa_revalidation.md` |
 | Rank intervals and area-versus-reference comparisons (`rank_areas`) | **Passed** (conservative): Klein–Wright–Wieczorek individual (coverage ≥ .999) and joint rank intervals; Holm and simultaneous comparisons with a weighted reference (FWER ≤ .109; joint coverage .894–.907). Bootstrap percentile ranks failed (per-area coverage down to .33) and are not offered | `ranking_validation.md`, criterion `6286ad9` |
 | Rank/partial correlation and rank group tests | **Passed selected** (coverage ≥ .86, independent areas): Spearman and Kendall Fisher-type intervals; Pearson and partial (one control) only with the ACS replicate variance added (plain Fisher-z under-covered, .84); Brunner–Munzel superiority; Kruskal–Wallis size .095–.106. All correlation intervals under-cover with spatial dependence (.60–.89). **Manifest `correlation` statistics still use the plain Fisher-z interval (not validated for Pearson)** | `rank_validation.md`, criterion `f660e9c` |
 | PUMS design-based tests (`test_association`) | **Passed selected**: first-order Rao–Scott for tables up to 3 × 4 (size .097–.115); k-group mean tests (design F, z); differences, OR, RR, mean/median differences (coverage .877–.913); Korn–Graubard proportions (.902–.947). Design-blind Pearson (.13–.53) and Wald proportions (.848) failed. Medians of heaped values exploratory | `pums_tests_validation.md`, criterion `d65d034` |
@@ -119,6 +118,12 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 44 (v0.41.0; merged, release pending owner approval; implemented by the maintainer agent):**
+post hoc NB2 sensitivity of Round 29 (all three associations hold in both regions) and an OH/PA re-check of
+the spatial validations (criterion `09ecd91`): corrected-slope G1/G2 replicate; naive IM-8 C1 fails with
+spatially correlated fields. Engine notes for IM-8 outside MI/NY and for clusters crossing state borders;
+NB2 optimizer fallback. Goldens unchanged. Acceptance: 1999 passed, 37 skipped; 0 failures.
 
 **Round 43 (v0.40.0; merged, release pending owner approval; implemented by the maintainer agent):**
 manifest routing and housekeeping, no new statistics. Opt-in manifest options: validated correlation
@@ -231,6 +236,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 44 | Round 29 under NB2 (post hoc) | H1–H3 hold under NB2-HC3 in MI/NY and OH/PA; hidden H2 counts as [1, 9] give the same slope; `r44_posthoc_r29.md` |
 | 40 | Poverty by metro class and share 65+, beta and median models (exploratory example) | Metro gaps agree across models; the share-65+ slope halves in median regression (tails drive OLS); `r40_beta_median_example.md` |
 | 39 | Poverty and share 65+ by metro class, MANOVA (exploratory example) | Joint p = .0025 (validated) vs Pillai p ≈ 3e-11 (iid); `r39_manova_example.md` |
 | 38 | Pooling R29's MI/NY and OH/PA coefficients (exploratory example) | HKSJ pooled intervals wide with two studies (only premature excludes zero); no pair shown equivalent within ±0.01; `r38_evidence_example.md` |
@@ -253,11 +259,15 @@ models, and MI/NY-only validation geography).
 
 1. Spatial dependence: naive-target IM-8 (Round 30 C1, OLS/binomial/Poisson) and corrected linear EIV
    (Round 35 G1/G2, library, MCP and, since Round 43, manifests via `fit_eiv` `args.spatial`) are
-   validated. Remaining: more than two error-prone covariates; corrected GLM slopes. No extra cluster counts or retuned
+   validated. Round 44 re-checked both on OH/PA: G1/G2 replicate; naive C1 under-covers there with
+   spatially correlated fields (exploratory outside MI/NY). Pooled k-means clusters can straddle adjacent
+   states, leaving a state term partly constant (refused): the engine now says so; a library option for
+   state-respecting clusters is open. Remaining: more than two error-prone covariates; corrected GLM slopes. No extra cluster counts or retuned
    simulations were tried. Do not substitute naive C1 for registered EIV. Validation is MI/NY-specific;
    OH/PA was not re-checked. Fixed Poisson-offset uncertainty and GLM measurement-error bias remain.
-2. Poisson HC3 (used by R29) under-covered with strong overdispersion in Round 39. Manifests accept
-   `fit_replicate` `model: "negbin"` since Round 43; the post hoc NB2 sensitivity of R29 is Round 44.
+2. Closed in Round 44: Poisson HC3 (used by R29) under-covered with strong overdispersion in Round 39;
+   R29's H1–H3 hold under NB2-HC3 in MI/NY and OH/PA (`r44_posthoc_r29.md`). The NB2 alpha optimizer now
+   falls back to Nelder–Mead when BFGS fails (large counts, little overdispersion).
 3. Closed in Round 43: manifests opt in to the Round 33 intervals with `correlation_matrix`
    `args.interval: "validated"`; registered manifests keep the Fisher-z interval (their bytes are fixed).
 4. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).

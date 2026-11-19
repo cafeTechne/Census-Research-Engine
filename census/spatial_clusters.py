@@ -237,6 +237,27 @@ def assignment_for_frame(frame, coords, config):
     return ordered
 
 
+IM_ACS_VALIDATED_STATES = frozenset({"26", "36"})   # Round 30 geometry; failed the Round 44 OH/PA re-check
+OHPA_AUDIT = "docs/audits/ohpa_revalidation.md"
+
+
+def geography_notes(assignment):
+    """Round 44 notes: clusters that straddle a state border, and states outside the IM-ACS validation."""
+    notes = []
+    a = assignment.assign(state=assignment.GEOID.astype(str).str[:2])
+    mixed = sorted(int(g) for g, s in a.groupby("cluster")["state"] if s.nunique() > 1)
+    if mixed:
+        notes.append(f"CLUSTERS CROSS STATE BORDERS: clusters {mixed} contain counties of more than one state, so a "
+                     "state term is partly constant within clusters (refused). For adjacent states assign clusters "
+                     f"within each state (as the Round 44 OH/PA re-check did, {OHPA_AUDIT}).")
+    outside = sorted(set(a.state) - IM_ACS_VALIDATED_STATES)
+    if outside:
+        notes.append(f"States {outside} are outside the IM-8 validation geometry (MI/NY). In the Round 44 OH/PA re-check "
+                     "IM-8 with the observed-estimate target held with independent areas (.89-.91) but under-covered "
+                     f"with spatially correlated fields (.70-.85), so treat it as exploratory there ({OHPA_AUDIT}).")
+    return notes
+
+
 def inference_table(full, data, n_trials, model, config, assignment, target, level, se_sampling):
     """Return method-specific coefficients and diagnostics, without changing old fits.
 

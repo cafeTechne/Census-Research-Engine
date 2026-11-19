@@ -36,13 +36,50 @@ def fit_count_model(formula: str, frame: pd.DataFrame, exposure: str, family: st
         if term == "Intercept":
             continue
         cols = [0, j] + [k for k in range(1, X.shape[1]) if k != j]
-        r = mc.count_slope(y.to_numpy(float)[:, 0], X.to_numpy(float)[:, cols], E, family, level)
+        r = (_negbin_slope(y.to_numpy(float)[:, 0], X.to_numpy(float)[:, cols], E, level) if family == "negbin"
+             else mc.count_slope(y.to_numpy(float)[:, 0], X.to_numpy(float)[:, cols], E, family, level))
         rows.append(dict(term=term, **r))
     validated = VALIDATED_FAMILIES[family]
     notes = [f"{family}: slope on the estimates as observed; model (HC3/HC0) SE only, no ACS replicate variance."]
     if not validated:
         notes.append(f"EXPLORATORY: {family} intervals failed validation ({AUDIT}); prefer family='negbin'.")
     return dict(family=family, table=pd.DataFrame(rows), n=len(X), validated=validated, notes=notes, audit=AUDIT)
+
+
+def _negbin_slope(y, X, exposure, level=.90):
+    """``manova_counts_core.count_slope(family="negbin")`` with an optimizer fallback (Round 44).
+
+    The estimator is unchanged (alpha by maximum likelihood, then a GLM with that alpha and HC3). The frozen
+    core uses statsmodels' default BFGS; with large counts and little overdispersion (Round 29 premature and
+    heart-disease deaths) BFGS can stop unconverged and Newton returns NaN. When BFGS fails, Nelder-Mead
+    (from BFGS's last point) is tried and then polished by BFGS; the result is used only if converged, finite
+    and at least as good in log-likelihood. When BFGS converges the result equals the frozen core exactly."""
+    import warnings
+    import statsmodels.api as sm
+    from scipy import stats
+    try:
+        return mc.count_slope(y, X, exposure, "negbin", level)
+    except ValueError as exc:
+        if "did not converge" not in str(exc):
+            raise
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        model = sm.NegativeBinomial(y, X, exposure=exposure)
+        first = model.fit(disp=0, maxiter=200)
+        nm = model.fit(start_params=first.params, method="nm", disp=0, maxiter=20000)
+        fit = model.fit(start_params=nm.params, method="bfgs", disp=0, maxiter=2000)
+        best = fit if (fit.mle_retvals.get("converged", False) and np.isfinite(fit.llf) and fit.llf >= nm.llf-1e-8) else nm
+        if not (best.mle_retvals.get("converged", False) and np.all(np.isfinite(best.params))):
+            raise ValueError("NB alpha did not converge (BFGS and Nelder-Mead)")
+        alpha = float(np.asarray(best.params)[-1])
+        if not alpha > 0:
+            raise ValueError("NB alpha estimate is not positive")
+        r = sm.GLM(y, X, family=sm.families.NegativeBinomial(alpha=alpha), exposure=exposure).fit(cov_type="HC3")
+    z = stats.norm.ppf((1+level)/2)
+    b, se = float(np.asarray(r.params)[1]), float(np.asarray(r.bse)[1])
+    if not (np.isfinite(b) and np.isfinite(se) and se > 0):
+        raise ValueError("non-finite slope or SE")
+    return dict(estimate=b, se=se, lower=b-z*se, upper=b+z*se)
 
 
 def compare_groups_multivariate(frame: pd.DataFrame, outcomes: Sequence[str], group: str, *,
