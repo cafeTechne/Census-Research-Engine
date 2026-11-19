@@ -127,6 +127,8 @@ def _stat_coefficient(h, res):
     if h["term"] not in c.index:
         raise KeyError(f"term {h['term']!r} not in model (terms: {list(c.index)})")
     row = c.loc[h["term"]]
+    if h['term'] in (res.diagnostics.get('spatial_clusters') or {}).get('not_estimable_terms',()):
+        raise ValueError(f"term {h['term']!r} is not estimable under IM; absorbed by cluster intercepts")
     from ..models import interval_se_column
     se_col = interval_se_column(res)  # the SE behind p_value and the interval
     return {"estimate": float(row["estimate"]), "se": (None if se_col == "bootstrap_test" else float(row[se_col])), "se_basis": se_col,
@@ -220,7 +222,7 @@ def _check_fit_replicate(stage, ctx):
             errors.append("scale 'robust' and spatial_se are alternatives; choose one")
         clusters = aargs.get("spatial_clusters")
         if clusters is not None:
-            from ..spatial_clusters import check_config, SPATIAL_CLUSTERS_VALIDATED, VALIDATED_CLUSTER_COUNTS
+            from ..spatial_clusters import check_config, SPATIAL_CLUSTERS_VALIDATED, VALIDATED_CLUSTER_COUNTS, supports_im_acs
             prefix = f"analyses[{i}] ({a.get('id')}): "
             try:
                 check_config(clusters)
@@ -233,11 +235,11 @@ def _check_fit_replicate(stage, ctx):
                 if cluster_method in ("im", "wcr"):
                     if aargs.get("target", "population") != "population":
                         errors.append(prefix+"IM/WCR spatial_clusters require target population; no ACS SE combination")
-                    if census_vre_source(manifest) or a.get("replicates") == "required":
-                        errors.append(prefix+"IM/WCR spatial_clusters cannot use declared ACS replicates; sampling error is not included")
+                    if (census_vre_source(manifest) or a.get("replicates") == "required") and not supports_im_acs(clusters,glm):
+                        errors.append(prefix+"IM/WCR spatial_clusters cannot use declared ACS replicates; not validated (docs/audits/im_acs_validation.md)")
             if aargs.get("spatial_se") is not None or aargs.get("scale") == "robust":
                 errors.append(prefix+"spatial_clusters is mutually exclusive with spatial_se and scale robust")
-            if glm not in ("ols", "binomial") or aargs.get("weights") is not None:
+            if (glm not in ("ols", "binomial") and not supports_im_acs(clusters,glm)) or aargs.get("weights") is not None:
                 errors.append(prefix+"spatial_clusters supports unweighted OLS and binomial only; EIV/Poisson/WLS were not validated")
         parent = outcome_name if outcome_name in ext_names else count_outcome[:-10] if count_outcome else None
         if parent is not None:
@@ -273,10 +275,12 @@ def _check_fit_eiv(stage, ctx):
     outcome_name = str(a.get("formula", "")).split("~")[0].strip()
     if stage == "after_spatial":
         eargs = a.get("args") or {}
-        unknown = sorted(set(eargs) - {"model", "weights", "cv_threshold", "target", "cluster", "cluster_se", "spatial_se"})
+        unknown = sorted(set(eargs) - {"model", "weights", "cv_threshold", "target", "cluster", "cluster_se", "spatial_se", "spatial_clusters"})
         if unknown:
             errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv does not take args {unknown} (allowed: "
                           "model, weights, cv_threshold, cluster, cluster_se)")
+        if eargs.get('spatial_clusters') is not None:
+            errors.append(f"analyses[{i}] ({a.get('id')}): IM EIV C2 failed validation and is refused; docs/audits/im_acs_validation.md")
         if "cluster_se" in eargs and (eargs["cluster_se"] not in ("cr1", "jackknife") or "cluster" not in eargs):
             errors.append(f"analyses[{i}] ({a.get('id')}): fit_eiv args.cluster_se must be 'cr1' or 'jackknife' "
                           "and needs args.cluster")

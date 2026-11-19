@@ -276,24 +276,29 @@ associations are exploratory.
 An eligible explicit spatial-cluster configuration replaces the ordinary binomial
 `scale: robust` requirement; the two cannot be combined.
 
-Configure `analyses[].args.spatial_clusters` on a `fit_replicate` analysis and use
-`run_manifest`. Only `spatial_clusters: {"k": 8, "method": "im"}` passed the fixed six-cell
-OLS/binomial validation (90% coverage 0.886–0.912). It averages separately fitted
-cluster coefficients and uses a one-sample t(7) test. `se_cluster_mean` is the
-between-cluster SE, not an additive model SE. Only population target is allowed;
-analysed variables with ACS replicates are refused. Do not silently drop ACS
-uncertainty to run IM. A separate sensitivity needs an explicit specification.
-Clusters are fixed geographically before outcome filtering (50 seeded EPSG:5070
-k-means restarts, seed 20261126), >=5 analysed counties/tracts each; IM requires
-full-rank designs in all groups. Bundle diagnostics record GEOID-to-label maps.
+Round 30 C1 passed the fixed ACS-error validation for unweighted OLS, binomial
+and Poisson: use fit_replicate with spatial_clusters={"k":8,"method":"im"},
+target="population". Keep supplied ACS replicates; independent sampling error
+enters between-cluster spread, without adding replicate variance. The IM estimate
+is the unweighted mean of eight cluster coefficients; se_cluster_mean and t(7)
+drive intervals and p-values. The estimand is the coefficient on ACS estimates
+as observed, not a measurement-error-corrected true slope. Sampling error can
+attenuate it; noisy controls can bias it in either direction. A zero naive slope
+equates to a zero true slope only with a single error-prone covariate and errors
+independent of the outcome's error; do not extend that claim to noisy controls.
+Poisson exposure/expected-death offsets remain fixed.
 
-CR1-t at G=8/12 and restricted wild bootstrap at G=12 failed and are exploratory
-only. CR1 combines target-specific SEs with t(G-1); WCR reports 999-Webb-weight
-bootstrap test-inversion intervals without a scalar SE and also refuses ACS
-replicates. All cluster methods exclude `spatial_se` and `scale: robust`. EIV,
-Poisson and WLS are outside the evaluated model families. The cached R21b/R22 IM
-re-checks are unavailable under these rules; the R21b OLS/ACS sensitivity is
-explicitly post hoc, unclustered and separate from unchanged EIV results.
+C2 IM-EIV failed (unstable corrected moment matrices) and stays refused, even
+in exploratory manifests; never substitute C1 for registered EIV without a new
+specification. WLS remains unsupported. Only k=8 passed. CR1/WCR refusals remain.
+IM still requires population target; scale:robust and spatial_se are mutually
+exclusive with spatial_clusters. Labels are fixed before complete-case filtering
+(50 seeded EPSG:5070 restarts); every retained group needs >=5 units and full rank.
+Whole terms constant within every cluster are absorbed by cluster intercepts,
+reported not estimable and cannot be tested. Partial constancy is refused.
+R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
+author self-review, not independent. OH/PA is outside this validation geometry.
+See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 

@@ -451,11 +451,13 @@ def fit_replicate(
     their sampling error.
     ``spatial_clusters``: {"k": integer, "method": "cr1_t" | "im" | "wcr"}.
     Only IM with eight fixed geographic clusters passed Round 26 validation.
-    IM/WCR require the population target and refuse analysed inputs with supplied
-    ACS replicates. IM reports a between-cluster mean SE, not an additive model
+    IM/WCR require the population target. Round 30 C1 accepts analysed ACS
+    replicates for OLS/binomial/Poisson; independent sampling error enters between-cluster
+    spread, without an additive replicate variance. WCR still refuses ACS replicates.
+    C2 EIV failed. IM reports a between-cluster mean SE, not an additive model
     SE; WCR reports test-inverted intervals without a scalar SE. CR1 uses t(G-1)
     intervals with the usual target-specific SE. CR1/WCR remain exploratory.
-    These methods support unweighted OLS and binomial, not EIV/Poisson/WLS.
+    Round 30 C1 supports unweighted OLS/binomial/Poisson, not EIV/WLS.
     ``cr(x, df=3|4|5)`` uses centered natural splines with full-sample state
     frozen in every refit. Splines and joint Wald inference remain exploratory
     after failing the fixed Round 27 size criterion. Full sampling covariance
@@ -491,9 +493,9 @@ def fit_replicate(
         raise ValueError(f"unknown model {model!r}; expected one of {MODELS}")
     cluster_assignment = None
     if spatial_clusters is not None:
-        from .spatial_clusters import check_config, assignment_for_frame
+        from .spatial_clusters import check_config, assignment_for_frame, supports_im_acs
         check_config(spatial_clusters)
-        if model not in ("ols", "binomial"):
+        if model not in ("ols", "binomial") and not supports_im_acs(spatial_clusters,model):
             raise ValueError("spatial_clusters supports OLS and binomial only; EIV/Poisson were not validated")
         if weights is not None:
             raise ValueError("spatial_clusters does not support weighted linear fits (not validated)")
@@ -501,8 +503,9 @@ def fit_replicate(
             if target != "population":
                 raise ValueError("IM/WCR spatial clusters require target='population'; ACS SE combination is unavailable")
             analysed = set(formula_variables(formula, frame)) | {v for v in (weights, exposure, trials) if isinstance(v, str)}
-            if replicates is not None and len(replicates) and set(replicates["variable"].astype(str)) & analysed:
-                raise ValueError("IM/WCR spatial clusters refuse analysed variables with ACS replicates; sampling error is not included")
+            if (replicates is not None and len(replicates) and set(replicates["variable"].astype(str)) & analysed
+                    and not supports_im_acs(spatial_clusters,model)):
+                raise ValueError("IM/WCR spatial clusters refuse analysed variables with ACS replicates; not validated (docs/audits/im_acs_validation.md)")
         # Fixed geographic input, before any outcome/formula filtering or fit.
         cluster_assignment = assignment_for_frame(frame, coords, spatial_clusters)
     data, n_trials, notes = _prepare(frame, formula, model, weights, exposure, trials)
@@ -659,7 +662,12 @@ def fit_replicate(
         diagnostics["spatial_clusters"] = cluster_info
         diagnostics["se_model_unadjusted"] = dict(zip(params.index, map(float, bse)))
         method = "spatial_cluster_"+spatial_clusters["method"]
-        if spatial_clusters["method"] in ("im", "wcr"):
+        if spatial_clusters["method"] == "im" and cluster_info.get("validation_audit"):
+            notes.append("IM targets the coefficient on the ACS estimates as observed; attenuated toward 0 if covariates have sampling error, and not corrected. With noisy controls the bias need not be toward 0; true-slope inference is not validated.")
+            notes.append("Independent ACS error enters between-cluster spread; ACS replicates are not added to se_cluster_mean. Population target only; docs/audits/im_acs_validation.md.")
+            if cluster_info['not_estimable_terms']:
+                notes.append(f"Within-cluster constant nuisance terms absorbed by cluster intercepts, not estimable under IM: {cluster_info['not_estimable_terms']}")
+        elif spatial_clusters["method"] in ("im", "wcr"):
             notes.append("ACS sampling error is not included. IM's cluster-mean SE / WCR test cannot be combined with ACS replicates.")
         if spatial_clusters["method"] == "im":
             notes.append("IM estimates are unweighted means of separately fitted cluster coefficients; se_cluster_mean is their one-sample SE, not an additive full-sample model SE.")
@@ -977,6 +985,7 @@ def fit_eiv(
     cluster_se: str = "cr1",
     spatial_se: Optional[Mapping] = None,
     coords: Optional[pd.DataFrame] = None,
+    spatial_clusters: Optional[Mapping] = None,
 ) -> ModelResult:
     """Least squares corrected for ACS sampling error in covariates and outcome (PLAN_ROUND_20 A2).
 
@@ -1028,6 +1037,13 @@ def fit_eiv(
     residual, which the sandwich covers. Only the outcome may be fixed: a fixed covariate's
     error would go uncorrected.
     """
+    if spatial_clusters is not None:
+        from .spatial_clusters import check_config
+        check_config(spatial_clusters)
+        if (spatial_clusters != {'k':8,'method':'im'} or model.lower()!='ols' or weights is not None
+                or cluster is not None or spatial_se is not None or cluster_se != 'cr1'):
+            raise ValueError("IM EIV requires unweighted OLS, k=8/method=im, and refuses cluster, cluster_se and spatial_se")
+        raise ValueError("IM EIV C2 failed validation and is refused; docs/audits/im_acs_validation.md")
     from .splines import has_spline
     if has_spline(formula):
         raise ValueError("cr splines are supported only by non-spatial fit_replicate")

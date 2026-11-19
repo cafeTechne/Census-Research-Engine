@@ -3,10 +3,10 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.26.0 (Round 29: manual CDC WONDER mortality inputs, suppression-safe outputs, MI/NY
-mortality study replicated in OH/PA; DOI 10.5281/zenodo.24356572). Previous: v0.25.0 (Round 28: segregation indices, exploratory
-pending a realistic-error validation; reference-aware SMR; DOI 10.5281/zenodo.24329678); v0.24.0 (Round 27;
-DOI 10.5281/zenodo.24329544). All versions: concept record
+**Current release:** v0.27.0 (Round 30: IM-8 spatial-cluster inference with ACS sampling error for naive
+OLS/binomial/Poisson targets; cluster EIV failed; DOI pending). Previous: v0.26.0 (Round 29: manual CDC WONDER
+mortality inputs, MI/NY mortality study replicated in OH/PA; DOI 10.5281/zenodo.24356572); v0.25.0 (Round 28;
+DOI 10.5281/zenodo.24329678). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
 ## Where things are
@@ -19,7 +19,7 @@ DOI 10.5281/zenodo.24329544). All versions: concept record
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | The current round and queued rounds (30). Implement only the lowest-numbered one. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | The current round and queued rounds (none queued after Round 30). Implement only the lowest-numbered one. Merged plans are archived (below) |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
 **Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`; from Round 24 on, each plan is at tag `plan-r<n>` (for example `git show plan-r29:PLAN_ROUND_29.md`). Code and docs still cite
@@ -47,6 +47,8 @@ manifests refuse them in confirmatory analyses.
 | Spatial CR1-t, G=8 (`cr1_t`, C1-8) | **Failed**: coverage 0.800–0.895; exploratory only | `spatial_cluster_validation.md`, criterion `46ec2ec` |
 | Spatial CR1-t, G=12 (`cr1_t`, C1-12) | **Failed**: coverage 0.773–0.901; exploratory only | `spatial_cluster_validation.md` |
 | Ibragimov–Müller, G=8 (`im`, C2-8) | **Passed**: 0.886–0.912; unweighted OLS/binomial, population only, no analysed ACS replicates; every cluster full-rank and >=5 units | `spatial_cluster_validation.md` |
+| IM-8 C1 with ACS sampling error | **Passed** observed-estimate targets: linear .8790–.9130; binomial .8690–.9060; Poisson .8695–.9235. Population only, fixed Poisson E, no additive ACS variance. Constant cluster terms absorbed; no true-slope correction | `im_acs_validation.md`, criterion `2774140` |
+| IM-8 C2 cluster Fuller EIV | **Failed**: .0695–.9035 coverage; corrected-matrix failures up to 92.6%. Refused, no naive fallback | `im_acs_validation.md` |
 | Restricted wild cluster bootstrap, G=12 (`wcr`, C3-12) | **Failed**: coverage 0.824–0.908; exploratory only, no ACS replicate combination | `spatial_cluster_validation.md` |
 | Poisson–Gamma descriptive EB rate smoothing | **Passed** fixed 90% area-average criterion: posterior 0.8813–0.9000 (default); Laird–Louis 0.8718–0.8914 in six required cells. Fixed E/rates, independent areas; [1,9] censoring; 200 bootstrap refits for LL | `eb_rate_validation.md`, criterion `d4dec47` |
 | Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. Both exploratory only; confirmatory manifests refused | `joint_wald_validation.md`, criterion `376ce69` |
@@ -103,6 +105,14 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
+**Round 30 (v0.27.0):** criterion and beta-star targets
+committed/pushed at `2774140` before the fixed 12-cell run; no changes or extra draws. C1 passed all
+three models for observed-ACS coefficients; C2 EIV failed and remains refused. State terms constant
+within every cluster are absorbed and not estimable; partial constancy is refused. The post hoc
+report preserves all original registrations/results. Both legacy goldens are unchanged. No new tools,
+dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 passed, 37 skipped,
+4 warnings, 50 subtests; zero failures, 26 new tests (`round30_compatibility.md`).
+
 ## Standing rules
 
 - **Circularity (enforced, R1/R2):** determinant studies use the ACS's own measure (disability: B18101).
@@ -128,13 +138,15 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 30 | Post hoc IM/ACS checks | R21b unavailable (C2 failed); R22 H1/H2 retained; R29 MI/NY H1/H3 retained, H2 not retained (Holm p=.169); `r30_posthoc_im_acs.md` |
 
 ## Open backlog
 
-1. Spatial dependence with ACS/EIV remains unresolved: Round 26 IM-8 passed for model-only
-   OLS/binomial, but cannot incorporate the studies' ACS replicates or EIV. CR1/WCR and Conley failed.
-   `PLAN_ROUND_30.md` (queued) validates IM-8 with ACS replicates (naive estimand) and per-cluster EIV;
-   spatial random effects follow if both fail. Do not drop uncertainty to force an IM re-check. Poisson also needs separate validation.
+1. Round 30 resolves independent ACS sampling-error handling for the **naive observed-estimate**
+   IM-8 target in OLS/binomial/Poisson only. C2 EIV failed, so corrected EIV spatial inference remains
+   unresolved: spatial random effects are next for that target. No extra cluster counts or retuned
+   simulations were tried. Do not substitute naive C1 for registered EIV. Validation is MI/NY-specific;
+   OH/PA was not re-checked. Fixed Poisson-offset uncertainty and GLM measurement-error bias remain.
 2. Measurement-error correction for GLM covariates (none yet; `regression_calibration` is approximate).
 3. Held-out OH/PA mortality replication completed in Round 29 under the unchanged registered protocol;
    all three associations replicate, including both H2 suppression sensitivities. All 62 manual WONDER

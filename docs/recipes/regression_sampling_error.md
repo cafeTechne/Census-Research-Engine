@@ -10,25 +10,26 @@ Goal: a regression whose standard errors include ACS sampling error, not only mo
 6. Report each coefficient with the SE named in the result's `interval_se_column` (the SE behind its confidence interval and p-value): `se_model` for `target="population"`, `se_sampling` for `"these_areas"`, `se_total` for `"conservative"` and for the corrected methods. Say which uncertainty sources it includes (sampling, model, or both).
 7. Optional: `make_figure` or `fit_model(..., figure_dir="downloads/figures")` for a coefficient plot.
 
-Spatial dependence (Round 26): use the existing manifest tools with analysis
-`method: "fit_replicate"` and `args.spatial_clusters: {"k": 8, "method": "im"}`,
-then `run_manifest`. This is the only passing spatial-cluster configuration.
-IM fits each geographic cluster separately and tests the mean coefficient with
-`t(7)`. It reports `se_cluster_mean`, not an additive full-sample model SE.
-Only `target: "population"` is supported, and analysed variables with supplied
-ACS replicates are refused. **Keep the ACS uncertainty: do not discard replicates
-to make this recipe's sampling-error analysis compatible with IM.** A separate
-model-only sensitivity requires an explicit change of research specification.
-Every fixed geographic cluster needs at least five analysed counties/tracts and
-a full-rank design; state fixed effects can be unidentifiable within a cluster.
-Assignments use 50 fixed seeded restarts of EPSG:5070 k-means on representative
-points, before outcome filtering, and are recorded in the bundle.
+Round 30 C1 passed the fixed ACS-error validation for unweighted OLS, binomial
+and Poisson: use fit_replicate with spatial_clusters={"k":8,"method":"im"},
+target="population". Keep supplied ACS replicates; independent sampling error
+enters between-cluster spread, without adding replicate variance. The IM estimate
+is the unweighted mean of eight cluster coefficients; se_cluster_mean and t(7)
+drive intervals and p-values. The estimand is the coefficient on ACS estimates
+as observed, not a measurement-error-corrected true slope. Sampling error can
+attenuate it; noisy controls can bias it in either direction. A zero naive slope
+equates to a zero true slope only with a single error-prone covariate and errors
+independent of the outcome's error; do not extend that claim to noisy controls.
+Poisson exposure/expected-death offsets remain fixed.
 
-`cr1_t` (G=8/12) and `wcr` (G=12) failed the fixed validation and require an
-exploratory manifest. CR1 uses `t(G-1)` with the target-specific SE; WCR uses
-999 Webb-weight restricted bootstrap tests/inverted intervals with no scalar SE.
-IM/WCR cannot combine with ACS replicate uncertainty. Cluster arguments are
-mutually exclusive with `spatial_se` and `scale: "robust"`. Only unweighted OLS
-and binomial were evaluated; EIV, Poisson and WLS are unsupported. See
-`docs/audits/spatial_cluster_validation.md`; no validated cluster method currently
-replaces the spatial re-checks of the registered ACS/EIV county studies.
+C2 IM-EIV failed (unstable corrected moment matrices) and stays refused, even
+in exploratory manifests; never substitute C1 for registered EIV without a new
+specification. WLS remains unsupported. Only k=8 passed. CR1/WCR refusals remain.
+IM still requires population target; scale:robust and spatial_se are mutually
+exclusive with spatial_clusters. Labels are fixed before complete-case filtering
+(50 seeded EPSG:5070 restarts); every retained group needs >=5 units and full rank.
+Whole terms constant within every cluster are absorbed by cluster intercepts,
+reported not estimable and cannot be tested. Partial constancy is refused.
+R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
+author self-review, not independent. OH/PA is outside this validation geometry.
+See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.

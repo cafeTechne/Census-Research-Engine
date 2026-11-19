@@ -5,6 +5,28 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.27.0 (Round 30): IM-8 with ACS sampling error
+
+- Freeze script, criterion and twelve 400,000-area beta-star references at `2774140`
+  and push before the 2,000-draw/cell run. C1 passed all linear/binomial/Poisson
+  cells (.8690–.9235); C2 EIV failed (.0695–.9035), with unstable corrected moments.
+  No criterion, seed, target, draw count or cluster count changed afterwards.
+- Enable C1 via existing `spatial_clusters` for unweighted OLS/binomial/Poisson,
+  population target and fixed Poisson offsets. Independent ACS error enters the
+  between-cluster spread; no additive ACS variance or measurement-error correction.
+  Report `se_cluster_mean`, t(7), unweighted cluster-mean coefficients. Uniformly
+  constant nuisance terms are absorbed/not estimable; partial constancy is refused.
+  Failed C2 remains refused, including exploratory manifests; no naive fallback.
+- Post hoc, cached/hash-verified R21b/R22/R29 MI/NY checks with HTTP blocked:
+  R21b unavailable; R22 H1/H2 retained, H3 unsupported; R29 H1/H3 retained,
+  overdose H2 not retained (Holm p=.169). Registered manifests/results unchanged.
+  Report is author self-review, not independent. OH/PA not re-checked.
+- Acceptance: 1886 passed, 37 skipped, 4 warnings and 50 subtests; zero failures,
+  26 new tests. Both goldens byte-identical (640 snapshots; 29 scenarios).
+- R29 coefficient-only outputs pass disclosure audit; local output archive
+  key-scanned. No new MCP tools/dependencies, WONDER/private-export access,
+  GitHub CI, merge into defaultBranch, tag or release.
+
 ## 0.26.0 (Round 29): manual WONDER mortality studies
 
 - Remove the WONDER API client, fetch script, API tests and XML fixture. All inputs
