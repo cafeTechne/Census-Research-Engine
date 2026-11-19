@@ -55,9 +55,9 @@ counts under K1a, coefficients only). Tests; flags against the audit; goldens un
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit | | |
-| K1 / K2 / K3 results | | |
-| Engine, L1, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Criterion commit | `0c368dd` | Pushed before the full run. |
+| K1 / K2 / K3 results | Passed | K1a, K2a, K2b, K3a pass; comparisons as expected. |
+| Engine, L1, tests | Done | 8 tests. |
+| Example | Done | R29 counts; coefficients only; WONDER audit passed. |
+| Goldens, final suite | Done | Identical; 2007 passed, 0 failures. |
+| Exceptions | None | |

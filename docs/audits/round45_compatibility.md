@@ -27,4 +27,5 @@ existing assignments unchanged). Rule text mirrored; recipe `external_health_out
 
 ## Goldens and suite
 
-See STATUS (Round 45).
+Both goldens byte-identical to v0.41.0. Suite: 2007 passed, 37 skipped, 63 subtests; 0 failures
+(baseline 1999; 8 new tests).

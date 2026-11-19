@@ -123,7 +123,7 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 **Round 45 (v0.42.0; merged, release pending owner approval; implemented by the maintainer agent):**
 count-model repairs (criterion `0c368dd`): censored NB2, IM-8 count slopes and NB2 with noisy offsets pass.
 New `census.count_repairs_core`; `fit_censored_negbin`; `fit_count_model(spatial="clusters")` and MCP
-`fit_model(model="negbin", spatial="clusters")`; `within_states` cluster assignment. Goldens unchanged.
+`fit_model(model="negbin", spatial="clusters")`; `within_states` cluster assignment. Goldens unchanged. Acceptance: 2007 passed, 37 skipped; 0 failures.
 
 **Round 44 (v0.41.0; merged, release pending owner approval; implemented by the maintainer agent):**
 post hoc NB2 sensitivity of Round 29 (all three associations hold in both regions) and an OH/PA re-check of
