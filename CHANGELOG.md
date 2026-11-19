@@ -5,6 +5,17 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.31.0 (Round 34): ranking areas
+
+- Freeze procedures, script and criterion at `6286ad9` before the 8-cell run (K 40/145, SNR 0.5/2,
+  ties or none).
+- Passed: Klein–Wright–Wieczorek individual and joint rank intervals; Holm and simultaneous
+  comparisons of each area with a weighted reference that shares their errors. Failed and not
+  offered: parametric-bootstrap percentile rank intervals.
+- New `census.ranking_core` (frozen), `census.ranking` (API; suppressed values excluded), MCP tool
+  `rank_areas`, recipe `rank_areas`.
+- Exploratory example: Michigan counties ranked by poverty (`docs/studies/r34_ranking_example.md`).
+
 ## 0.30.0 (Round 33): rank methods and model diagnostics
 
 - Freeze procedures, script, criterion and 400,000-area reference targets at `f660e9c` before the
