@@ -281,7 +281,7 @@ version bump. Dependencies are noted; anything without one can move.
 | 34 | Ranking areas, simultaneous comparisons | merged (v0.31.0) |
 | 35 | Spatial random effects → corrected EIV under spatial dependence | merged (v0.32.0) |
 | 36 | Composite indices and typologies | merged (v0.33.0) |
-| 37 | Agreement between sources | proposed |
+| 37 | Agreement between sources | in progress |
 | 38 | Meta-analysis, equivalence, power | proposed |
 | 39 | MANOVA/MANCOVA, count families | proposed |
 | 40 | Regression families (beta, quantile, ordinal, multinomial, GEE) | proposed |
