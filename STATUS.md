@@ -114,6 +114,7 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 **Round 34 (v0.31.0; merged, release pending owner approval; implemented by the maintainer agent):**
 ranking areas. Criterion `6286ad9` pushed before the 8-cell run. New `census.ranking_core`,
 `census.ranking`, MCP tool `rank_areas` (full profile), recipe `rank_areas`. Goldens unchanged.
+Acceptance: 1935 passed, 37 skipped; 0 failures.
 
 **Round 33 (v0.30.0; merged, release pending owner approval; implemented by the maintainer agent):**
 rank methods and diagnostics. Criterion `f660e9c` pushed before the 8-cell run. New

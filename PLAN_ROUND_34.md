@@ -77,5 +77,5 @@ joint normal, 20,000 draws, fixed seed) with simultaneous intervals.
 | R1 / R2 / R3 / V1 / V2 results | Done | R1, R2, V1, V2 passed; R3 failed (not exposed). |
 | Engine, tool, tests | Done | census.ranking, rank_areas (full profile), recipe; 5 tests. |
 | Example | Done | Michigan counties; 34 differ from the state rate. |
-| Goldens, final suite | | |
+| Goldens, final suite | Done | Goldens identical; 1935 passed, 37 skipped, 0 failures. |
 | Exceptions | None | |

@@ -25,4 +25,5 @@ independent errors, which the replicate covariance estimates. No manifest change
 
 ## Goldens and suite
 
-See STATUS (Round 34).
+Both goldens byte-identical to v0.30.0. Suite: 1935 passed, 37 skipped, 59 subtests; 0 failures
+(baseline 1930; 5 new tests).
