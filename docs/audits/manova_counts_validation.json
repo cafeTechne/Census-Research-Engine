@@ -1,0 +1,216 @@
+{
+  "multivariate": [
+    {
+      "cell": 0,
+      "outcomes": 2,
+      "design": "oneway4",
+      "draws": 2000,
+      "size_10": {
+        "V1": 0.09,
+        "V0": 0.0915
+      },
+      "failures": 0,
+      "seconds": 4.458643913269043
+    },
+    {
+      "cell": 1,
+      "outcomes": 2,
+      "design": "ancova4",
+      "draws": 2000,
+      "size_10": {
+        "V1": 0.0995,
+        "V0": 0.0895
+      },
+      "failures": 0,
+      "seconds": 4.860476732254028
+    },
+    {
+      "cell": 2,
+      "outcomes": 3,
+      "design": "oneway4",
+      "draws": 2000,
+      "size_10": {
+        "V1": 0.0985,
+        "V0": 0.0925
+      },
+      "failures": 0,
+      "seconds": 4.836669683456421
+    },
+    {
+      "cell": 3,
+      "outcomes": 3,
+      "design": "ancova4",
+      "draws": 2000,
+      "size_10": {
+        "V1": 0.1005,
+        "V0": 0.0955
+      },
+      "failures": 0,
+      "seconds": 5.266667604446411
+    }
+  ],
+  "counts": [
+    {
+      "cell": 0,
+      "E_median": 100,
+      "gamma_shape": null,
+      "zero_share": 0.0,
+      "draws": 2000,
+      "coverage": {
+        "poisson": 0.855,
+        "negbin": 0.8865,
+        "zip": 0.0015
+      },
+      "failures": {
+        "poisson": 0,
+        "negbin": 0,
+        "zip": 1997
+      },
+      "seconds": 215.98061537742615
+    },
+    {
+      "cell": 1,
+      "E_median": 100,
+      "gamma_shape": null,
+      "zero_share": 0.2,
+      "draws": 2000,
+      "coverage": {
+        "poisson": 0.8525,
+        "negbin": 0.9005,
+        "zip": 0.357
+      },
+      "failures": {
+        "poisson": 0,
+        "negbin": 0,
+        "zip": 1155
+      },
+      "seconds": 13.733842134475708
+    },
+    {
+      "cell": 2,
+      "E_median": 100,
+      "gamma_shape": 2.0,
+      "zero_share": 0.0,
+      "draws": 2000,
+      "coverage": {
+        "poisson": 0.8405,
+        "negbin": 0.8845,
+        "zip": 0.2
+      },
+      "failures": {
+        "poisson": 0,
+        "negbin": 0,
+        "zip": 1517
+      },
+      "seconds": 176.69696831703186
+    },
+    {
+      "cell": 3,
+      "E_median": 100,
+      "gamma_shape": 2.0,
+      "zero_share": 0.2,
+      "draws": 2000,
+      "coverage": {
+        "poisson": 0.813,
+        "negbin": 0.897,
+        "zip": 0.288
+      },
+      "failures": {
+        "poisson": 0,
+        "negbin": 0,
+        "zip": 1273
+      },
+      "seconds": 13.644770860671997
+    },
+    {
+      "cell": 4,
+      "E_median": 10,
+      "gamma_shape": null,
+      "zero_share": 0.0,
+      "draws": 2000,
+      "coverage": {
+        "poisson": 0.8605,
+        "negbin": 0.889,
+        "zip": 0.1065
+      },
+      "failures": {
+        "poisson": 0,
+        "negbin": 0,
+        "zip": 1745
+      },
+      "seconds": 205.18093490600586
+    },
+    {
+      "cell": 5,
+      "E_median": 10,
+      "gamma_shape": null,
+      "zero_share": 0.2,
+      "draws": 2000,
+      "coverage": {
+        "poisson": 0.867,
+        "negbin": 0.889,
+        "zip": 0.8395
+      },
+      "failures": {
+        "poisson": 0,
+        "negbin": 0,
+        "zip": 0
+      },
+      "seconds": 15.59584665298462
+    },
+    {
+      "cell": 6,
+      "E_median": 10,
+      "gamma_shape": 2.0,
+      "zero_share": 0.0,
+      "draws": 2000,
+      "coverage": {
+        "poisson": 0.8075,
+        "negbin": 0.8885,
+        "zip": 0.7805
+      },
+      "failures": {
+        "poisson": 0,
+        "negbin": 0,
+        "zip": 66
+      },
+      "seconds": 23.990580797195435
+    },
+    {
+      "cell": 7,
+      "E_median": 10,
+      "gamma_shape": 2.0,
+      "zero_share": 0.2,
+      "draws": 2000,
+      "coverage": {
+        "poisson": 0.8415,
+        "negbin": 0.8865,
+        "zip": 0.8345
+      },
+      "failures": {
+        "poisson": 0,
+        "negbin": 0,
+        "zip": 1
+      },
+      "seconds": 16.036056518554688
+    }
+  ],
+  "passed": {
+    "V1": true,
+    "poisson": false,
+    "negbin": true,
+    "zip": false
+  },
+  "draws_per_cell": 2000,
+  "criterion": "V1: nominal-.10 size in [.07,.13] in every multivariate cell; counts: 90% coverage of the family's naive-target slope >= .86 (poisson, negbin all cells; zip low-count cells with structural zeros); failures count as rejections / non-coverage; V0 informational",
+  "criterion_commit": "0686bc0",
+  "frozen_sha256": {
+    "scripts/manova_counts_validation.py": "f412a6159af0f580a5379a289dac8672baed85217f2d65937d54d15f3a7edecb",
+    "census/manova_counts_core.py": "a68b4ee3efe3015f08df890df63abd18bcf0e9a136e5b7ac34b26106adbd3471",
+    "census/simulation.py": "b0ba4c803939d8803fc8a7e702b4f70bda5f486736bd651b8630d7e1262b198e",
+    "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+    "docs/audits/manova_counts_validation_criterion.md": "04a56c0ab40197acaff564243b1e8ee0217cee80b0c863c5d9507cf65f8310bc",
+    "docs/audits/manova_counts_targets.json": "a85515e334db778dbb29f9f3459d0be70c5b5d119bf1fccd86fda755a2a0f69e",
+    "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f"
+  }
+}
