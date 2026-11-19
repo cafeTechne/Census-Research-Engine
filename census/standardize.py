@@ -171,10 +171,15 @@ def age_adjusted_interval(cases: Sequence[float], populations: Sequence[float], 
 # Set only from the pre-specified simulation report.
 SMR_REFERENCE_VALIDATED = True  # criterion 134bf7f; docs/audits/smr_reference_validation.md
 SMR_VALIDATED = True  # docs/audits/smr_validation.md (680707e criterion)
+# Round 51 (criterion 2837bfb; docs/audits/negative_replicates_validation.md): negative band replicates used
+# as published ("accept", .903-.922) or clipped at zero ("clip", .891-.917) both passed in all eight cells.
+# The default is "accept": the expected count is linear in the bands, so no information is discarded.
+SMR_NEGATIVE_REPLICATES_VALIDATED = {"accept": True, "clip": True}
+DEFAULT_SMR_NEGATIVE_REPLICATES = "accept"
 
 
 def indirect_standardize(observed, band_populations, reference_rates, band_replicates=None, level=0.90,
-                         *, period_years=1, reference_counts=None, negative_replicates="refuse"):
+                         *, period_years=1, reference_counts=None, negative_replicates=None):
     """Indirect SMR and fixed-expected Garwood / combined log-Wald intervals.
 
     ``observed`` is a GEOID-indexed Series of nonnegative integer counts;
@@ -182,9 +187,10 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
     columns in reference-rate order (areas x bands). No implicit joins/drops.
     Replicates are an array (areas, bands, 80) in that order. Positive finite
     expected counts are required in every refit. This validated implementation
-    by default requires nonnegative band replicates (``negative_replicates="refuse"``). Round 51:
-    ``"accept"`` uses negative band replicates as published (the expected count is linear in the bands;
-    every replicate expected count must still be positive); ``"clip"`` sets them to zero first. The returned final GEOID
+    handles negative band replicates by ``negative_replicates`` (Round 51): ``"accept"`` (the default,
+    validated) uses them as published (the expected count is linear in the bands; every replicate
+    expected count must still be positive); ``"clip"`` (validated) sets them to zero first; ``"refuse"``
+    raises (the strict pre-Round 51 policy, kept by registered manifests). The returned final GEOID
     ``all`` pools counts and expected counts BEFORE computing uncertainty.
     Rates are per person-year; period_years multiplies expected counts and every
     replicate. Optional positive integer reference_counts adds independent-Poisson
@@ -238,6 +244,8 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
     ve = np.zeros(len(o))
     if band_replicates is not None:
         rep = np.asarray(band_replicates, float)
+        if negative_replicates is None:
+            negative_replicates = DEFAULT_SMR_NEGATIVE_REPLICATES
         if negative_replicates not in ("refuse", "accept", "clip"):
             raise ValueError("negative_replicates must be 'refuse', 'accept' or 'clip'")
         if rep.shape != (*pop.shape, 80) or not np.isfinite(rep).all():

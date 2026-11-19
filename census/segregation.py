@@ -2,7 +2,9 @@
 """County segregation from tract counts, strict ACS replicates and fixed correction.
 
 Declared groups must be mutually exclusive. Their sum defines tract population;
-no extra total is implicitly joined. Replicates are not clipped or silently fixed.
+no extra total is implicitly joined. Negative replicate group counts are clipped at zero
+before the index refits only under the Round 51 policy (``negative_replicates="clip"``,
+the default); ``"refuse"`` keeps the strict policy. Nothing else is silently fixed.
 """
 import re
 from collections.abc import Mapping
@@ -43,6 +45,24 @@ REALISTIC_RANGES = {
     ("theil_h", "bias_corrected", 3): (0., .50),
 }
 MAX_VALIDATED_MEDIAN_CV = .50   # upper end of the defaults' validated noise range
+# Round 51 (criterion 2837bfb; docs/audits/negative_replicates_validation.md): Gaussian replicates with
+# negative counts clipped at zero before the refits. Bias-corrected D/isolation/H and three-group H kept
+# their Round 50 ranges (affected-draw coverage .902-.990); naive isolation and H failed the affected-draw
+# check (.847-.860), naive D and naive three-group H had no range. A county with a clipped replicate cell
+# is validated only inside these ranges (tests/test_round51.py checks them against the audit).
+NEGATIVE_REPLICATE_AUDIT = "docs/audits/negative_replicates_validation.md"
+NEGATIVE_REPLICATE_POLICIES = ("clip", "refuse")
+DEFAULT_NEGATIVE_REPLICATES = "clip"
+CLIP_RANGES = {
+    ("dissimilarity", "naive", 2): None,
+    ("dissimilarity", "bias_corrected", 2): (.15, .50),
+    ("isolation", "naive", 2): None,
+    ("isolation", "bias_corrected", 2): (0., .50),
+    ("theil_h", "naive", 2): None,
+    ("theil_h", "bias_corrected", 2): (0., .50),
+    ("theil_h", "naive", 3): None,
+    ("theil_h", "bias_corrected", 3): (0., .50),
+}
 MIN_VALIDATED_TRACTS = 5        # the validation excluded counties with fewer populated tracts
 
 
@@ -95,7 +115,8 @@ def segregation_indices(counts):
     return dict(zip(INDICES,map(float,values)),notes=notes)
 
 
-def segregation_replicate(frame, groups, replicates, within='county', level=.90, bias_correction=None):
+def segregation_replicate(frame, groups, replicates, within='county', level=.90, bias_correction=None,
+                          negative_replicates=None):
     """County/year indices with all 80 raw replicate indices retained.
 
     Tract GEOIDs must be eleven-digit strings. Missing/full or invalid replicate
@@ -108,6 +129,10 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
     CV, inside ``REALISTIC_RANGES``: bias-corrected D/isolation/H and three-group
     H below .50; at least five populated tracts). Otherwise it is exploratory only, and confirmatory manifest
     hypotheses on it are refused. Multigroup H beyond three groups is exploratory.
+    ``negative_replicates`` (default ``"clip"``, Round 51): negative replicate group counts are set to
+    zero before the index refits; count SEs and the noise level use the unclipped replicates. A county
+    with a clipped cell is validated only inside ``CLIP_RANGES`` (bias-corrected variants).
+    ``"refuse"`` raises on any negative replicate (the strict pre-Round 51 policy).
     """
     from .models import _replicate_matrices
     from .results import precheck_replicates
@@ -153,11 +178,15 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
     mats,held=_replicate_matrices(data,rep,groups)
     precheck_replicates('strict',rows_held_fixed=held,variables_without_replicates=[g for g in groups if g not in mats],context='segregation')
     cube=np.stack([mats[g] for g in groups],axis=2) # tracts,80,groups
-    if not np.isfinite(cube).all() or (cube<0).any():raise IncompleteReplicatesError('negative or invalid group-count replicate; no clipping/redrawing')
+    policy=DEFAULT_NEGATIVE_REPLICATES if negative_replicates is None else negative_replicates
+    if policy not in NEGATIVE_REPLICATE_POLICIES:raise ValueError("negative_replicates must be 'clip' or 'refuse'")
+    if not np.isfinite(cube).all():raise IncompleteReplicatesError('invalid group-count replicate; no redrawing')
+    if policy=='refuse' and (cube<0).any():raise IncompleteReplicatesError('negative group-count replicate; strict policy (negative_replicates="refuse"), no clipping/redrawing')
+    negative=cube<0;refit=np.maximum(cube,0.)
     data['_county']=data.GEOID.str[:5];rows=[];z=norm.ppf((1+level)/2)
     for (county,year),part in data.groupby(['_county','Year'],sort=True):
         loc=part.index.to_numpy();raw=_indices(counts[loc][None])[0]
-        rr=_indices(cube[loc].transpose(1,0,2))
+        rr=_indices(refit[loc].transpose(1,0,2));clipped=int(negative[loc].sum())
         defined=np.isfinite(raw)
         if not np.isfinite(rr[:,defined]).all():raise IncompleteReplicatesError('a defined full-sample index has undefined replicate refits')
         zero=int(np.sum(counts[loc].sum(axis=1)==0));se=np.sqrt(.05*np.sum((rr-raw)**2,axis=0));bc=raw-4*(rr.mean(axis=0)-raw)
@@ -173,10 +202,13 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
             variant_ok=bool(variant_validated(name,variant,len(groups)) and level==.90)
             r28=bool(SEGREGATION_VALIDATED[name][variant]) and len(groups)==2 and in_range
             span=REALISTIC_RANGES.get((name,variant,len(groups)))
+            if clipped:
+                span=CLIP_RANGES.get((name,variant,len(groups)));r28=False
             populated=int(np.sum(counts[loc].sum(axis=1)>0))
             r50=span is not None and span[0]<=noise<span[1] and populated>=MIN_VALIDATED_TRACTS
             validated=variant_ok and (r28 or r50)
             point=bc[k] if corrected else raw[k];notes=[]
+            if clipped:notes.append(f'{clipped} negative replicate group count(s) set to zero before the index refits (Round 51 policy; validated for bias-corrected variants only).')
             if zero:notes.append(f'{zero} zero-total tract(s) excluded in full-sample index; totals recomputed in every refit.')
             if not np.isfinite(raw[k]):notes.append('A declared group has zero county total; index and inference undefined.')
             if not variant_ok:notes.append('EXPLORATORY ONLY: index/variant/group count/level lacks passing coverage validation (Rounds 28 and 50).')
@@ -185,11 +217,12 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
                 where=(f'{populated} populated tract(s), fewer than the {MIN_VALIDATED_TRACTS} the Round 50 validation required'
                        if span is not None and span[0]<=noise<span[1] else
                        f'noise level {noise:.2f} (largest group median tract CV) is outside the Round 50 validated range {rng_text} for this variant')
-                notes.append(f'EXPLORATORY ONLY: {where}, and the largest tract group-count CV {max_cv:.2f} exceeds the Round 28 .15; confirmatory tests refused.')
+                if clipped and span is None:notes.append('EXPLORATORY ONLY: this variant failed the Round 51 clipped-replicate validation; confirmatory tests refused.')
+                else:notes.append(f'EXPLORATORY ONLY: {where}'+('' if clipped else f', and the largest tract group-count CV {max_cv:.2f} exceeds the Round 28 .15')+'; confirmatory tests refused.')
             notes.append('Declared groups must be mutually exclusive; totals are their sum. ACS sampling uncertainty only, not superpopulation or spatial uncertainty.')
             row=dict(GEOID=county,Year=int(year),statistic=name,estimate=float(point),naive_estimate=float(raw[k]),bias_corrected_estimate=float(bc[k]),
                      se=float(se[k]),ci_lower=float(point-z*se[k]),ci_upper=float(point+z*se[k]),bias_correction=corrected,
-                     validated=validated,max_count_cv=max_cv,noise_level=noise,confidence_level=level,tracts=int(len(loc)),zero_total_tracts=zero,groups=list(groups),notes=notes)
+                     validated=validated,max_count_cv=max_cv,noise_level=noise,clipped_replicates=clipped,confidence_level=level,tracts=int(len(loc)),zero_total_tracts=zero,groups=list(groups),notes=notes)
             row.update(zip(REPLICATE_COLUMNS,map(float,rr[:,k])));rows.append(row)
     result=pd.DataFrame(rows);result.attrs.update(uncertainty='ACS 4/80 raw replicate deviations; correction uses same SE', confidence_level=level)
     return result

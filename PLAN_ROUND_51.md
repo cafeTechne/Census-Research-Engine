@@ -93,10 +93,10 @@ draws with a negative band replicate per cell (must be > 0 in the c = 1.0 cells 
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion commit | | |
-| Results A (segregation) | | |
-| Results B (SMR) | | |
-| Engine, manifests, MCP, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Core, script, criterion commit | done | SMR policy argument frozen; `2837bfb` (`.venv` symlink untracked in `e236fee`) |
+| Results A (segregation) | done | clip passes for bias-corrected D/I/H and 3-group H to .50 (affected .902–.990); naive I/H fail affected draws (`5d1f0f6`) |
+| Results B (SMR) | done | accept .903–.922, clip .891–.917; both pass |
+| Engine, manifests, MCP, tests | done | defaults clip / accept; manifests opt in; 8 new tests, 2 older tests pass `"refuse"` |
+| Example | done | all ten refused county-designs validated; `/tmp/r51_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2066 passed, 37 skipped |
+| Exceptions | see notes | clip-validated rule reworded before freezing (smaller of clipped and Round 50 range); stale Round 28 text in `mcp_server.py` corrected |

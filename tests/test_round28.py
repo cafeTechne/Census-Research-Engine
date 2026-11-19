@@ -86,7 +86,8 @@ def test_strict_replicate_policy_refuses_incomplete(bad):
     elif bad=='missing_year':r=r.drop(columns='Year')
     elif bad=='none':r=None
     from census.results import IncompleteReplicatesError
-    with pytest.raises(IncompleteReplicatesError):sg.segregation_replicate(f,['a','b'],r)
+    # Round 51: negative replicates are clipped by default; the strict policy is negative_replicates="refuse".
+    with pytest.raises(IncompleteReplicatesError):sg.segregation_replicate(f,['a','b'],r,negative_replicates='refuse')
 
 
 @pytest.mark.parametrize('bad',['negative','missing','bad_geoid','duplicate','groups','within'])

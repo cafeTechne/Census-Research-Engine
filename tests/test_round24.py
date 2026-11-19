@@ -387,10 +387,13 @@ def test_circularity_cannot_be_bypassed_by_unused_formula():
 def test_negative_replicate_bands_refused_under_preregistered_domain():
     obs=pd.Series([10],index=['36061']);pop=pd.DataFrame([[100.,200.]],index=obs.index)
     rep=np.repeat(pop.to_numpy()[:,:,None],80,axis=2);rep[:,0,:]=-5.
-    # ACS perturbations can be negative; this implementation's fixed validation
-    # explicitly classified such band inputs as invalid, even with E_r > 0.
+    # ACS perturbations can be negative; the Round 24 validation classified such band inputs as invalid.
+    # Round 51 validated using them as published (the library default); the strict policy remains
+    # available and registered manifests keep it.
     with pytest.raises(ValueError,match='nonnegative'):
-        indirect_standardize(obs,pop,[.01,.02],rep)
+        indirect_standardize(obs,pop,[.01,.02],rep,negative_replicates='refuse')
+    out=indirect_standardize(obs,pop,[.01,.02],rep)
+    assert any('used as published' in n for n in out.notes.iloc[0])
 
 
 def test_rank_cv_uses_replicates_when_se_column_is_absent():
