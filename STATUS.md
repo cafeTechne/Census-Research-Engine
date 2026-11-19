@@ -123,7 +123,7 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 **Round 43 (v0.40.0; merged, release pending owner approval; implemented by the maintainer agent):**
 manifest routing and housekeeping, no new statistics. Opt-in manifest options: validated correlation
 intervals, NB2 counts and spatial EIV. Saturated-model fix. Core-profile instructions cut from 12,480
-to under 4,000 characters (bounded by a test at 8,000); tool counts corrected and tested.
+to under 4,000 characters (bounded by a test at 8,000); tool counts corrected and tested. Acceptance: goldens identical; 1993 passed, 37 skipped; 0 failures.
 
 **Round 42 (v0.39.0; released in the bundled v0.39.0; implemented by the maintainer agent):**
 missing data, censored counts and interrupted series; the last round of `ROADMAP_STATISTICS.md`.

@@ -151,10 +151,14 @@ class TestCountOutcomes:
             role = 'trials' if model=='binomial' else 'exposure'
             m['analyses'][0]['args'][role]='pov_rate'
             assert any('denominator' in e for e in validate_manifest(m,resolve=False))
-        for model in ('wls','negbin'):
-            m = count_manifest()
-            m['analyses'][0]['args']={'model':model}
-            assert any('not validated for external outcomes' in e for e in validate_manifest(m,resolve=False))
+        m = count_manifest()
+        m['analyses'][0]['args']={'model':'wls'}
+        assert any('not validated for external outcomes' in e for e in validate_manifest(m,resolve=False))
+        # Round 43: NB2 was validated in Round 39 and is allowed for external counts, but needs the exposure
+        m['analyses'][0]['args']={'model':'negbin'}
+        errs = validate_manifest(m,resolve=False)
+        assert any('negbin needs args.exposure' in e for e in errs)
+        assert not any('not validated for external outcomes' in e for e in errs)
         for bad in ('lbw_denominator ~ pov_rate','pov_rate ~ lbw_numerator','lbw ~ lbw_denominator'):
             m = count_manifest()
             m['analyses'][0]['formula']=bad

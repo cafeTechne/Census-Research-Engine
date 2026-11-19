@@ -19,4 +19,7 @@ only when the option is used, so registered manifests' methods text is unchanged
 
 ## Goldens and suite
 
-See STATUS (Round 43).
+Both goldens byte-identical to v0.39.0. Suite: 1993 passed, 37 skipped, 63 subtests; 0 failures
+(baseline 1977; 16 new tests). One older assertion was updated on purpose: `tests/test_round22.py`
+expected `negbin` to be refused for external count outcomes ("not validated", true before Round 39); it
+now checks that `negbin` is accepted but still needs the exposure.

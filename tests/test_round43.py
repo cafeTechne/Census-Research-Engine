@@ -256,3 +256,12 @@ def test_iv_reports_first_stage_f():
     out = causal.iv_slope(f, "y", "x1", "x2")
     ref = sm.OLS(f.x1, sm.add_constant(f.x2)).fit().fvalue
     assert out["first_stage_f"] == pytest.approx(ref) and any("not yet validated" in s for s in out["notes"])
+
+
+def test_m2_external_wonder_style_count_outcome_validates():
+    from tests.test_round22 import count_manifest
+    m = count_manifest("poisson")
+    a = m["analyses"][0]["args"]; a.pop("scale"); a["model"] = "negbin"
+    assert validate_manifest(m, resolve=False) == []
+    a["exposure"] = "pov_rate"
+    assert any("denominator" in e for e in validate_manifest(m, resolve=False))

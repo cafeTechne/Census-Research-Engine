@@ -96,10 +96,10 @@ new option refused outside its validated range.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| M1 validated correlations in manifests | | |
-| M2 NB2 in manifests | | |
-| M3 spatial EIV in manifests | | |
-| Bundle crash fix | | |
-| H1–H5 | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| M1 validated correlations in manifests | Done | Runner equals library; exploratory pairs refused. |
+| M2 NB2 in manifests | Done | Also for external counts; R22 test assertion updated. |
+| M3 spatial EIV in manifests | Done | G1/G2 equal the library. |
+| Bundle crash fix | Done | Saturated fits: NaN SEs plus note; plot clamps non-finite whiskers. |
+| H1–H5 | Done | Core text 3.9 K characters. |
+| Goldens, final suite | Done | Goldens identical; 1993 passed, 37 skipped, 0 failures. |
+| Exceptions | Recorded | No new validation needed (routing only). |
