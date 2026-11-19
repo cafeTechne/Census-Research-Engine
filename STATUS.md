@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24329678). All versions: concept record
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
 | `PLAN_ROUND_<n>.md` | The current round and queued rounds (none queued; next rounds come from `ROADMAP_STATISTICS.md`). Implement only the lowest-numbered one. Merged plans are archived (below) |
-| `ROADMAP_STATISTICS.md` | Multi-round roadmap (Rounds 31–39): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
+| `ROADMAP_STATISTICS.md` | Multi-round roadmap (Rounds 31–42): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
 **Archived plans.** `PLAN_ROUND_1`–`22` are at tag `v0.21.0`, `PLAN_ROUND_23` at `v0.21.1`; from Round 24 on, each plan is at tag `plan-r<n>` (for example `git show plan-r29:PLAN_ROUND_29.md`). Code and docs still cite

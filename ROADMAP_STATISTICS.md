@@ -1,6 +1,6 @@
-# Statistics roadmap: SciPy/statsmodels methods for the engine (Rounds 31–39)
+# Statistics roadmap: SciPy/statsmodels methods for the engine (Rounds 31–42)
 
-**Status: draft (2026-11-18).** The owner's multi-round roadmap. It is the source from which each
+**Status: agreed order (owner, 2026-11-18); decisions in section 7.** The owner's multi-round roadmap. It is the source from which each
 `PLAN_ROUND_<n>.md` is drafted; it is not itself a plan. **Implementing agents: do not read this file
 unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.** Update the status
 column in section 6 when a round merges, and reorder freely.
@@ -56,7 +56,9 @@ computes the statistic; the engine supplies the variance and the reference distr
    function; guided, plain-language results; refusals with an `error_code`. Target: **at most six new
    tools across the roadmap**, plus `core` profile entries only for the most-used two. Rule text is
    mirrored in `docs/agent_protocol.md`, `docs/recipes/` and the MCP profile text.
-7. **Each round is one plan under 15 KB**, with a worked MI/NY example (exploratory unless registered).
+7. **Each round is one plan under 15 KB**, ending with a worked MI/NY **exploratory** example that shows
+   the method works as intended on real data (owner decision); no registered study unless asked.
+8. **Every level of geography is in scope** (tract, county, place, PUMA, state), where the data exist.
 
 ## 3. Catalogue: what SciPy/statsmodels offers and where it fits
 
@@ -92,6 +94,41 @@ Priority: **H** high value for public-health county work, **M** useful, **L** la
 | Overdispersed and zero-heavy counts | statsmodels `NegativeBinomial`, zero-inflated models | C | HC3 / replicate; validated like Poisson | M | 39 |
 | Bootstrap and permutation | `bootstrap`, `permutation_test`, `monte_carlo_test` | B (exchangeable units only) | resampling; not valid under spatial dependence | L | 33 |
 
+### More from statsmodels (added 2026-11-18)
+
+| Family | statsmodels functions | Regimes | Pri | Round |
+| :--- | :--- | :--- | :---: | :---: |
+| Welch / Brown–Forsythe ANOVA, effect sizes, equivalence ANOVA | `stats.oneway.anova_oneway`, `effectsize_oneway`, `confint_effectsize_oneway`, `equivalence_oneway` | A, B | H | 31 |
+| Tukey HSD tables, multiple-comparison sets | `stats.multicomp.pairwise_tukeyhsd`, `MultiComparison` | A, B | M | 31 |
+| Repeated measures across non-overlapping releases | `stats.anova.AnovaRM` logic (same areas, 2013–17 vs 2018–22) | A | M | 31 |
+| Proportion intervals and two-proportion tests | `stats.proportion.proportion_confint` (Wilson, Clopper–Pearson; Korn–Graubard with design effect), `test_proportions_2indep`, `confint_proportions_2indep`, `multinomial_proportions_confint` | B | H | 32 |
+| Stratified and paired tables | `stats.contingency_tables.StratifiedTable` (Cochran–Mantel–Haenszel, Breslow–Day), `Table2x2`, `mcnemar`, `cochrans_q` | B | M | 32 |
+| Weighted descriptive statistics and t/TOST | `stats.weightstats.DescrStatsW`, `CompareMeans`, `ttost_ind` (point estimates; SE from SDR) | B | M | 32 |
+| Collinearity and influence | `variance_inflation_factor`, `OLSInfluence` (Cook's distance, DFBETAS) | A | H | 33 |
+| Specification tests | `linear_reset`, `het_breuschpagan`, `het_white`, `linear_rainbow` | A | M | 33 |
+| Robust regression | `RLM` (Huber, Tukey biweight) | A | M | 33 |
+| Probability of superiority with CI | `stats.nonparametric.rank_compare_2indep` | A | M | 33 |
+| Nonlinear association, smoothing for figures | `distance_correlation`, `lowess` | A | L | 33 |
+| Rate comparisons for counts (two areas, area vs reference) | `stats.rates.test_poisson_2indep`, `etest_poisson_2indep`, `confint_poisson_2indep`, `tost_poisson_2indep` | C | H | 34 |
+| Many-test error control for area screens | `stats.multitest.local_fdr`, `fdrcorrection_twostage` | A, C | M | 34 |
+| Bayesian mixed GLMs (area random effects) | `BinomialBayesMixedGLM`, `PoissonBayesMixedGLM` | A, C | M | 35 |
+| PCA with missing data | `multivariate.pca.PCA` | A | M | 36 |
+| Categorical agreement | `stats.inter_rater.cohens_kappa`, `fleiss_kappa` | A | M | 37 |
+| Power for the new tests | `stats.power.TTestIndPower`, `FTestAnovaPower`, `GofChisquarePower`, `NormalIndPower` | A, B | M | 38 |
+| Covariance repair | `stats.correlation_tools.cov_nearest`, `corr_nearest` (replicate covariances that are not positive definite; flagged, never silent) | A | M | 31+ |
+| Bounded outcomes (rates and shares in 0–1) | `othermod.betareg.BetaModel` | A | H | 40 |
+| Quantile regression | `QuantReg` (no weights argument: PUMS needs a weighted version) | A, B | H | 40 |
+| Ordinal and multinomial outcomes | `OrderedModel`, `MNLogit` | B | M | 40 |
+| Clustered units (tracts within counties), population-averaged | `GEE` (exchangeable / independence working correlation) | A, B | M | 40 |
+| Penalised splines (revisit Round 27) | `gam.api.GLMGam`, `BSplines` | A | L | 40 |
+| Treatment effects (IPW, AIPW, regression adjustment) | `treatment.treatment_effects.TreatmentEffect` | A, B | M | 41 |
+| Mediation | `stats.mediation.Mediation` | A, B | M | 41 |
+| Instrumental variables (measurement error in GLM covariates, backlog item 2) | `sandbox.regression.gmm.IV2SLS` | A | M | 41 |
+| Multiple imputation | `imputation.mice.MICE` (never for WONDER suppressed counts in outputs) | A, B | M | 42 |
+| Time series / interrupted series | `tsa.statespace.SARIMAX` (state or national series only) | C | L | 42 |
+
+Not planned: survival models (`PHReg`; no event-time data), empirical likelihood, kernel regression.
+
 **Deliberately excluded:** SciPy tests run on ACS estimates as if exact; Fisher/Barnard exact tests on
 weighted data; normality tests as gates for choosing a test; stepwise selection; permutation tests on
 spatially dependent areas. They give confident-looking but wrong answers for our data.
@@ -106,10 +143,11 @@ spatially dependent areas. They give confident-looking but wrong answers for our
 | `build_index` | composite indices, internal consistency, typologies | 36 |
 | `check_agreement` | agreement between two sources for the same quantity | 37 |
 | `combine_estimates` | meta-analysis, equivalence tests, power | 38 |
+| `estimate_effect` | treatment effects, mediation, instrumental variables | 41 |
 
-Each tool also becomes a manifest method (`METHODS` registry) so confirmatory studies can use it, and
-each gets a `get_recipe` entry. MANOVA and count models extend `compare_groups` and `fit_model`
-instead of adding tools.
+Seven tools in all (the owner allows more if needed). Each tool also becomes a manifest method
+(`METHODS` registry) so confirmatory studies can use it, and each gets a `get_recipe` entry. MANOVA,
+count models and the Round 40 families extend `compare_groups` and `fit_model` instead of adding tools.
 
 ## 5. Proposed rounds
 
@@ -206,6 +244,33 @@ version bump. Dependencies are noted; anything without one can move.
 - **Ships:** extensions to `compare_groups(design="manova")` and `fit_model(model="negbin")`.
 - **Depends on:** Round 31's omnibus test.
 
+### Round 40: more regression families
+
+- **Methods:** beta regression for shares bounded in 0–1 (most ACS percentages); quantile regression
+  (area level, and a weighted version for PUMS with SDR intervals); ordinal and multinomial logit for
+  PUMS categories (education, commute mode, insurance type); GEE for tracts within counties;
+  penalised splines (`GLMGam`) re-tested with Round 31's omnibus test.
+- **Validation:** coverage of the key coefficient under ACS-type error (area) and SDR (PUMS), per family.
+- **Ships:** `fit_model(model="beta" | "quantile" | "ordinal" | "multinomial" | "gee")`.
+
+### Round 41: causal and mediation tools
+
+- **Methods:** propensity-score treatment effects (IPW, AIPW, regression adjustment) for area-level
+  exposures (for example a state policy), with overlap and balance diagnostics; mediation (for
+  example poverty → uninsurance → mortality) with its sequential-ignorability caveat; instrumental
+  variables for error-prone covariates (backlog item 2: measurement error in GLMs).
+- **Rules:** causal language only with stated assumptions; DiD (existing) stays the default for policy
+  timing; R1/R2 circularity checks apply to mediators.
+- **Ships:** `estimate_effect`. Validation: coverage of the effect under the assumptions, and
+  documented failure when they are violated.
+
+### Round 42: missing data, censoring and time
+
+- **Methods:** multiple imputation (MICE) for missing covariates with Rubin's rules combined with
+  replicate variance; interval-censored WONDER counts (1–9) modelled, never imputed into outputs;
+  interrupted time series (segmented regression, SARIMAX) for state or national series.
+- **Validation:** coverage after imputation; disclosure audit on any censored-count model.
+
 ## 6. Status
 
 | Round | Theme | Status |
@@ -219,14 +284,14 @@ version bump. Dependencies are noted; anything without one can move.
 | 37 | Agreement between sources | proposed |
 | 38 | Meta-analysis, equivalence, power | proposed |
 | 39 | MANOVA/MANCOVA, count families | proposed |
+| 40 | Regression families (beta, quantile, ordinal, multinomial, GEE) | proposed |
+| 41 | Treatment effects, mediation, instrumental variables | proposed |
+| 42 | Missing data, censoring, time series | proposed |
 
-## 7. Open questions for the owner
+## 7. Owner decisions (2026-11-18)
 
-1. **Order:** 31 first is a dependency; 32–39 can move. Is spatial random effects (35) more urgent
-   than the new test families?
-2. **Studies:** should each round end with a registered MI/NY study (slower, citable) or an
-   exploratory example only (faster)?
-3. **Tool budget:** is six new MCP tools acceptable for the local-model profile, or should only
-   `compare_groups` and `test_association` join `core`?
-4. **PUMS geography:** PUMAs are the smallest PUMS areas; is PUMA-level analysis useful to you, or
-   should Round 32 drop down the list?
+1. **Order:** as listed; Round 31 first.
+2. **Studies:** each round ends with an exploratory MI/NY example to show the method works as
+   intended; registered studies only when the owner asks.
+3. **Tool budget:** six was approved, more if needed; Round 41 adds a seventh (`estimate_effect`).
+4. **Geography:** every level is useful (tract, county, place, PUMA, state); Round 32 (PUMS) stays.
