@@ -1,0 +1,333 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "rho": 0.0,
+      "reliability": 0.9,
+      "range_km": 0,
+      "draws": 2000,
+      "coverage_observed": {
+        "pearson/1": 0.9015,
+        "pearson/2": 0.9345,
+        "spearman/1": 0.9155,
+        "spearman/2": 0.951,
+        "kendall/1": 0.905,
+        "kendall/2": 0.945,
+        "partial/1": 0.895,
+        "partial/2": 0.94
+      },
+      "coverage_true": {
+        "pearson/1": 0.9015,
+        "pearson/2": 0.934,
+        "spearman/1": 0.916,
+        "spearman/2": 0.951,
+        "kendall/1": 0.905,
+        "kendall/2": 0.9445,
+        "partial/1": 0.895,
+        "partial/2": 0.94
+      },
+      "superiority": {
+        "B1/cover": 0.897,
+        "B2/cover": 0.93,
+        "B1/reject": 0.103,
+        "B2/reject": 0.07,
+        "B1/power": 0.399,
+        "B2/power": 0.334
+      },
+      "kruskal_size": 0.106,
+      "failures": {},
+      "seconds": 187.00022625923157
+    },
+    {
+      "cell": 1,
+      "rho": 0.0,
+      "reliability": 0.9,
+      "range_km": 100,
+      "draws": 2000,
+      "coverage_observed": {
+        "pearson/1": 0.6395,
+        "pearson/2": 0.698,
+        "spearman/1": 0.6405,
+        "spearman/2": 0.707,
+        "kendall/1": 0.621,
+        "kendall/2": 0.6995,
+        "partial/1": 0.666,
+        "partial/2": 0.728
+      },
+      "coverage_true": {
+        "pearson/1": 0.6395,
+        "pearson/2": 0.6965,
+        "spearman/1": 0.6405,
+        "spearman/2": 0.7075,
+        "kendall/1": 0.621,
+        "kendall/2": 0.6995,
+        "partial/1": 0.666,
+        "partial/2": 0.7265
+      },
+      "superiority": {
+        "B1/cover": 0.918,
+        "B2/cover": 0.9535,
+        "B1/reject": 0.082,
+        "B2/reject": 0.0465,
+        "B1/power": 0.3775,
+        "B2/power": 0.301
+      },
+      "kruskal_size": 0.076,
+      "failures": {},
+      "seconds": 143.62098932266235
+    },
+    {
+      "cell": 2,
+      "rho": 0.0,
+      "reliability": 0.7,
+      "range_km": 0,
+      "draws": 2000,
+      "coverage_observed": {
+        "pearson/1": 0.904,
+        "pearson/2": 0.965,
+        "spearman/1": 0.915,
+        "spearman/2": 0.9795,
+        "kendall/1": 0.9,
+        "kendall/2": 0.9755,
+        "partial/1": 0.905,
+        "partial/2": 0.968
+      },
+      "coverage_true": {
+        "pearson/1": 0.9045,
+        "pearson/2": 0.9645,
+        "spearman/1": 0.914,
+        "spearman/2": 0.979,
+        "kendall/1": 0.9005,
+        "kendall/2": 0.9765,
+        "partial/1": 0.905,
+        "partial/2": 0.9685
+      },
+      "superiority": {
+        "B1/cover": 0.903,
+        "B2/cover": 0.9545,
+        "B1/reject": 0.097,
+        "B2/reject": 0.0455,
+        "B1/power": 0.3025,
+        "B2/power": 0.189
+      },
+      "kruskal_size": 0.095,
+      "failures": {},
+      "seconds": 167.3609642982483
+    },
+    {
+      "cell": 3,
+      "rho": 0.0,
+      "reliability": 0.7,
+      "range_km": 100,
+      "draws": 2000,
+      "coverage_observed": {
+        "pearson/1": 0.723,
+        "pearson/2": 0.8595,
+        "spearman/1": 0.725,
+        "spearman/2": 0.8675,
+        "kendall/1": 0.709,
+        "kendall/2": 0.86,
+        "partial/1": 0.744,
+        "partial/2": 0.881
+      },
+      "coverage_true": {
+        "pearson/1": 0.7235,
+        "pearson/2": 0.8595,
+        "spearman/1": 0.725,
+        "spearman/2": 0.868,
+        "kendall/1": 0.7075,
+        "kendall/2": 0.863,
+        "partial/1": 0.7435,
+        "partial/2": 0.8825
+      },
+      "superiority": {
+        "B1/cover": 0.9055,
+        "B2/cover": 0.973,
+        "B1/reject": 0.0945,
+        "B2/reject": 0.027,
+        "B1/power": 0.296,
+        "B2/power": 0.157
+      },
+      "kruskal_size": 0.125,
+      "failures": {},
+      "seconds": 120.75520730018616
+    },
+    {
+      "cell": 4,
+      "rho": 0.4,
+      "reliability": 0.9,
+      "range_km": 0,
+      "draws": 2000,
+      "coverage_observed": {
+        "pearson/1": 0.842,
+        "pearson/2": 0.892,
+        "spearman/1": 0.899,
+        "spearman/2": 0.947,
+        "kendall/1": 0.8925,
+        "kendall/2": 0.949,
+        "partial/1": 0.858,
+        "partial/2": 0.9025
+      },
+      "coverage_true": {
+        "pearson/1": 0.7955,
+        "pearson/2": 0.8515,
+        "spearman/1": 0.7825,
+        "spearman/2": 0.8525,
+        "kendall/1": 0.7905,
+        "kendall/2": 0.8575,
+        "partial/1": 0.8215,
+        "partial/2": 0.88
+      },
+      "superiority": {
+        "B1/cover": 0.8985,
+        "B2/cover": 0.9335,
+        "B1/reject": 0.1015,
+        "B2/reject": 0.0665,
+        "B1/power": 0.388,
+        "B2/power": 0.3215
+      },
+      "kruskal_size": null,
+      "failures": {},
+      "seconds": 122.13354969024658
+    },
+    {
+      "cell": 5,
+      "rho": 0.4,
+      "reliability": 0.9,
+      "range_km": 100,
+      "draws": 2000,
+      "coverage_observed": {
+        "pearson/1": 0.5965,
+        "pearson/2": 0.662,
+        "spearman/1": 0.6375,
+        "spearman/2": 0.729,
+        "kendall/1": 0.627,
+        "kendall/2": 0.7245,
+        "partial/1": 0.626,
+        "partial/2": 0.6985
+      },
+      "coverage_true": {
+        "pearson/1": 0.567,
+        "pearson/2": 0.6485,
+        "spearman/1": 0.5825,
+        "spearman/2": 0.6755,
+        "kendall/1": 0.5585,
+        "kendall/2": 0.6595,
+        "partial/1": 0.5985,
+        "partial/2": 0.676
+      },
+      "superiority": {
+        "B1/cover": 0.8535,
+        "B2/cover": 0.9015,
+        "B1/reject": 0.1465,
+        "B2/reject": 0.0985,
+        "B1/power": 0.443,
+        "B2/power": 0.369
+      },
+      "kruskal_size": null,
+      "failures": {},
+      "seconds": 118.02824449539185
+    },
+    {
+      "cell": 6,
+      "rho": 0.4,
+      "reliability": 0.7,
+      "range_km": 0,
+      "draws": 2000,
+      "coverage_observed": {
+        "pearson/1": 0.8695,
+        "pearson/2": 0.957,
+        "spearman/1": 0.9025,
+        "spearman/2": 0.977,
+        "kendall/1": 0.896,
+        "kendall/2": 0.9765,
+        "partial/1": 0.8675,
+        "partial/2": 0.9555
+      },
+      "coverage_true": {
+        "pearson/1": 0.548,
+        "pearson/2": 0.716,
+        "spearman/1": 0.475,
+        "spearman/2": 0.6875,
+        "kendall/1": 0.4505,
+        "kendall/2": 0.6745,
+        "partial/1": 0.619,
+        "partial/2": 0.7765
+      },
+      "superiority": {
+        "B1/cover": 0.9045,
+        "B2/cover": 0.958,
+        "B1/reject": 0.0955,
+        "B2/reject": 0.042,
+        "B1/power": 0.2995,
+        "B2/power": 0.1795
+      },
+      "kruskal_size": null,
+      "failures": {},
+      "seconds": 118.96366024017334
+    },
+    {
+      "cell": 7,
+      "rho": 0.4,
+      "reliability": 0.7,
+      "range_km": 100,
+      "draws": 2000,
+      "coverage_observed": {
+        "pearson/1": 0.691,
+        "pearson/2": 0.838,
+        "spearman/1": 0.7305,
+        "spearman/2": 0.8895,
+        "kendall/1": 0.7125,
+        "kendall/2": 0.887,
+        "partial/1": 0.7235,
+        "partial/2": 0.858
+      },
+      "coverage_true": {
+        "pearson/1": 0.456,
+        "pearson/2": 0.627,
+        "spearman/1": 0.392,
+        "spearman/2": 0.5835,
+        "kendall/1": 0.411,
+        "kendall/2": 0.606,
+        "partial/1": 0.5205,
+        "partial/2": 0.6825
+      },
+      "superiority": {
+        "B1/cover": 0.8665,
+        "B2/cover": 0.9445,
+        "B1/reject": 0.1335,
+        "B2/reject": 0.0555,
+        "B1/power": 0.3195,
+        "B2/power": 0.1985
+      },
+      "kruskal_size": null,
+      "failures": {},
+      "seconds": 119.20464277267456
+    }
+  ],
+  "passed": {
+    "pearson/1": false,
+    "pearson/2": true,
+    "spearman/1": true,
+    "spearman/2": true,
+    "kendall/1": true,
+    "kendall/2": true,
+    "partial/1": false,
+    "partial/2": true,
+    "B1": true,
+    "B2": true,
+    "KW": true
+  },
+  "draws_per_cell": 2000,
+  "criterion": "intervals: 90% coverage of the observed-estimate target >= .86 in every independent cell; Kruskal-Wallis: nominal-.10 size in [.07,.13] in independent null cells; failures count as non-coverage",
+  "criterion_commit": "f660e9c",
+  "frozen_sha256": {
+    "scripts/rank_validation.py": "57d2a5793268512012c64da5591c6013f361b5ea40c7969fa50585ac062743dc",
+    "census/rank_methods.py": "f757e7d469e597d07cf094dd9125b142fa22a8ff789ece3988c1b2dd624050cc",
+    "census/simulation.py": "b0ba4c803939d8803fc8a7e702b4f70bda5f486736bd651b8630d7e1262b198e",
+    "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+    "docs/audits/rank_validation_criterion.md": "174f2c0de205b5386ed6a7a47fc531dcfce638a5f3874af75513e1bedd5a2fcc",
+    "docs/audits/rank_targets.json": "ed5912168fdb1b8a2ee3dad59e92549ccac70357e54c02b6df188ddbe7fdd23d",
+    "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f"
+  }
+}
