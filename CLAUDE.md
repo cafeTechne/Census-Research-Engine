@@ -2,7 +2,7 @@
 
 Start with `STATUS.md` (current state, validated methods, rules, backlog). Then read only the lowest-numbered
 `PLAN_ROUND_<n>.md` if you are implementing a round (later ones are queued; do not read them). Older plans are archived at their release tags
-(`git show v0.21.0:PLAN_ROUND_<n>.md` for rounds 1–22; `v0.21.1` for 23; `v0.22.0` for 24; `v0.22.1` for 25; `v0.23.0` for 26; `v0.24.0` for 27; `v0.25.0` for 28; `v0.26.0` for 29); read one only when a docstring citation is not enough.
+(`git show v0.21.0:PLAN_ROUND_<n>.md` for rounds 1–22; `v0.21.1` for 23; tag `plan-r<n>` for 24 onward, e.g. `git show plan-r29:PLAN_ROUND_29.md`); read one only when a docstring citation is not enough.
 
 ## Commands
 
