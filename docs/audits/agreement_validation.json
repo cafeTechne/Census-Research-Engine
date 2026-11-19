@@ -1,0 +1,189 @@
+{
+  "rows": [
+    {
+      "cell": 0,
+      "reliability_a": 0.9,
+      "b_error": false,
+      "range_km": 0,
+      "draws": 2000,
+      "coverage": {
+        "B0": 0.8995,
+        "B1_lower": 0.874,
+        "B1_upper": 0.8915,
+        "B2_lower": 0.8695,
+        "B2_upper": 0.8875,
+        "C1": 0.8865,
+        "C2": 0.7745,
+        "K1": 0.8825
+      },
+      "failures": {},
+      "seconds": 2.694648027420044
+    },
+    {
+      "cell": 1,
+      "reliability_a": 0.9,
+      "b_error": false,
+      "range_km": 100,
+      "draws": 2000,
+      "coverage": {
+        "B0": 0.887,
+        "B1_lower": 0.8845,
+        "B1_upper": 0.873,
+        "B2_lower": 0.8895,
+        "B2_upper": 0.8745,
+        "C1": 0.6495,
+        "C2": 0.59,
+        "K1": 0.7895
+      },
+      "failures": {},
+      "seconds": 3.903873920440674
+    },
+    {
+      "cell": 2,
+      "reliability_a": 0.9,
+      "b_error": true,
+      "range_km": 0,
+      "draws": 2000,
+      "coverage": {
+        "B0": 0.896,
+        "B1_lower": 0.855,
+        "B1_upper": 0.866,
+        "B2_lower": 0.8625,
+        "B2_upper": 0.863,
+        "C1": 0.885,
+        "C2": 0.5595,
+        "K1": 0.898
+      },
+      "failures": {
+        "C2": 1
+      },
+      "seconds": 2.7138967514038086
+    },
+    {
+      "cell": 3,
+      "reliability_a": 0.9,
+      "b_error": true,
+      "range_km": 100,
+      "draws": 2000,
+      "coverage": {
+        "B0": 0.9,
+        "B1_lower": 0.8665,
+        "B1_upper": 0.8775,
+        "B2_lower": 0.8735,
+        "B2_upper": 0.878,
+        "C1": 0.657,
+        "C2": 0.487,
+        "K1": 0.802
+      },
+      "failures": {},
+      "seconds": 2.7182180881500244
+    },
+    {
+      "cell": 4,
+      "reliability_a": 0.7,
+      "b_error": false,
+      "range_km": 0,
+      "draws": 2000,
+      "coverage": {
+        "B0": 0.8935,
+        "B1_lower": 0.8475,
+        "B1_upper": 0.8375,
+        "B2_lower": 0.842,
+        "B2_upper": 0.841,
+        "C1": 0.8585,
+        "C2": 0.489,
+        "K1": 0.901
+      },
+      "failures": {
+        "C2": 35,
+        "B2": 6
+      },
+      "seconds": 3.082200527191162
+    },
+    {
+      "cell": 5,
+      "reliability_a": 0.7,
+      "b_error": false,
+      "range_km": 100,
+      "draws": 2000,
+      "coverage": {
+        "B0": 0.9,
+        "B1_lower": 0.8395,
+        "B1_upper": 0.835,
+        "B2_lower": 0.827,
+        "B2_upper": 0.826,
+        "C1": 0.6475,
+        "C2": 0.397,
+        "K1": 0.8325
+      },
+      "failures": {
+        "C2": 18,
+        "B2": 2
+      },
+      "seconds": 2.94960355758667
+    },
+    {
+      "cell": 6,
+      "reliability_a": 0.7,
+      "b_error": true,
+      "range_km": 0,
+      "draws": 2000,
+      "coverage": {
+        "B0": 0.8945,
+        "B1_lower": 0.859,
+        "B1_upper": 0.8515,
+        "B2_lower": 0.9035,
+        "B2_upper": 0.8895,
+        "C1": 0.8785,
+        "C2": 0.382,
+        "K1": 0.9115
+      },
+      "failures": {
+        "B2": 33,
+        "C2": 118
+      },
+      "seconds": 2.6377646923065186
+    },
+    {
+      "cell": 7,
+      "reliability_a": 0.7,
+      "b_error": true,
+      "range_km": 100,
+      "draws": 2000,
+      "coverage": {
+        "B0": 0.896,
+        "B1_lower": 0.86,
+        "B1_upper": 0.871,
+        "B2_lower": 0.9,
+        "B2_upper": 0.9105,
+        "C1": 0.68,
+        "C2": 0.338,
+        "K1": 0.83
+      },
+      "failures": {
+        "C2": 98,
+        "B2": 35
+      },
+      "seconds": 3.8765041828155518
+    }
+  ],
+  "passed": {
+    "B0": true,
+    "C1": false,
+    "C2": false,
+    "K1": true,
+    "B1": false,
+    "B2": false
+  },
+  "draws_per_cell": 2000,
+  "criterion": "90% coverage >= .86 in every independent cell, per procedure (both limits for B1, B2); failures count as non-coverage; spatial cells informational",
+  "criterion_commit": "e6d4be6",
+  "frozen_sha256": {
+    "scripts/agreement_validation.py": "fc0765b3b3b2477ef5c361b9f06aef5cae54b4119e12b3884f944e7f016dadb2",
+    "census/agreement_core.py": "ff406e2d69929000f25ec567f6d864bc723c9e51f790a65fe493f06e092fdcea",
+    "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+    "docs/audits/agreement_validation_criterion.md": "23b1a11a42e98f5338fc09d1e3c782a2e01b6c5f01c921888449512c69782a59",
+    "docs/audits/agreement_targets.json": "1e59cee5a677c416c859ba1011986e5100c36f110f92a6c11b90ab8efe665cd9",
+    "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f"
+  }
+}
