@@ -55,6 +55,7 @@ manifests refuse them in confirmatory analyses.
 | Centered natural splines / joint chi-squared Wald | **Failed**: nominal .10 size 0.1055–0.1825; four cells exceed .13. `joint_wald` stays exploratory; binomial/Poisson splines are confirmatory only with `joint_test` (Round 31) | `joint_wald_validation.md`, criterion `376ce69` |
 | Joint (omnibus) tests: `joint_test` | **Passed selected** (nominal .10 size in [.07,.13]): wild score bootstrap for OLS factor tests (.098–.110) and binomial/Poisson spline tests (.072–.103); IM-8 Hotelling for OLS/Poisson factor tests (.093–.103). F references failed everywhere. n = 145; other combinations exploratory | `omnibus_validation.md`, criterion `3e3094a` |
 | Missing data, censored counts, interrupted series | **Multiple imputation passed** (.907–.919; complete case .871 when missingness depends on the outcome). Interval-censored Poisson for hidden 1–9 counts failed narrowly (.839–.856; complete case .824–.828): exploratory. Interrupted series with 20 annual points failed for OLS, Newey–West and AR(1) GLS (.47–.81): exploratory | `missing_censored_its_validation.md`, criterion `5f81de2` |
+| Causal robustness (Round 47) | **Passed**: AIPW with confounders calibrated within treatment groups (`calibrate=True`; .889–.905 with same-sign noisy confounders, plain AIPW .77–.87); calibrated mediator (.883–.898; naive .58–.86); Anderson–Rubin interval at any first-stage F (.894–.908); the 2SLS Wald interval also covered at every F (pre-set cut-off 0) but its estimate is unstable below F = 10; chained-equations MI for two incomplete covariates (.898–.916; complete case .84 under MAR) | `causal_robustness_validation.md`, criterion `cbdc97f` |
 | Causal tools (`estimate_effect`) | **Passed**: treatment effects (IPW/AIPW/RA) with precise confounders (.894–.899; residual confounding from noisy confounders not tested: design limitation); 2SLS with an independent second measurement (.882–.907 vs naive OLS .30); mediation with an exact mediator (.876–.891; mediator error .69–.72, exploratory) | `causal_validation.md`, criterion `b7464e5` |
 | Beta and median regression (`fit_model` beta/median) | **Passed selected**: beta with HC0 (.885–.903; model-based SEs failed); median regression with the kernel SE (.912–.917). Replicate-augmented variants over-cover. PUMS ordinal/multinomial/weighted-quantile and GEE deferred | `beta_median_validation.md`, criterion `d5c9b02` |
 | Multivariate group tests and count models | **Passed**: multivariate wild score bootstrap (MANOVA/MANCOVA; size .090–.101); NB2 with HC3 (.885–.901, overdispersion and excess zeros). **Poisson HC3 under-covered with strong overdispersion (.808–.867)**; zero-inflated Poisson failed | `manova_counts_validation.md`, criterion `0686bc0` |
@@ -120,6 +121,13 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 47 (v0.44.0; merged, release pending owner approval; implemented by the maintainer agent):**
+causal and missing-data robustness (criterion `cbdc97f`): calibrated AIPW, calibrated mediation,
+Anderson–Rubin intervals and two-covariate chained MI pass; 2SLS Wald covered at every F. New frozen
+`census.causal_robustness_core`; `estimate_effect(calibrate=True)`, `impute=["w", "v"]`; plain AIPW with
+noisy confounders is now labelled exploratory. Exploratory MI/NY example (`r47_causal_example.md`).
+Goldens unchanged. Acceptance: 2027 passed, 37 skipped; 0 failures.
 
 **Round 46 (v0.43.0; merged, release pending owner approval; implemented by the maintainer agent):**
 measurement-error-corrected GLM slopes and spatial EIV with more covariates (criterion `4aceb22`):

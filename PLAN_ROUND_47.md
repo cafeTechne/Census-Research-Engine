@@ -114,9 +114,9 @@ higher bin, in both reliabilities. If even the [20, ∞) bin fails, W1 is not va
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Criterion commit | | |
-| T / W / S / D results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Criterion commit | `cbdc97f`, pushed before the full run | core, script, criterion frozen |
+| T / W / S / D results | T1 .889–.905, S1 .883–.898, D1 .898–.916, AR .894–.908 all pass; 2SLS Wald cut-off F₀ = 0 | Wald estimate unstable below F = 10 (note added) |
+| Engine, tests | `calibrate=True` (treatment, mediation), `ar_interval`, `impute=[a, b]`; 12 tests | plain AIPW with noisy confounders now exploratory |
+| Example | instrumented poverty slopes and calibrated metro effects (Round 29 SMRs) | `docs/studies/r47_causal_example.md` |
+| Goldens, final suite | both byte-identical; 2027 passed, 37 skipped | |
+| Exceptions | exact AR inversion (no grid); MAR on the outcome only; example uses 2011–2015 (cached) | recorded in the criterion |

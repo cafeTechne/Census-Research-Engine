@@ -241,13 +241,13 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    - fit_model: method="eiv" with spatial="clusters"|"error" (corrected slopes, <=4 noisy
      covariates); model="negbin" for counts (Poisson HC3 under-covers when overdispersed;
      spatial="clusters" gives IM-8 count slopes);
-     model="beta" for shares; model="median"; impute="w" for one incomplete covariate.
+     model="beta" for shares; model="median"; impute="w" or ["w","v"] for incomplete covariates.
    - build_index [full] (composite_index): score intervals, Feldt alpha; no outcome as indicator.
    - check_agreement [full] (agreement): bias and kappa only; Bland-Altman limits/CCC exploratory.
    - combine_estimates [full]: Hartung-Knapp for up to 4 estimates, TOST, power; DL fails.
      Pooling states is a new analysis, never a reinterpretation of a registered study.
-   - estimate_effect [full] (causal): treatment effects with precise confounders, 2SLS with a
-     second measurement, mediation with an exact mediator. State the assumptions;
+   - estimate_effect [full] (causal): calibrate=True for noisy confounders or mediator;
+     iv: report the Anderson-Rubin interval when F < 10. State the assumptions;
      confirmatory causal claims need a registered design.
    In manifests (Round 43): args interval "validated" for correlations, model
    "negbin" for fit_replicate, spatial "clusters"|"error" for fit_eiv.
