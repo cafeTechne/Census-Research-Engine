@@ -14,8 +14,12 @@
 4. Rank comparison of groups: `compare_groups(..., method="rank")`: two groups give the
    probability that an area in the second group has a higher value (Brunner-Munzel interval);
    three or more give a Kruskal-Wallis test and epsilon-squared. No covariates.
-5. Areas are assumed independent. With spatially correlated areas every correlation interval
-   under-covered badly in validation (0.60-0.89 at nominal 0.90); say so when reporting.
+5. Areas are assumed independent unless you pass coordinates. With spatially correlated areas
+   every independent-area correlation interval under-covered badly in validation (0.60-0.89 at
+   nominal 0.90). Pass `spatial=True` (`correlation_matrix`) or `coords` (library) for the
+   effective-sample-size intervals: validated for Spearman, Kendall and Pearson with replicates
+   (Round 48) and, since Round 59, for partial correlations with one control and replicates
+   (effective n of the residual series). All replicated on OH/PA (Round 59).
 6. Model diagnostics (OLS `fit_model` and `compare_groups`): variance inflation factors, the five
    most influential areas (Cook's distance), Breusch-Pagan and RESET p-values, residual
    skewness. Information only, never a reason to switch methods after seeing results.

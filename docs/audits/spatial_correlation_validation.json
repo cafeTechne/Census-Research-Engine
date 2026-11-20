@@ -1,0 +1,383 @@
+{
+ "cells": [
+  {
+   "problem": "P",
+   "geometry": "miny",
+   "r33_cell": 0,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.937,
+    "P0": 0.9365
+   },
+   "failed": {
+    "P1": 0,
+    "P0": 0
+   }
+  },
+  {
+   "problem": "P",
+   "geometry": "miny",
+   "r33_cell": 1,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.904,
+    "P0": 0.726
+   },
+   "failed": {
+    "P1": 0,
+    "P0": 0
+   }
+  },
+  {
+   "problem": "P",
+   "geometry": "miny",
+   "r33_cell": 2,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.9715,
+    "P0": 0.97
+   },
+   "failed": {
+    "P1": 0,
+    "P0": 0
+   }
+  },
+  {
+   "problem": "P",
+   "geometry": "miny",
+   "r33_cell": 3,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.956,
+    "P0": 0.88
+   },
+   "failed": {
+    "P1": 0,
+    "P0": 0
+   }
+  },
+  {
+   "problem": "P",
+   "geometry": "miny",
+   "r33_cell": 4,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.9155,
+    "P0": 0.9115
+   },
+   "failed": {
+    "P1": 0,
+    "P0": 0
+   }
+  },
+  {
+   "problem": "P",
+   "geometry": "miny",
+   "r33_cell": 5,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.8695,
+    "P0": 0.6895
+   },
+   "failed": {
+    "P1": 0,
+    "P0": 0
+   }
+  },
+  {
+   "problem": "P",
+   "geometry": "miny",
+   "r33_cell": 6,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.965,
+    "P0": 0.9635
+   },
+   "failed": {
+    "P1": 0,
+    "P0": 0
+   }
+  },
+  {
+   "problem": "P",
+   "geometry": "miny",
+   "r33_cell": 7,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.925,
+    "P0": 0.858
+   },
+   "failed": {
+    "P1": 0,
+    "P0": 0
+   }
+  },
+  {
+   "problem": "O",
+   "geometry": "ohpa",
+   "r33_cell": 0,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.93,
+    "C1_spearman": 0.907,
+    "C1_kendall": 0.894,
+    "C1_pearson": 0.9275
+   },
+   "failed": {
+    "P1": 0,
+    "C1_spearman": 0,
+    "C1_kendall": 0,
+    "C1_pearson": 0
+   }
+  },
+  {
+   "problem": "O",
+   "geometry": "ohpa",
+   "r33_cell": 1,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.915,
+    "C1_spearman": 0.9095,
+    "C1_kendall": 0.9015,
+    "C1_pearson": 0.9205
+   },
+   "failed": {
+    "P1": 0,
+    "C1_spearman": 0,
+    "C1_kendall": 0,
+    "C1_pearson": 0
+   }
+  },
+  {
+   "problem": "O",
+   "geometry": "ohpa",
+   "r33_cell": 2,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.9685,
+    "C1_spearman": 0.902,
+    "C1_kendall": 0.8805,
+    "C1_pearson": 0.9645
+   },
+   "failed": {
+    "P1": 0,
+    "C1_spearman": 0,
+    "C1_kendall": 0,
+    "C1_pearson": 0
+   }
+  },
+  {
+   "problem": "O",
+   "geometry": "ohpa",
+   "r33_cell": 3,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.951,
+    "C1_spearman": 0.9035,
+    "C1_kendall": 0.8905,
+    "C1_pearson": 0.95
+   },
+   "failed": {
+    "P1": 0,
+    "C1_spearman": 0,
+    "C1_kendall": 0,
+    "C1_pearson": 0
+   }
+  },
+  {
+   "problem": "O",
+   "geometry": "ohpa",
+   "r33_cell": 4,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.9035,
+    "C1_spearman": 0.904,
+    "C1_kendall": 0.902,
+    "C1_pearson": 0.8925
+   },
+   "failed": {
+    "P1": 0,
+    "C1_spearman": 0,
+    "C1_kendall": 0,
+    "C1_pearson": 0
+   }
+  },
+  {
+   "problem": "O",
+   "geometry": "ohpa",
+   "r33_cell": 5,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.884,
+    "C1_spearman": 0.905,
+    "C1_kendall": 0.895,
+    "C1_pearson": 0.8895
+   },
+   "failed": {
+    "P1": 0,
+    "C1_spearman": 0,
+    "C1_kendall": 0,
+    "C1_pearson": 0
+   }
+  },
+  {
+   "problem": "O",
+   "geometry": "ohpa",
+   "r33_cell": 6,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.9635,
+    "C1_spearman": 0.9185,
+    "C1_kendall": 0.905,
+    "C1_pearson": 0.965
+   },
+   "failed": {
+    "P1": 0,
+    "C1_spearman": 0,
+    "C1_kendall": 0,
+    "C1_pearson": 0
+   }
+  },
+  {
+   "problem": "O",
+   "geometry": "ohpa",
+   "r33_cell": 7,
+   "draws": 2000,
+   "coverage": {
+    "P1": 0.9275,
+    "C1_spearman": 0.8915,
+    "C1_kendall": 0.8835,
+    "C1_pearson": 0.923
+   },
+   "failed": {
+    "P1": 0,
+    "C1_spearman": 0,
+    "C1_kendall": 0,
+    "C1_pearson": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r36_cell": 0,
+   "draws": 2000,
+   "coverage": {
+    "A3": 0.933
+   },
+   "failed": {
+    "A3": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r36_cell": 1,
+   "draws": 2000,
+   "coverage": {
+    "A3": 0.922
+   },
+   "failed": {
+    "A3": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r36_cell": 2,
+   "draws": 2000,
+   "coverage": {
+    "A3": 0.91
+   },
+   "failed": {
+    "A3": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r36_cell": 3,
+   "draws": 2000,
+   "coverage": {
+    "A3": 0.902
+   },
+   "failed": {
+    "A3": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r36_cell": 4,
+   "draws": 2000,
+   "coverage": {
+    "A3": 0.9225
+   },
+   "failed": {
+    "A3": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r36_cell": 5,
+   "draws": 2000,
+   "coverage": {
+    "A3": 0.923
+   },
+   "failed": {
+    "A3": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r36_cell": 6,
+   "draws": 2000,
+   "coverage": {
+    "A3": 0.9125
+   },
+   "failed": {
+    "A3": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r36_cell": 7,
+   "draws": 2000,
+   "coverage": {
+    "A3": 0.9015
+   },
+   "failed": {
+    "A3": 0
+   }
+  }
+ ],
+ "passed": {
+  "P1": true,
+  "P0": false,
+  "A3_ohpa": true,
+  "C1_spearman_ohpa": true,
+  "C1_kendall_ohpa": true,
+  "C1_pearson_ohpa": true
+ },
+ "criterion_commit": "669a506",
+ "draws_per_cell": 2000,
+ "seed": 20280501,
+ "frozen_sha256": {
+  "scripts/spatial_correlation_validation.py": "1f5249b7c5092e9ffabed3d610b83c26cfaa935318de39eda744a56642d916b7",
+  "census/partial_neff_core.py": "321325ba39978baf98ee653a7c0dbc84aadd5df9815623b1c22c03c6a3022df8",
+  "census/small_spatial_core.py": "da408026794b3fa4caffd3b2388dbf026d2ec78a0e9455852e55cf54aef9face",
+  "census/rank_methods.py": "f757e7d469e597d07cf094dd9125b142fa22a8ff789ece3988c1b2dd624050cc",
+  "census/index_core.py": "44cfdbd08bce2c3cc9ead65ec61804c67bcbffaee6e4f6c3b5136d73acba3078",
+  "census/simulation.py": "b0ba4c803939d8803fc8a7e702b4f70bda5f486736bd651b8630d7e1262b198e",
+  "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+  "scripts/rank_validation.py": "57d2a5793268512012c64da5591c6013f361b5ea40c7969fa50585ac062743dc",
+  "scripts/index_validation.py": "2c78b8ac76b4b613f2a91f791fd6196c5490b559fe8b35debca4c6c4b35be80a",
+  "docs/audits/rank_targets.json": "ed5912168fdb1b8a2ee3dad59e92549ccac70357e54c02b6df188ddbe7fdd23d",
+  "docs/audits/spatial_correlation_validation_criterion.md": "429a758144c0454cd0982a725c67ec56a5c62c803f9bf688d5863d7ed0133ade",
+  "docs/audits/ohpa_correlation_targets.json": "2e064376ad4961a52ae6bf69475cbc44372de8e9edba87782e2d18786508c4de",
+  "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f",
+  "docs/audits/ohpa_geometry.json": "f61210f89306468ce61ba754fe9ab4344cfd7c4f1a428bf959c321710e6d97b2"
+ }
+}

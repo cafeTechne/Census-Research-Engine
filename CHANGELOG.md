@@ -5,6 +5,17 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.56.0 (Round 59): correlations under spatial dependence
+
+- Freeze the new `census/partial_neff_core.py`, the OH/PA targets (Round 33/36 procedures on the OH/PA geometry),
+  the script and the criterion at `669a506`. 24 cells.
+- Passed: partial correlations with the effective n of the residual series (.869–.971, MI/NY and OH/PA;
+  independent-area .689); Round 48's effective-n correlations (.880–.965) and α (.901–.933) on OH/PA.
+- `validated_correlations(method="partial", coords=...)` validated (one control, replicates);
+  `NEFF_CORRELATION_VALIDATED["partial"]`, `OHPA_REPLICATED`. Goldens byte-identical.
+- Exploratory example (`docs/studies/r59_spatial_correlation_example.md`). Closes N29 and the last part of N31.
+- Acceptance: goldens byte-identical; 2117 passed, 37 skipped; 0 failures (5 new tests).
+
 ## 0.55.0 (Round 58): spatial inference outside MI/NY
 
 - Freeze the new `census/scpc_core.py` (Müller–Watson SCPC: principal components of a worst-case exponential

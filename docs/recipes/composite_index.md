@@ -10,7 +10,8 @@
    its quintile): low stability means the quintile label is fragile.
 5. Cronbach's alpha (Feldt interval) describes internal consistency; its interval is validated for
    independent areas and too narrow when areas are spatially correlated: pass `spatial=True` for the
-   effective-sample-size interval (validated in Round 48, .912-.926).
+   effective-sample-size interval (validated in Round 48, .912-.926; replicated on OH/PA in Round 59,
+   .901-.933).
 6. `typology_k` adds k-means groups with their median replicate adjusted Rand index (descriptive).
 7. Validation: `docs/audits/index_validation.md` (Round 36).
 8. Before using an index, read the loadings and alpha. In MI/NY counties (Round 36 example) "no

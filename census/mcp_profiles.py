@@ -239,7 +239,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    - pums_regression [full] model=ordered_logit|ordered_probit|mnlogit|median|probit: replicate-weight
      intervals (Round 49); never model-based SEs on PUMS.
    - correlation_matrix [full] (rank_methods): Spearman/Kendall intervals; Pearson/partial only
-     with replicates. Spatially dependent areas: spatial=True (not partial).
+     with replicates. Spatially dependent areas: spatial=True (partial too, Round 59).
    - rank_areas [full]: report rank intervals, never point ranks.
    - fit_model: method="eiv" with spatial="clusters"|"error" (corrected slopes, <=5 noisy
      covariates); model="negbin" for counts (Poisson HC3 under-covers when overdispersed;

@@ -267,7 +267,8 @@ def validated_correlations(frame: pd.DataFrame, variables: Sequence[str], method
     independent: under spatial dependence every interval under-covered (0.60-0.89) in validation.
     ``coords`` (GEOID, lon, lat; Round 48) replaces n by the Clifford-Richardson-Hemon effective
     sample size (validated for spearman, kendall and pearson with replicates under spatial
-    dependence; partial stays exploratory).
+    dependence; Round 59: partial with one control and replicates, using the effective n of the
+    residual series; all replicated on OH/PA).
     """
     from . import rank_methods as rm
     if method not in VALIDATED_VARIANT:
@@ -300,7 +301,12 @@ def validated_correlations(frame: pd.DataFrame, variables: Sequence[str], method
             z = np.column_stack([data[c][ok] for c in controls]) if controls and method == "partial" else None
             rz = (np.stack([reps[c][ok] for c in controls], axis=1)[:, 0, :] if (z is not None and variant == 2) else None)
             try:
-                if cls_all is not None and method != "partial":
+                if cls_all is not None and method == "partial":
+                    from .partial_neff_core import partial_neff
+                    out = partial_neff(data[a][ok], data[b][ok], z, cls_all[np.ix_(ok, ok)],
+                                       reps[a][ok] if variant == 2 else None, reps[b][ok] if variant == 2 else None,
+                                       rz, confidence_level)
+                elif cls_all is not None:
                     from . import small_spatial_core as ssc
                     out = ssc.correlation_neff(data[a][ok], data[b][ok], method, cls_all[np.ix_(ok, ok)], variant,
                                                reps[a][ok] if variant == 2 else None, reps[b][ok] if variant == 2 else None,
@@ -318,8 +324,8 @@ def validated_correlations(frame: pd.DataFrame, variables: Sequence[str], method
             note = "" if validated else (
                 "EXPLORATORY: needs ACS replicates for a validated interval" if variant != want else
                 "EXPLORATORY: partial correlation validated with one control")
-            if cls_all is not None and method == "partial":
-                validated, note = False, "EXPLORATORY: no spatial correction for partial correlations (Round 48)"
+            if cls_all is not None and method == "partial" and validated:
+                note = "partial correlation with the effective n of the residual series (Round 59)"
             row = dict(var_a=a, var_b=b, n=int(ok.sum()), estimate=out["estimate"], ci_lower=out["lower"],
                        ci_upper=out["upper"], variant=variant, validated=validated, note=note)
             if "n_eff" in out:
