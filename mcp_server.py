@@ -187,8 +187,9 @@ is far too liberal; Wald proportion intervals under-cover for rare outcomes in s
 domains; larger tables are exploratory. No continuity corrections: empty 2x2 cells are refused.
 Round 56: test_association(kind="inequality", var=<nonnegative income>[, by=<two groups>]) gives
 the Gini coefficient (.861-.908), log P90/P10 and log P80/P20 (.888-.923) and the Gini difference
-between two groups (.873-.899), all validated with SDR replicate variance; Theil T, Atkinson and the
-top-decile share failed (.811-.858 in the worst cells) and are exploratory. Zero incomes stay in the
+between two groups (.873-.899), all validated with SDR replicate variance. Round 60: with logit-transformed
+SDR intervals Atkinson (eps 1) is validated, and Atkinson (.5) and the top-decile share with at least 7,000
+records; Theil T still failed (exploratory). Results name the interval method. Zero incomes stay in the
 Gini; negative incomes are refused; heaped quantiles are flagged as for medians.
 
 Round 33 rank methods (recipe rank_methods): correlation_matrix returns

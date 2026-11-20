@@ -5,6 +5,19 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.57.0 (Round 60): PUMS inequality repairs
+
+- Freeze `transformed_summary`, `bias_corrected` (in `census/pums_inequality_core.py`), the script and the criterion
+  at `60a3b06`. Round 56's generator, cells, incomes and targets.
+- Passed with logit-transformed SDR intervals: Atkinson (ε 1) everywhere (.872–.893); Atkinson (ε .5) and the
+  top-decile share with at least 7,000 records (≥ .871 at 3,000 households). Failed: Theil T (.820; .859 at 3,000
+  households). The SDR bias correction lowered coverage and was not adopted.
+- `pums_inequality`: `REPAIRED` measures use the transformed interval and the record gate; new `interval` column.
+  Goldens byte-identical.
+- Exploratory example (`docs/studies/r60_inequality_repair_example.md`). Closes N32 except Theil T;
+  `ROADMAP_BACKLOG.md` Rounds 57–60 complete.
+- Acceptance: goldens byte-identical; 2121 passed, 37 skipped; 0 failures (4 new tests).
+
 ## 0.56.0 (Round 59): correlations under spatial dependence
 
 - Freeze the new `census/partial_neff_core.py`, the OH/PA targets (Round 33/36 procedures on the OH/PA geometry),

@@ -19,8 +19,8 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_60.md` (PUMS inequality repairs). Implement only the lowest-numbered plan. Merged plans are archived (below) |
-| `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–56 complete; Rounds 57–60 planned): the backlog below plus issues N1–N36 |
+| `PLAN_ROUND_<n>.md` | None queued: `ROADMAP_BACKLOG.md` Rounds 43–60 are complete. When a plan exists, implement only the lowest-numbered one. Merged plans are archived (below) |
+| `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–60, complete): the backlog below plus issues N1–N36 (recorded limits: N35, N36; Theil T exploratory) |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
@@ -68,6 +68,7 @@ manifests refuse them in confirmatory analyses.
 | Combining evidence (`combine_estimates`) | **Passed selected**: Paule–Mandel + Hartung–Knapp pooling for 2–4 estimates (.885–.911; 5–10 with truncation since Round 48); fixed effect only when homogeneity is declared in advance; TOST equivalence; z-test power. DerSimonian–Laird failed with heterogeneity (.82–.84) | `evidence_validation.md`, criterion `3edd5f4` |
 | Agreement between sources (`check_agreement`) | **Passed selected**: bias (.894–.900) and kappa of quintile classes (.883–.912). Failed (estimates only, intervals exploratory): Bland–Altman limits observed (.838) and error-free (.826; both repaired in Round 48), Lin's CCC (.859) and corrected CCC (.38–.77) | `agreement_validation.md`, criterion `e6d4be6` |
 | Composite index scores and Cronbach's α (`build_index`) | **Passed**: per-area score intervals (PCA and equal weights; mean coverage .898–.899, every area ≥ .874); Feldt α interval for independent areas (.891–.912; under-covers with spatial dependence, .58–.67; Round 48 effective-n repair). Quintile stability and typologies descriptive | `index_validation.md`, criterion `e86907d` |
+| PUMS inequality repairs (Round 60) | **Passed** with logit-transformed SDR intervals: Atkinson (ε 1) everywhere (.872–.893); Atkinson (ε .5) and the top-decile share with at least 7,000 records (≥ .871 at 3,000 households). **Failed**: Theil T (.820, .859 at 3,000 households); the SDR bias correction lowered coverage | `pums_inequality_repair_validation.md`, criterion `60a3b06` |
 | Correlations under spatial dependence (Round 59) | **Passed**: partial correlations with the effective n of the residual series (one control, replicates; .869–.971 on MI/NY and OH/PA; independent-area partial .689); Round 48's effective-n Spearman, Kendall, Pearson (.880–.965) and α (.901–.933) replicate on OH/PA | `spatial_correlation_validation.md`, criterion `669a506` |
 | Spatial inference outside MI/NY (Round 58) | **Passed**: SCPC intervals for naive slopes on MI/NY and OH/PA, OLS with ρ̄ .05 (.861–.930) and Poisson with ρ̄ .10 (.863–.934); G1/G2 with three to five error-prone covariates when every reliability is ≥ .8 (.886–.934, both regions); calibrated binomial slopes with IM-8 (.877–.907). **Failed**: binomial SCPC (.793/.846); IM-8 OLS in the low-reliability, correlated MI/NY cell confirmed at .858 (10,000 draws) | `spatial_outside_validation.md`, criterion `e8c6c8c` |
 | Segregation gaps (Round 57) | **Passed**: clipped replicates on race designs above noise .50 (bias-corrected isolation to .75, two-group H to 1.0, four- and five-group H at any finite level; D stays at .50); six-group bias-corrected H at any finite level; same-release county contrasts to .50 for every variant except corrected D (.855). Group-quarters tract exclusion added as a definitional option | `segregation_gaps_validation.md`, criterion `8bcad0b` |
@@ -134,6 +135,12 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 60 (v0.57.0; merged, release pending owner approval; implemented by the maintainer agent):**
+PUMS inequality repairs (criterion `60a3b06`): logit-transformed SDR intervals validate Atkinson (ε 1) and, from
+7,000 records, Atkinson (ε .5) and the top-decile share; Theil T stays exploratory. `pums_inequality` reports the
+interval method and applies the record gate. Exploratory example (`r60_inequality_repair_example.md`). Goldens
+unchanged. Acceptance: 2121 passed, 37 skipped; 0 failures.
 
 **Round 59 (v0.56.0; merged, release pending owner approval; implemented by the maintainer agent):**
 correlations under spatial dependence (criterion `669a506`): effective-n partial correlations validated
@@ -350,6 +357,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 60 | Michigan earnings and income inequality with the repaired intervals (exploratory example) | Atkinson and top-decile share now validated at state scale (top 10% of adults 25+ receive 37% of personal income); Theil T still exploratory; `r60_inequality_repair_example.md` |
 | 59 | OH/PA county correlations with the spatial correction (exploratory example) | Child poverty and log income: n_eff 78 of 155, spatial interval ~50% wider (−.68, −.77 to −.56); partial poverty–unemployment given income stays positive (exploratory without replicates); `r59_spatial_correlation_example.md` |
 | 58 | OH/PA county child poverty with SCPC (exploratory example) | Validated SCPC interval for the unemployment slope 1.23 (0.26–2.21), about 60% wider than HC3 and still excluding zero; `r58_scpc_example.md` |
 | 57 | Race/ethnicity segregation with group-quarters tracts excluded, MI/NY (exploratory example) | Validated counties rise to 114 (Black–non-Black) and 130 (four groups); without group-quarters tracts Wyoming's H falls from .519 to .040 and Greene's from .426 to .131; Wayne minus Oakland H .164 (.148–.179); `r57_segregation_gaps_example.md` |
