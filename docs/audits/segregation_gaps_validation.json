@@ -1,0 +1,3789 @@
+{
+ "criterion_commit": "8bcad0b",
+ "draws_per_cell": 2000,
+ "seed": 20280301,
+ "frozen_sha256": {
+  "scripts/segregation_gaps_validation.py": "8c4d5789b58afbb5a579816135519868181c51b6402c6c7b670af63e13ee0d17",
+  "scripts/segregation_groups_validation.py": "63bd2552879c12e404c134102c458384eedc8f0f7ec1fcdca99970bf88ea186b",
+  "scripts/segregation_realistic_validation.py": "4189fb28304f5f7d71d7bf393cb3c1d17ca81e53f3cb2a5e8524f50cdcefe7ee",
+  "scripts/negative_replicates_validation.py": "7415a0b24c66a0e3a215b63928b5bc1322d90bc361497e5e9ee5c0f90c10f67d",
+  "scripts/segregation_r57_counts.py": "837729316be275fc0fb81caf357b99c18d8328083bde3aa7c1ddefe266e905ae",
+  "census/segregation.py": "9d6ca4290204fb476f516c436affe1351ad19abfdca3bb3a3131e145b85bb5fa",
+  "docs/audits/segregation_r57_counts.csv.gz": "b6886050f5514e9a3a74881cd5a31c5c83dca7e376ad2f76b0b18f5760060e3d",
+  "docs/audits/segregation_groups_counts.csv.gz": "5e44442cc058e91f0d7010878b5d930e1bc249d1df1f8124092b2be4ea29bee1",
+  "docs/audits/segregation_realistic_counts.csv.gz": "f6e9696068afadb153dbbf35972416c1e6faa490bcff4435c8155eb16f5fee4c",
+  "docs/audits/segregation_gaps_validation_criterion.md": "377f5d96bb93a2db55bc6f964751d33f684f14b9d93d87570585cec16411c98b"
+ },
+ "designs": {
+  "black2": {
+   "kind": "A",
+   "units": 137,
+   "noise_bins": [
+    0,
+    2,
+    20,
+    57,
+    34,
+    17
+   ],
+   "infinite_noise": 7,
+   "procedures": {
+    "D_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 2,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.6859999999999999,
+         "share_ge_80": 0.5,
+         "min": 0.5645
+        },
+        "-0.3": {
+         "mean": 0.6405,
+         "share_ge_80": 0.0,
+         "min": 0.5235
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 4000,
+         "coverage": 0.686
+        },
+        "-0.3": {
+         "pairs": 4000,
+         "coverage": 0.6405
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 20,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.768725,
+         "share_ge_80": 0.3,
+         "min": 0.5605
+        },
+        "-0.3": {
+         "mean": 0.74815,
+         "share_ge_80": 0.25,
+         "min": 0.5335
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 40000,
+         "coverage": 0.768725
+        },
+        "-0.3": {
+         "pairs": 39999,
+         "coverage": 0.7481437035925899
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 57,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8591228070175438,
+         "share_ge_80": 0.8245614035087719,
+         "min": 0.322
+        },
+        "-0.3": {
+         "mean": 0.8505263157894736,
+         "share_ge_80": 0.8245614035087719,
+         "min": 0.2975
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 111123,
+         "coverage": 0.8568523168021022
+        },
+        "-0.3": {
+         "pairs": 111045,
+         "coverage": 0.8479625377099375
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 34,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8521764705882352,
+         "share_ge_80": 0.8823529411764706,
+         "min": 0.6055
+        },
+        "-0.3": {
+         "mean": 0.8437352941176471,
+         "share_ge_80": 0.8529411764705882,
+         "min": 0.591
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 67020,
+         "coverage": 0.8524470307370934
+        },
+        "-0.3": {
+         "pairs": 67050,
+         "coverage": 0.8435346756152126
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 17,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8625882352941177,
+         "share_ge_80": 0.9411764705882353,
+         "min": 0.735
+        },
+        "-0.3": {
+         "mean": 0.8574999999999999,
+         "share_ge_80": 0.9411764705882353,
+         "min": 0.7235
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 32491,
+         "coverage": 0.8734418762118741
+        },
+        "-0.3": {
+         "pairs": 32556,
+         "coverage": 0.8688106647008232
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": null,
+     "failed_draws": {
+      "0.0": 422,
+      "-0.3": 423
+     }
+    },
+    "I_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 2,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.938,
+         "share_ge_80": 1.0,
+         "min": 0.9025
+        },
+        "-0.3": {
+         "mean": 0.9610000000000001,
+         "share_ge_80": 1.0,
+         "min": 0.9395
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 4000,
+         "coverage": 0.938
+        },
+        "-0.3": {
+         "pairs": 4000,
+         "coverage": 0.961
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 20,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9094749999999999,
+         "share_ge_80": 1.0,
+         "min": 0.885
+        },
+        "-0.3": {
+         "mean": 0.9127749999999999,
+         "share_ge_80": 1.0,
+         "min": 0.8855
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 40000,
+         "coverage": 0.909475
+        },
+        "-0.3": {
+         "pairs": 39999,
+         "coverage": 0.9127978199454987
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 57,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8612280701754387,
+         "share_ge_80": 0.9649122807017544,
+         "min": 0.767
+        },
+        "-0.3": {
+         "mean": 0.8702280701754385,
+         "share_ge_80": 0.9824561403508771,
+         "min": 0.7505
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 111123,
+         "coverage": 0.8608748863871566
+        },
+        "-0.3": {
+         "pairs": 111045,
+         "coverage": 0.8700436759872124
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 34,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8431470588235294,
+         "share_ge_80": 0.8235294117647058,
+         "min": 0.728
+        },
+        "-0.3": {
+         "mean": 0.8465882352941176,
+         "share_ge_80": 0.8529411764705882,
+         "min": 0.7545
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 67020,
+         "coverage": 0.842882721575649
+        },
+        "-0.3": {
+         "pairs": 67050,
+         "coverage": 0.8462639821029083
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 17,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8204117647058823,
+         "share_ge_80": 0.7647058823529411,
+         "min": 0.667
+        },
+        "-0.3": {
+         "mean": 0.8287058823529412,
+         "share_ge_80": 0.8235294117647058,
+         "min": 0.6925
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 32491,
+         "coverage": 0.8201348065618171
+        },
+        "-0.3": {
+         "pairs": 32556,
+         "coverage": 0.828080845312692
+        }
+       },
+       "affected_ok": false
+      }
+     ],
+     "validated_max_noise": 0.75,
+     "failed_draws": {
+      "0.0": 422,
+      "-0.3": 423
+     }
+    },
+    "H_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 2,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.9930000000000001,
+         "share_ge_80": 1.0,
+         "min": 0.9885
+        },
+        "-0.3": {
+         "mean": 0.99775,
+         "share_ge_80": 1.0,
+         "min": 0.9965
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 4000,
+         "coverage": 0.993
+        },
+        "-0.3": {
+         "pairs": 4000,
+         "coverage": 0.99775
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 20,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9606,
+         "share_ge_80": 1.0,
+         "min": 0.931
+        },
+        "-0.3": {
+         "mean": 0.9617999999999999,
+         "share_ge_80": 1.0,
+         "min": 0.919
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 40000,
+         "coverage": 0.9606
+        },
+        "-0.3": {
+         "pairs": 39999,
+         "coverage": 0.96182404560114
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 57,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9233947368421054,
+         "share_ge_80": 0.9824561403508771,
+         "min": 0.796
+        },
+        "-0.3": {
+         "mean": 0.9244298245614034,
+         "share_ge_80": 0.9824561403508771,
+         "min": 0.784
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 111123,
+         "coverage": 0.9251010141914815
+        },
+        "-0.3": {
+         "pairs": 111045,
+         "coverage": 0.9262821378720338
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 34,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8989411764705882,
+         "share_ge_80": 1.0,
+         "min": 0.809
+        },
+        "-0.3": {
+         "mean": 0.8986176470588235,
+         "share_ge_80": 1.0,
+         "min": 0.8145
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 67020,
+         "coverage": 0.9006863622799165
+        },
+        "-0.3": {
+         "pairs": 67050,
+         "coverage": 0.9000149142431022
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 17,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8508529411764705,
+         "share_ge_80": 0.9411764705882353,
+         "min": 0.7785
+        },
+        "-0.3": {
+         "mean": 0.8505588235294118,
+         "share_ge_80": 0.9411764705882353,
+         "min": 0.775
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 32491,
+         "coverage": 0.8593148871995322
+        },
+        "-0.3": {
+         "pairs": 32556,
+         "coverage": 0.8603022484334685
+        }
+       },
+       "affected_ok": false
+      }
+     ],
+     "validated_max_noise": 1.0,
+     "failed_draws": {
+      "0.0": 422,
+      "-0.3": 423
+     }
+    },
+    "H_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 2,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.6154999999999999,
+         "share_ge_80": 0.0,
+         "min": 0.598
+        },
+        "-0.3": {
+         "mean": 0.5945,
+         "share_ge_80": 0.0,
+         "min": 0.574
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 4000,
+         "coverage": 0.6155
+        },
+        "-0.3": {
+         "pairs": 4000,
+         "coverage": 0.5945
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 20,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.7659,
+         "share_ge_80": 0.5,
+         "min": 0.5075
+        },
+        "-0.3": {
+         "mean": 0.7504,
+         "share_ge_80": 0.35,
+         "min": 0.4805
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 40000,
+         "coverage": 0.7659
+        },
+        "-0.3": {
+         "pairs": 39999,
+         "coverage": 0.7503937598439961
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 57,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8635614035087721,
+         "share_ge_80": 0.8947368421052632,
+         "min": 0.515
+        },
+        "-0.3": {
+         "mean": 0.8585526315789475,
+         "share_ge_80": 0.8947368421052632,
+         "min": 0.498
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 111123,
+         "coverage": 0.8618827785426959
+        },
+        "-0.3": {
+         "pairs": 111045,
+         "coverage": 0.8568418208834256
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 34,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8739558823529412,
+         "share_ge_80": 0.9117647058823529,
+         "min": 0.688
+        },
+        "-0.3": {
+         "mean": 0.8682058823529413,
+         "share_ge_80": 0.9117647058823529,
+         "min": 0.6625
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 67020,
+         "coverage": 0.8746045956430916
+        },
+        "-0.3": {
+         "pairs": 67050,
+         "coverage": 0.8686353467561522
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 17,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8638235294117648,
+         "share_ge_80": 0.8235294117647058,
+         "min": 0.734
+        },
+        "-0.3": {
+         "mean": 0.8611470588235293,
+         "share_ge_80": 0.8235294117647058,
+         "min": 0.7395
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 32491,
+         "coverage": 0.8734726539657136
+        },
+        "-0.3": {
+         "pairs": 32556,
+         "coverage": 0.8713294016463939
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": null,
+     "failed_draws": {
+      "0.0": 422,
+      "-0.3": 423
+     }
+    },
+    "D_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 2,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.915,
+         "share_ge_80": 1.0,
+         "min": 0.8695
+        },
+        "-0.3": {
+         "mean": 0.9195,
+         "share_ge_80": 1.0,
+         "min": 0.8675
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 4000,
+         "coverage": 0.915
+        },
+        "-0.3": {
+         "pairs": 4000,
+         "coverage": 0.9195
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 20,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8888,
+         "share_ge_80": 1.0,
+         "min": 0.8635
+        },
+        "-0.3": {
+         "mean": 0.89505,
+         "share_ge_80": 1.0,
+         "min": 0.866
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 40000,
+         "coverage": 0.8888
+        },
+        "-0.3": {
+         "pairs": 39999,
+         "coverage": 0.8950723768094202
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 57,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8582807017543859,
+         "share_ge_80": 0.9649122807017544,
+         "min": 0.7655
+        },
+        "-0.3": {
+         "mean": 0.8565263157894736,
+         "share_ge_80": 0.9649122807017544,
+         "min": 0.7485
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 111123,
+         "coverage": 0.8580491887368051
+        },
+        "-0.3": {
+         "pairs": 111045,
+         "coverage": 0.856571660137782
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 34,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8300147058823529,
+         "share_ge_80": 0.7647058823529411,
+         "min": 0.7295
+        },
+        "-0.3": {
+         "mean": 0.8276029411764706,
+         "share_ge_80": 0.8235294117647058,
+         "min": 0.737
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 67020,
+         "coverage": 0.8316472694717995
+        },
+        "-0.3": {
+         "pairs": 67050,
+         "coverage": 0.8284265473527218
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 17,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.7914705882352941,
+         "share_ge_80": 0.4117647058823529,
+         "min": 0.7245
+        },
+        "-0.3": {
+         "mean": 0.7889411764705883,
+         "share_ge_80": 0.4117647058823529,
+         "min": 0.712
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 32491,
+         "coverage": 0.8002215998276446
+        },
+        "-0.3": {
+         "pairs": 32556,
+         "coverage": 0.7988082073964861
+        }
+       },
+       "affected_ok": false
+      }
+     ],
+     "validated_max_noise": 0.5,
+     "failed_draws": {
+      "0.0": 422,
+      "-0.3": 423
+     }
+    },
+    "I_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 2,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.6597500000000001,
+         "share_ge_80": 0.0,
+         "min": 0.6445
+        },
+        "-0.3": {
+         "mean": 0.64975,
+         "share_ge_80": 0.0,
+         "min": 0.6295
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 4000,
+         "coverage": 0.65975
+        },
+        "-0.3": {
+         "pairs": 4000,
+         "coverage": 0.64975
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 20,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8055000000000001,
+         "share_ge_80": 0.65,
+         "min": 0.615
+        },
+        "-0.3": {
+         "mean": 0.7916249999999999,
+         "share_ge_80": 0.55,
+         "min": 0.5695
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 40000,
+         "coverage": 0.8055
+        },
+        "-0.3": {
+         "pairs": 39999,
+         "coverage": 0.7916197904947624
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 57,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.858780701754386,
+         "share_ge_80": 0.8947368421052632,
+         "min": 0.6685
+        },
+        "-0.3": {
+         "mean": 0.8626228070175439,
+         "share_ge_80": 0.9122807017543859,
+         "min": 0.6625
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 111123,
+         "coverage": 0.8581121819965264
+        },
+        "-0.3": {
+         "pairs": 111045,
+         "coverage": 0.862109955423477
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 34,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8736470588235292,
+         "share_ge_80": 0.9411764705882353,
+         "min": 0.7225
+        },
+        "-0.3": {
+         "mean": 0.8750588235294119,
+         "share_ge_80": 0.9117647058823529,
+         "min": 0.747
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 67020,
+         "coverage": 0.8738883915249179
+        },
+        "-0.3": {
+         "pairs": 67050,
+         "coverage": 0.8755257270693513
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 17,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8765000000000001,
+         "share_ge_80": 0.9411764705882353,
+         "min": 0.769
+        },
+        "-0.3": {
+         "mean": 0.8811764705882354,
+         "share_ge_80": 0.9411764705882353,
+         "min": 0.79
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 32491,
+         "coverage": 0.8789203163953094
+        },
+        "-0.3": {
+         "pairs": 32556,
+         "coverage": 0.8835852070278905
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": null,
+     "failed_draws": {
+      "0.0": 422,
+      "-0.3": 423
+     }
+    }
+   }
+  },
+  "hisp2": {
+   "kind": "A",
+   "units": 137,
+   "noise_bins": [
+    0,
+    14,
+    83,
+    39,
+    1,
+    0
+   ],
+   "infinite_noise": 0,
+   "procedures": {
+    "D_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 14,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.7362142857142856,
+         "share_ge_80": 0.35714285714285715,
+         "min": 0.3585
+        },
+        "-0.3": {
+         "mean": 0.7107857142857145,
+         "share_ge_80": 0.2857142857142857,
+         "min": 0.3145
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 20212,
+         "coverage": 0.6904809024341975
+        },
+        "-0.3": {
+         "pairs": 20223,
+         "coverage": 0.6602877911289127
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 83,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8195843373493975,
+         "share_ge_80": 0.6867469879518072,
+         "min": 0.2675
+        },
+        "-0.3": {
+         "mean": 0.812343373493976,
+         "share_ge_80": 0.6746987951807228,
+         "min": 0.236
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 146654,
+         "coverage": 0.8045808501643323
+        },
+        "-0.3": {
+         "pairs": 146686,
+         "coverage": 0.7965654527357757
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 39,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.790448717948718,
+         "share_ge_80": 0.6410256410256411,
+         "min": 0.238
+        },
+        "-0.3": {
+         "mean": 0.7799615384615386,
+         "share_ge_80": 0.6153846153846154,
+         "min": 0.22
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 76295,
+         "coverage": 0.786801232059768
+        },
+        "-0.3": {
+         "pairs": 76327,
+         "coverage": 0.7760163507015866
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 1,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.8605,
+         "share_ge_80": 1.0,
+         "min": 0.8605
+        },
+        "-0.3": {
+         "mean": 0.8625,
+         "share_ge_80": 1.0,
+         "min": 0.8625
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 1997,
+         "coverage": 0.8607911867801703
+        },
+        "-0.3": {
+         "pairs": 2000,
+         "coverage": 0.8625
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": null,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    },
+    "I_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 14,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9096071428571427,
+         "share_ge_80": 1.0,
+         "min": 0.8635
+        },
+        "-0.3": {
+         "mean": 0.915607142857143,
+         "share_ge_80": 1.0,
+         "min": 0.8705
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 20212,
+         "coverage": 0.9222738966950327
+        },
+        "-0.3": {
+         "pairs": 20223,
+         "coverage": 0.9295851258468081
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 83,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8766204819277109,
+         "share_ge_80": 1.0,
+         "min": 0.824
+        },
+        "-0.3": {
+         "mean": 0.8836385542168674,
+         "share_ge_80": 1.0,
+         "min": 0.834
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 146654,
+         "coverage": 0.877582609407176
+        },
+        "-0.3": {
+         "pairs": 146686,
+         "coverage": 0.8846038476746247
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 39,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8725641025641026,
+         "share_ge_80": 1.0,
+         "min": 0.828
+        },
+        "-0.3": {
+         "mean": 0.8793589743589743,
+         "share_ge_80": 1.0,
+         "min": 0.834
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 76295,
+         "coverage": 0.8729929877449374
+        },
+        "-0.3": {
+         "pairs": 76327,
+         "coverage": 0.8795052864648158
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 1,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.8455,
+         "share_ge_80": 1.0,
+         "min": 0.8455
+        },
+        "-0.3": {
+         "mean": 0.832,
+         "share_ge_80": 1.0,
+         "min": 0.832
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 1997,
+         "coverage": 0.8457686529794692
+        },
+        "-0.3": {
+         "pairs": 2000,
+         "coverage": 0.832
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": 0.75,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    },
+    "H_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 14,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9611428571428572,
+         "share_ge_80": 1.0,
+         "min": 0.9115
+        },
+        "-0.3": {
+         "mean": 0.9640714285714286,
+         "share_ge_80": 1.0,
+         "min": 0.909
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 20212,
+         "coverage": 0.9749653671086483
+        },
+        "-0.3": {
+         "pairs": 20223,
+         "coverage": 0.9776492112940711
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 83,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9488313253012048,
+         "share_ge_80": 1.0,
+         "min": 0.87
+        },
+        "-0.3": {
+         "mean": 0.950487951807229,
+         "share_ge_80": 1.0,
+         "min": 0.8855
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 146654,
+         "coverage": 0.9561143916974648
+        },
+        "-0.3": {
+         "pairs": 146686,
+         "coverage": 0.9576987578910052
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 39,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9494871794871793,
+         "share_ge_80": 1.0,
+         "min": 0.897
+        },
+        "-0.3": {
+         "mean": 0.9495897435897436,
+         "share_ge_80": 1.0,
+         "min": 0.891
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 76295,
+         "coverage": 0.952015204141818
+        },
+        "-0.3": {
+         "pairs": 76327,
+         "coverage": 0.9524676719902525
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 1,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.9215,
+         "share_ge_80": 1.0,
+         "min": 0.9215
+        },
+        "-0.3": {
+         "mean": 0.9185,
+         "share_ge_80": 1.0,
+         "min": 0.9185
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 1997,
+         "coverage": 0.9218828242363545
+        },
+        "-0.3": {
+         "pairs": 2000,
+         "coverage": 0.9185
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": 0.75,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    },
+    "H_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 14,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8094642857142859,
+         "share_ge_80": 0.5,
+         "min": 0.6005
+        },
+        "-0.3": {
+         "mean": 0.7929285714285716,
+         "share_ge_80": 0.42857142857142855,
+         "min": 0.563
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 20212,
+         "coverage": 0.7603403918464279
+        },
+        "-0.3": {
+         "pairs": 20223,
+         "coverage": 0.7380210651238689
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 83,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8786686746987951,
+         "share_ge_80": 0.8433734939759037,
+         "min": 0.5765
+        },
+        "-0.3": {
+         "mean": 0.8751746987951808,
+         "share_ge_80": 0.8313253012048193,
+         "min": 0.539
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 146654,
+         "coverage": 0.8691409712657002
+        },
+        "-0.3": {
+         "pairs": 146686,
+         "coverage": 0.8647246499325089
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 39,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8372307692307692,
+         "share_ge_80": 0.6666666666666666,
+         "min": 0.505
+        },
+        "-0.3": {
+         "mean": 0.830730769230769,
+         "share_ge_80": 0.6666666666666666,
+         "min": 0.4975
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 76295,
+         "coverage": 0.8348777770496101
+        },
+        "-0.3": {
+         "pairs": 76327,
+         "coverage": 0.8281997196273927
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 1,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.8985,
+         "share_ge_80": 1.0,
+         "min": 0.8985
+        },
+        "-0.3": {
+         "mean": 0.8965,
+         "share_ge_80": 1.0,
+         "min": 0.8965
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 1997,
+         "coverage": 0.8988482724086129
+        },
+        "-0.3": {
+         "pairs": 2000,
+         "coverage": 0.8965
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": null,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    },
+    "D_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 14,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.908,
+         "share_ge_80": 1.0,
+         "min": 0.848
+        },
+        "-0.3": {
+         "mean": 0.9107500000000002,
+         "share_ge_80": 1.0,
+         "min": 0.848
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 20212,
+         "coverage": 0.9197011676231941
+        },
+        "-0.3": {
+         "pairs": 20223,
+         "coverage": 0.9245413637937002
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 83,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8845783132530121,
+         "share_ge_80": 1.0,
+         "min": 0.821
+        },
+        "-0.3": {
+         "mean": 0.88494578313253,
+         "share_ge_80": 1.0,
+         "min": 0.8135
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 146654,
+         "coverage": 0.8856969465544752
+        },
+        "-0.3": {
+         "pairs": 146686,
+         "coverage": 0.8861990919378809
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 39,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8776923076923077,
+         "share_ge_80": 1.0,
+         "min": 0.81
+        },
+        "-0.3": {
+         "mean": 0.8768589743589743,
+         "share_ge_80": 1.0,
+         "min": 0.809
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 76295,
+         "coverage": 0.8787076479454748
+        },
+        "-0.3": {
+         "pairs": 76327,
+         "coverage": 0.8779724081910726
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 1,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.8,
+         "share_ge_80": 1.0,
+         "min": 0.8
+        },
+        "-0.3": {
+         "mean": 0.797,
+         "share_ge_80": 0.0,
+         "min": 0.797
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 1997,
+         "coverage": 0.800200300450676
+        },
+        "-0.3": {
+         "pairs": 2000,
+         "coverage": 0.797
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": 0.75,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    },
+    "I_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 14,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8069285714285714,
+         "share_ge_80": 0.5714285714285714,
+         "min": 0.582
+        },
+        "-0.3": {
+         "mean": 0.7890714285714285,
+         "share_ge_80": 0.42857142857142855,
+         "min": 0.5205
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 20212,
+         "coverage": 0.7794379576489214
+        },
+        "-0.3": {
+         "pairs": 20223,
+         "coverage": 0.7558720269000643
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 83,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8429939759036144,
+         "share_ge_80": 0.8313253012048193,
+         "min": 0.5405
+        },
+        "-0.3": {
+         "mean": 0.8446566265060239,
+         "share_ge_80": 0.8433734939759037,
+         "min": 0.501
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 146654,
+         "coverage": 0.8393293057127661
+        },
+        "-0.3": {
+         "pairs": 146686,
+         "coverage": 0.8404892082407319
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 39,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8176666666666667,
+         "share_ge_80": 0.6923076923076923,
+         "min": 0.5555
+        },
+        "-0.3": {
+         "mean": 0.8198846153846154,
+         "share_ge_80": 0.717948717948718,
+         "min": 0.558
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 76295,
+         "coverage": 0.8167900910937808
+        },
+        "-0.3": {
+         "pairs": 76327,
+         "coverage": 0.8187404195107891
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 1,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.8825,
+         "share_ge_80": 1.0,
+         "min": 0.8825
+        },
+        "-0.3": {
+         "mean": 0.8855,
+         "share_ge_80": 1.0,
+         "min": 0.8855
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 1997,
+         "coverage": 0.8823234852278418
+        },
+        "-0.3": {
+         "pairs": 2000,
+         "coverage": 0.8855
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": null,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    }
+   }
+  },
+  "race4": {
+   "kind": "A",
+   "units": 137,
+   "noise_bins": [
+    0,
+    0,
+    17,
+    62,
+    34,
+    17
+   ],
+   "infinite_noise": 7,
+   "procedures": {
+    "H_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 17,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9949411764705883,
+         "share_ge_80": 1.0,
+         "min": 0.9775
+        },
+        "-0.3": {
+         "mean": 0.9961764705882352,
+         "share_ge_80": 1.0,
+         "min": 0.981
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 34000,
+         "coverage": 0.9949411764705882
+        },
+        "-0.3": {
+         "pairs": 34000,
+         "coverage": 0.9961764705882353
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 62,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9722822580645161,
+         "share_ge_80": 1.0,
+         "min": 0.9225
+        },
+        "-0.3": {
+         "mean": 0.9750483870967742,
+         "share_ge_80": 1.0,
+         "min": 0.922
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 123039,
+         "coverage": 0.9726428205690878
+        },
+        "-0.3": {
+         "pairs": 123128,
+         "coverage": 0.9755132869859009
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 34,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9626029411764707,
+         "share_ge_80": 1.0,
+         "min": 0.9105
+        },
+        "-0.3": {
+         "mean": 0.9621617647058822,
+         "share_ge_80": 1.0,
+         "min": 0.9115
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 67669,
+         "coverage": 0.9629224608018443
+        },
+        "-0.3": {
+         "pairs": 67710,
+         "coverage": 0.9625018461084035
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 17,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9480588235294118,
+         "share_ge_80": 1.0,
+         "min": 0.9
+        },
+        "-0.3": {
+         "mean": 0.9530294117647058,
+         "share_ge_80": 1.0,
+         "min": 0.912
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 33616,
+         "coverage": 0.9482984293193717
+        },
+        "-0.3": {
+         "pairs": 33668,
+         "coverage": 0.9533384816442914
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": "inf",
+     "failed_draws": {
+      "0.0": 405,
+      "-0.3": 418
+     }
+    },
+    "H_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.3": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 17,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.6323529411764705,
+         "share_ge_80": 0.0,
+         "min": 0.3185
+        },
+        "-0.3": {
+         "mean": 0.5809117647058822,
+         "share_ge_80": 0.0,
+         "min": 0.2615
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 34000,
+         "coverage": 0.6323529411764706
+        },
+        "-0.3": {
+         "pairs": 34000,
+         "coverage": 0.5809117647058823
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 62,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.7617983870967742,
+         "share_ge_80": 0.5161290322580645,
+         "min": 0.2385
+        },
+        "-0.3": {
+         "mean": 0.7317258064516129,
+         "share_ge_80": 0.3387096774193548,
+         "min": 0.1625
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 123039,
+         "coverage": 0.760336153577321
+        },
+        "-0.3": {
+         "pairs": 123128,
+         "coverage": 0.7302157104801508
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 34,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8143676470588235,
+         "share_ge_80": 0.5588235294117647,
+         "min": 0.643
+        },
+        "-0.3": {
+         "mean": 0.7927205882352941,
+         "share_ge_80": 0.5588235294117647,
+         "min": 0.616
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 67669,
+         "coverage": 0.813917746678686
+        },
+        "-0.3": {
+         "pairs": 67710,
+         "coverage": 0.792261113572589
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 17,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8380588235294117,
+         "share_ge_80": 0.7647058823529411,
+         "min": 0.6105
+        },
+        "-0.3": {
+         "mean": 0.8252941176470588,
+         "share_ge_80": 0.7058823529411765,
+         "min": 0.596
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 33616,
+         "coverage": 0.8372501189909567
+        },
+        "-0.3": {
+         "pairs": 33668,
+         "coverage": 0.8247297136747059
+        }
+       },
+       "affected_ok": false
+      }
+     ],
+     "validated_max_noise": null,
+     "failed_draws": {
+      "0.0": 405,
+      "-0.3": 418
+     }
+    }
+   }
+  },
+  "race5": {
+   "kind": "A",
+   "units": 137,
+   "noise_bins": [
+    0,
+    0,
+    4,
+    40,
+    37,
+    35
+   ],
+   "infinite_noise": 21,
+   "procedures": {
+    "H_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.2": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.2": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.2": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.2": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 4,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.99975,
+         "share_ge_80": 1.0,
+         "min": 0.999
+        },
+        "-0.2": {
+         "mean": 1.0,
+         "share_ge_80": 1.0,
+         "min": 1.0
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 8000,
+         "coverage": 0.99975
+        },
+        "-0.2": {
+         "pairs": 8000,
+         "coverage": 1.0
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 40,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9865124999999999,
+         "share_ge_80": 1.0,
+         "min": 0.934
+        },
+        "-0.2": {
+         "mean": 0.986575,
+         "share_ge_80": 1.0,
+         "min": 0.915
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 79936,
+         "coverage": 0.9865642514011209
+        },
+        "-0.2": {
+         "pairs": 79957,
+         "coverage": 0.9866053003489376
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 37,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9683378378378378,
+         "share_ge_80": 1.0,
+         "min": 0.913
+        },
+        "-0.2": {
+         "mean": 0.9704054054054052,
+         "share_ge_80": 1.0,
+         "min": 0.899
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 73959,
+         "coverage": 0.9683473275733853
+        },
+        "-0.2": {
+         "pairs": 73959,
+         "coverage": 0.9704160413201909
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 35,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9611285714285712,
+         "share_ge_80": 1.0,
+         "min": 0.8315
+        },
+        "-0.2": {
+         "mean": 0.9619714285714285,
+         "share_ge_80": 1.0,
+         "min": 0.831
+        }
+       },
+       "passed": true,
+       "affected": {
+        "0.0": {
+         "pairs": 69926,
+         "coverage": 0.961158939450276
+        },
+        "-0.2": {
+         "pairs": 69945,
+         "coverage": 0.9620130102223176
+        }
+       },
+       "affected_ok": true
+      }
+     ],
+     "validated_max_noise": "inf",
+     "failed_draws": {
+      "0.0": 2061,
+      "-0.2": 2027
+     }
+    },
+    "H_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.2": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.2": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.2": null
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 0,
+         "coverage": null
+        },
+        "-0.2": {
+         "pairs": 0,
+         "coverage": null
+        }
+       },
+       "affected_ok": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 4,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.5622499999999999,
+         "share_ge_80": 0.0,
+         "min": 0.49
+        },
+        "-0.2": {
+         "mean": 0.51825,
+         "share_ge_80": 0.0,
+         "min": 0.468
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 8000,
+         "coverage": 0.56225
+        },
+        "-0.2": {
+         "pairs": 8000,
+         "coverage": 0.51825
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 40,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.6575124999999999,
+         "share_ge_80": 0.2,
+         "min": 0.192
+        },
+        "-0.2": {
+         "mean": 0.6254375,
+         "share_ge_80": 0.175,
+         "min": 0.148
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 79936,
+         "coverage": 0.6572758206565252
+        },
+        "-0.2": {
+         "pairs": 79957,
+         "coverage": 0.6252610778293333
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 37,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.7662567567567569,
+         "share_ge_80": 0.43243243243243246,
+         "min": 0.2625
+        },
+        "-0.2": {
+         "mean": 0.7473918918918919,
+         "share_ge_80": 0.32432432432432434,
+         "min": 0.2435
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 73959,
+         "coverage": 0.7661406995767925
+        },
+        "-0.2": {
+         "pairs": 73959,
+         "coverage": 0.7472788977676821
+        }
+       },
+       "affected_ok": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 35,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.7650714285714286,
+         "share_ge_80": 0.4,
+         "min": 0.1725
+        },
+        "-0.2": {
+         "mean": 0.7452428571428571,
+         "share_ge_80": 0.34285714285714286,
+         "min": 0.1185
+        }
+       },
+       "passed": false,
+       "affected": {
+        "0.0": {
+         "pairs": 69926,
+         "coverage": 0.764937219346166
+        },
+        "-0.2": {
+         "pairs": 69945,
+         "coverage": 0.7451140181571234
+        }
+       },
+       "affected_ok": false
+      }
+     ],
+     "validated_max_noise": null,
+     "failed_draws": {
+      "0.0": 2061,
+      "-0.2": 2027
+     }
+    }
+   }
+  },
+  "race6": {
+   "kind": "B",
+   "units": 137,
+   "noise_bins": [
+    0,
+    0,
+    0,
+    4,
+    11,
+    97
+   ],
+   "infinite_noise": 25,
+   "procedures": {
+    "H_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.15": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.15": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.15": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 4,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.9610000000000001,
+         "share_ge_80": 1.0,
+         "min": 0.934
+        },
+        "-0.15": {
+         "mean": 0.9616250000000001,
+         "share_ge_80": 1.0,
+         "min": 0.9415
+        }
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 11,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9647727272727272,
+         "share_ge_80": 1.0,
+         "min": 0.9215
+        },
+        "-0.15": {
+         "mean": 0.9685454545454545,
+         "share_ge_80": 1.0,
+         "min": 0.9245
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 97,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9833556701030929,
+         "share_ge_80": 1.0,
+         "min": 0.8975
+        },
+        "-0.15": {
+         "mean": 0.9847113402061856,
+         "share_ge_80": 1.0,
+         "min": 0.8965
+        }
+       },
+       "passed": true
+      }
+     ],
+     "validated_max_noise": "inf",
+     "failed_draws": {
+      "0.0": 1448,
+      "-0.15": 1405
+     }
+    },
+    "H_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.15": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.15": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.15": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 4,
+       "judged": false,
+       "cells": {
+        "0.0": {
+         "mean": 0.837375,
+         "share_ge_80": 0.75,
+         "min": 0.7845
+        },
+        "-0.15": {
+         "mean": 0.8265,
+         "share_ge_80": 0.75,
+         "min": 0.759
+        }
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 11,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.830409090909091,
+         "share_ge_80": 0.7272727272727273,
+         "min": 0.774
+        },
+        "-0.15": {
+         "mean": 0.8239090909090908,
+         "share_ge_80": 0.7272727272727273,
+         "min": 0.7565
+        }
+       },
+       "passed": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 97,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.7998041237113401,
+         "share_ge_80": 0.4329896907216495,
+         "min": 0.6905
+        },
+        "-0.15": {
+         "mean": 0.7822835051546392,
+         "share_ge_80": 0.3402061855670103,
+         "min": 0.645
+        }
+       },
+       "passed": false
+      }
+     ],
+     "validated_max_noise": null,
+     "failed_draws": {
+      "0.0": 1448,
+      "-0.15": 1405
+     }
+    }
+   }
+  },
+  "pov_pairs": {
+   "kind": "C",
+   "units": 68,
+   "noise_bins": [
+    0,
+    28,
+    40,
+    0,
+    0,
+    0
+   ],
+   "infinite_noise": 0,
+   "procedures": {
+    "D_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 28,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9238571428571429,
+         "share_ge_80": 1.0,
+         "min": 0.8865
+        },
+        "-0.3": {
+         "mean": 0.9253392857142859,
+         "share_ge_80": 1.0,
+         "min": 0.8845
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 40,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9174374999999999,
+         "share_ge_80": 0.975,
+         "min": 0.7965
+        },
+        "-0.3": {
+         "mean": 0.9158000000000002,
+         "share_ge_80": 0.975,
+         "min": 0.7785
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      }
+     ],
+     "validated_max_noise": 0.5,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    },
+    "I_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 28,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8728214285714285,
+         "share_ge_80": 1.0,
+         "min": 0.8545
+        },
+        "-0.3": {
+         "mean": 0.8765357142857144,
+         "share_ge_80": 1.0,
+         "min": 0.8505
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 40,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8771625000000001,
+         "share_ge_80": 1.0,
+         "min": 0.848
+        },
+        "-0.3": {
+         "mean": 0.8791375,
+         "share_ge_80": 1.0,
+         "min": 0.8555
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      }
+     ],
+     "validated_max_noise": 0.5,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    },
+    "H_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 28,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9167500000000001,
+         "share_ge_80": 1.0,
+         "min": 0.865
+        },
+        "-0.3": {
+         "mean": 0.9159107142857141,
+         "share_ge_80": 1.0,
+         "min": 0.883
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 40,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9296374999999999,
+         "share_ge_80": 1.0,
+         "min": 0.889
+        },
+        "-0.3": {
+         "mean": 0.9295874999999999,
+         "share_ge_80": 1.0,
+         "min": 0.8915
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      }
+     ],
+     "validated_max_noise": 0.5,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    },
+    "H_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 28,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.9201071428571428,
+         "share_ge_80": 1.0,
+         "min": 0.896
+        },
+        "-0.3": {
+         "mean": 0.9185357142857143,
+         "share_ge_80": 1.0,
+         "min": 0.892
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 40,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8967625,
+         "share_ge_80": 0.925,
+         "min": 0.759
+        },
+        "-0.3": {
+         "mean": 0.8909750000000001,
+         "share_ge_80": 0.925,
+         "min": 0.712
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      }
+     ],
+     "validated_max_noise": 0.5,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    },
+    "D_bc": {
+     "bias_corrected": true,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 28,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.852517857142857,
+         "share_ge_80": 1.0,
+         "min": 0.8185
+        },
+        "-0.3": {
+         "mean": 0.8497678571428573,
+         "share_ge_80": 1.0,
+         "min": 0.808
+        }
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 40,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8587375000000002,
+         "share_ge_80": 1.0,
+         "min": 0.829
+        },
+        "-0.3": {
+         "mean": 0.856475,
+         "share_ge_80": 1.0,
+         "min": 0.8125
+        }
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      }
+     ],
+     "validated_max_noise": null,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    },
+    "I_naive": {
+     "bias_corrected": false,
+     "bins": [
+      {
+       "bin": "[0, .15)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.15, .30)",
+       "counties": 28,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8885357142857142,
+         "share_ge_80": 1.0,
+         "min": 0.8645
+        },
+        "-0.3": {
+         "mean": 0.8906428571428572,
+         "share_ge_80": 1.0,
+         "min": 0.872
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[.30, .50)",
+       "counties": 40,
+       "judged": true,
+       "cells": {
+        "0.0": {
+         "mean": 0.8796624999999999,
+         "share_ge_80": 0.975,
+         "min": 0.7885
+        },
+        "-0.3": {
+         "mean": 0.8728,
+         "share_ge_80": 0.95,
+         "min": 0.7575
+        }
+       },
+       "passed": true
+      },
+      {
+       "bin": "[.50, .75)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[.75, 1)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      },
+      {
+       "bin": "[1, inf)",
+       "counties": 0,
+       "judged": false,
+       "cells": {
+        "0.0": null,
+        "-0.3": null
+       },
+       "passed": false
+      }
+     ],
+     "validated_max_noise": 0.5,
+     "failed_draws": {
+      "0.0": 0,
+      "-0.3": 0
+     }
+    }
+   }
+  }
+ },
+ "combined": {
+  "clip_two": {
+   "D_naive": {
+    "bins": [
+     null,
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "validated_max_noise": null
+   },
+   "I_bc": {
+    "bins": [
+     null,
+     true,
+     true,
+     true,
+     false,
+     false
+    ],
+    "validated_max_noise": 0.75
+   },
+   "H_bc": {
+    "bins": [
+     null,
+     true,
+     true,
+     true,
+     true,
+     false
+    ],
+    "validated_max_noise": 1.0
+   },
+   "H_naive": {
+    "bins": [
+     null,
+     false,
+     false,
+     false,
+     true,
+     false
+    ],
+    "validated_max_noise": null
+   },
+   "D_bc": {
+    "bins": [
+     null,
+     true,
+     true,
+     false,
+     false,
+     false
+    ],
+    "validated_max_noise": 0.5
+   },
+   "I_naive": {
+    "bins": [
+     null,
+     false,
+     false,
+     false,
+     true,
+     true
+    ],
+    "validated_max_noise": null
+   }
+  },
+  "same_release_contrast": {
+   "D_naive": {
+    "bins": [
+     null,
+     true,
+     true,
+     null,
+     null,
+     null
+    ],
+    "validated_max_noise": 0.5
+   },
+   "I_bc": {
+    "bins": [
+     null,
+     true,
+     true,
+     null,
+     null,
+     null
+    ],
+    "validated_max_noise": 0.5
+   },
+   "H_bc": {
+    "bins": [
+     null,
+     true,
+     true,
+     null,
+     null,
+     null
+    ],
+    "validated_max_noise": 0.5
+   },
+   "H_naive": {
+    "bins": [
+     null,
+     true,
+     true,
+     null,
+     null,
+     null
+    ],
+    "validated_max_noise": 0.5
+   },
+   "D_bc": {
+    "bins": [
+     null,
+     false,
+     false,
+     null,
+     null,
+     null
+    ],
+    "validated_max_noise": null
+   },
+   "I_naive": {
+    "bins": [
+     null,
+     true,
+     true,
+     null,
+     null,
+     null
+    ],
+    "validated_max_noise": 0.5
+   }
+  },
+  "clip_four": {
+   "H_bc": {
+    "bins": [
+     null,
+     null,
+     true,
+     true,
+     true,
+     true
+    ],
+    "validated_max_noise": "inf"
+   },
+   "H_naive": {
+    "bins": [
+     null,
+     null,
+     false,
+     false,
+     false,
+     false
+    ],
+    "validated_max_noise": null
+   }
+  },
+  "clip_five": {
+   "H_bc": {
+    "bins": [
+     null,
+     null,
+     null,
+     true,
+     true,
+     true
+    ],
+    "validated_max_noise": "inf"
+   },
+   "H_naive": {
+    "bins": [
+     null,
+     null,
+     null,
+     false,
+     false,
+     false
+    ],
+    "validated_max_noise": null
+   }
+  },
+  "six": {
+   "H_bc": {
+    "bins": [
+     null,
+     null,
+     null,
+     null,
+     true,
+     true
+    ],
+    "validated_max_noise": "inf"
+   },
+   "H_naive": {
+    "bins": [
+     null,
+     null,
+     null,
+     null,
+     false,
+     false
+    ],
+    "validated_max_noise": null
+   }
+  }
+ },
+ "passed": {
+  "clip_two": {
+   "D_naive": null,
+   "I_bc": 0.75,
+   "H_bc": 1.0,
+   "H_naive": null,
+   "D_bc": 0.5,
+   "I_naive": null
+  },
+  "same_release_contrast": {
+   "D_naive": 0.5,
+   "I_bc": 0.5,
+   "H_bc": 0.5,
+   "H_naive": 0.5,
+   "D_bc": null,
+   "I_naive": 0.5
+  },
+  "clip_four": {
+   "H_bc": "inf",
+   "H_naive": null
+  },
+  "clip_five": {
+   "H_bc": "inf",
+   "H_naive": null
+  },
+  "six": {
+   "H_bc": "inf",
+   "H_naive": null
+  }
+ }
+}
