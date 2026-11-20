@@ -1,0 +1,46 @@
+{
+ "cells": [
+  {
+   "range_km": 0,
+   "coverage": {
+    "HC3": 0.9095,
+    "SCPC05": 0.9145,
+    "SCPC10": 0.924
+   },
+   "failed": 0
+  },
+  {
+   "range_km": 20,
+   "coverage": {
+    "HC3": 0.2625,
+    "SCPC05": 0.924,
+    "SCPC10": 0.938
+   },
+   "failed": 0
+  },
+  {
+   "range_km": 100,
+   "coverage": {
+    "HC3": 0.1215,
+    "SCPC05": 0.7535,
+    "SCPC10": 0.8145
+   },
+   "failed": 0
+  }
+ ],
+ "passed": {
+  "HC3": false,
+  "SCPC05": false,
+  "SCPC10": false
+ },
+ "draws": 2000,
+ "n_tracts": 2192,
+ "criterion_commit": "daa1d15",
+ "frozen_sha256": {
+  "scripts/r67_nc_tract_validation.py": "fbcad91ed369bc8bf1acf41e485cb386f93fbf651ab6831a17030170069198c1",
+  "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+  "census/scpc_core.py": "645152e2a37956f8dabb5570b07021e3f22064133afde7bf5fb0b8cef62c7f5d",
+  "docs/audits/nc_tract_geometry.json": "dd753e307b18270b65fb022503ea03677ac22faeb2097ca0743b1aaad1363a4a",
+  "docs/audits/r67_replication_criterion.md": "9d9f2cc91d124e1c4a995d0c99dfa67fda7fa98b6b9ab972c18e6c36dd3de7d2"
+ }
+}
