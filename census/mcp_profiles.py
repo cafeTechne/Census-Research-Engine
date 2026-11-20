@@ -226,8 +226,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    target="population" is validated for unweighted OLS/binomial/Poisson (Round 30;
    estimand: the coefficient on ACS estimates as observed, not corrected). IM-EIV,
    WLS, other k, CR1/WCR stay refused. Terms constant within clusters are not estimable.
-   Validated on MI/NY only: it failed an OH/PA re-check with spatially correlated
-   fields (Round 44), so it is exploratory elsewhere. See docs/audits/ohpa_revalidation.md.
+   Validated on MI/NY only: it failed OH/PA re-checks with spatially correlated
+   fields (Round 44; 4 or 6 clusters too, Round 54), so it is exploratory elsewhere.
 10. Validated methods, Rounds 31-42 (else exploratory; get_recipe(name) has the scope;
    tools marked [full] exist only in the full profile):
    - compare_groups (group_comparison): t-tests, ANOVA, ANCOVA, joint_test; wild score

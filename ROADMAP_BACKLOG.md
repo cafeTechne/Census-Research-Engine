@@ -49,6 +49,7 @@ implementing Rounds 31–42. The second group was never collected in one place; 
 | N27 | No microdata inequality measures (Gini, Theil, Atkinson, percentile ratios) with SDR replicate variance (backlog 6) | R49 | missing capability | 56 |
 | N28 | SMR refuses negative band replicates although the expected count is linear in the bands | R24 | code / failed input | 51 |
 | N30 | Clipped negative replicates are validated only below noise .50 (Round 51); race-group counties usually have noise above .50 and clipped cells, so 11–32 of 145 MI/NY counties per race design stay exploratory. Rural highs are driven by prison group quarters, which the engine does not separate | R52 | validation gap | not planned |
+| N31 | Round 54: naive IM outside MI/NY has no validated repair (4 or 6 within-state clusters failed on OH/PA); G1 with three to five and G2 with five error-prone covariates failed on OH/PA at low reliability with correlated fields; a fresh-seed MI/NY IM-8 rerun covered .849 in one cell; Round 48 effective-n intervals were not re-checked on OH/PA (targets are MI/NY-specific) | R54 | external validity | not planned |
 | N29 | IM-8 versions of correlation and α intervals failed; partial correlations under spatial dependence exploratory; PUMS GEE deferred (SDR replicates already carry the design) | R48, R49 | failed method / deferred | not planned |
 
 Pre-Round-31 backlog items (STATUS "Open backlog"): 1 spatial routing and GLM EIV, 2 NB2 for R29,
@@ -134,7 +135,7 @@ Same ground rules (section 1 above). Open issues N19–N28 plus the remaining ST
 | 51 | Negative replicate estimates | N20, N28 | merged (v0.48.0) |
 | 52 | Segregation beyond poverty and income | N21 (race/ethnicity groups, 4–5 groups, period contrasts, OH/PA) | merged (v0.49.0) |
 | 53 | Corrected GLM slopes, part 2 | N22, N23 (binomial repair, corrected counts under IM-8, 5–6 error-prone covariates) | merged (v0.50.0) |
-| 54 | OH/PA external validity, part 2 | N19, N24 (Rounds 45–48 re-checked; naive IM-8 repair outside MI/NY) | planned |
+| 54 | OH/PA external validity, part 2 | N19, N24 (Rounds 45–48 re-checked; naive IM-8 repair outside MI/NY) | merged (v0.51.0) |
 | 55 | Short series and estimated reference populations | N25, N26 | planned |
 | 56 | Microdata inequality measures | N27 | planned |
 

@@ -89,7 +89,8 @@ def test_within_state_points_and_engine_option():
     with pytest.raises(ValueError, match="divisible"):
         within_state_points(coords, 7)
     out = fit_count_model("c ~ x + NY", f, "E", spatial="clusters", coords=coords, within_states=True)
-    assert not any("CROSS STATE" in s for s in out["notes"]) and any("outside the IM-8" in s for s in out["notes"])
+    # Round 54: IM-8 count slopes replicated on OH/PA, so the outside-geometry note says so.
+    assert not any("CROSS STATE" in s for s in out["notes"]) and any("replicated on OH/PA" in s for s in out["notes"])
 
 
 def test_flags_equal_the_fixed_audit():

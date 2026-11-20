@@ -114,7 +114,7 @@ def _fit_count_im(formula, frame, exposure, family, level, spatial, coords, with
         notes.append(cal_note)
     if absorbed:
         notes.append(f"Absorbed by the cluster intercepts (not estimable): {absorbed}")
-    notes += geography_notes(assign.reset_index())
+    notes += geography_notes(assign.reset_index(), kind="counts")
     validated = SPATIAL_VALIDATED[family] and (calibrate is None or SPATIAL_RC_VALIDATED.get(family, False))
     return dict(family=family, spatial="clusters", table=pd.DataFrame(rows), n=len(X), validated=validated,
                 notes=notes, audit=REPAIRS_AUDIT)

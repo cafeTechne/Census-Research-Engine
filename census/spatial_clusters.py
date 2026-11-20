@@ -255,10 +255,19 @@ def assignment_for_frame(frame, coords, config, within_states=False):
 
 IM_ACS_VALIDATED_STATES = frozenset({"26", "36"})   # Round 30 geometry; failed the Round 44 OH/PA re-check
 OHPA_AUDIT = "docs/audits/ohpa_revalidation.md"
+# Round 54 (criterion e42840d; docs/audits/ohpa_revalidation2.md): IM with 4 or 6 within-state clusters did not
+# repair naive IM outside MI/NY (OH/PA worst cells .827 and .753); IM-8 count slopes (Round 45) and calibrated
+# count slopes (Round 53) replicated on OH/PA (.875-.912). A fresh-seed MI/NY rerun of naive IM-8 covered .849
+# in one cell (linear, 100 km, reliability .7; Round 30: .885).
+OHPA2_AUDIT = "docs/audits/ohpa_revalidation2.md"
+IM_CLUSTER_COUNT_REPAIR_VALIDATED = {4: False, 6: False}
 
 
-def geography_notes(assignment):
-    """Round 44 notes: clusters that straddle a state border, and states outside the IM-ACS validation."""
+def geography_notes(assignment, kind="c1"):
+    """Round 44/54 notes: clusters that straddle a state border, and states outside the validation geometry.
+
+    ``kind``: ``"c1"`` (naive IM-8 slopes, Round 30) or ``"counts"`` (IM-8 count slopes, Rounds 45 and 53,
+    replicated on OH/PA in Round 54)."""
     notes = []
     a = assignment.assign(state=assignment.GEOID.astype(str).str[:2])
     mixed = sorted(int(g) for g, s in a.groupby("cluster")["state"] if s.nunique() > 1)
@@ -267,10 +276,16 @@ def geography_notes(assignment):
                      "state term is partly constant within clusters (refused). For adjacent states assign clusters "
                      f"within each state (as the Round 44 OH/PA re-check did, {OHPA_AUDIT}).")
     outside = sorted(set(a.state) - IM_ACS_VALIDATED_STATES)
-    if outside:
+    if outside and kind == "counts":
+        notes.append(f"States {outside} are outside the MI/NY geometry of the IM-8 count validation; IM-8 count slopes "
+                     f"and calibrated count slopes replicated on OH/PA (Round 54: .875-.912; {OHPA2_AUDIT}). Other "
+                     "geographies are untested.")
+    elif outside:
         notes.append(f"States {outside} are outside the IM-8 validation geometry (MI/NY). In the Round 44 OH/PA re-check "
                      "IM-8 with the observed-estimate target held with independent areas (.89-.91) but under-covered "
-                     f"with spatially correlated fields (.70-.85), so treat it as exploratory there ({OHPA_AUDIT}).")
+                     f"with spatially correlated fields (.70-.85), so treat it as exploratory there ({OHPA_AUDIT}). "
+                     "Round 54: IM with 4 or 6 within-state clusters also under-covered there (worst cells .827 and "
+                     f".753; {OHPA2_AUDIT}); no validated alternative for the observed-estimate target.")
     return notes
 
 

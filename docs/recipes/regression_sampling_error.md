@@ -31,7 +31,11 @@ exclusive with spatial_clusters. Labels are fixed before complete-case filtering
 Whole terms constant within every cluster are absorbed by cluster intercepts,
 reported not estimable and cannot be tested. Partial constancy is refused.
 R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
-author self-review, not independent. OH/PA is outside this validation geometry.
+author self-review, not independent. OH/PA is outside this validation geometry: naive IM-8 under-covered there
+with spatially correlated fields (Round 44), and 4 or 6 within-state clusters did not fix it (Round 54,
+`docs/audits/ohpa_revalidation2.md`). A fresh-seed MI/NY rerun covered .849 in one low-reliability, correlated
+cell. On OH/PA, G2 replicated with up to four error-prone covariates; G1 with three to five and G2 with five did
+not.
 See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
 **Spatially correlated areas (Round 35).** For corrected (EIV) slopes when neighbouring areas are

@@ -303,7 +303,13 @@ R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
 author self-review, not independent. Round 44 re-ran the C1 design on OH/PA: it held with
 independent areas but under-covered with spatially correlated fields (.70-.85), so C1 is
 exploratory outside MI/NY (results carry a note); clusters crossing a state border are flagged.
-The corrected-slope G1/G2 replicated on OH/PA (docs/audits/ohpa_revalidation.md).
+The corrected-slope G1/G2 replicated on OH/PA (docs/audits/ohpa_revalidation.md). Round 54
+(docs/audits/ohpa_revalidation2.md): IM with 4 or 6 within-state clusters did not repair C1 on OH/PA
+(worst cells .827, .753); a fresh-seed MI/NY rerun of C1 covered .849 in one cell (linear, 100 km,
+reliability .7; Round 30 .885), so treat C1 with low-reliability covariates and strong spatial
+correlation cautiously even in MI/NY. IM-8 count slopes and calibrated count slopes replicated on
+OH/PA (.875-.912); G2 with up to four error-prone covariates replicated there, G1 with three to five
+and G2 with five did not (.807-.859 at reliability .7 with correlated fields).
 See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
 ## Group comparisons (Round 31)
