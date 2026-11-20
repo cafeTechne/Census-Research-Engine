@@ -244,7 +244,7 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      with replicates. Spatially dependent areas: spatial=True (partial too, Round 59).
    - rank_areas [full]: report rank intervals, never point ranks.
    - fit_model: method="eiv" with spatial="clusters"|"error" (corrected slopes, <=5 noisy
-     covariates); model="negbin" for counts (Poisson HC3 under-covers when overdispersed;
+     covariates; 6-8 (clusters) / 6-7 (error) if every reliability >= .8, Round 63); model="negbin" for counts (Poisson HC3 under-covers when overdispersed;
      spatial="clusters" gives IM-8 count slopes); method="regression_calibration": binomial
      needs se_method="jackknife"; counts with spatial="clusters" (Round 53);
      model="beta" for shares; model="median"; impute="w" or ["w","v"] for incomplete covariates.
@@ -260,8 +260,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    fit_replicate spatial_scpc; regression_calibration spatial "clusters"; correlation spatial.
 11. Exploratory only: cr() splines except binomial/Poisson with joint_test; joint_wald;
    censored Poisson for hidden WONDER counts (use the validated censored NB2 in the
-   library, Round 45); interrupted series under 20 points (bootstrap_t_bc validated
-   for 20+, Round 55).
+   library, Round 45); interrupted series under 17 points (bootstrap_t_cons validated
+   for 17+, Round 63; bootstrap_t_bc for 20+).
 12. Event-count EB smoothing (small_area): fixed expected counts, keep WONDER [1,9]
    suppression, never impute suppressed counts or call EB limits ACS MOEs.
 13. Segregation: get_recipe('segregation'). Tract groups are mutually exclusive

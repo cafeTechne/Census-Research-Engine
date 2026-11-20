@@ -89,7 +89,7 @@ def several(p, n=160, seed=46):
     return f, long, coords, " + ".join(names)
 
 
-@pytest.mark.parametrize("p,ok", [(4, True), (5, True), (6, False)])  # five validated in Round 53
+@pytest.mark.parametrize("p,ok", [(4, True), (5, True), (9, False)])  # five in Round 53; 6-7 (G2) gated in Round 63
 def test_spatial_eiv_validated_up_to_four(p, ok):
     f, long, coords, rhs = several(p)
     out = spatial_eiv.fit_spatial_eiv(f"y ~ {rhs}", f, long, method="g2", coords=coords, fixed_variables=("y",))

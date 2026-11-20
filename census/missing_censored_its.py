@@ -147,8 +147,10 @@ def interrupted_series(values: Sequence[float], interruption_index: int, method:
                        seed: int = 20270601) -> Dict[str, Any]:
     """Level and slope change after ``interruption_index`` (0-based position) in an annual series.
 
-    ``method``: "bootstrap_t_bc" (Round 55: the bootstrap-t with bootstrap series at a bias-corrected AR
-    coefficient; validated for 20+ points), "bootstrap_t" (AR(1) residual bootstrap-t around a REML AR(1) fit,
+    ``method``: "bootstrap_t_cons" (Round 63: bootstrap_t_bc with critical values at least the t(n - p - 1)
+    quantile; validated for 17+ points), "bootstrap_t_bb" (Round 63: bootstrap series at a bootstrap-bias-corrected
+    AR coefficient; validated for 19+ points), "bootstrap_t_bc" (Round 55: the bootstrap-t with bootstrap series at a
+    bias-corrected AR coefficient; validated for 20+ points), "bootstrap_t" (AR(1) residual bootstrap-t around a REML AR(1) fit,
     499 resamples; validated for 30+ points, Round 48), "reml" (REML AR(1) GLS, t reference; exploratory),
     "ewc" (OLS with an equal-weighted cosine HAR t test; failed, exploratory), or the Round 42 "ar1", "ols",
     "hac" (exploratory)."""
@@ -162,6 +164,10 @@ def interrupted_series(values: Sequence[float], interruption_index: int, method:
     phi_bc = None
     if method == "bootstrap_t_bc":
         (level, slope), phi, phi_bc = isc.its_bootstrap_t_bc(y, X, np.random.default_rng(seed))
+    elif method == "bootstrap_t_cons":
+        (level, slope), phi, phi_bc = isc.its_bootstrap_t_cons(y, X, np.random.default_rng(seed))
+    elif method == "bootstrap_t_bb":
+        (level, slope), phi, phi_bc = isc.its_bootstrap_t_bb(y, X, np.random.default_rng(seed))
     elif method == "ewc":
         level, slope = isc.its_ewc(y, X); phi = None
     elif method == "bootstrap_t":
@@ -171,8 +177,14 @@ def interrupted_series(values: Sequence[float], interruption_index: int, method:
     else:
         level, slope = mi.interrupted(y, X, method); phi = None
     validated = ((method == "bootstrap_t" and len(y) >= ss.ITS_BOOTSTRAP_MIN_N)
-                 or (method == "bootstrap_t_bc" and len(y) >= ss.ITS_BOOTSTRAP_BC_MIN_N))
-    if validated and method == "bootstrap_t_bc":
+                 or (method == "bootstrap_t_bc" and len(y) >= ss.ITS_BOOTSTRAP_BC_MIN_N)
+                 or (method == "bootstrap_t_cons" and len(y) >= ss.ITS_BOOTSTRAP_CONS_MIN_N)
+                 or (method == "bootstrap_t_bb" and len(y) >= ss.ITS_BOOTSTRAP_BB_MIN_N))
+    if validated and method in ("bootstrap_t_cons", "bootstrap_t_bb"):
+        mn = ss.ITS_BOOTSTRAP_CONS_MIN_N if method == "bootstrap_t_cons" else ss.ITS_BOOTSTRAP_BB_MIN_N
+        notes = [f"{method} (Round 63, {ss.SMALL_SERIES_AUDIT}): validated for {mn}+ annual points. Assumes AR(1) "
+                 "errors and a linear trend on each side."]
+    elif validated and method == "bootstrap_t_bc":
         notes = [f"AR(1) bootstrap-t at a bias-corrected AR coefficient (Round 55, {ss.SHORT_SERIES_AUDIT}): validated for "
                  f"{ss.ITS_BOOTSTRAP_BC_MIN_N}+ annual points (.867-.889). Assumes AR(1) errors and a linear trend on each side."]
     elif validated:
@@ -182,8 +194,9 @@ def interrupted_series(values: Sequence[float], interruption_index: int, method:
     else:
         notes = [f"EXPLORATORY: short-series intervals under-covered (Round 42: OLS, Newey-West, AR(1) GLS .47-.81 at 20 "
                  f"points; Round 48: REML .79-.88; Round 55: EWC .61-.72, {ss.SHORT_SERIES_AUDIT}). Use "
-                 f"method='bootstrap_t_bc' with {ss.ITS_BOOTSTRAP_BC_MIN_N}+ points for confirmatory claims; below "
-                 f"{ss.ITS_BOOTSTRAP_BC_MIN_N} points no method is validated."]
+                 f"method='bootstrap_t_cons' with {ss.ITS_BOOTSTRAP_CONS_MIN_N}+ points for confirmatory claims (Round "
+                 f"63); below {ss.ITS_BOOTSTRAP_CONS_MIN_N} points no method is validated (all failed at 15)."]
     return dict(level_change=level, slope_change=slope, n=len(y), method=method, phi=phi, phi_bias_corrected=phi_bc,
-                validated=validated, audit=ss.SHORT_SERIES_AUDIT if method in ("bootstrap_t_bc", "ewc") else ss.AUDIT,
+                validated=validated, audit=(ss.SMALL_SERIES_AUDIT if method in ("bootstrap_t_cons", "bootstrap_t_bb") else
+                                            ss.SHORT_SERIES_AUDIT if method in ("bootstrap_t_bc", "ewc") else ss.AUDIT),
                 notes=notes)

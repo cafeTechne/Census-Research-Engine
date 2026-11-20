@@ -47,7 +47,9 @@ correlated, use `fit_model(method="eiv", spatial="clusters")` (eight fixed clust
 correction) or `spatial="error"` (spatial-error whitening). Both were validated for linear models
 with up to five error-prone covariates (`docs/audits/spatial_eiv_validation.md`, Round 46
 `docs/audits/glm_correction_validation.md`, Round 53 `docs/audits/glm_correction2_validation.md`; with
-five, low reliability and correlated fields the estimates are very unstable).
+five, low reliability and correlated fields the estimates are very unstable). Round 63: when every error-prone
+covariate's estimated reliability is at least .8 (reported as `reliability`), G1 (`clusters`) is validated with up to
+eight and G2 (`error`) with up to seven error-prone covariates (`docs/audits/small_many_validation.md`).
 
 **Count outcomes (Round 39).** For counts with an exposure, `fit_model(model="negbin", exposure=...)`
 uses NB2 with HC3 SEs, validated even with strong overdispersion and excess zeros; Poisson HC3

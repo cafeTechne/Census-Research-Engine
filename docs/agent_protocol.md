@@ -320,6 +320,8 @@ low-reliability, correlated MI/NY cell, so prefer SCPC for OLS. With every error
 reliability >= .8, G1/G2 with three to five covariates pass on OH/PA too (reliability is
 reported). Calibrated binomial slopes with IM-8 clusters are validated
 (fit_model(method="regression_calibration", model="binomial", spatial="clusters")).
+Round 63: under the same gate (every reliability >= .8) G1 is validated with up to eight and G2 with
+up to seven error-prone covariates (docs/audits/small_many_validation.md).
 See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
 ## Group comparisons (Round 31)
@@ -482,8 +484,9 @@ information without estimating them (under-covered .84-.86, though better than d
 interrupted_series for annual series (20-point series: every method under-covered, .47-.81).
 Round 48: interrupted_series(method="bootstrap_t") is validated for 30+ annual points
 (.883-.896). Round 55: method="bootstrap_t_bc" (bootstrap series at a bias-corrected AR
-coefficient) is validated for 20+ points (.867-.889); below 20 points no method is validated
-(.857 at 15 points), and the EWC HAR test failed (.61-.72).
+coefficient) is validated for 20+ points (.867-.889). Round 63: method="bootstrap_t_cons"
+(critical values at least the t(n - p - 1) quantile) is validated for 17+ points; at 15 points
+every method failed (.849-.855), and the EWC HAR test failed (.61-.72).
 
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 

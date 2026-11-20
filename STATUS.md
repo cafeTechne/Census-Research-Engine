@@ -19,8 +19,8 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_63.md` (small samples and many covariates). Implement only the lowest-numbered plan. Merged plans are archived (below) |
-| `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–60 complete; Rounds 61–63 planned): the backlog below plus issues N1–N38 |
+| `PLAN_ROUND_<n>.md` | None queued (Rounds 61–63 complete). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–63 complete): the backlog below plus issues N1–N38 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
@@ -68,6 +68,7 @@ manifests refuse them in confirmatory analyses.
 | Combining evidence (`combine_estimates`) | **Passed selected**: Paule–Mandel + Hartung–Knapp pooling for 2–4 estimates (.885–.911; 5–10 with truncation since Round 48); fixed effect only when homogeneity is declared in advance; TOST equivalence; z-test power. DerSimonian–Laird failed with heterogeneity (.82–.84) | `evidence_validation.md`, criterion `3edd5f4` |
 | Agreement between sources (`check_agreement`) | **Passed selected**: bias (.894–.900) and kappa of quintile classes (.883–.912). Failed (estimates only, intervals exploratory): Bland–Altman limits observed (.838) and error-free (.826; both repaired in Round 48), Lin's CCC (.859) and corrected CCC (.38–.77) | `agreement_validation.md`, criterion `e6d4be6` |
 | Composite index scores and Cronbach's α (`build_index`) | **Passed**: per-area score intervals (PCA and equal weights; mean coverage .898–.899, every area ≥ .874); Feldt α interval for independent areas (.891–.912; under-covers with spatial dependence, .58–.67; Round 48 effective-n repair). Quintile stability and typologies descriptive | `index_validation.md`, criterion `e86907d` |
+| Small samples and many covariates (Round 63) | **Passed**: conservative bootstrap-t (`bootstrap_t_cons`) for interrupted series from 17 points (.865–.896); bootstrap-bias-corrected variant from 19; G1 with up to 8 and G2 with up to 7 error-prone covariates when every reliability ≥ .8. **Failed**: every interrupted-series method at 15 points (.849–.855); G2 with 8 (.856) | `small_many_validation.md`, criterion `ac2f34c` |
 | Leftover failures (Round 62) | **Passed**: binomial SCPC with ρ̄ .15 (.886–.954) and .20; clipped six-group bias-corrected H at any finite noise level. **Failed**: Theil T also with 8,000 households (.858): exploratory at every sample size tested | `leftover_failures_validation.md`, criterion `8f14e39` |
 | PUMS inequality repairs (Round 60) | **Passed** with logit-transformed SDR intervals: Atkinson (ε 1) everywhere (.872–.893); Atkinson (ε .5) and the top-decile share with at least 7,000 records (≥ .871 at 3,000 households). **Failed**: Theil T (.820, .859 at 3,000 households); the SDR bias correction lowered coverage | `pums_inequality_repair_validation.md`, criterion `60a3b06` |
 | Correlations under spatial dependence (Round 59) | **Passed**: partial correlations with the effective n of the residual series (one control, replicates; .869–.971 on MI/NY and OH/PA; independent-area partial .689); Round 48's effective-n Spearman, Kendall, Pearson (.880–.965) and α (.901–.933) replicate on OH/PA | `spatial_correlation_validation.md`, criterion `669a506` |
@@ -136,6 +137,12 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 63 (v0.60.0; merged, release pending owner approval; implemented by the maintainer agent):**
+small samples and many covariates (criterion `ac2f34c`): `interrupted_series(method="bootstrap_t_cons")` validated
+from 17 points (`bootstrap_t_bb` from 19; nothing at 15); spatial EIV under the reliability gate with up to 8 (G1)
+or 7 (G2) error-prone covariates. Demonstration (`r63_short_series_demonstration.md`). Goldens unchanged.
+Acceptance: 2137 passed, 37 skipped; 0 failures.
 
 **Round 62 (v0.59.0; merged, release pending owner approval; implemented by the maintainer agent):**
 leftover failures (criterion `8f14e39`): binomial SCPC validated at ρ̄ .15 (default) and .20; clipped six-group
@@ -368,6 +375,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 63 | A simulated 17-point interrupted series with each method (demonstration, not data) | Only `bootstrap_t_cons` is validated at 17 points; `r63_short_series_demonstration.md` |
 | 62 | OH/PA county child poverty as a binomial outcome with SCPC (exploratory example) | Unemployment log-odds slope 0.121 (0.075–0.168), validated; consistent with the OLS percentage-point slope; `r62_binomial_scpc_example.md` |
 | 60 | Michigan earnings and income inequality with the repaired intervals (exploratory example) | Atkinson and top-decile share now validated at state scale (top 10% of adults 25+ receive 37% of personal income); Theil T still exploratory; `r60_inequality_repair_example.md` |
 | 59 | OH/PA county correlations with the spatial correction (exploratory example) | Child poverty and log income: n_eff 78 of 155, spatial interval ~50% wider (−.68, −.77 to −.56); partial poverty–unemployment given income stays positive (exploratory without replicates); `r59_spatial_correlation_example.md` |

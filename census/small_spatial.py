@@ -26,6 +26,13 @@ ITS_REML_VALIDATED = False
 SHORT_SERIES_AUDIT = "docs/audits/short_series_reference_validation.md"
 ITS_BOOTSTRAP_BC_MIN_N = 20
 ITS_EWC_VALIDATED = False
+# Round 63 (criterion ac2f34c; docs/audits/small_many_validation.md): the conservative bootstrap-t (critical values
+# at least the t(n - p - 1) quantile) covered both changes at 17 and 19 points (.865-.896) and, as it is never
+# narrower than the Round 55 bias-corrected bootstrap-t, at 20+ points; at 15 points every method failed (.849-.855).
+# The bootstrap-bias-corrected variant passed only from 19 points.
+SMALL_SERIES_AUDIT = "docs/audits/small_many_validation.md"
+ITS_BOOTSTRAP_CONS_MIN_N = 17
+ITS_BOOTSTRAP_BB_MIN_N = 19
 # Round 59 (criterion 669a506; docs/audits/spatial_correlation_validation.md): partial correlations with the
 # effective n of the residual series passed (.869-.971, MI/NY and OH/PA); the Round 48 correlation and alpha
 # intervals replicated on OH/PA (correlations .880-.965, alpha .901-.933).
