@@ -21,6 +21,19 @@
    continuity correction). PUMA is the smallest PUMS geography.
 6. Validation: `docs/audits/pums_tests_validation.md` (Round 32).
 
+## Income inequality (Round 56)
+
+`test_association(state, year, kind="inequality", var="HINCP", weight="housing")` (household income) or
+`var="PINCP"` with a universe such as `where="PINCP >= 0 and AGEP >= 25"` (person income; negative incomes are
+refused). Each measure comes with the SDR replicate interval:
+
+- **Validated** (`docs/audits/pums_inequality_validation.md`, Round 56): the Gini coefficient, log P90/P10, log
+  P80/P20 and, with `by` defining two groups, the difference in Gini (second minus first).
+- **Exploratory:** Theil T, Atkinson (ε = .5, 1) and the top-decile share. They under-covered with heavy-tailed
+  incomes and small samples.
+- Zero incomes stay in the Gini. Theil, Atkinson and the ratios use positive incomes only (noted). Quantile
+  ratios of heaped dollar amounts are flagged exploratory, as medians are.
+
 ## Models on PUMS records (Round 49)
 
 `pums_regression(state, year, formula, model=...)` with `model` one of:

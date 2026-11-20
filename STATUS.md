@@ -18,8 +18,8 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_56.md` (microdata inequality measures). Implement only the lowest-numbered plan. Merged plans are archived (below) |
-| `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–50 complete; Rounds 51–56 planned): the backlog below plus issues N1–N29 found in Rounds 31–50 |
+| `PLAN_ROUND_<n>.md` | None queued: `ROADMAP_BACKLOG.md` Rounds 43–56 are complete. When a plan exists, implement only the lowest-numbered one. Merged plans are archived (below) |
+| `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–56, complete): the backlog below plus issues N1–N31 (open: N29, N30, N31) |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
@@ -67,6 +67,7 @@ manifests refuse them in confirmatory analyses.
 | Combining evidence (`combine_estimates`) | **Passed selected**: Paule–Mandel + Hartung–Knapp pooling for 2–4 estimates (.885–.911; 5–10 with truncation since Round 48); fixed effect only when homogeneity is declared in advance; TOST equivalence; z-test power. DerSimonian–Laird failed with heterogeneity (.82–.84) | `evidence_validation.md`, criterion `3edd5f4` |
 | Agreement between sources (`check_agreement`) | **Passed selected**: bias (.894–.900) and kappa of quintile classes (.883–.912). Failed (estimates only, intervals exploratory): Bland–Altman limits observed (.838) and error-free (.826; both repaired in Round 48), Lin's CCC (.859) and corrected CCC (.38–.77) | `agreement_validation.md`, criterion `e6d4be6` |
 | Composite index scores and Cronbach's α (`build_index`) | **Passed**: per-area score intervals (PCA and equal weights; mean coverage .898–.899, every area ≥ .874); Feldt α interval for independent areas (.891–.912; under-covers with spatial dependence, .58–.67; Round 48 effective-n repair). Quintile stability and typologies descriptive | `index_validation.md`, criterion `e86907d` |
+| PUMS income inequality (Round 56; `test_association(kind="inequality")`) | **Passed** (Round 32 generator; lognormal, heavier-tailed and zero-inflated incomes; SDR replicate variance): Gini (.861–.908), log P90/P10 and log P80/P20 (.888–.923), Gini difference between two groups (.873–.899). **Failed**: Theil T (.811), Atkinson .5 (.845) and 1 (.858), top-decile share (.850) in their worst cells. Heaped quantiles flagged as for medians | `pums_inequality_validation.md`, criterion `d91201b` |
 | Short series and estimated reference populations (Round 55) | **Passed**: interrupted series with the bootstrap-t at a bias-corrected AR coefficient (`method="bootstrap_t_bc"`) for 20+ annual points (.867–.889; .857 at 15 points); SMR with survey-estimated reference person-years (`reference_population_se`; .892–.908). **Failed**: EWC HAR t test (.616–.720) | `short_series_reference_validation.md`, criterion `dd6d6b7` |
 | OH/PA external validity, part 2 (Round 54) | **Replicated on OH/PA**: IM-8 count slopes (Round 45; .891–.911), calibrated IM-8 count slopes (Round 53; .875–.912), G2 with three or four error-prone covariates (.861–.920). **Failed on OH/PA** (reliability .7, 100 km fields; MI/NY validation kept, engine note): G1 with three to five covariates (.850–.859), G2 with five (.807). **Repair failed**: naive IM with 4 or 6 within-state clusters (OH/PA worst cells .827, .753; MI/NY passed). A fresh-seed MI/NY rerun of naive IM-8 covered .849 in one cell (linear, 100 km, reliability .7) | `ohpa_revalidation2.md`, criterion `e42840d` |
 | Corrected GLM slopes, part 2 (Round 53) | **Passed**: regression calibration with delete-one-area jackknife SEs (t, n − p df) for binomial (.882–.904; the bootstrap failed at .851), Poisson (.886–.904) and NB2 (.897–.908); pooled calibration + IM-8 count slopes under spatial dependence for Poisson (.877–.904) and NB2 (.894–.909; naive IM-8 .349–.890); G1/G2 with five error-prone covariates (.864–.925; at reliability .7 with correlated fields up to 10% failed fits and very unstable estimates). **Failed**: six covariates (.804–.811) | `glm_correction2_validation.md`, criterion `8d48956` |
@@ -129,6 +130,12 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 56 (v0.53.0; merged, release pending owner approval; implemented by the maintainer agent):**
+PUMS income inequality (criterion `d91201b`): Gini, log P90/P10, log P80/P20 and Gini differences validated with
+SDR replicate variance; Theil, Atkinson and the top-decile share fail and stay exploratory. New
+`census.pums_inequality`; MCP `test_association(kind="inequality")` (no new tool). Exploratory Michigan example
+(`r56_pums_inequality_example.md`). Goldens unchanged. Acceptance: 2100 passed, 37 skipped; 0 failures.
 
 **Round 55 (v0.52.0; merged, release pending owner approval; implemented by the maintainer agent):**
 short series and estimated reference populations (criterion `dd6d6b7`): `interrupted_series(method="bootstrap_t_bc")`
@@ -319,6 +326,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 56 | Earnings and income inequality by disability, Michigan PUMS (exploratory example) | Earnings Gini .501 with a disability vs .445 without (difference .056, .048–.064, validated); income Gini .522; earnings P90/P10 heaped (flagged); `r56_pums_inequality_example.md` |
 | 55 | Short interrupted series and SMR reference SE (demonstration, simulated) | Validated 22-point interval is the widest AR(1) interval and cannot separate a level change of 1 from none; reference CV .05 widens an SMR interval ~5%; `r55_demonstration.md` |
 | 54 | OH/PA county child poverty with naive IM at 4, 6 and 8 clusters (exploratory example) | Income slope stable (−17.8 to −18.6); the unemployment interval includes zero with 4 or 6 clusters but not 8; none of the IM intervals is validated on OH/PA; `r54_ohpa_im_example.md` |
 | 53 | County child poverty on income and unemployment, binomial with corrected slopes (exploratory example) | Calibration raises the unemployment slope 5% (reliability .78); validated jackknife intervals ~40–50% wider than the bootstrap's (income −1.11, −1.76 to −0.45; unemployment 0.134, 0.028 to 0.240 per point); `r53_rc_example.md` |
@@ -378,7 +386,8 @@ models, and MI/NY-only validation geography).
    county contrasts and group-quarters handling remain. Uncertain reference
    denominators for SMRs: closed in Round 55 (`reference_population_se`). Round 27 splines/joint tests remain exploratory and require a
    separately pre-specified finite-sample validation before confirmatory use.
-   Not yet planned: microdata inequality measures.
+   Microdata inequality measures: closed in Round 56 (Gini, quantile ratios, Gini differences; Theil,
+   Atkinson and top shares exploratory).
 7. Closed in Round 43: a saturated `fit_replicate` (residual df 0) now reports missing model SEs,
    intervals and p-values with a SATURATED MODEL note instead of infinite ones, and the coefficient
    plot never draws infinite whiskers.

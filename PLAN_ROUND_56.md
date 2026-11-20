@@ -73,9 +73,9 @@ measure is validated when it passes on every income on which it is judged.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, targets, script, criterion commit | | |
-| Results | | |
-| Engine, MCP, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Core, targets, script, criterion commit | done | `d91201b` |
+| Results | done | Gini, log P90/P10, log P80/P20, Gini difference pass; Theil, Atkinson, top share fail (`c4ddf60`) |
+| Engine, MCP, tests | done | `census.pums_inequality`; `test_association(kind="inequality")`; 6 new tests |
+| Example | done | Michigan earnings/income by disability; `/tmp/r56_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2100 passed, 37 skipped |
+| Exceptions | see notes | I3 zero share corrected to 30% before freezing; person file only (household income not cached) |

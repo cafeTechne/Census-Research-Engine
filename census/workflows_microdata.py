@@ -87,7 +87,7 @@ def pums_tabulate(
                output_path=path, preview=_records(out, 20), warnings=warns)
 
 
-_ASSOCIATION_KINDS = ("independence", "two_by_two", "means", "medians", "proportion")
+_ASSOCIATION_KINDS = ("independence", "two_by_two", "means", "medians", "proportion", "inequality")
 
 
 def test_association(
@@ -112,7 +112,10 @@ def test_association(
         kind: "independence" (row x col table; Rao-Scott test), "two_by_two"
             (exposure and outcome conditions; difference, odds ratio, relative risk),
             "means" (var by groups; difference and test), "medians" (var by two groups),
-            or "proportion" (share with var true; Korn-Graubard interval).
+            "proportion" (share with var true; Korn-Graubard interval), or "inequality" (var: a
+            nonnegative income, e.g. "HINCP" with weight="housing"; Gini, log P90/P10 and P80/P20
+            validated, Round 56; Theil, Atkinson and top share exploratory; optional by with two
+            groups adds the Gini difference).
         row/col, var/by, exposure/outcome: PUMS variables or conditions, e.g. "DIS",
             "HICOV == 2", "POVPIP < 100".
         where: pandas query on PUMS codes, e.g. "AGEP >= 19 and AGEP <= 64".
@@ -125,7 +128,7 @@ def test_association(
     if kind not in _ASSOCIATION_KINDS:
         return _fail(errors.INVALID_INPUT, f"kind must be one of {_ASSOCIATION_KINDS}.")
     need = {"independence": ("row", "col"), "two_by_two": ("exposure", "outcome"), "means": ("var", "by"),
-            "medians": ("var", "by"), "proportion": ("var",)}[kind]
+            "medians": ("var", "by"), "proportion": ("var",), "inequality": ("var",)}[kind]
     given = dict(row=row, col=col, var=var, by=by, exposure=exposure, outcome=outcome)
     missing = [k for k in need if not given[k]]
     if missing:
@@ -151,6 +154,18 @@ def test_association(
             out = pi.compare_medians(df, var, by, weight=weight, where=where)
             d = out["difference"]
             summary = f"Median difference {d['estimate']:.4g} (90% CI {d['lower']:.4g} to {d['upper']:.4g})"
+        elif kind == "inequality":
+            from census.pums_inequality import pums_inequality
+            out = pums_inequality(df, var, weight=weight, where=where, by=by)
+            g = out["table"].set_index("measure").loc["gini"]
+            summary = f"Gini of {var} {g['estimate']:.3f} (90% CI {g['lower']:.3f}-{g['upper']:.3f})"
+            if "gini_difference" in out:
+                d = out["gini_difference"]
+                summary += f"; Gini difference {d['estimate']:.3f} ({d['lower']:.3f} to {d['upper']:.3f})"
+            out["table"] = out["table"].to_dict("records")
+            for grp in out.get("groups", {}).values():
+                grp["table"] = grp["table"].to_dict("records")
+            out["validated"] = bool(g["validated"])
         else:
             out = pi.proportion_interval(df, var, weight=weight, where=where, method=method)
             summary = f"Proportion {out['estimate']:.4g} (90% CI {out['lower']:.4g}-{out['upper']:.4g}; {out['method']})"

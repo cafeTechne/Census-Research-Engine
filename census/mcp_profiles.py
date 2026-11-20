@@ -160,7 +160,7 @@ DESCRIPTION_OVERRIDES: Dict[str, str] = {
     "test_association": (
         "Survey-correct tests on PUMS microdata with replicate weights.\n"
         "state, year. kind: independence (row, col) | two_by_two (exposure, outcome) | means (var, by) | "
-        "medians (var, by) | proportion (var).\n"
+        "medians (var, by) | proportion (var) | inequality (var[, by]).\n"
         "Conditions use PUMS codes, e.g. outcome=\"POVPIP < 100\". where: universe. Results say validated or exploratory.\n"
         "Example: test_association(state=\"26\", year=2022, kind=\"two_by_two\", exposure=\"DIS == 1\", outcome=\"POVPIP < 100\")"
     ),
@@ -234,7 +234,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      bootstrap or IM-8; Holm pairwise. outcomes=[...] adds MANOVA. method="rank":
      Brunner-Munzel, Kruskal-Wallis. F references failed.
    - test_association (pums_tests): PUMS Rao-Scott tables up to 3x4, design mean tests,
-     differences/OR/RR, Korn-Graubard. Never the design-blind Pearson test.
+     differences/OR/RR, Korn-Graubard; kind="inequality": Gini, log P90/P10, P80/P20 and
+     Gini differences (Round 56). Never the design-blind Pearson test.
    - pums_regression [full] model=ordered_logit|ordered_probit|mnlogit|median|probit: replicate-weight
      intervals (Round 49); never model-based SEs on PUMS.
    - correlation_matrix [full] (rank_methods): Spearman/Kendall intervals; Pearson/partial only
