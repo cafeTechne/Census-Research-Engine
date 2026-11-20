@@ -67,10 +67,10 @@ stays at 16 tools: small local models do better with few tools (`docs/local_mode
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| CLI allowlist | | |
-| MCP routes | | |
-| Rule-text source | | |
-| Core text check | | |
-| Routing contract | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| CLI allowlist | done | ten workflows added (the nine plus `interrupted_series`) |
+| MCP routes | done | `interrupted_series` tool (71 tools); `fit_model(censored=...)` |
+| Rule-text source | done | 16 marked passages; `scripts/sync_rule_text.py --check` tested; five stale copies corrected |
+| Core text check | done | one stray `batch_download` mention fixed; `[full]` convention kept |
+| Routing contract | done | 15 rows, 18 tests; two harness tasks (offline OK) |
+| Goldens, final suite | done | identical; 2155 passed, 37 skipped |
+| Exceptions | one | ACS releases are refused by requiring consecutive years, not by detecting the source |

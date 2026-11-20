@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23925301.svg)](https://doi.org/10.5281/zenodo.23925301)
 
-A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **70 MCP tools**, a Python library and a command-line interface.
+A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **71 MCP tools**, a Python library and a command-line interface.
 
 Use it to compare counties or neighborhoods, study associations while accounting for noisy ACS predictors and spatial dependence, construct custom population tabulations, measure segregation or income inequality, and evaluate agreement between sources. Statistical methods have different validated ranges; an available method is not automatically suitable for every research design. Each inference method was checked by a simulation whose pass criterion was fixed in advance (90% intervals must cover at least 86% of the time); methods or settings that failed are still available but are marked exploratory in their results (`validated: false` and a note). [STATUS.md](STATUS.md) records the current release, validation evidence and remaining limitations.
 
@@ -109,7 +109,7 @@ Call `get_recipe()` to list the task guides, then `get_recipe(name="regression_s
 
 | Profile | Tools | Use |
 | :--- | ---: | :--- |
-| `full` (default) | 70 | All registered tools; use this for the complete research workflow |
+| `full` (default) | 71 | All registered tools; use this for the complete research workflow |
 | `core` | 16 | A smaller set for discovery, extraction, basic models, group/PUMS tests and outputs; guided results include `summary` and `next_step` |
 | `core_spatial` | 17 | Core plus `spatial_autocorrelation`; advanced tools such as `rank_areas` still require `full` |
 | `review` | 10 | Variable concordance and independent review of overrides |
@@ -117,14 +117,14 @@ Call `get_recipe()` to list the task guides, then `get_recipe(name="regression_s
 
 Select a profile with `python mcp_server.py --profile core` or `CENSUS_MCP_PROFILE=core`. Switching profiles changes tool visibility, not the underlying statistical methods. Small local-model setup and evaluations are in [docs/local_models.md](docs/local_models.md).
 
-The CLI exposes a subset of the MCP workflows through `python -m census tool <name>`. Newer tools such as `compare_groups`, `test_association` and `estimate_effect` are not in its current allowlist; use MCP or Python for those. For a supported offline calculation, estimate the difference that two MOEs can detect:
+The CLI runs every shared analysis workflow through `python -m census tool <name>` (Round 64 added `compare_groups`, `test_association`, `estimate_effect`, `check_agreement`, `combine_estimates`, `rank_areas`, `build_index`, `list_health_sources`, `run_variant` and `interrupted_series`). The MCP tools it does not list are discovery, metadata and review tools with their own CLI subcommands or server-only behaviour. For a supported offline calculation, estimate the difference that two MOEs can detect:
 
 ```bash
 python -m census tool minimum_detectable_difference --arg moe1=2.1 --arg moe2=2.4 --json
 ```
 
 <details>
-<summary>All 70 MCP tools, grouped by purpose</summary>
+<summary>All 71 MCP tools, grouped by purpose</summary>
 
 The analysis tables below explain which to choose. This inventory also includes discovery, maintenance and review tools.
 
@@ -141,7 +141,7 @@ The analysis tables below explain which to choose. This inventory also includes 
 | Geographic analysis and maps | `get_boundaries`, `custom_area_mapping`, `make_map`, `make_web_map`, `spatial_autocorrelation`, `spatial_regression` |
 | Small-area and hierarchical models | `small_area_estimates`, `spatial_small_area_estimates`, `multilevel_model` |
 | Survey microdata | `pums_tabulate`, `test_association`, `pums_regression` |
-| Time and purchasing power | `difference_in_differences`, `adjust_inflation`, `adjust_for_place`, `place_adjust_frame` |
+| Time and purchasing power | `interrupted_series`, `difference_in_differences`, `adjust_inflation`, `adjust_for_place`, `place_adjust_frame` |
 | Register studies and publishable outputs | `create_manifest`, `run_manifest`, `run_variant`, `make_figure`, `make_table`, `make_results_bundle`, `list_health_sources` |
 | Numerical checks and exact verification | `run_validation`, `verify_proposition` |
 
@@ -266,7 +266,7 @@ Choose the observation unit first. **Area analyses** use one row per county, tra
 | Research question | Start with | When and how to use it |
 | :--- | :--- | :--- |
 | Is a difference meaningful given the MOEs? | `calculate_significance`; `batch_significance` for many areas | Two estimates or releases; use multiplicity correction when comparing many areas. For design planning, use `minimum_detectable_difference` and `reliability_profile`. [Compare counties](docs/recipes/compare_counties.md) |
-| Is there change over time? | `trend_test`; `difference_in_differences` for a treatment/control design; `interrupted_series` (Python) for an annual series with a break | Trends need at least three non-overlapping ACS five-year releases. DiD needs a defensible comparison group and parallel-trends assumptions. Interrupted series need annual, non-ACS-window data and are validated from 17 points ([below](#methods-accessed-through-manifests-or-python)). [Tract trends](docs/recipes/tract_trend.md) |
+| Is there change over time? | `trend_test`; `difference_in_differences` for a treatment/control design; `interrupted_series` (full profile) for an annual series with a break | Trends need at least three non-overlapping ACS five-year releases. DiD needs a defensible comparison group and parallel-trends assumptions. Interrupted series need annual, non-ACS-window data and are validated from 17 points ([below](#methods-accessed-through-manifests-or-python)). [Tract trends](docs/recipes/tract_trend.md) |
 | How are area characteristics associated? | `build_analysis_frame` → `fit_model` | OLS/WLS or GLMs with ACS replicate information. Replicate refits describe sampling variability; they do not remove predictor measurement-error bias. [Regression](docs/recipes/regression_sampling_error.md) |
 | Are noisy predictors biasing the slope? | `fit_model(method="eiv")` or `method="regression_calibration"` | EIV corrects linear-model measurement error using replicates. Calibration supports selected GLMs; binomial needs `se_method="jackknife"`. Check the reported reliabilities and validated range. [Regression](docs/recipes/regression_sampling_error.md) |
 | Are neighboring areas correlated? | `fit_model(..., spatial="scpc")` for naive slopes; corrected EIV/calibration have separate spatial routes | SCPC is validated for OLS, Poisson and binomial slopes on two geographies (MI/NY and OH/PA); each model has a default benchmark `rho_bar`. Corrected linear EIV uses `spatial="clusters"` or `"error"`; calibrated GLMs use `spatial="clusters"`. These estimate different targets. Reliability and covariate-count gates apply. Manifests reach the same routes through `args.spatial_scpc`, `args.spatial: "clusters"` and `args.spatial: true` (correlations). [Spatial choices](#choosing-uncertainty-and-spatial-inference) |
@@ -337,7 +337,7 @@ PUMS supports custom person/household universes with the appropriate survey weig
 
 `smr`, `inequality` and `segregation` are **manifest method names**, not standalone MCP tools: execute them through `create_manifest` / `run_manifest`. They also have Python entry points in `census.standardize`, `census.inequality` and `census.segregation`.
 
-Some specialized methods are Python-only. Descriptive Poisson–Gamma event-rate smoothing uses `census.rate_smoothing.eb_poisson_gamma`; interval-censored NB2 counts use `census.missing_censored_its.fit_censored_negbin`. These have different purposes from Fay–Herriot smoothing of ACS estimates. For interrupted annual series (AR(1) errors, a linear trend on each side), `census.missing_censored_its.interrupted_series` offers `method="bootstrap_t_cons"` (validated from 17 points), `"bootstrap_t_bb"` (19+), `"bootstrap_t_bc"` (20+) and `"bootstrap_t"` (30+); every method failed at 15 points, so shorter series remain exploratory. Overlapping ACS five-year windows are not independent annual observations. Neither `interrupted_series` nor censored NB2 has its own MCP tool. The [method status table](STATUS.md#methods-validation-status) and recipes give the gates and alternatives.
+Descriptive Poisson–Gamma event-rate smoothing is Python-only (`census.rate_smoothing.eb_poisson_gamma`); it serves a different purpose from Fay–Herriot smoothing of ACS estimates. Interval-censored NB2 for counts suppressed as 1–9 is `fit_model(model="negbin", exposure=..., censored="<true/false column>")` (validated; hidden counts are never estimated). The `interrupted_series` tool (full profile) estimates level and slope changes in an annual series with AR(1) errors and a linear trend on each side: `method="bootstrap_t_cons"` (the default) is validated from 17 points, `"bootstrap_t_bb"` from 19, `"bootstrap_t_bc"` from 20 and `"bootstrap_t"` from 30; every method failed at 15 points, so shorter series are exploratory. It refuses non-consecutive years: overlapping ACS five-year releases are not annual observations (use `trend_test`). The [method status table](STATUS.md#methods-validation-status) and recipes give the gates and alternatives. [docs/agent_routing.md](docs/agent_routing.md) lists common research questions with the tool, profile and validation flag the engine returns for each; a test runs every row.
 
 ## External health data
 
@@ -413,7 +413,7 @@ census/
   workflows*.py    File-level workflows shared by the MCP server and CLI
   panel.py         Slugs, codebooks, tidy panels, Parquet
   geo.py, tables.py, export.py, errors.py, __main__.py (CLI)
-mcp_server.py      MCP server (instructions + 70 tools)
+mcp_server.py      MCP server (instructions + 71 tools)
 acs_downloader.py  Tkinter GUI (maintenance mode)
 metadata/          Per-vintage ACS metadata archive with manifest
 crosswalks/        Reviewed concordance overrides and their evidence

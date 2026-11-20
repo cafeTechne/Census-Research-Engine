@@ -196,6 +196,7 @@ def fit_model(
     spatial: Optional[str] = None,
     impute: Optional[Union[str, List[str]]] = None,
     se_method: Optional[str] = None,
+    censored: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Fit a regression whose standard errors account for ACS sampling error.
 
@@ -235,6 +236,10 @@ def fit_model(
             validated for ols, poisson and (Round 62) binomial, also outside MI/NY).
         se_method: method="regression_calibration": "bootstrap" (default) or "jackknife"
             (delete-one-area; Round 53; validated for binomial, poisson and negbin).
+        censored: model="negbin": a true/false column marking counts hidden as 1-9 (e.g. WONDER
+            suppression). They enter as "between 1 and 9" (interval-censored NB2, Round 45;
+            validated); no hidden value is estimated or output. Needs exposure; formula terms
+            must be plain column names.
 
     target applies to method="replicate" only; corrected methods report se_total.
     Results report se_model, se_sampling, se_total and which sources are included.
@@ -252,6 +257,9 @@ def fit_model(
         return _fail(errors.INVALID_INPUT,
                      "fay_herriot is a linear model with its own weights; model/weights/exposure/trials do not apply.",
                      "call fit_model again without model, weights, exposure, trials")
+    if censored is not None and (method != "replicate" or model != "negbin" or impute):
+        return _fail(errors.INVALID_INPUT, "censored needs method='replicate' and model='negbin' (interval-censored NB2).",
+                     "call fit_model again with model='negbin', exposure and censored")
     extra = {"weights": weights, "exposure": exposure, "trials": trials}
     try:
         frame = _load_frame(input_path)
@@ -292,6 +300,22 @@ def fit_model(
             res["table"] = res["table"].to_dict("records")
             return _ok(f"{res['model']} coefficients; validated (Round 40).", "report coefficients with intervals",
                        **_jsonable(res))
+        elif censored is not None:
+            if method != "replicate" or model != "negbin" or not exposure or spatial or weights or trials:
+                return _fail(errors.INVALID_INPUT, "censored needs method='replicate', model='negbin' and exposure "
+                             "(no spatial, weights or trials).")
+            from census.missing_censored_its import fit_censored_negbin
+            outcome, rhs = (x.strip() for x in formula.split("~", 1))
+            terms = [t.strip() for t in rhs.split("+")]
+            bad = [t for t in [outcome, censored, exposure] + terms if t not in frame.columns]
+            if bad:
+                return _fail(errors.INVALID_INPUT, f"censored NB2 needs plain column names; not columns: {bad}.")
+            res = fit_censored_negbin(frame, outcome, censored, exposure, terms)
+            from census.results import _jsonable
+            res["table"] = res["table"].to_dict("records")
+            return _ok(f"Interval-censored NB2 slopes; {res['n_censored']} of {res['n']} counts hidden as 1-9 used "
+                       "as intervals; validated (Round 45).",
+                       "report the slopes; never report or derive the hidden counts", **_jsonable(res))
         elif method == "replicate" and model == "negbin":
             from census.count_models import fit_count_model
             if not exposure:
@@ -1331,3 +1355,65 @@ def run_manifest(manifest_path: str, output_dir: Optional[str] = None,
     return _ok(f"Manifest run complete ({status}); {len(devs)} deviation(s); results in {res.get('output_dir')}.",
                "read methods.md and the tables in the output folder; report deviations if any",
                **out)
+
+
+def interrupted_series(
+    values: Optional[List[float]] = None,
+    interruption_index: Optional[int] = None,
+    interruption_year: Optional[int] = None,
+    input_path: Optional[str] = None,
+    column: Optional[str] = None,
+    year_column: str = "year",
+    years: Optional[List[int]] = None,
+    method: str = "bootstrap_t_cons",
+) -> Dict[str, Any]:
+    """Level and slope change after a break in an ANNUAL series (interrupted time series; AR(1) errors).
+
+    Give the series as values (plus years, optional) or as input_path + column (sorted by year_column), and the
+    break as interruption_year or interruption_index (0-based position of the first post-break year).
+    method: "bootstrap_t_cons" (default; validated for 17+ points, Round 63), "bootstrap_t_bb" (19+),
+    "bootstrap_t_bc" (20+), "bootstrap_t" (30+), "reml" or "ar1" (not validated). Below 17 points no method is
+    validated: results are exploratory.
+    Not for ACS five-year releases: consecutive releases overlap (4 of 5 years shared), so they are not annual
+    observations; use trend_test with non-overlapping releases. Years must be consecutive.
+    Example: interrupted_series(values=[...18 annual rates...], years=[2005, ..., 2022], interruption_year=2014)
+    """
+    from census.missing_censored_its import interrupted_series as _its
+
+    try:
+        if input_path is not None:
+            if values is not None or not column:
+                return _fail(errors.INVALID_INPUT, "give either values, or input_path with column.")
+            frame = _load_frame(input_path)
+            if year_column not in frame or column not in frame:
+                return _fail(errors.INVALID_INPUT, f"input needs columns {year_column!r} and {column!r}.")
+            frame = frame[[year_column, column]].dropna().sort_values(year_column)
+            years, values = [int(y) for y in frame[year_column]], [float(v) for v in frame[column]]
+        if not values:
+            return _fail(errors.INVALID_INPUT, "values (or input_path with column) are required.")
+        if years is not None:
+            if len(years) != len(values):
+                return _fail(errors.INVALID_INPUT, "years and values must have the same length.")
+            if any(b - a != 1 for a, b in zip(years, years[1:])):
+                return _fail(errors.INVALID_INPUT,
+                             "years must be consecutive annual years. Overlapping ACS five-year releases are not "
+                             "annual observations; compare non-overlapping releases with trend_test.",
+                             "use an annual source, or trend_test for ACS five-year releases")
+        if interruption_year is not None:
+            if years is None or interruption_year not in years:
+                return _fail(errors.INVALID_INPUT, "interruption_year needs years containing it.")
+            interruption_index = years.index(interruption_year)
+        if interruption_index is None or not 2 <= interruption_index <= len(values) - 2:
+            return _fail(errors.INVALID_INPUT, "give interruption_year or interruption_index, with at least two "
+                         "points on each side.")
+        res = _its(values, interruption_index, method=method)
+    except (ValueError, KeyError, TypeError) as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))
+    lc, sc = res["level_change"], res["slope_change"]
+    state = "validated" if res["validated"] else "exploratory (not validated for this method and length)"
+    return _ok(f"{len(values)}-point series, {method}: level change {lc['estimate']:.4g} "
+               f"({lc['lower']:.4g} to {lc['upper']:.4g}), slope change {sc['estimate']:.4g} "
+               f"({sc['lower']:.4g} to {sc['upper']:.4g}); {state}.",
+               "report both changes with their intervals and the AR(1) and linear-trend assumptions"
+               if res["validated"] else "label the result exploratory; validated methods need 17+ annual points",
+               **res)

@@ -5,6 +5,28 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.61.0 (Round 64): agent access
+
+- No new statistics; goldens byte-identical.
+- CLI: `python -m census tool` runs every shared workflow. Ten were added: `compare_groups`, `test_association`,
+  `estimate_effect`, `check_agreement`, `combine_estimates`, `rank_areas`, `build_index`, `list_health_sources`,
+  `run_variant` and `interrupted_series`.
+- MCP:
+  - new tool `interrupted_series` (full profile; 71 tools). It refuses non-consecutive years, so overlapping ACS
+    five-year releases cannot be used as annual points;
+  - `fit_model(model="negbin", exposure=..., censored=...)` routes to the validated interval-censored NB2.
+- Rule text:
+  - `docs/agent_protocol.md` marks the 16 passages the MCP instructions repeat (`<!-- mcp-rules:A|B -->`);
+  - `scripts/sync_rule_text.py` generates them into `mcp_server.py`, and a test fails when they differ;
+  - five stale MCP copies were corrected (PUMS ordinal models, manifest EIV covariate cap, agreement and pooling
+    details, effective-n correlations).
+- Agent checks:
+  - core-profile text names only tools the profile has (test);
+  - `docs/agent_routing.md` holds 15 research questions with their tool, profile and expected flag, run by
+    `tests/test_agent_routing.py`;
+  - two interrupted-series tasks were added to `scripts/local_model_eval.py`.
+- Acceptance: goldens byte-identical; 2155 passed, 37 skipped; 0 failures (18 new tests).
+
 ## 0.60.0 (Round 63): small samples and many covariates
 
 - Freeze the script and the criterion at `ac2f34c`; 30 cells, 2,000 draws each.

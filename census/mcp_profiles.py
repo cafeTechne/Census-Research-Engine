@@ -143,7 +143,7 @@ DESCRIPTION_OVERRIDES: Dict[str, str] = {
         "Example: minimum_detectable_difference(moe1=2.1, moe2=2.4) -> about 4.8"
     ),
     "build_analysis_frame": (
-        "Make a model-ready file from a batch_download output: estimate, _se and _cv per variable.\n"
+        "Make a model-ready file from a download_table output: estimate, _se and _cv per variable.\n"
         "input_path: downloaded CSV/Parquet. variables: columns to keep. use_replicates, "
         "table_code, year: attach Census replicates for exact sampling error.\n"
         "Example: build_analysis_frame(input_path=\"downloads/B17001_panel.csv\", "
@@ -259,9 +259,10 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    "negbin" for fit_replicate, spatial "clusters"|"error" for fit_eiv. Round 61:
    fit_replicate spatial_scpc; regression_calibration spatial "clusters"; correlation spatial.
 11. Exploratory only: cr() splines except binomial/Poisson with joint_test; joint_wald;
-   censored Poisson for hidden WONDER counts (use the validated censored NB2 in the
-   library, Round 45); interrupted series under 17 points (bootstrap_t_cons validated
-   for 17+, Round 63; bootstrap_t_bc for 20+).
+   censored Poisson for hidden WONDER counts (use the validated censored NB2:
+   fit_model(model="negbin", exposure=..., censored=<column>), Round 45); interrupted
+   series under 17 points (interrupted_series [full]: bootstrap_t_cons
+   validated for 17+, Round 63; bootstrap_t_bc for 20+).
 12. Event-count EB smoothing (small_area): fixed expected counts, keep WONDER [1,9]
    suppression, never impute suppressed counts or call EB limits ACS MOEs.
 13. Segregation: get_recipe('segregation'). Tract groups are mutually exclusive
