@@ -31,12 +31,13 @@ def test_clip_ranges_equal_audit():
             if top is None:
                 assert span is None
             else:
-                assert span is not None and span[1] == pytest.approx(top)
+                # Round 57 extended the clipped ranges above .50 (tests/test_round57.py)
+                assert span is not None and span[1] >= top
                 # never wider than Round 50, same engine lower bound
                 assert span[0] == sg.REALISTIC_RANGES[(name, variant, n[design])][0]
                 assert span[1] <= sg.REALISTIC_RANGES[(name, variant, n[design])][1]
             seen += 1
-    assert seen == len(sg.CLIP_RANGES) == 8
+    assert seen == 8 and len(sg.CLIP_RANGES) == 12   # Round 57 added four and five groups
     assert sg.DEFAULT_NEGATIVE_REPLICATES == "clip"
     # the audit's stress test produced negative replicates
     for design in ("two", "three"):

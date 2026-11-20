@@ -57,6 +57,10 @@ REALISTIC_RANGES = {
     ("theil_h", "bias_corrected", 4): (0., INF),
     ("theil_h", "naive", 5): None,
     ("theil_h", "bias_corrected", 5): (0., INF),
+    # Round 57 (criterion 8bcad0b; docs/audits/segregation_gaps_validation.md): six groups (B03002 split into
+    # White, Black, Asian, Hispanic, multiracial and other), bias-corrected H at every finite level.
+    ("theil_h", "naive", 6): None,
+    ("theil_h", "bias_corrected", 6): (0., INF),
 }
 MAX_VALIDATED_MEDIAN_CV = INF   # upper end over all validated ranges (finite noise levels only)
 # Round 52: contrasts between two non-overlapping releases (independent samples, variances added) passed
@@ -71,16 +75,44 @@ CONTRAST_RANGES = {(name, variant): (0., .50) for name in INDICES for variant in
 NEGATIVE_REPLICATE_AUDIT = "docs/audits/negative_replicates_validation.md"
 NEGATIVE_REPLICATE_POLICIES = ("clip", "refuse")
 DEFAULT_NEGATIVE_REPLICATES = "clip"
+# Round 57 (criterion 8bcad0b; docs/audits/segregation_gaps_validation.md): clipped replicates on the Round 52
+# race designs extended the ranges above .50: isolation to .75 and H to 1.0 (two groups), H at every finite level
+# with four and five groups; corrected D stays at .50 (failed above it with clipped cells).
+GAPS_AUDIT = "docs/audits/segregation_gaps_validation.md"
 CLIP_RANGES = {
     ("dissimilarity", "naive", 2): None,
     ("dissimilarity", "bias_corrected", 2): (.15, .50),
     ("isolation", "naive", 2): None,
-    ("isolation", "bias_corrected", 2): (0., .50),
+    ("isolation", "bias_corrected", 2): (0., .75),
     ("theil_h", "naive", 2): None,
-    ("theil_h", "bias_corrected", 2): (0., .50),
+    ("theil_h", "bias_corrected", 2): (0., 1.0),
     ("theil_h", "naive", 3): None,
     ("theil_h", "bias_corrected", 3): (0., .50),
+    ("theil_h", "naive", 4): None,
+    ("theil_h", "bias_corrected", 4): (0., INF),
+    ("theil_h", "naive", 5): None,
+    ("theil_h", "bias_corrected", 5): (0., INF),
 }
+# Round 57: contrasts between two counties of the same release (per-replicate differences) passed for every
+# two-group variant except corrected D (.855) when the larger noise level is below .50. Both rows must also be
+# validated.
+SAME_RELEASE_CONTRAST_RANGES = {(name, variant): (0., .50) for name in INDICES for variant in ("naive", "bias_corrected")}
+SAME_RELEASE_CONTRAST_RANGES[("dissimilarity", "bias_corrected")] = None
+
+
+def group_quarters_tracts(frame, gq, total, max_share=.5):
+    """Tract GEOIDs whose group-quarters share gq / total (e.g. B26001_001 / B01003_001) is >= max_share.
+
+    A definitional choice for residential segregation (prisons, dormitories, nursing homes), reported with the
+    result; it has no coverage claim of its own. Tracts with a zero total are not listed."""
+    if not 0 < float(max_share) <= 1:
+        raise ValueError("max_share must be in (0, 1]")
+    g = pd.to_numeric(frame[gq], errors="coerce").to_numpy(float)
+    t = pd.to_numeric(frame[total], errors="coerce").to_numpy(float)
+    if not (np.isfinite(g) & np.isfinite(t)).all() or (g < 0).any() or (t < 0).any():
+        raise ValueError("group-quarters and total population must be finite nonnegative counts")
+    share = np.divide(g, t, out=np.zeros_like(g), where=t > 0)
+    return sorted(set(frame.loc[share >= max_share, "GEOID"].astype(str)))
 MIN_VALIDATED_TRACTS = 5        # the validation excluded counties with fewer populated tracts
 
 
@@ -134,7 +166,7 @@ def segregation_indices(counts):
 
 
 def segregation_replicate(frame, groups, replicates, within='county', level=.90, bias_correction=None,
-                          negative_replicates=None):
+                          negative_replicates=None, exclude_tracts=None):
     """County/year indices with all 80 raw replicate indices retained.
 
     Tract GEOIDs must be eleven-digit strings. Missing/full or invalid replicate
@@ -152,6 +184,8 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
     zero before the index refits; count SEs and the noise level use the unclipped replicates. A county
     with a clipped cell is validated only inside ``CLIP_RANGES`` (bias-corrected variants).
     ``"refuse"`` raises on any negative replicate (the strict pre-Round 51 policy).
+    ``exclude_tracts`` (Round 57): tract GEOIDs left out of every index and refit (e.g. group-quarters tracts
+    from ``group_quarters_tracts``); a definitional choice noted per county.
     """
     from .models import _replicate_matrices
     from .results import precheck_replicates
@@ -164,6 +198,13 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
     if not len(data) or 'GEOID' not in data or not data.GEOID.map(lambda x:isinstance(x,str) and bool(re.fullmatch(r'[0-9]{11}',x))).all():
         raise ValueError('tract GEOIDs must be nonmissing eleven-digit strings')
     if not all(g in data for g in groups):raise ValueError('every declared group must be in the frame')
+    excluded_by_county={}
+    if exclude_tracts is not None:
+        excl=set(map(str,exclude_tracts))
+        drop=data.GEOID.isin(excl)
+        for g in data.GEOID[drop]:excluded_by_county[g[:5]]=excluded_by_county.get(g[:5],0)+1
+        data=data.loc[~drop].reset_index(drop=True)
+        if not len(data):raise ValueError('every tract was excluded')
     if 'Year' in data:
         years=pd.to_numeric(data.Year,errors='coerce').to_numpy(float)
         if not np.isfinite(years).all() or np.any(years!=np.floor(years)) or np.any(years<2009):raise ValueError('Year must contain ACS five-year release integers')
@@ -185,6 +226,7 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
     if not isinstance(replicates,pd.DataFrame) or not len(replicates):
         raise IncompleteReplicatesError('segregation requires all 80 replicates for every declared group and tract')
     rep=replicates.copy()
+    if exclude_tracts is not None and 'GEOID' in rep:rep=rep[~rep.GEOID.astype(str).isin(set(map(str,exclude_tracts)))]
     if not {'GEOID','variable',*REPLICATE_COLUMNS}<=set(rep):raise IncompleteReplicatesError('segregation requires GEOID/variable and all 80 replicate columns')
     if 'Year' not in rep:
         if len(years)>1:raise IncompleteReplicatesError('each release requires its own Year-labelled replicates')
@@ -228,6 +270,7 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
             validated=variant_ok and (r28 or r50)
             point=bc[k] if corrected else raw[k];notes=[]
             if clipped:notes.append(f'{clipped} negative replicate group count(s) set to zero before the index refits (Round 51 policy; validated for bias-corrected variants only).')
+            if excluded_by_county.get(county):notes.append(f'{excluded_by_county[county]} tract(s) excluded by exclude_tracts (e.g. group quarters); the index describes the remaining tracts.')
             if zero:notes.append(f'{zero} zero-total tract(s) excluded in full-sample index; totals recomputed in every refit.')
             if not np.isfinite(raw[k]):notes.append('A declared group has zero county total; index and inference undefined.')
             if not variant_ok:notes.append('EXPLORATORY ONLY: index/variant/group count/level lacks passing coverage validation (Rounds 28, 50 and 52).')
@@ -277,14 +320,23 @@ def segregation_test(result, statistic, geoid, null_value=None, compare_geoid=No
         else:
             delta=(first[list(REPLICATE_COLUMNS)].to_numpy(float)-other[list(REPLICATE_COLUMNS)].to_numpy(float))-(first.naive_estimate-other.naive_estimate)
             se=float(np.sqrt(.05*np.sum(delta**2)))
+            variant='bias_corrected' if bool(first.bias_correction) else 'naive'
+            span=SAME_RELEASE_CONTRAST_RANGES.get((statistic,variant))
+            groups=first.get('groups');noise=max(float(first.get('noise_level',np.inf)),float(other.get('noise_level',np.inf)))
+            same_ok=(span is not None and isinstance(groups,(list,tuple)) and len(groups)==2
+                     and span[0]<=noise<span[1])
     if not np.isfinite(estimate) or not np.isfinite(se) or se<=0:raise ValueError('index or nonzero sampling uncertainty undefined; Wald test not available')
     z=norm.ppf((1+float(first.get('confidence_level',result.attrs.get('confidence_level',.90))))/2)
     validated=bool(first.validated) and (other is None or bool(other.validated))
     cross=other is not None and first.Year!=other.Year
+    same=other is not None and not cross
     if cross:validated=validated and contrast_ok
+    if same:validated=validated and same_ok
     refusal=None if validated else ('segregation result not validated (failed variant, group count, level, county outside '
                                     'the validated noise range' + (', or a cross-release contrast with more than two groups '
                                     'or a larger noise level of .50 or more (Round 52)' if cross else '')
+                                    + (', or a same-release county contrast with more than two groups, corrected D, or a '
+                                       'larger noise level of .50 or more (Round 57)' if same else '')
                                     + '); exploratory only, confirmatory test refused')
     return dict(estimate=estimate,test_estimate=estimate-null,validated=validated,confirmatory_refusal=refusal,null_value=null,se=se,se_basis='se_sampling',
                 p_two_sided=float(2*norm.sf(abs((estimate-null)/se))),ci_lower=estimate-z*se,ci_upper=estimate+z*se,

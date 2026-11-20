@@ -85,13 +85,23 @@
    tract count is zero, common for small minority groups) is never validated.
    Otherwise rows are exploratory and confirmatory hypotheses are refused
    (`hypothesis_not_tested`). A county with a negative replicate estimate in any tract
-   is estimated with clipped replicates (Round 51) and validated for the
-   bias-corrected versions below .50 only (`clipped_replicates` > 0).
+   is estimated with clipped replicates (Rounds 51 and 57) and validated for the
+   bias-corrected versions only: D below .50, isolation below .75, two-group H below 1.0,
+   four- or five-group H at any finite level (`clipped_replicates` > 0). Six-group
+   bias-corrected H is validated at any finite noise level (Round 57).
    **Contrasts** between two non-overlapping releases (variances added) are validated
    when both rows are validated, there are two groups, and the larger noise level is
-   below .50 (Round 52); multigroup cross-release contrasts and same-release county
-   contrasts have no coverage experiment. Wider intervals are not a remedy for an
-   unsupported error model.
+   below .50 (Round 52). Contrasts between two counties of the same release
+   (per-replicate differences) are validated under the same conditions except for
+   corrected D, which failed (Round 57). Multigroup contrasts have no coverage experiment.
+   Wider intervals are not a remedy for an unsupported error model.
+9. **Group quarters (Round 57).** Tracts dominated by group quarters (prisons, college
+   dormitories, nursing homes) can dominate rural indices: in 2024 the highest
+   Black–non-Black H values in MI/NY were prison counties. To describe residential
+   segregation, declare B26001_001 (group-quarters population) and B01003_001 (total) as
+   tract variables and set `args.group_quarters: {"gq": ..., "total": ..., "max_share": .5}`
+   (library: `exclude_tracts=group_quarters_tracts(frame, gq, total, .5)`). This is a
+   definitional choice, not a statistical correction; report it with the result.
 
 Existing manifest tools execute this recipe; no new MCP tool is needed.
 Python entry points are `census.segregation_indices(counts)` and

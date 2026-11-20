@@ -5,6 +5,19 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.54.0 (Round 57): segregation, remaining gaps
+
+- Freeze the six-group truth file (2024 MI/NY B03002), the script and the criterion at `8bcad0b`. Twelve cells:
+  clipped replicates on Round 52's race designs, six-group H, same-release county contrasts.
+- Passed: clipped counties above .50 for bias-corrected isolation (to .75), two-group H (to 1.0) and four- or
+  five-group H (any finite level); six-group bias-corrected H; same-release county contrasts to .50 except
+  corrected D (.855). Corrected D with clipped cells stays at .50.
+- `CLIP_RANGES` extended; six-group `REALISTIC_RANGES`; `SAME_RELEASE_CONTRAST_RANGES` enforced by
+  `segregation_test`; `exclude_tracts`, `group_quarters_tracts` and manifest `args.group_quarters` (definitional
+  option). Goldens byte-identical.
+- Exploratory example (`docs/studies/r57_segregation_gaps_example.md`). Closes N30 and N33 (except infinite noise).
+- Acceptance: goldens byte-identical; 2105 passed, 37 skipped; 0 failures (5 new tests).
+
 ## 0.53.0 (Round 56): PUMS income inequality measures
 
 - Freeze the new `census/pums_inequality_core.py`, the targets (2,000,000 reference households), the script and

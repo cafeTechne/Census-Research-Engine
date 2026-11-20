@@ -44,12 +44,13 @@ def test_ranges_equal_combined_audit():
                 assert span[0] == (.15 if (name, variant) == ("dissimilarity", "bias_corrected") else 0.)
     # three groups stay at Round 50; six or more groups have no range
     assert sg.REALISTIC_RANGES[("theil_h", "bias_corrected", 3)] == (0., .50)
-    assert not any(k[2] > 5 for k in sg.REALISTIC_RANGES)
+    assert not any(k[2] > 6 for k in sg.REALISTIC_RANGES)   # six groups since Round 57
     assert sg.MAX_VALIDATED_MEDIAN_CV == max(s[1] for s in sg.REALISTIC_RANGES.values() if s)
     # Round 51 clipped ranges never exceed the new two-group ranges
     for k, span in sg.CLIP_RANGES.items():
         if span is not None:
-            assert sg.REALISTIC_RANGES[k] is not None and span[1] <= sg.REALISTIC_RANGES[k][1] and span[1] == .50
+            # Round 57 extended the clipped ranges above .50; they stay within the unclipped ranges
+            assert sg.REALISTIC_RANGES[k] is not None and span[1] <= sg.REALISTIC_RANGES[k][1]
 
 
 def test_contrast_ranges_equal_audit():
@@ -106,7 +107,7 @@ def test_gate_at_high_noise_and_naive_variants():
     for k in (4, 5):
         f, r, g = county(1.2, groups=k)
         assert sg.segregation_replicate(f, g, r).validated.all()
-    f, r, g = county(.3, groups=6)
+    f, r, g = county(.3, groups=7)   # six groups validated since Round 57
     assert not sg.segregation_replicate(f, g, r).validated.any()
 
 
