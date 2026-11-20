@@ -2,24 +2,26 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23925301.svg)](https://doi.org/10.5281/zenodo.23925301)
 
-A Python toolkit for extracting American Community Survey (ACS) 5-year data from the US Census Bureau API into research-ready files. It handles multi-year, multi-geography batches. It keeps estimates paired with their margins of error and derives proportions, ratios, sums, medians for custom areas, and significance tests with multiple-comparison correction, using Census replicate weights for exact variances where Census publishes them. It converts dollar values to constant dollars with the Census Bureau's index (R-CPI-U-RS), harmonizes tract panels across the 2010/2020 boundary change, and writes tidy panels, Parquet files, codebooks, and replayable provenance metadata.
+A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **70 MCP tools**, a Python library and a command-line interface.
 
-Calculations are checked against values the Census Bureau publishes itself (profile percentages, comparison-profile inflation adjustments and significance flags, replicate-based MOEs, medians). See [Validation](#validation-against-census-published-values).
+Use it to compare counties or neighborhoods, study associations while accounting for noisy ACS predictors and spatial dependence, construct custom population tabulations, measure segregation or income inequality, and evaluate agreement between sources. Statistical methods have different validated ranges; an available method is not automatically suitable for every research design. Each inference method was checked by a simulation whose pass criterion was fixed in advance (90% intervals must cover at least 86% of the time); methods or settings that failed are still available but are marked exploratory in their results (`validated: false` and a note). [STATUS.md](STATUS.md) records the current release, validation evidence and remaining limitations.
 
-Multi-year panels are built from **concepts**, not raw variable codes. ACS codes are renumbered, reused, and redefined between releases, so every (year, code) is matched through a checked concordance, and anything unverifiable stops the run instead of silently mixing measures. See [Cross-release concordance](#cross-release-concordance).
+Extraction keeps estimates paired with margins of error, checks variable meanings across releases, converts dollar values to constant dollars, and records provenance. Calculations are checked against [Census-published values](#validation-against-census-published-values); inference methods have separate simulation audits.
 
-| Interface | Entry point | Intended user |
+| Interface | Entry point | When to use it |
 | :--- | :--- | :--- |
-| MCP server | `mcp_server.py` (70 tools; `--profile core` gives 16 for local models) | Agents in Claude Code, Claude Desktop, other MCP clients |
-| Command line | `python -m census <command> --json` | Agents and scripts without MCP |
-| Python library | `census` package (`plan_extraction`, `run_batch`) | Notebooks, pipelines |
-| Desktop GUI | `acs_downloader.py` (Tkinter) | Legacy point-and-click use; maintenance mode |
+| MCP server | `mcp_server.py` | An MCP client or research agent selects and runs tools; [profiles](#mcp-server) control which tools it sees |
+| Command line | `python -m census` / `census-acs` | Script extraction and supported analyses; `tool <name>` exposes a subset of the shared workflows |
+| Python library | `census` | Notebooks, custom pipelines and methods without a standalone MCP tool |
+| Desktop GUI | `acs_downloader.py` (Tkinter) | Point-and-click extraction; maintenance mode, with a smaller feature surface |
 
-All four interfaces share one pipeline and the same defaults.
+Extraction uses the shared pipeline. Advanced analyses are exposed through the MCP/CLI workflows, manifests or Python; the GUI does not expose the whole research engine.
+
+Start with [choosing an analysis](#inference), [MCP setup and tool inventory](#mcp-server), or the [research workflow](#a-reproducible-research-workflow).
 
 ## Installation
 
-Requires Python 3.11 or later and SciPy 1.16 or later (Python 3.10 reached end of life in October 2026, and SciPy 1.16+ no longer supports it). CI tests Python 3.11–3.13 on Linux and Windows.
+Requires Python 3.11 or later and SciPy 1.16 or later.
 
 ```bash
 git clone https://github.com/cafeTechne/Census-Research-Engine
@@ -41,15 +43,6 @@ Alternatively, set `BLS_USER_AGENT` to an identifying User-Agent that includes a
 
 ## Configuration
 
-The opt-in [exact proposition evidence workflow](docs/verification.md) uses
-`CENSUS_VERIFICATION_REQUEST` to pin a locally reviewed proposition before
-starting `--profile verification`. Model tools cannot approve formalizations.
-Offline prompt preparation and transcript scoring are available through
-`python scripts/verification_eval.py --request request.json`; see the workflow
-guide for the exact transcript contract. This command contacts no model service.
-The separate `scripts/verification_live.py --run-model ...` adapter explicitly
-tests a chosen local runtime; see the guide for required settings and raw traces.
-
 | Variable | Purpose |
 | :--- | :--- |
 | `CENSUS_API_KEY` | Census API key ([request one](https://api.census.gov/data/key_signup.html)); requests without a key are rate-limited |
@@ -62,6 +55,11 @@ tests a chosen local runtime; see the guide for required settings and raw traces
 | `CENSUS_VRE_DIR` | Cache for downloaded Census Variance Replicate Estimate files (default `.cache/vre/`) |
 | `CENSUS_WWW2_MIN_INTERVAL` / `CENSUS_WWW2_ATTEMPTS` / `CENSUS_WWW2_BACKOFF_BASE` / `CENSUS_WWW2_REJECTED_RETRY_DELAY` | census.gov file downloads (`census/http.py`): seconds between requests to one host (default 1), attempts on HTTP 429/5xx or connection errors (4), backoff base in seconds (2; doubled per retry, capped at 60, honours `Retry-After`), and the wait before the single retry of a firewall "Request Rejected" page (30). A rejection that persists names the cache path where a browser-downloaded copy of the file is picked up; for a rejected (or 404) B01003 VRE file, `fetch_vre` instead reads the identical B01001 line 1 and records the substitution (`attrs["substitution"]`, with a warning) |
 | `CENSUS_LIVE_TESTS=1` | Enable live API contract tests and the live validation battery |
+| `CENSUS_MCP_PROFILE` | MCP tool profile (`full`, `core`, `core_spatial`, `review`, `verification`); same as `--profile` |
+| `CENSUS_HEALTH_OFFLINE=1` | Use only locally cached external health data (no downloads) |
+| `CENSUS_VERIFICATION_REQUEST` | The locally reviewed proposition pinned for `--profile verification` |
+
+**Exact proposition verification (opt-in).** The [verification workflow](docs/verification.md) pins a locally reviewed proposition through `CENSUS_VERIFICATION_REQUEST` before the server starts with `--profile verification`; model tools cannot approve formalizations. `python scripts/verification_eval.py --request request.json` prepares prompts and scores transcripts offline and contacts no model service. `scripts/verification_live.py --run-model ...` tests a chosen local runtime explicitly; the guide lists its settings and raw traces.
 
 ## Quick start
 
@@ -107,7 +105,47 @@ Exit codes: `0` success, `2` invalid input, `3` concordance review required, `4`
 claude mcp add census -- python mcp_server.py
 ```
 
-The server sends instructions that describe the extraction and review workflow, and `get_research_protocol` returns the full protocol. See [docs/claude_setup.md](docs/claude_setup.md) for client configuration and the tool list.
+Call `get_recipe()` to list the task guides, then `get_recipe(name="regression_sampling_error")` (or another recipe) for the steps and applicable limits. `get_research_protocol` returns the full protocol in profiles that expose it. Client configuration is in [docs/claude_setup.md](docs/claude_setup.md).
+
+| Profile | Tools | Use |
+| :--- | ---: | :--- |
+| `full` (default) | 70 | All registered tools; use this for the complete research workflow |
+| `core` | 16 | A smaller set for discovery, extraction, basic models, group/PUMS tests and outputs; guided results include `summary` and `next_step` |
+| `core_spatial` | 17 | Core plus `spatial_autocorrelation`; advanced tools such as `rank_areas` still require `full` |
+| `review` | 10 | Variable concordance and independent review of overrides |
+| `verification` | 1 | The separate [operator-pinned proposition workflow](docs/verification.md); requires its reviewed request |
+
+Select a profile with `python mcp_server.py --profile core` or `CENSUS_MCP_PROFILE=core`. Switching profiles changes tool visibility, not the underlying statistical methods. Small local-model setup and evaluations are in [docs/local_models.md](docs/local_models.md).
+
+The CLI exposes a subset of the MCP workflows through `python -m census tool <name>`. Newer tools such as `compare_groups`, `test_association` and `estimate_effect` are not in its current allowlist; use MCP or Python for those. For a supported offline calculation, estimate the difference that two MOEs can detect:
+
+```bash
+python -m census tool minimum_detectable_difference --arg moe1=2.1 --arg moe2=2.4 --json
+```
+
+<details>
+<summary>All 70 MCP tools, grouped by purpose</summary>
+
+The analysis tables below explain which to choose. This inventory also includes discovery, maintenance and review tools.
+
+| Purpose | Tool names |
+| :--- | :--- |
+| Orientation | `get_recipe`, `get_research_protocol` |
+| Find geography and measures | `list_states`, `list_vintages`, `list_places`, `list_counties`, `list_tracts`, `list_zctas`, `search_tables`, `list_variables`, `describe_variable` |
+| Plan, extract and reproduce data | `plan_extraction`, `download_table`, `batch_download`, `fetch_table_data`, `query_data_profile`, `replay_extraction`, `generate_codebook`, `cache_import` |
+| Review cross-release meanings | `check_variable_concordance`, `draft_crosswalk_override`, `record_crosswalk_review`, `draft_rule_override`, `record_rule_review`, `validate_crosswalks` |
+| Derive and aggregate | `derive_estimate`, `check_replicate_availability`, `aggregate_geographies`, `median_from_distribution`, `apportion_tracts` |
+| Assess precision and compare estimates | `calculate_cv`, `calculate_significance`, `batch_significance`, `trend_test`, `minimum_detectable_difference`, `reliability_profile` |
+| Analyze area-level relationships | `build_analysis_frame`, `fit_model`, `compare_groups`, `correlation_matrix`, `rank_areas`, `build_index` |
+| Agreement, evidence and causal designs | `check_agreement`, `combine_estimates`, `estimate_effect` |
+| Geographic analysis and maps | `get_boundaries`, `custom_area_mapping`, `make_map`, `make_web_map`, `spatial_autocorrelation`, `spatial_regression` |
+| Small-area and hierarchical models | `small_area_estimates`, `spatial_small_area_estimates`, `multilevel_model` |
+| Survey microdata | `pums_tabulate`, `test_association`, `pums_regression` |
+| Time and purchasing power | `difference_in_differences`, `adjust_inflation`, `adjust_for_place`, `place_adjust_frame` |
+| Register studies and publishable outputs | `create_manifest`, `run_manifest`, `run_variant`, `make_figure`, `make_table`, `make_results_bundle`, `list_health_sources` |
+| Numerical checks and exact verification | `run_validation`, `verify_proposition` |
+
+</details>
 
 ## Cross-release concordance
 
@@ -141,6 +179,7 @@ Each multi-year run writes `<table>_concordance.csv` (every output column traced
 | `state` | 040 | `SS` | none; `state_code` required (`"all"` = 50 states + DC everywhere) |
 | `county` | 050 | `SSCCC` | county FIPS; default all in state |
 | `tract` | 140 | `SSCCCTTTTTT` | county FIPS; one request per county; default all |
+| `block group` | 150 | `SSCCCTTTTTTG` | county/tract selection; ACS five-year detailed tables from 2013 |
 | `place` | 160 | `SSPPPPP` | place FIPS (required) |
 | `zcta` | 860 | `ZZZZZ` | ZCTAs; default all ZIPs in the state (`zip2fips.json`); requested in chunks of 50 |
 | `msa` | 310 | `MMMMM` | CBSA codes; default all metro and micro areas |
@@ -188,7 +227,7 @@ Every run also writes `<table>_extraction_metadata.json`. It records the request
 | :--- | :--- | :--- |
 | Standard error | `SE = MOE / 1.645` | `census.stats.standard_error` |
 | Coefficient of variation | `CV = SE / estimate × 100`; High ≤ 15%, Moderate ≤ 30%, Low > 30% | `census.stats.coefficient_of_variation` |
-| Difference test | `Z = |X1 − X2| / sqrt(SE1² + SE2²)`, scaled by `sqrt(1 − overlap/5)` for overlapping periods | `census.stats.z_test` |
+| Difference test | `Z = |X1 − X2| / sqrt(SE1² + SE2²)`, with the difference SE scaled by `sqrt(1 − overlap/5)` for overlapping periods | `census.stats.z_test` |
 | Sum of estimates | `MOE = sqrt(Σ MOE²)` over every component, including zeros (Handbook 2020 ch. 8; the older largest-zero-MOE rule is available) | `census.derived.sum_estimates` |
 | Proportion (subset) | `MOE = sqrt(MOE_X² − P²·MOE_Y²) / Y`; ratio formula if the radicand is negative | `census.derived.proportion` |
 | Ratio, product, percent change | Handbook 2020 ch. 8 formulas | `census.derived` |
@@ -222,22 +261,48 @@ Every derived result records its `method` (for example `proportion`, `proportion
 
 ## Inference
 
-Models and figures that keep ACS sampling error in view, validated by simulation ([docs/audits/inference_validation.md](docs/audits/inference_validation.md)):
+Choose the observation unit first. **Area analyses** use one row per county, tract or other geography; **PUMS analyses** use weighted person or household records. Area associations do not establish individual-level relationships. The tool names below refer to the **full MCP profile**; selected workflows also have CLI access. Recipes give parameter details.
 
-| Capability | Function / tool | Validation |
+| Research question | Start with | When and how to use it |
 | :--- | :--- | :--- |
-| Regression with replicate sampling SEs | `census.models.fit_replicate` / `fit_model` | 90% intervals cover 0.896 (population target) and 0.895 (these-areas target) |
-| Noisy predictors | `census.models.regression_calibration` | Attenuation removed; coverage 0.89 |
-| Small-area estimation (Fay–Herriot) | `census.sae.fay_herriot` / `small_area_estimates` | Reproduces the published R `sae` milk example; EBLUP coverage 0.897 |
-| Correlations with intervals and replicate SEs | `census.correlation.correlation_matrix` | Coverage 0.895 |
-| Trend tests on non-overlapping releases | `census.trends.linear_trend_test` / `trend_test` | Size 0.10 at nominal 0.10 |
-| Minimum detectable differences, reliability profiles | `census.planning` | |
-| Journal figures and LaTeX/Markdown tables | `census.figures`, `census.report_tables` | Byte-identical regeneration |
-| Pre-registered analyses | `census.manifest` / `create_manifest`, `run_manifest` | Hash in every output; deviations recorded |
+| Is a difference meaningful given the MOEs? | `calculate_significance`; `batch_significance` for many areas | Two estimates or releases; use multiplicity correction when comparing many areas. For design planning, use `minimum_detectable_difference` and `reliability_profile`. [Compare counties](docs/recipes/compare_counties.md) |
+| Is there change over time? | `trend_test`; `difference_in_differences` for a treatment/control design; `interrupted_series` (Python) for an annual series with a break | Trends need at least three non-overlapping ACS five-year releases. DiD needs a defensible comparison group and parallel-trends assumptions. Interrupted series need annual, non-ACS-window data and are validated from 17 points ([below](#methods-accessed-through-manifests-or-python)). [Tract trends](docs/recipes/tract_trend.md) |
+| How are area characteristics associated? | `build_analysis_frame` → `fit_model` | OLS/WLS or GLMs with ACS replicate information. Replicate refits describe sampling variability; they do not remove predictor measurement-error bias. [Regression](docs/recipes/regression_sampling_error.md) |
+| Are noisy predictors biasing the slope? | `fit_model(method="eiv")` or `method="regression_calibration"` | EIV corrects linear-model measurement error using replicates. Calibration supports selected GLMs; binomial needs `se_method="jackknife"`. Check the reported reliabilities and validated range. [Regression](docs/recipes/regression_sampling_error.md) |
+| Are neighboring areas correlated? | `fit_model(..., spatial="scpc")` for naive slopes; corrected EIV/calibration have separate spatial routes | SCPC is validated for OLS, Poisson and binomial slopes on two geographies (MI/NY and OH/PA); each model has a default benchmark `rho_bar`. Corrected linear EIV uses `spatial="clusters"` or `"error"`; calibrated GLMs use `spatial="clusters"`. These estimate different targets. Reliability and covariate-count gates apply. Manifests reach the same routes through `args.spatial_scpc`, `args.spatial: "clusters"` and `args.spatial: true` (correlations). [Spatial choices](#choosing-uncertainty-and-spatial-inference) |
+| How does an outcome differ across groups? | `compare_groups` | t-tests, ANOVA/ANCOVA, interactions, multivariate outcomes and rank comparisons. Validated omnibus routes use wild-score bootstrap or selected IM tests; ordinary F references failed validation. [Group comparison](docs/recipes/group_comparison.md) |
+| Are variables correlated after accounting for uncertainty? | `correlation_matrix` | Pearson, Spearman, Kendall and partial correlations. Pearson/partial need replicate information for the validated sampling-error interval; dependent areas need `spatial=True`. [Rank methods](docs/recipes/rank_methods.md) |
+| Which areas are reliably high or low? | `rank_areas` | Report rank intervals, simultaneous intervals or tests against a reference. Point ranks alone hide uncertainty. Suppressed/missing areas are excluded and listed. [Ranking](docs/recipes/rank_areas.md) |
+| Can several indicators describe one construct? | `build_index` | PCA/equal-weight scores with intervals, quintile stability and Cronbach's alpha; use `spatial=True` for alpha under spatial dependence. Inspect loadings and construct validity; exclude the outcome from its own index. [Composite index](docs/recipes/composite_index.md) |
+| Do two sources measure the same thing? | `check_agreement` | Bias, quintile kappa and Bland–Altman limits of agreement. High correlation alone does not establish agreement; CCC intervals remain exploratory. [Agreement](docs/recipes/agreement.md) |
+| Can estimates be pooled, or considered practically equivalent? | `combine_estimates` | Paule–Mandel/Hartung–Knapp pooling of independent estimates, TOST equivalence and power. Declare the equivalence margin in advance. Pooling regions is a new analysis. [Combining evidence](docs/recipes/combine_estimates.md) |
+| What can a policy or exposure plausibly cause? | `estimate_effect`; `difference_in_differences` for policy timing | AIPW/IPW/regression adjustment, instrumental variables and mediation require explicit identification assumptions. Calibration is available for noisy confounders/mediators; weak instruments need the Anderson–Rubin interval. [Causal designs](docs/recipes/causal.md) |
+| How do individuals or households differ? | `pums_tabulate`, `test_association`, `pums_regression` | Weighted custom tabulations, Rao–Scott tables, mean/median and OR/RR comparisons, and survey regressions. Use all 80 replicate weights. [PUMS](docs/recipes/pums_tests.md) |
+| How unequal are individual or household incomes? | `test_association(kind="inequality")` | Gini, quantile ratios, Gini differences, selected Atkinson measures and top shares with survey intervals. Theil T remains exploratory; some repaired intervals need 7,000+ records. [Income inequality](docs/recipes/pums_tests.md#income-inequality-round-56) |
+| How does health disadvantage vary across the area deprivation gradient? | Manifest method `inequality` | SII, RII and concentration indices across ranked areas with population weights. This describes an area gradient, a different quantity from PUMS income inequality. [Health inequality](docs/recipes/health_inequality.md) |
+| Is mortality high relative to a reference population? | Manifest method `smr` | Observed deaths versus expected deaths from age/sex reference rates, with period scaling and combined uncertainty. Reference counts and estimated reference populations have explicit options. [SMRs](docs/recipes/health_inequality.md) |
+| How separated are population groups within counties? | Manifest method `segregation` | Dissimilarity, isolation and Theil H (two to six groups) from mutually exclusive tract counts and all 80 replicates. Use the bias-corrected versions (the default); each county is validated or not according to its noise level, and contrasts between releases have their own gates. Counties with negative replicate counts can use `args.negative_replicates: "clip"`; `args.group_quarters` can drop prison and dormitory tracts (a definitional choice to declare). [Segregation](docs/recipes/segregation.md) |
+| Can information be shared across noisy small areas? | `small_area_estimates`, `spatial_small_area_estimates`, `multilevel_model` | Fay–Herriot for direct estimates with known sampling SEs; spatial Fay–Herriot for neighboring areas; mixed models for nested observations such as tracts within counties. [Small-area recipe](docs/recipes/small_area.md) |
 
-SIMEX is available but under-covers (0.81) and is not recommended for confirmatory use. Statistics use `scipy` and `statsmodels`; figures use `matplotlib`.
+### Choosing uncertainty and spatial inference
 
-**Local models.** `python mcp_server.py --profile core` serves a 16-tool profile (14 when the evaluation below ran) with short descriptions, `summary`/`next_step` in every result, and step-by-step recipes (`get_recipe`). Qwen3 8B on CPU completed 5 of 6 evaluation tasks ([docs/audits/local_model_eval.md](docs/audits/local_model_eval.md)); setup in [docs/local_models.md](docs/local_models.md).
+For replicate-based area models, `target="population"` uses model SEs for the general relationship; `"these_areas"` uses ACS replicate SEs for these areas in this period; `"conservative"` combines both. Corrected and spatial procedures have their own interval basis. Report the result's `interval_se_column`, interval target and uncertainty notes rather than selecting a convenient SE column.
+
+- **Counts:** use NB2 (`fit_model(model="negbin", exposure=...)`) when counts are overdispersed. Poisson HC3 under-covered under strong overdispersion; Pearson `scale="X2"` is not a validated substitute. Binomial proportions need their trial counts. Beta regression is available for shares in (0,1), and median regression for skewed outcomes.
+- **Spatially dependent areas, naive slopes:** SCPC (Müller and Watson 2022) gives validated intervals and p-values for OLS, Poisson and binomial slopes on both tested geographies (MI/NY and OH/PA). It is the recommended spatial interval outside MI/NY and for OLS anywhere.
+- **Spatially dependent areas, corrected slopes:** G1 (`spatial="clusters"`, pooled correction with eight clusters) and G2 (`spatial="error"`, spatial-error whitening) target the error-corrected linear slope. Both are validated with up to five error-prone covariates. With more, a fit is validated only when every covariate's estimated reliability (reported as `reliability`) is at least .8: up to eight covariates for G1 and seven for G2. Calibrated Poisson, NB2 and binomial slopes with `spatial="clusters"` have their own validation. Use the [regression recipe](docs/recipes/regression_sampling_error.md) and the result's notes.
+- **IM-8 is not a universal spatial fix:** naive IM-8 slopes passed on MI/NY but under-covered on OH/PA with spatially correlated fields, and dropped to .858 in a 10,000-draw MI/NY rerun of the low-reliability OLS cell; use SCPC instead. The failed per-cluster EIV candidate is distinct from the later pooled-correction G1 method. Conley HAC, CR1 and WCR failed validation. Do not change cluster counts or discard ACS uncertainty to obtain significance.
+- **Read scope, not just availability:** validation depends on sample size, reliability, spatial geometry, group definitions and the estimand. Inspect `validated` where provided, warnings and deviations, then consult [STATUS.md](STATUS.md) and the linked audit. SIMEX, Theil T, CCC intervals and some model/test combinations remain exploratory. Defaults and a wide interval do not certify an unsupported design.
+
+### A reproducible research workflow
+
+1. Define the population, observation unit, release windows, geographic vintage and outcome before choosing a method. Call `get_recipe()` and inspect the relevant measure's universe with `describe_variable`.
+2. Use `plan_extraction`, inspect `would_block`, concordance issues and advisories, then download. Build an analysis frame, check replicate availability and reliability, and handle missing/suppressed values explicitly.
+3. For confirmatory work, write a manifest, call `create_manifest` to validate/hash it, and **commit it before examining outcome associations**. Run the completed, registered file with `run_manifest`. A hash alone is not pre-registration.
+4. Check the run status and deviations: an incomplete run is not a confirmatory result. Registered methods need explicit choices; the validator does not automatically upgrade a legacy interval to a later validated one. For example, manifest correlations use `args.interval: "validated"` to opt in.
+5. Save tables, figures, methods and provenance with the manifest hash. `run_manifest` writes its bundle; `make_results_bundle` packages exploratory work. `run_variant` is an explicitly exploratory refit of cached inputs, leaving the registered analysis unchanged.
+
+Start with the [pre-registration recipe](docs/recipes/preregistered.md), the [executable offline example](docs/reference_workflow.md), or the [worked real-data workflow](docs/case_study_mi_ny.md). The [study reports](docs/studies/) distinguish registered analyses, post hoc checks and exploratory demonstrations; [validation audits](docs/audits/) report both passing and failed methods.
 
 ## Geography, maps, and spatial analysis
 
@@ -256,15 +321,23 @@ Built on GeoPandas, Shapely (GEOS), pyogrio (GDAL), pyproj, and PySAL. Outputs a
 
 ## Microdata, 1-year estimates, and research designs
 
+PUMS supports custom person/household universes with the appropriate survey weights. Its smallest geography is the PUMA; use published area tables for county or tract estimates. Heaped dollar values can make median and quantile-ratio uncertainty unreliable, so inspect the returned flags.
+
 | Capability | Function / tool | Validation |
 | :--- | :--- | :--- |
 | PUMS custom tabulations (count, mean, proportion, median, ratio, crosstabs) | `census.pums.tabulate` / `pums_tabulate` | Reproduces all 32 Census PUMS verification estimates and SEs (Wyoming, 2024 1-year and 2020–2024 5-year) |
-| PUMS regression with replicate weights | `census.pums.pums_regression` / `pums_regression` | Design-based SEs from the 80 replicate weights |
+| PUMS regression with replicate weights | `census.pums.pums_regression`, `census.pums_models.fit_pums_model` / `pums_regression` | Ordered logit/probit, multinomial logit, weighted median and probit have dedicated replicate-weight validation; avoid design-blind model SEs |
 | ACS 1-year estimates | `product="1-year"` in `plan_extraction`, `batch_download`, `run_batch` | Areas of 65,000+ only (others reported); 2020 skipped (no standard release); 1-year vs 5-year comparisons refused |
 | Multilevel models | `census.multilevel.fit_multilevel` / `multilevel_model` | Kenward–Roger intervals; coverage 0.89; reproduces the statsmodels `dietox` reference |
 | Difference-in-differences | `census.did.difference_in_differences` | Non-overlapping periods only; coverage 0.90–0.91; reproduces Card and Krueger (1994) |
 | Cost of living between places | `census.rpp.adjust_for_place` / `adjust_for_place` | BEA Regional Price Parities; reproduces BEA real personal income for all states (2008); never applied by default |
 | Interactive maps | `census.web_maps.web_choropleth` / `make_web_map` | Self-contained HTML, no external requests |
+
+### Methods accessed through manifests or Python
+
+`smr`, `inequality` and `segregation` are **manifest method names**, not standalone MCP tools: execute them through `create_manifest` / `run_manifest`. They also have Python entry points in `census.standardize`, `census.inequality` and `census.segregation`.
+
+Some specialized methods are Python-only. Descriptive Poisson–Gamma event-rate smoothing uses `census.rate_smoothing.eb_poisson_gamma`; interval-censored NB2 counts use `census.missing_censored_its.fit_censored_negbin`. These have different purposes from Fay–Herriot smoothing of ACS estimates. For interrupted annual series (AR(1) errors, a linear trend on each side), `census.missing_censored_its.interrupted_series` offers `method="bootstrap_t_cons"` (validated from 17 points), `"bootstrap_t_bb"` (19+), `"bootstrap_t_bc"` (20+) and `"bootstrap_t"` (30+); every method failed at 15 points, so shorter series remain exploratory. Overlapping ACS five-year windows are not independent annual observations. Neither `interrupted_series` nor censored NB2 has its own MCP tool. The [method status table](STATUS.md#methods-validation-status) and recipes give the gates and alternatives.
 
 ## External health data
 
@@ -275,14 +348,13 @@ Health outcomes the ACS lacks come from registered external sources (`list_healt
 | CDC PLACES 2025 | tract, county | model-based (BRFSS MRP) | No key; within a county varies only with age, sex, race/ethnicity and education composition |
 | USALEEP | tract (2010) | partly model-based | Life expectancy 2010-2015; fully predicted tracts dropped; `apportion_to: 2020` (split tracts left missing) |
 | County Health Rankings & Roadmaps 2025 | county | direct (mortality) or PLACES-based | Non-commercial research use; ACS-derived columns refused |
-| CDC WONDER exports | county, state | direct | User-exported files pinned by SHA-256; suppressed counts censored |
+| CDC WONDER exports | county, state; national age/sex references | direct | Manual files pinned by SHA-256; suppressed counts remain censored |
 
-**Circularity rule (enforced by `create_manifest`):** determinant studies keep using the ACS's own measure as the outcome (for disability: B18101), and use external sources for measures the ACS lacks, such as diabetes. A model-based outcome is never tested against its model's own inputs.
+**Circularity rule (enforced by `create_manifest`):** determinant studies keep using the ACS's own measure as the outcome (for disability: B18101), and use external sources for measures the ACS lacks, such as diabetes. Model-input overlap is checked; any permitted exception needs the manifest's explicit circularity justification.
 
-- **Count outcomes:** external binomial proportions use denominator trials and Pearson `scale: "X2"`;
-  Poisson counts use denominator exposure. CHR 2025 low birth weight (`v037`) is registered.
-- **Spatial SEs:** Bartlett Conley HAC is available for exploratory fits only; the fixed Round 22
-  coverage validation failed. See `docs/audits/spatial_hac_validation.md`.
+- **Count outcomes:** binomial models use trial counts and validated inference; ordinary external-count models require HC3 or an eligible spatial procedure. For overdispersed death counts, NB2 is preferable to Poisson. New external-count manifests refuse Pearson `scale="X2"`.
+- **WONDER is manual-only:** the engine never contacts WONDER, including for national references. Follow the [export guide](docs/data/wonder_exports.md). Suppressed counts remain unavailable, with interval-censoring where supported; never publish county counts of 1–9 or derived county values, raw exports or totals that reveal hidden counts by subtraction.
+- **Model provenance matters:** PLACES associations with its own model inputs can be circular. Source agreement studies and determinant studies answer different questions; use [the external-outcome recipe](docs/recipes/external_health_outcome.md).
 
 ## 2020 Decennial Census
 
@@ -333,7 +405,12 @@ census/
   multitest.py     Multiple-comparison corrections, batch significance tests
   geo_crosswalk.py 2010/2020 tract apportionment, Connecticut recodes
   validation.py    Checks against Census-published values
-  workflows.py     File-level workflows shared by the MCP server and CLI
+  manifest/        Registered analyses, validation gates, execution and methods text
+  models.py        Replicate regression, EIV and regression calibration
+  spatial_eiv.py, scpc.py, count_models.py   Spatial/corrected slopes and counts
+  pums.py, pums_models.py, pums_inference.py, pums_inequality.py   Survey microdata
+  inequality.py, standardize.py, segregation.py   Area gradients, SMRs, segregation
+  workflows*.py    File-level workflows shared by the MCP server and CLI
   panel.py         Slugs, codebooks, tidy panels, Parquet
   geo.py, tables.py, export.py, errors.py, __main__.py (CLI)
 mcp_server.py      MCP server (instructions + 70 tools)
@@ -344,7 +421,8 @@ data/price_indexes/  R-CPI-U-RS, CPI-U, and C-CPI-U with source sidecars
 data/geo_crosswalks/ Census 2010/2020 tract relationships and Connecticut recodes
 scripts/           fetch_metadata_archive.py, update_price_indexes.py, audit_concordance.py,
                    fetch_tract_relationships.py, validate_against_census.py
-docs/              agent_protocol.md, claude_setup.md, audits/
+docs/              Setup, agent protocol, task recipes, validation audits and study reports
+STATUS.md          Current capabilities, validated ranges, release and remaining limitations
 tests/             unittest suite (pytest); tests/test_live.py is opt-in
 ```
 
