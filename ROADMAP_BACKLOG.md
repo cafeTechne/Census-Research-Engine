@@ -154,9 +154,10 @@ five-year periods (2015–2019 vs 2020–2024), and the OH/PA counties (B17001 a
 
 ### Round 53: corrected GLM slopes, part 2
 
-A likelihood-based binomial correction (structural normal exposure model, Gauss–Hermite integration) and
-SIMEX with a nonlinear extrapolant, judged against the true slope; regression calibration combined with IM-8
-clusters for Poisson and NB2 under spatially correlated fields; G1/G2 with five and six error-prone covariates.
+Round 46's audit shows the binomial failure is in the standard error (RC bias −.016 to −.001, coverage .851–.889),
+so the repair is a delete-one-area jackknife SE (≈ HC3) with a t reference rather than a new estimator; regression
+calibration combined with IM-8 clusters for Poisson and NB2 under spatially correlated fields; G1/G2 with five
+and six error-prone covariates.
 
 ### Round 54: OH/PA external validity, part 2
 
