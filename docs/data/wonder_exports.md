@@ -18,6 +18,7 @@ Work top to bottom. You can stop after any part and come back later; WONDER does
 | D | Underlying Cause, 1999–2020 | 2013–2017 | county, all 14 causes | 14 | change analyses |
 | E | Underlying Cause, 1999–2020 | 2013–2017 | national age × sex, 13 causes | 13 | change analyses |
 | F | Multiple Cause, 2018–2024 | 2018–2022 | drug involvement, county + national | 8 | optional, last |
+| **G** | **Multiple Cause, 1999–2020** | **2006–2015** | **drug-induced deaths, county + national** | **2** | **Round 66+ replication D (Monnat 2018)** |
 
 Each export takes 1–2 minutes (county queries can take longer). Part A alone is about 5 minutes.
 
@@ -246,6 +247,56 @@ If the multiple-cause part looks different from this description, stop and send 
 - The two extra national `premature_all_causes.tsv` files are not needed and can be deleted.
 - 2013–2017 county files have 3,147 rows (counties renamed or merged since then); that is expected.
 
+## Part G: drug-induced deaths 2006–2015, for replication D (2 files)
+
+**What it is for.** Replication target D (`docs/studies/replication_shortlist.md`) re-tests Monnat 2018
+(*Am J Prev Med* 54:611–619): county economic distress and drug-related mortality across 3,106 counties. The
+paper used WONDER's Multiple Cause of Death files for **2006–2015**, so we export the same ten years. Two
+files: county counts and national age × sex rates (for each county's expected deaths).
+
+**Before you start: one open check.** The paper's exact ICD-10 list is in its Appendix A, which I have not
+verified yet. Its text describes "accidental poisoning, intentional self-poisoning, and poisoning of
+undetermined intent by exposure to drugs, drug-induced diseases, drugs in the blood, and mental/behavioral
+disorders due to drugs". That matches WONDER's **drug-induced causes** grouping, which is what we export. If
+Appendix A turns out to differ, the fix is one re-export before registration, which is allowed.
+
+1. Open <https://wonder.cdc.gov/mcd-icd10.html> ("Multiple Cause of Death, 1999–2020"). Click **I Agree**.
+   This database does not keep settings from the others: set the **county setup** from scratch, with these
+   differences:
+   - **Step 1, measures:** as in the county setup. **Also try ticking Age Adjusted Rate** (with its interval
+     and SE): the paper's outcome is the age-adjusted rate. If WONDER refuses it with county grouping (it did
+     in the 2018–2024 database), untick it and send again; we will standardise with the national file
+     instead.
+   - **Step 3:** race uses the older (bridged-race) categories; leave everything at **All**. Sex may be
+     labelled `Gender`; leave it at **All**.
+   - **Step 4:** select **2006 through 2015**: click 2006, Shift-click 2015. **Ten years**, not five.
+   - **Step 6 has two parts in this database.** Use only the **underlying cause** part: open its
+     **Drug/Alcohol Induced Causes** tab and Ctrl-click **every drug item and nothing else**:
+     `Drug poisonings (overdose) Unintentional (X40-X44)`, `Drug poisonings (overdose) Suicide (X60-X64)`,
+     `Drug poisonings (overdose) Homicide (X85)`, `Drug poisonings (overdose) Undetermined (Y10-Y14)` and
+     `All other drug-induced causes`. Do not select any alcohol item. Leave the **multiple cause** part at
+     `*All*`.
+   - **Step 7:** as usual (Export Results, Show Totals, Show Zero Values, Show Suppressed Values).
+2. **Check before saving:** the query criteria above the results table should list the five drug-induced
+   items and **2006–2015**. If the labels or codes differ from the list above (for example if
+   `All other drug-induced causes` is missing or worded differently), stop and send me the exact text.
+3. Save as `drug_induced.tsv` in `mcd/2006-2015/county/`. Expect about 3,140 rows and many suppressed
+   counties: the paper reports 20% suppressed even over ten years. That is fine: the engine treats
+   suppressed counts as "between 1 and 9" and never estimates them.
+4. Switch to the **national setup** (Group By `Ten-Year Age Groups`, And By `Sex`/`Gender`; all ages)
+   with the same years and causes. Save as `drug_induced.tsv` in `mcd/2006-2015/national_age_sex/`.
+   About 24 rows.
+
+Make the folders first (once):
+
+```bash
+mkdir -p external_data/wonder/mcd/2006-2015/county external_data/wonder/mcd/2006-2015/national_age_sex
+```
+
+**Do not study the numbers.** The replication is registered (its manifest pins both files' SHA-256)
+before any county association is computed. Tell me when both files are saved. I check each file's notes and
+structure only, then add them to the private backup repository.
+
 ## Checklist
 
 ```text
@@ -279,6 +330,10 @@ Part F  optional: drug involvement (mcd/2018-2022/county/ and mcd/2018-2022/nati
         redone 2026-11-18, structure-checked OK (multiple-cause codes applied)
 [x] county: any_opioid  synthetic_opioid  cocaine  psychostimulant
 [x] national: any_opioid  synthetic_opioid  cocaine  psychostimulant
+
+Part G  replication D: drug-induced deaths 2006-2015, Multiple Cause 1999-2020 database
+[ ] county:   mcd/2006-2015/county/drug_induced.tsv
+[ ] national: mcd/2006-2015/national_age_sex/drug_induced.tsv
 ```
 
 When a part is done, tell me. I check each file's notes and structure only (database, years, grouping,
@@ -303,6 +358,8 @@ external_data/wonder/
   ucd/2013-2017/national_age_sex/<cause>.tsv   13 files (Part E)
   mcd/2018-2022/county/<drug>.tsv               4 files (Part F, optional)
   mcd/2018-2022/national_age_sex/<drug>.tsv     4 files (Part F, optional)
+  mcd/2006-2015/county/drug_induced.tsv         1 file  (Part G, replication D)
+  mcd/2006-2015/national_age_sex/drug_induced.tsv  1 file (Part G)
 ```
 
 **Backup (2026-11-18):** `external_data/wonder/` is a git checkout of the owner's **private** repository
