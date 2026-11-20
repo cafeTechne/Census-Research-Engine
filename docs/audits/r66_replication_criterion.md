@@ -74,3 +74,13 @@ change after the run.
 ## Smoke run
 
 One 20-draw smoke run of S checked that the script runs. It is not judged.
+
+## Deviation 1 (before any outcome was seen)
+
+The first run (criterion `dd48bf6`) stopped in A's descriptive interval part. One county had a replicate refit
+with an undefined index (a group total of zero in a replicate), which raised `IncompleteReplicatesError`. The run
+wrote nothing to the audit. It did write the per-county comparison file just before stopping; that file was not
+opened, and it is overwritten by the rerun.
+
+Fix: the interval part now runs county by county and lists the counties that fail. Nothing else changed: A's and
+B's rules, inputs and comparison code are the same. The rerun uses the commit that records this deviation.

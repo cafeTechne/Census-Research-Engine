@@ -115,12 +115,20 @@ def interval_part(client, pub):
     f = long.pivot(index="GEOID", columns="variable", values="estimate")[["black", "white"]].reset_index()
     f["Year"] = YEAR
     rep = long[["GEOID", "variable", *replicate.REPLICATE_COLUMNS]].copy(); rep["Year"] = YEAR
-    res = segregation.segregation_replicate(f, ["black", "white"], rep)
+    parts, failed = [], []
+    f["county"] = f.GEOID.str[:5]; rep["county"] = rep.GEOID.str[:5]
+    for c, fc in f.groupby("county"):
+        try:   # deviation 1: per county; a county whose replicate refit is undefined is listed, not fatal
+            parts.append(segregation.segregation_replicate(fc.drop(columns="county"), ["black", "white"],
+                                                           rep[rep.county == c].drop(columns="county")))
+        except Exception as exc:  # noqa: BLE001
+            failed.append(dict(county=c, error=type(exc).__name__))
+    res = pd.concat(parts, ignore_index=True)
     res = res[res.statistic == "dissimilarity"].copy()
     res["chr_published"] = res.GEOID.map(pub/100)
     keep = ["GEOID", "estimate", "ci_lower", "ci_upper", "noise_level", "validated", "chr_published"]
     keep = [k for k in keep if k in res]
-    return dict(counties=int(len(res)), validated=int(res.validated.sum()),
+    return dict(counties=int(len(res)), validated=int(res.validated.sum()), failed=failed,
                 with_chr_value=int(res.chr_published.notna().sum()),
                 table=res[keep].round(4).to_dict("records"))
 
