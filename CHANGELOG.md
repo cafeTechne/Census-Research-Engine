@@ -5,6 +5,21 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.51.0 (Round 54): OH/PA external validity, part 2
+
+- Freeze the script, the within-state 4/6-cluster geometry, the new `census/im_clusters_core.py` and the criterion
+  at `e42840d`. 48 cells: naive IM with 4, 6 and 8 clusters on MI/NY and OH/PA; Round 45 IM-8 counts, Round 53
+  calibrated counts and G1/G2 with three to five error-prone covariates on OH/PA.
+- Replicated on OH/PA: IM-8 count slopes (.891–.911), calibrated count slopes (.875–.912), G2 with three or four
+  covariates (.861–.920). Failed there: G1 with three to five (.850–.859) and G2 with five (.807), at reliability
+  .7 with correlated fields. Repair failed: IM with 4 or 6 within-state clusters (OH/PA worst cells .827 and .753).
+  A fresh-seed MI/NY rerun of naive IM-8 covered .849 in one cell.
+- Engine notes only: `geography_notes(kind=...)` (counts replicated; naive IM repair failed), an exploratory note
+  for spatial EIV with many covariates outside MI/NY, `IM_CLUSTER_COUNT_REPAIR_VALIDATED`. Goldens byte-identical.
+- Exploratory example: OH/PA county child poverty with IM at 4, 6 and 8 clusters (`docs/studies/r54_ohpa_im_example.md`).
+  New issue N31.
+- Acceptance: goldens byte-identical; 2088 passed, 37 skipped; 0 failures (6 new tests).
+
 ## 0.50.0 (Round 53): corrected GLM slopes, part 2
 
 - Freeze `regression_calibration(se_method="jackknife")`, the new `census/rc_spatial_core.py`, the script and

@@ -33,6 +33,7 @@ VALIDATED = {"g1": True, "g2": True}
 VALIDATED_MAX_ERROR_COVARIATES = 5
 MORE_COVARIATES_AUDIT = "docs/audits/glm_correction_validation.md"
 FIVE_COVARIATES_AUDIT = "docs/audits/glm_correction2_validation.md"
+OHPA2_AUDIT = "docs/audits/ohpa_revalidation2.md"
 
 
 def _design(formula, frame, replicates, fixed_variables):
@@ -104,6 +105,12 @@ def fit_spatial_eiv(formula: str, frame: pd.DataFrame, replicates: pd.DataFrame,
         from .spatial_clusters import geography_notes
         notes.extend(n for n in geography_notes(assign.loc[ids].reset_index()) if n.startswith("CLUSTERS CROSS"))
     validated = len(error_prone) <= VALIDATED_MAX_ERROR_COVARIATES
+    outside = sorted(set(ids.str[:2]) - {"26", "36"})
+    if outside and ((method == "g1" and len(error_prone) >= 3) or (method == "g2" and len(error_prone) >= 5)):
+        notes.append(f"EXPLORATORY OUTSIDE MI/NY (states {outside}): {method.upper()} with {len(error_prone)} error-prone "
+                     "covariates under-covered in the Round 54 OH/PA re-check at reliability .7 with spatially correlated "
+                     f"fields (.807-.859, with many failed fits; {OHPA2_AUDIT}). G2 with up to four and both methods with "
+                     "up to two (Round 44) replicated there.")
     if 3 <= len(error_prone) <= 4:
         notes.append("With 3-4 error-prone covariates, low reliability (.7) and spatially correlated fields, Round 46 "
                      "point estimates were unstable (mean bias up to +.17 on a slope of .5; up to 5.7% failed fits) "

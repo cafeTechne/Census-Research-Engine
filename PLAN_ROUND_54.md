@@ -69,9 +69,9 @@ cells, i.e. both geometries; K2a, K2b; S1 per model; G1, G2 per p). Failed fits 
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Geometry file, script, criterion commit | | |
-| C / K / S / M results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Geometry file, script, criterion commit | done | `e42840d` |
+| C / K / S / M results | done | counts and calibrated counts replicate; G2 p ≤ 4 replicates; G1 p 3–5, G2 p 5 fail on OH/PA; IM 4/6 repair fails; one fresh-seed MI/NY IM-8 cell .849 (`646b8a0`) |
+| Engine, tests | done | notes only (`geography_notes(kind=)`, spatial EIV outside MI/NY); 6 new tests |
+| Example | done | OH/PA child poverty, IM 4/6/8; `/tmp/r54_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2088 passed, 37 skipped |
+| Exceptions | see notes | example switched to ACS-only OH/PA child poverty before the run; Round 48 designs not covered (N31) |
