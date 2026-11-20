@@ -233,7 +233,7 @@ and two attempts at recorded limits (N35, N36), which may end as confirmed limit
 
 | Round | Theme | Covers | Status |
 | :--- | :--- | :--- | :--- |
-| 61 | Manifest routing for spatial methods (no new statistics) | N37 | planned |
+| 61 | Manifest routing for spatial methods (no new statistics) | N37 | merged (v0.58.0) |
 | 62 | Leftover failures | N38 (binomial SCPC with stronger benchmarks, Theil T in larger samples, clipped six-group counties) | planned |
 | 63 | Small samples and many covariates | N35 (interrupted series below 20 points), N36 (spatial EIV with six to eight covariates under the reliability gate) | planned |
 

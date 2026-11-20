@@ -214,6 +214,10 @@ correlated: fit_model(method="eiv", spatial="clusters"|"error") or
 census.spatial_eiv.fit_spatial_eiv. Both passed (coverage .863-.918; 145 MI/NY counties;
 up to two error-prone covariates; reliability .7-.9); Rounds 46 and 53 extended both to five
 (more are exploratory). In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
+Round 61 manifest options: fit_replicate args.spatial_scpc {} or {rho_bar} (SCPC naive slopes; OLS,
+Poisson with exposure; binomial exploratory; population target, no weights/scale/spatial_se);
+regression_calibration args.spatial "clusters" with model poisson/negbin (exposure) or binomial
+(trials); correlation_matrix args.spatial true with interval "validated" (effective-n intervals).
 Round 53: fit_model(method="regression_calibration", se_method="jackknife") is validated for
 binomial, poisson and negbin slopes (binomial with the default bootstrap is exploratory);
 fit_model(method="regression_calibration", model="poisson"|"negbin", spatial="clusters",

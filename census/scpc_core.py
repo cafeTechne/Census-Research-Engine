@@ -85,7 +85,18 @@ def setup(D, rho_bar=.02, qmax=20, alpha=.10, grid=30, floor=1e-4):
         if best is None or elen < best[0]:
             best = (elen, q, cv)
     _, q, cv = best
-    return dict(W=Wall[:, :q], q=q, cv=cv, c0=c0, rho_bar=rho_bar, alpha=alpha)
+    idx = np.r_[0, 1:q+1]
+    return dict(W=Wall[:, :q], q=q, cv=cv, c0=c0, rho_bar=rho_bar, alpha=alpha,
+                V=[V[np.ix_(idx, idx)] for V in Vs])   # grid covariances for p-values (Round 61)
+
+
+def p_value(theta, e, S, null=0.):
+    """Round 61: worst case over the benchmark grid of P(|tau| > |t|), t = (theta - null)/se (Imhof). Consistent
+    with the interval: p < alpha exactly when the interval excludes ``null``."""
+    e = np.asarray(e, float); n = len(e)
+    s = float(np.sqrt(np.mean((S["W"].T @ e)**2))/np.sqrt(n))
+    t = abs(float(theta)-null)/s
+    return float(min(1., max(_size(V, S["q"], t) for V in S["V"])))
 
 
 def interval(theta, e, S):

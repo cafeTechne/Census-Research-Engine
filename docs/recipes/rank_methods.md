@@ -28,4 +28,5 @@
 **In pre-registered manifests (Round 43).** Add `"interval": "validated"` to a `correlation_matrix`
 analysis's `args` (with `"method"`: spearman, kendall, pearson or partial plus one `"controls"` variable).
 Pearson and partial need declared ACS replicates. The default (`"fisher"`) keeps the older interval for
-registered manifests; new manifests should use `"validated"`.
+registered manifests; new manifests should use `"validated"`. With spatially dependent areas add
+`"spatial": true` (Round 61) for the effective-sample-size intervals (Rounds 48 and 59).

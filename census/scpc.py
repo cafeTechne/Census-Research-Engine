@@ -63,7 +63,7 @@ def fit_scpc(formula: str, frame: pd.DataFrame, model: str = "ols", trials: Opti
         if term == "Intercept":
             continue
         theta, e = core.influence(X, y, kind, j, trials=t, exposure=ex)
-        rows.append(dict(term=term, **core.interval(theta, e, S)))
+        rows.append(dict(term=term, **core.interval(theta, e, S), p_value=core.p_value(theta, e, S)))
     validated = rho in VALIDATED_RHO[model] and abs(level-.90) < 1e-12
     notes = [f"SCPC (Mueller and Watson 2022): q = {S['q']} spatial principal components, critical value "
              f"{S['cv']:.3f}, benchmark average correlation {rho} (range {1/S['c0']:.0f} km); worst case over weaker "

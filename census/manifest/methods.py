@@ -33,7 +33,9 @@ def _run_fit_replicate(a, args, frame, level, replicates, correction, ctx):
     fixed_vars = list(held_external)
     if a.get("replicate_scope") == "covariates_only":  # pre-registered: the outcome is held fixed
         fixed_vars += [v for v in _formula_names(a["formula"].split("~")[0]) if v not in fixed_vars]
-    if args.get("model") == "negbin":  # Round 43 M2: NB2-HC3 (Round 39), model SE, naive target
+    if args.get("spatial_scpc") is not None:  # Round 61: SCPC naive slopes (Round 58)
+        result = _scpc_result(a["formula"], frame, args, level, ctx.get("coords"))
+    elif args.get("model") == "negbin":  # Round 43 M2: NB2-HC3 (Round 39), model SE, naive target
         result = _negbin_result(a["formula"], frame, args["exposure"], level)
     else:
         if fixed_vars:
@@ -82,6 +84,51 @@ def _negbin_result(formula, frame, exposure, level):
                        diagnostics={"interval_target": "population", "family": "negbin", "validated": bool(out["validated"])})
 
 
+def _wrap_table(out, model, formula, method, notes, diag, se_name="se"):
+    """A library result dict (table with term/estimate/se/lower/upper[/p_value]) as a ModelResult."""
+    from scipy import stats
+    from ..results import ModelResult, SOURCE_MODEL
+    t = out["table"]
+    se = t[se_name].to_numpy(float)
+    if "p_value" in t:
+        p = t["p_value"].to_numpy(float)
+    else:
+        df = t["df"].to_numpy(float) if "df" in t else None
+        with np.errstate(divide="ignore", invalid="ignore"):
+            z = np.abs(t["estimate"].to_numpy(float)/se)
+            p = 2*stats.t.sf(z, df) if df is not None else 2*stats.norm.sf(z)
+    table = pd.DataFrame({"term": t["term"], "estimate": t["estimate"], "se_model": se, "se_sampling": np.nan,
+                          "se_total": se, "ci_lower": t["lower"], "ci_upper": t["upper"], "p_value": p})
+    return ModelResult(model_type=model, formula=formula, n_obs=int(out["n"]), coefficients=table, method=method,
+                       uncertainty_sources=[SOURCE_MODEL], confidence_level=.90, notes=list(out["notes"])+notes,
+                       diagnostics={"interval_target": "population", **diag})
+
+
+def _scpc_result(formula, frame, args, level, coords):
+    from ..scpc import fit_scpc
+    spec = args.get("spatial_scpc") or {}
+    out = fit_scpc(formula, frame, args.get("model", "ols"), trials=args.get("trials"), exposure=args.get("exposure"),
+                   coords=coords, rho_bar=spec.get("rho_bar"), level=level)
+    return _wrap_table(out, args.get("model", "ols"), formula, "fit_replicate",
+                       ["SCPC spatial-correlation-robust intervals and p-values (Round 58; manifests since Round 61)."],
+                       {"spatial_scpc": {"rho_bar": out["rho_bar"], "validated": bool(out["validated"]),
+                                         "q": int(out["table"]["q"].iloc[0]) if len(out["table"]) else None}})
+
+
+def _rc_clusters_result(formula, frame, args, level, coords):
+    from ..count_models import fit_count_model
+    from ..models import regression_calibration_clusters
+    model = args.get("model", "ols"); cov = args["error_covariates"]
+    if model in ("poisson", "negbin"):
+        out = fit_count_model(formula, frame, args["exposure"], model, level, spatial="clusters", coords=coords,
+                              calibrate=cov)
+    else:
+        out = regression_calibration_clusters(formula, frame, cov, args["trials"], coords=coords, level=level)
+    return _wrap_table(out, model, formula, "regression_calibration",
+                       ["Regression calibration (pooled) with IM-8 cluster slopes, t(7) (Rounds 53/58; manifests since Round 61)."],
+                       {"rc_clusters": {"validated": bool(out["validated"])}, "regression_calibration_validated": bool(out["validated"])})
+
+
 SPATIAL_EIV_METHODS = {"clusters": "g1", "error": "g2"}
 
 
@@ -109,7 +156,30 @@ def _run_regression_calibration(a, args, frame, level, replicates, correction, c
     from .schema import _formula_names
     held_external = ctx["held_external"]
     method = a["method"]
+    if args.get("spatial") is not None:  # Round 61: calibrated IM-8 cluster slopes
+        return _rc_clusters_result(a["formula"], frame, args, level, ctx.get("coords"))
     return getattr(models, method)(a["formula"], frame, confidence_level=level, **args)
+
+
+def _check_regression_calibration(stage, ctx):
+    if stage == "before_spatial":
+        a, errors = ctx["a"], ctx["errors"]
+        args = a.get("args") or {}
+        if args.get("spatial") is not None:
+            prefix = f"analyses[{ctx['i']}] ({a.get('id')}): "
+            model = args.get("model", "ols")
+            if args["spatial"] != "clusters":
+                errors.append(prefix+"regression_calibration args.spatial must be 'clusters' (Round 61)")
+            if model not in ("poisson", "negbin", "binomial"):
+                errors.append(prefix+"spatial regression calibration supports model poisson, negbin (exposure) or "
+                              "binomial (trials) (Rounds 53/58)")
+            need = "trials" if model == "binomial" else "exposure"
+            if model in ("poisson", "negbin", "binomial") and not args.get(need):
+                errors.append(prefix+f"spatial regression calibration with model {model} needs args.{need}")
+            bad = sorted(set(args) - {"spatial", "model", "exposure", "trials"})
+            if bad:
+                errors.append(prefix+f"spatial regression calibration does not take args {bad}")
+    _check_spatial(stage, ctx)
 
 def _run_simex(a, args, frame, level, replicates, correction, ctx):
     from .. import correlation, models, multitest, sae, trends
@@ -141,19 +211,26 @@ def _run_correlation_matrix(a, args, frame, level, replicates, correction, ctx):
     from .schema import _formula_names
     held_external = ctx["held_external"]
     method = a["method"]
+    spatial = args.pop("spatial", False)
     if args.pop("interval", "fisher") == "validated":  # Round 43 M1: Round 33 validated intervals
+        coords = None
+        if spatial:  # Round 61: effective-n intervals (Rounds 48/59)
+            coords = ctx.get("coords")
+            if coords is None:
+                from ..small_spatial import frame_coordinates
+                coords = frame_coordinates(frame)
         return _validated_correlation_result(frame, args.pop("variables"), args.get("method", "pearson"),
-                                             replicates, args.get("controls") or [], level)
+                                             replicates, args.get("controls") or [], level, coords)
     return correlation.correlation_matrix(frame, args.pop("variables"), confidence_level=level,
                                           replicates=replicates, correction=correction, **args)
 
 
-def _validated_correlation_result(frame, variables, method, replicates, controls, level):
+def _validated_correlation_result(frame, variables, method, replicates, controls, level, coords=None):
     from scipy import stats
     from ..correlation import validated_correlations
     from ..results import CorrelationResult
     rows = validated_correlations(frame, variables, method=method, replicates=replicates, controls=controls,
-                                  confidence_level=level)
+                                  confidence_level=level, coords=coords)
     v = list(variables)
     sq = lambda: pd.DataFrame(np.nan, index=v, columns=v)
     mat, n, pv, lo, hi = sq(), sq(), sq(), sq(), sq()
@@ -170,7 +247,10 @@ def _validated_correlation_result(frame, variables, method, replicates, controls
         mat.loc[x, x] = 1.0
     notes = [f"{method} correlations with the Round 33 validated interval (docs/audits/rank_validation.md); estimand: "
              "the coefficient on the ACS estimates as observed; areas assumed independent (every interval "
-             "under-covered under spatial dependence)."]
+             "under-covered under spatial dependence)."] if coords is None else [
+             f"{method} correlations with effective-sample-size intervals for spatially dependent areas (Rounds 48/59, "
+             "docs/audits/small_spatial_validation.md, docs/audits/spatial_correlation_validation.md); estimand: the "
+             "coefficient on the ACS estimates as observed."]
     return CorrelationResult(matrix=mat, n=n, p_values=pv, ci_lower=lo, ci_upper=hi, method=method,
                              confidence_level=level, notes=notes,
                              provenance={"interval": "validated", "pairs": validated, "controls": list(controls)})
@@ -215,6 +295,12 @@ def _stat_coefficient(h, res):
                 "confirmatory_refusal": f"spatial EIV with {len(sp['error_prone'])} error-prone covariates is exploratory "
                                         "(validated with at most 5; docs/audits/spatial_eiv_validation.md, "
                                         "docs/audits/glm_correction_validation.md, docs/audits/glm_correction2_validation.md)"}
+    scpc = res.diagnostics.get("spatial_scpc")
+    if scpc is not None and not scpc["validated"]:
+        return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
+                "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
+                "confirmatory_refusal": "SCPC is validated for OLS (rho_bar .05, .10) and Poisson (.10) only "
+                                        "(docs/audits/spatial_outside_validation.md)"}
     if res.diagnostics.get("regression_calibration_validated") is False:
         return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
                 "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
@@ -329,11 +415,32 @@ def _check_fit_replicate(stage, ctx):
     count_outcome = ctx.get("count_outcome")
     if stage == "before_spatial":
         allowed = {"model", "weights", "exposure", "trials", "cv_threshold", "max_failed_replicates",
-                   "target", "scale", "spatial_se", "spatial_clusters"}
+                   "target", "scale", "spatial_se", "spatial_clusters", "spatial_scpc"}
         unknown = sorted(set(aargs) - allowed)
         if unknown:
             errors.append(f"fit_replicate does not take args {unknown}")
         glm = aargs.get("model", "ols")
+        scpc = aargs.get("spatial_scpc")
+        if scpc is not None:  # Round 61: SCPC naive slopes (Round 58)
+            from ..scpc import VALIDATED_RHO, DEFAULT_RHO
+            prefix = f"analyses[{i}] ({a.get('id')}): "
+            rho = scpc.get("rho_bar") if isinstance(scpc, dict) else None
+            if not isinstance(scpc, dict) or set(scpc) - {"rho_bar"} or (rho is not None and (type(rho) not in (int, float) or not 0 < rho < 1)):
+                errors.append(prefix+"spatial_scpc must be {} or {rho_bar: number in (0, 1)}")
+            elif glm not in ("ols", "poisson", "binomial"):
+                errors.append(prefix+"spatial_scpc supports model ols, poisson or binomial")
+            elif (rho if rho is not None else DEFAULT_RHO[glm]) not in VALIDATED_RHO[glm] and not manifest.get("exploratory", False):
+                errors.append(prefix+f"SCPC with model {glm} and this rho_bar was not validated (Round 58: ols .05/.10, "
+                              "poisson .10); exploratory only")
+            bad = sorted(k for k in ("weights", "scale", "spatial_se", "spatial_clusters") if aargs.get(k) is not None)
+            if bad:
+                errors.append(prefix+f"spatial_scpc does not combine with {bad}")
+            if aargs.get("target", "population") != "population":
+                errors.append(prefix+"spatial_scpc supports target 'population' only (no ACS replicate variance)")
+            if glm == "poisson" and not aargs.get("exposure"):
+                errors.append(prefix+"spatial_scpc with model poisson needs args.exposure")
+            if glm == "binomial" and not aargs.get("trials"):
+                errors.append(prefix+"spatial_scpc with model binomial needs args.trials")
         if glm == "negbin":  # Round 43 M2: only the Round 39 validated configuration
             prefix = f"analyses[{i}] ({a.get('id')}): "
             bad = sorted(k for k in ("weights", "trials", "scale", "spatial_se", "spatial_clusters") if aargs.get(k) is not None)
@@ -380,7 +487,7 @@ def _check_fit_replicate(stage, ctx):
             expected_offset = any(d.get("op")=="expected_count" and d.get("name")==aargs.get("exposure") for d in manifest.get("derivations",[]))
             if glm in ("poisson", "negbin") and (count_outcome is None or (aargs.get("exposure") != parent + "_denominator" and not expected_offset)):
                 errors.append(f"external poisson needs {parent}_numerator outcome and exposure '{parent}_denominator'")
-            if glm in ("binomial", "poisson") and aargs.get("scale") is None and aargs.get("spatial_se") is None and clusters is None:
+            if glm in ("binomial", "poisson") and aargs.get("scale") is None and aargs.get("spatial_se") is None and clusters is None and scpc is None:
                 errors.append("overdispersion would be ignored: set scale 'robust'")
             elif (glm in ("binomial", "poisson") and aargs.get("scale") == "X2"
                   and manifest_hash(manifest) not in LEGACY_X2_MANIFESTS):
@@ -405,6 +512,8 @@ def _check_correlation(stage, ctx):
         interval = args.get("interval", "fisher")
         if interval not in ("fisher", "validated"):
             errors.append(prefix+"correlation_matrix args.interval must be 'fisher' or 'validated'")
+        if args.get("spatial") is not None and (type(args["spatial"]) is not bool or (args["spatial"] and interval != "validated")):
+            errors.append(prefix+"correlation_matrix args.spatial must be true/false and needs interval 'validated' (Round 61)")
         elif interval == "validated":
             method, controls = args.get("method", "pearson"), args.get("controls") or []
             exploratory = manifest.get("exploratory", False)
@@ -438,11 +547,22 @@ def _text_correlation(a, text):
     return (f"{method.capitalize()} correlations{ctl} with normal intervals on the atanh scale using {form} "
             "(validated by simulation, docs/audits/rank_validation.md). The estimand is the correlation of the ACS "
             "estimates as observed (attenuated by sampling error, not corrected); areas are treated as independent, "
-            "and under spatial dependence these intervals under-covered in validation.")
+            "and under spatial dependence these intervals under-covered in validation."
+            if not args.get("spatial") else
+            "estimates as observed (attenuated by sampling error, not corrected); n is replaced by the "
+            "Clifford-Richardson-Hemon effective sample size for spatially dependent areas (validated in Rounds 48 "
+            "and 59).")
 
 
 def _text_fit_replicate(a, text):
     args = a.get("args") or {}
+    if args.get("spatial_scpc") is not None:
+        model = {"ols": "OLS", "poisson": "Poisson", "binomial": "binomial"}.get(args.get("model", "ols"), args.get("model"))
+        return (f"Coefficients were estimated by {model} regression on the ACS estimates as observed. Intervals and "
+                "p-values are spatial-correlation-robust (SCPC, Mueller and Watson 2022): influence values projected on "
+                "the leading principal components of an exponential spatial correlation, with a critical value and "
+                "p-value that hold for any correlation range up to the benchmark (validated in Round 58, "
+                "docs/audits/spatial_outside_validation.md). ACS replicate variance is not added (population target).")
     if args.get("model") != "negbin":
         return text
     return (f"Coefficients were estimated by negative binomial (NB2) regression with offset log({args.get('exposure')}): "
@@ -789,6 +909,11 @@ def _check_segregation(stage, ctx):
 
 
 def _text_regression_calibration(a, text):
+    if (a.get("args") or {}).get("spatial") == "clusters":
+        return text.replace("standard errors (se_total, used for normal-theory intervals and p-values) by row bootstrap "
+                            "re-estimating the calibration",
+                            "slopes then fitted separately in eight fixed spatial clusters and averaged, with t(7) "
+                            "intervals and p-values (Rounds 53/58)")
     if (a.get("args") or {}).get("se_method") != "jackknife":
         return text
     return text.replace("standard errors (se_total, used for normal-theory intervals and p-values) by row bootstrap "
@@ -869,7 +994,7 @@ METHODS: Dict[str, MethodSpec] = {
         'regression_calibration', ('formula', 'error_covariates'), ('coefficient',), _run_regression_calibration,
         replicate=False,
         external_outcome=False,
-        check=_check_spatial,
+        check=_check_regression_calibration,
         format_text=_text_regression_calibration,
         text=(
             'Covariates measured with known ACS sampling error ({cov}) were corrected by regression '

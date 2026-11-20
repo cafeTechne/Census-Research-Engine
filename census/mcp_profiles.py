@@ -255,7 +255,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
      iv: report the Anderson-Rubin interval when F < 10. State the assumptions;
      confirmatory causal claims need a registered design.
    In manifests (Round 43): args interval "validated" for correlations, model
-   "negbin" for fit_replicate, spatial "clusters"|"error" for fit_eiv.
+   "negbin" for fit_replicate, spatial "clusters"|"error" for fit_eiv. Round 61:
+   fit_replicate spatial_scpc; regression_calibration spatial "clusters"; correlation spatial.
 11. Exploratory only: cr() splines except binomial/Poisson with joint_test; joint_wald;
    censored Poisson for hidden WONDER counts (use the validated censored NB2 in the
    library, Round 45); interrupted series under 20 points (bootstrap_t_bc validated
