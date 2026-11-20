@@ -3,8 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.60.0 (Rounds 61–63, backlog roadmap section 7, released as one bundle; DOI
-10.5281/zenodo.24400452). Previous: v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
+**Current release:** v0.64.0 (Rounds 64–68: agent access and replications A, B, C, E; released as one bundle; DOI
+10.5281/zenodo.24405380). Previous: v0.60.0 (Rounds 61–63; DOI 10.5281/zenodo.24400452); v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
 10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
 10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
@@ -141,24 +141,24 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 68 (v0.64.0; merged, release pending owner approval; implemented by the maintainer agent):** replication
+**Round 68 (v0.64.0; merged, released in the bundled v0.64.0; implemented by the maintainer agent):** replication
 E is replicated (headline only; paper not open access): 70.0% of geographic life-expectancy variation lies between
 tracts, 10.6% between counties and 19.4% between states (published 70.4/10.7/19.0). Goldens unchanged.
 Acceptance: goldens byte-identical; 2162 passed, 37 skipped; 0 failures.
 
-**Round 67 (v0.63.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 67 (v0.63.0; merged, released in the bundled v0.64.0; implemented by the maintainer agent):**
 replication C is partly replicated (5 of 6 slopes; ICE Race and Income exact). Simulation S found SCPC
 under-covers on North Carolina tract geometry when fields correlate over 100 km, so `fit_scpc` marks tract-level
 results exploratory. Deviation 2: the criterion file was a placeholder at `daa1d15` (a tool error). The plan's rule
 governed S, and the full criterion was committed before C ran. Goldens unchanged. Acceptance: goldens byte-identical; 2161 passed, 37 skipped; 0 failures.
 
-**Round 66 (v0.62.0; merged, release pending owner approval; implemented by the maintainer agent):** first
+**Round 66 (v0.62.0; merged, released in the bundled v0.64.0; implemented by the maintainer agent):** first
 registered replications (owner's choice A and B). CHR's county segregation index is reproduced exactly from
 public ACS data, and the Census state Gini from PUMS within .001. The GA/TX/AZ simulation narrows bias-corrected
 D's validated noise range to [.15, .75). Deviation 1 (descriptive interval part only) is recorded in the criterion.
 Goldens unchanged. Acceptance: 2158 passed, 37 skipped; 0 failures.
 
-**Round 64 (v0.61.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 64 (v0.61.0; merged, released in the bundled v0.64.0; implemented by the maintainer agent):**
 agent access, no new statistics (N40–N43): the CLI runs every shared workflow; new MCP tool `interrupted_series`
 (full profile) and `fit_model(model="negbin", censored=...)` for interval-censored NB2; `docs/agent_protocol.md` is
 the single source of the rule passages, generated into `mcp_server.py` by `scripts/sync_rule_text.py` (five stale
