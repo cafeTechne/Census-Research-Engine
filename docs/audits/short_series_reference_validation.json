@@ -1,0 +1,310 @@
+{
+ "cells": [
+  {
+   "problem": "I",
+   "n": 15,
+   "phi": 0.3,
+   "coverage": {
+    "I2": {
+     "level": 0.882,
+     "slope": 0.8715
+    },
+    "I3": {
+     "level": 0.8785,
+     "slope": 0.88
+    },
+    "I4": {
+     "level": 0.72,
+     "slope": 0.702
+    }
+   },
+   "failed": {
+    "I2": 0,
+    "I3": 0,
+    "I4": 0
+   }
+  },
+  {
+   "problem": "I",
+   "n": 15,
+   "phi": 0.6,
+   "coverage": {
+    "I2": {
+     "level": 0.88,
+     "slope": 0.846
+    },
+    "I3": {
+     "level": 0.8885,
+     "slope": 0.857
+    },
+    "I4": {
+     "level": 0.6985,
+     "slope": 0.6185
+    }
+   },
+   "failed": {
+    "I2": 0,
+    "I3": 0,
+    "I4": 0
+   }
+  },
+  {
+   "problem": "I",
+   "n": 20,
+   "phi": 0.3,
+   "coverage": {
+    "I2": {
+     "level": 0.8755,
+     "slope": 0.881
+    },
+    "I3": {
+     "level": 0.879,
+     "slope": 0.8875
+    },
+    "I4": {
+     "level": 0.6585,
+     "slope": 0.6985
+    }
+   },
+   "failed": {
+    "I2": 0,
+    "I3": 0,
+    "I4": 0
+   }
+  },
+  {
+   "problem": "I",
+   "n": 20,
+   "phi": 0.6,
+   "coverage": {
+    "I2": {
+     "level": 0.878,
+     "slope": 0.8575
+    },
+    "I3": {
+     "level": 0.882,
+     "slope": 0.8675
+    },
+    "I4": {
+     "level": 0.655,
+     "slope": 0.6165
+    }
+   },
+   "failed": {
+    "I2": 0,
+    "I3": 0,
+    "I4": 0
+   }
+  },
+  {
+   "problem": "I",
+   "n": 25,
+   "phi": 0.3,
+   "coverage": {
+    "I2": {
+     "level": 0.893,
+     "slope": 0.886
+    },
+    "I3": {
+     "level": 0.8895,
+     "slope": 0.8895
+    },
+    "I4": {
+     "level": 0.6825,
+     "slope": 0.708
+    }
+   },
+   "failed": {
+    "I2": 0,
+    "I3": 0,
+    "I4": 0
+   }
+  },
+  {
+   "problem": "I",
+   "n": 25,
+   "phi": 0.6,
+   "coverage": {
+    "I2": {
+     "level": 0.883,
+     "slope": 0.872
+    },
+    "I3": {
+     "level": 0.884,
+     "slope": 0.8765
+    },
+    "I4": {
+     "level": 0.6505,
+     "slope": 0.6315
+    }
+   },
+   "failed": {
+    "I2": 0,
+    "I3": 0,
+    "I4": 0
+   }
+  },
+  {
+   "problem": "R",
+   "deaths": 50,
+   "c": 0.02,
+   "expected": 10,
+   "coverage": {
+    "R1": 0.896,
+    "R0": 0.896
+   },
+   "refused": {
+    "R1": 2,
+    "R0": 2
+   },
+   "zero_o": {
+    "R1": 0,
+    "R0": 0
+   }
+  },
+  {
+   "problem": "R",
+   "deaths": 50,
+   "c": 0.02,
+   "expected": 100,
+   "coverage": {
+    "R1": 0.8945,
+    "R0": 0.894
+   },
+   "refused": {
+    "R1": 2,
+    "R0": 2
+   },
+   "zero_o": {
+    "R1": 0,
+    "R0": 0
+   }
+  },
+  {
+   "problem": "R",
+   "deaths": 50,
+   "c": 0.08,
+   "expected": 10,
+   "coverage": {
+    "R1": 0.893,
+    "R0": 0.891
+   },
+   "refused": {
+    "R1": 0,
+    "R0": 0
+   },
+   "zero_o": {
+    "R1": 0,
+    "R0": 0
+   }
+  },
+  {
+   "problem": "R",
+   "deaths": 50,
+   "c": 0.08,
+   "expected": 100,
+   "coverage": {
+    "R1": 0.892,
+    "R0": 0.8795
+   },
+   "refused": {
+    "R1": 1,
+    "R0": 1
+   },
+   "zero_o": {
+    "R1": 0,
+    "R0": 0
+   }
+  },
+  {
+   "problem": "R",
+   "deaths": 500,
+   "c": 0.02,
+   "expected": 10,
+   "coverage": {
+    "R1": 0.908,
+    "R0": 0.9075
+   },
+   "refused": {
+    "R1": 0,
+    "R0": 0
+   },
+   "zero_o": {
+    "R1": 0,
+    "R0": 0
+   }
+  },
+  {
+   "problem": "R",
+   "deaths": 500,
+   "c": 0.02,
+   "expected": 100,
+   "coverage": {
+    "R1": 0.901,
+    "R0": 0.8995
+   },
+   "refused": {
+    "R1": 0,
+    "R0": 0
+   },
+   "zero_o": {
+    "R1": 0,
+    "R0": 0
+   }
+  },
+  {
+   "problem": "R",
+   "deaths": 500,
+   "c": 0.08,
+   "expected": 10,
+   "coverage": {
+    "R1": 0.901,
+    "R0": 0.8925
+   },
+   "refused": {
+    "R1": 0,
+    "R0": 0
+   },
+   "zero_o": {
+    "R1": 0,
+    "R0": 0
+   }
+  },
+  {
+   "problem": "R",
+   "deaths": 500,
+   "c": 0.08,
+   "expected": 100,
+   "coverage": {
+    "R1": 0.904,
+    "R0": 0.863
+   },
+   "refused": {
+    "R1": 0,
+    "R0": 0
+   },
+   "zero_o": {
+    "R1": 0,
+    "R0": 0
+   }
+  }
+ ],
+ "passed": {
+  "I2_min_n": 25,
+  "I3_min_n": 20,
+  "I4_min_n": null,
+  "R1": true,
+  "R0": true
+ },
+ "criterion_commit": "dd6d6b7",
+ "draws_per_cell": 2000,
+ "seed": 20280101,
+ "frozen_sha256": {
+  "scripts/short_series_reference_validation.py": "7388ca3db970667ca0891953680aa304f471df7b828c18ba421e0c07f3d521c6",
+  "census/its_small_core.py": "6bd32ac3dcecec39eb3bbc89f27b5e521a40ef91b4d43c1e835e6cb966244ab7",
+  "census/small_spatial_core.py": "da408026794b3fa4caffd3b2388dbf026d2ec78a0e9455852e55cf54aef9face",
+  "census/mci_core.py": "d31a846cd90b890192ed107dac4c665efb30f56d61f466ec98638021972d9944",
+  "census/standardize.py": "cca3837ba362887fdfd94db1ded717c9927e145908a30b53759d8a98208bb8f5",
+  "docs/audits/short_series_reference_validation_criterion.md": "075abefd5eb619136daa8f169197e0169d57361246d43e85a20a352f3e88c7f7"
+ }
+}
