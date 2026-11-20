@@ -1,0 +1,138 @@
+{
+  "geometry": "ohpa",
+  "rank_seed": 20261231,
+  "index_seed": 20270121,
+  "reference_areas": 400000,
+  "rank_rows": [
+    {
+      "cell": 0,
+      "rho": 0.0,
+      "reliability": 0.9,
+      "range_km": 0,
+      "observed": {
+        "pearson": 0.0006315002246441689,
+        "spearman": 0.0011877257580856107,
+        "kendall": -0.00162441561039026,
+        "partial": 0.0013203817207725842
+      }
+    },
+    {
+      "cell": 1,
+      "rho": 0.0,
+      "reliability": 0.9,
+      "range_km": 100,
+      "observed": {
+        "pearson": 0.0011535871637102777,
+        "spearman": 0.0010244408553054653,
+        "kendall": 0.0014691292282307058,
+        "partial": 0.00012603073100159244
+      }
+    },
+    {
+      "cell": 2,
+      "rho": 0.0,
+      "reliability": 0.7,
+      "range_km": 0,
+      "observed": {
+        "pearson": -0.0011190670803206677,
+        "spearman": -0.0011063755782359773,
+        "kendall": -0.0021740293507337685,
+        "partial": -0.0015499170668363234
+      }
+    },
+    {
+      "cell": 3,
+      "rho": 0.0,
+      "reliability": 0.7,
+      "range_km": 100,
+      "observed": {
+        "pearson": 0.0014055939125129978,
+        "spearman": 0.0005614460921290716,
+        "kendall": -0.00663342333558339,
+        "partial": 0.0007695134861591748
+      }
+    },
+    {
+      "cell": 4,
+      "rho": 0.4,
+      "reliability": 0.9,
+      "range_km": 0,
+      "observed": {
+        "pearson": 0.3356453808432658,
+        "spearman": 0.3294805456626164,
+        "kendall": 0.21953636340908525,
+        "partial": 0.29809774118484267
+      }
+    },
+    {
+      "cell": 5,
+      "rho": 0.4,
+      "reliability": 0.9,
+      "range_km": 100,
+      "observed": {
+        "pearson": 0.3323579947629023,
+        "spearman": 0.3259573539891448,
+        "kendall": 0.2274179004475112,
+        "partial": 0.29501322270612035
+      }
+    },
+    {
+      "cell": 6,
+      "rho": 0.4,
+      "reliability": 0.7,
+      "range_km": 0,
+      "observed": {
+        "pearson": 0.2599923720166195,
+        "spearman": 0.2514960450283521,
+        "kendall": 0.1678300507512688,
+        "partial": 0.2336109218021413
+      }
+    },
+    {
+      "cell": 7,
+      "rho": 0.4,
+      "reliability": 0.7,
+      "range_km": 100,
+      "observed": {
+        "pearson": 0.26269438557068364,
+        "spearman": 0.24768309333234487,
+        "kendall": 0.16704982874571864,
+        "partial": 0.23594682603775297
+      }
+    }
+  ],
+  "index_rows": [
+    {
+      "cell": 0,
+      "alpha_observed": 0.7721605375532021
+    },
+    {
+      "cell": 1,
+      "alpha_observed": 0.7725231660758989
+    },
+    {
+      "cell": 2,
+      "alpha_observed": 0.7740956220108977
+    },
+    {
+      "cell": 3,
+      "alpha_observed": 0.7738048076969493
+    },
+    {
+      "cell": 4,
+      "alpha_observed": 0.7289097455723198
+    },
+    {
+      "cell": 5,
+      "alpha_observed": 0.727694438801525
+    },
+    {
+      "cell": 6,
+      "alpha_observed": 0.7301425792281451
+    },
+    {
+      "cell": 7,
+      "alpha_observed": 0.7275952633467991
+    }
+  ]
+}
