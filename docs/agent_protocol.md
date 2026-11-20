@@ -361,7 +361,9 @@ estimate correlation (attenuated). compare_groups(method="rank"): Brunner-Munzel
 superiority (two groups) and Kruskal-Wallis (3+), validated for independent areas.
 All correlation intervals under-covered (0.60-0.89) with spatially correlated areas. Round 48:
 correlation_matrix(spatial=True) uses the effective sample size (Spearman .875-.917, Kendall
-.862-.905, Pearson with replicates .864-.967; partial stays exploratory).
+.862-.905, Pearson with replicates .864-.967). Round 59: partial correlations (one control,
+replicates) use the effective n of the residual series (.869-.971), and all of these intervals and
+the effective-n alpha replicated on OH/PA (docs/audits/spatial_correlation_validation.md).
 OLS fit_model/compare_groups add model diagnostics (VIF, Cook's distance, Breusch-Pagan,
 RESET): information only, never a gate.
 

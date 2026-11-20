@@ -63,9 +63,9 @@ method over O; A3 over A. Failed fits count as non-coverage.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, targets, script, criterion commit | | |
-| P / O / A results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Core, targets, script, criterion commit | done | OH/PA targets recomputed; setup checked against MI/NY; `669a506` |
+| P / O / A results | done | P1 passes both geometries; C1 and A3 replicate on OH/PA (`d168dfa`) |
+| Engine, tests | done | partial effective n in `validated_correlations`; 5 new tests |
+| Example | done | OH/PA correlations; `/tmp/r59_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2117 passed, 37 skipped |
+| Exceptions | none | example partial is exploratory (no OH/PA county replicates cached) |

@@ -193,7 +193,7 @@ Same ground rules. Open issues N29–N34 (N35 and N36 are recorded limits, not p
 | :--- | :--- | :--- | :--- |
 | 57 | Segregation: remaining gaps | N30, N33 (clipped replicates above noise .50, six groups, same-release county contrasts, group-quarters tracts) | merged (v0.54.0) |
 | 58 | Spatial inference outside MI/NY | N31 (naive slopes, G1/G2 with three to five covariates, the MI/NY IM-8 cell), N34 | merged (v0.55.0) |
-| 59 | Correlations under spatial dependence | N29 (partial correlations), N31 (Round 48 designs on OH/PA) | planned |
+| 59 | Correlations under spatial dependence | N29 (partial correlations), N31 (Round 48 designs on OH/PA) | merged (v0.56.0) |
 | 60 | PUMS inequality repairs | N32 | planned |
 
 ### Round 57: segregation, remaining gaps

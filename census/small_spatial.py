@@ -26,7 +26,12 @@ ITS_REML_VALIDATED = False
 SHORT_SERIES_AUDIT = "docs/audits/short_series_reference_validation.md"
 ITS_BOOTSTRAP_BC_MIN_N = 20
 ITS_EWC_VALIDATED = False
-NEFF_CORRELATION_VALIDATED = {"spearman": True, "kendall": True, "pearson": True, "partial": False}
+# Round 59 (criterion 669a506; docs/audits/spatial_correlation_validation.md): partial correlations with the
+# effective n of the residual series passed (.869-.971, MI/NY and OH/PA); the Round 48 correlation and alpha
+# intervals replicated on OH/PA (correlations .880-.965, alpha .901-.933).
+NEFF_CORRELATION_VALIDATED = {"spearman": True, "kendall": True, "pearson": True, "partial": True}
+OHPA_REPLICATED = {"spearman": True, "kendall": True, "pearson": True, "partial": True, "alpha": True}
+SPATIAL_CORRELATION_AUDIT = "docs/audits/spatial_correlation_validation.md"
 NEFF_ALPHA_VALIDATED = True
 HKSJ_TRUNCATED_MAX_K = 10
 LIMITS_ROBUST_VALIDATED = True
