@@ -164,6 +164,8 @@ low-reliability, correlated MI/NY cell, so prefer SCPC for OLS. With every error
 reliability >= .8, G1/G2 with three to five covariates pass on OH/PA too (reliability is
 reported). Calibrated binomial slopes with IM-8 clusters are validated
 (fit_model(method="regression_calibration", model="binomial", spatial="clusters")).
+Round 63: under the same gate (every reliability >= .8) G1 is validated with up to eight and G2 with
+up to seven error-prone covariates (docs/audits/small_many_validation.md).
 See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
 Round 31 group comparisons: compare_groups (recipe group_comparison) runs t-tests,
@@ -282,7 +284,8 @@ rules; validated, also when missingness depends on the outcome). Exploratory lib
 census.missing_censored_its.fit_censored_poisson uses WONDER counts hidden as 1-9 as interval
 information without estimating them (under-covered .84-.86, though better than dropping them);
 interrupted_series for annual series (20-point series: every Round 42 method under-covered, .47-.81;
-Round 55: method="bootstrap_t_bc" is validated for 20+ points, "bootstrap_t" for 30+).
+Round 55: method="bootstrap_t_bc" is validated for 20+ points, "bootstrap_t" for 30+; Round 63:
+"bootstrap_t_cons" for 17+ points; below 17 nothing is validated).
 
 Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
 and scale:"robust"; Poisson counts use exposure

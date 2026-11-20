@@ -293,7 +293,8 @@ def _stat_coefficient(h, res):
         return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
                 "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
                 "confirmatory_refusal": f"spatial EIV with {len(sp['error_prone'])} error-prone covariates is exploratory "
-                                        "(validated with at most 5; docs/audits/spatial_eiv_validation.md, "
+                                        "(validated with at most 5, or up to 8 (G1) / 7 (G2) when every reliability is >= .8; "
+                                        "docs/audits/spatial_eiv_validation.md, docs/audits/small_many_validation.md, "
                                         "docs/audits/glm_correction_validation.md, docs/audits/glm_correction2_validation.md)"}
     scpc = res.diagnostics.get("spatial_scpc")
     if scpc is not None and not scpc["validated"]:

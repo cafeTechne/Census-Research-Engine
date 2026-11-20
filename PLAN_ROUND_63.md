@@ -49,9 +49,9 @@ cap is the largest p with every smaller tested p also passing. Failed fits count
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion commit | | |
-| I / G results | | |
-| Engine, tests | | |
-| Demonstration | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Core, script, criterion commit | done | `ac2f34c` |
+| I / G results | done | I6 from 17 points, I7 from 19, nothing at 15; G1 to 8, G2 to 7 under the gate (`5eaec29`) |
+| Engine, tests | done | two ITS methods; gated EIV caps; 5 new tests, 1 older parameter updated |
+| Demonstration | done | simulated 17-point series; `/tmp/r63_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2137 passed, 37 skipped |
+| Exceptions | none | 15 points and G2 with 8 covariates remain limits |

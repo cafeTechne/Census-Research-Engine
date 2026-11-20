@@ -5,6 +5,22 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.60.0 (Round 63): small samples and many covariates
+
+- Freeze the script and the criterion at `ac2f34c`; 30 cells, 2,000 draws each.
+- Passed:
+  - `interrupted_series(method="bootstrap_t_cons")` (critical values at least the t(n − p − 1) quantile) from 17
+    points (.865–.896);
+  - `method="bootstrap_t_bb"` (bootstrap-bias-corrected AR coefficient) from 19 points;
+  - spatial EIV under the reliability gate (every reliability ≥ .8): G1 with up to 8 error-prone covariates
+    (.873–.918) and G2 with up to 7 (.876–.940).
+- Failed: every interrupted-series method at 15 points (.849–.855); G2 with 8 covariates (.856). These stay
+  recorded limits (N35 below 17 points).
+- `spatial_eiv.GATED_MAX_ERROR_COVARIATES`; `small_spatial.ITS_BOOTSTRAP_CONS_MIN_N`/`ITS_BOOTSTRAP_BB_MIN_N`. Goldens
+  byte-identical.
+- Demonstration (`docs/studies/r63_short_series_demonstration.md`).
+- Acceptance: goldens byte-identical; 2137 passed, 37 skipped; 0 failures (5 new tests).
+
 ## 0.59.0 (Round 62): leftover failures
 
 - Freeze the script and the criterion at `8f14e39` (generators and targets imported unchanged from Rounds 30–58).
