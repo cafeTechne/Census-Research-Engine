@@ -33,6 +33,10 @@ def test_ranges_equal_audit():
             span = sg.REALISTIC_RANGES[(name, variant, n[design])]
             if top is None:
                 assert span is None
+            elif design == "two" and variant == "naive":
+                assert span is None      # Round 52: naive isolation/H failed race groups at .15-.50
+            elif design == "two":
+                assert span[1] >= top    # Round 52 widened the two-group ranges (tests/test_round52.py)
             else:
                 assert span is not None and span[1] == pytest.approx(top)
                 # Variants that failed Round 28 at CV .15 start at .15 (conservative engine restriction).
@@ -93,14 +97,16 @@ def test_gate_validates_realistic_noise_with_defaults():
     assert (out.max_count_cv > .15).all() and (out.noise_level.between(.15, .5)).all()
     naive = sg.segregation_replicate(f, ["a", "b"], r, bias_correction=False).set_index("statistic")
     assert not naive.loc["dissimilarity", "validated"]          # naive D failed realistic error
-    assert naive.loc["isolation", "validated"] and naive.loc["theil_h", "validated"]   # .15-.30
-    assert any("outside the Round 50 validated range none" in n for n in naive.loc["dissimilarity", "notes"])
+    # Round 50 validated naive isolation/H at .15-.30; Round 52 race groups failed them there.
+    assert not naive.loc["isolation", "validated"] and not naive.loc["theil_h", "validated"]
+    assert any("outside the Rounds 50/52 validated range none" in n for n in naive.loc["dissimilarity", "notes"])
 
 
 def test_gate_refuses_beyond_range_and_small_counties():
-    f, r = county(.6, seed=7, alternating=True)
+    # Round 52 widened the ranges: D and H to 1.0, isolation any finite noise level.
+    f, r = county(1.2, seed=7, alternating=True)
     out = sg.segregation_replicate(f, ["a", "b"], r).set_index("statistic")
-    assert (out.noise_level >= .5).all() and not out.validated.any()
+    assert (out.noise_level >= 1.).all() and out.validated.tolist() == [False, True, False]
     t = sg.segregation_test(out.reset_index(), "theil_h", "36061", null_value=.1)
     assert t["validated"] is False and "noise range" in t["confirmatory_refusal"]
     f, r = county(.25, tracts=4)
@@ -118,9 +124,10 @@ def test_three_group_h_validated_four_groups_not():
     three = sg.segregation_replicate(f, list("abc"), r[r.variable != "d"])
     assert three.statistic.tolist() == ["theil_h"] and three.validated.all()
     assert not sg.segregation_replicate(f, list("abc"), r[r.variable != "d"], bias_correction=False).validated.any()
-    assert not sg.segregation_replicate(f, list("abcd"), r).validated.any()
+    # Round 52: bias-corrected four- and five-group H validated (race groups); naive and six+ groups not.
+    assert sg.segregation_replicate(f, list("abcd"), r).validated.all()
     assert sg.variant_validated("theil_h", "bias_corrected", 3) and not sg.variant_validated("theil_h", "naive", 3)
-    assert not sg.variant_validated("theil_h", "bias_corrected", 4)
+    assert sg.variant_validated("theil_h", "bias_corrected", 4) and not sg.variant_validated("theil_h", "bias_corrected", 6)
 
 
 def test_rule_text_mirrored():

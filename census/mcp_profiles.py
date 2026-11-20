@@ -259,10 +259,11 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
 12. Event-count EB smoothing (small_area): fixed expected counts, keep WONDER [1,9]
    suppression, never impute suppressed counts or call EB limits ACS MOEs.
 13. Segregation: get_recipe('segregation'). Tract groups are mutually exclusive
-   counts within county; strict 80 replicates; defaults bias-corrected. Validated when the
-   county noise level (largest group median tract CV) is below .50 with 5+ populated
-   tracts (Round 50; three-group H too); else exploratory. Negative replicate counts:
-   manifest args.negative_replicates "clip" (Round 51; bias-corrected versions only).
+   counts within county; strict 80 replicates; defaults bias-corrected. Validated with 5+
+   populated tracts when the county noise level (largest group median tract CV) is below
+   1.0 (D from .15; isolation and 4-5 group H any finite level; 3-group H .50; Rounds
+   50/52, incl. race groups); naive isolation/H exploratory. Release contrasts: noise
+   below .50. Negative replicate counts: args.negative_replicates "clip" (Round 51).
 """
 
 REVIEW_INSTRUCTIONS = """\

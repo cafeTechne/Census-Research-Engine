@@ -8,8 +8,9 @@
 2. Declare at least two ACS count variables in `groups`. Their sum defines each
    tract's population. Dissimilarity and isolation require exactly two groups;
    isolation describes **group one**, so group order matters. Theil H supports
-   multiple groups; bias-corrected three-group H passed Round 50, while four or more
-   groups and naive multigroup H are exploratory.
+   multiple groups; bias-corrected H with three (Round 50), four or five groups
+   (Round 52, race/ethnicity) passed, while six or more groups and naive multigroup H
+   are exploratory.
    Do not use overlapping race/ethnicity categories, rates, medians or percentages
    as group counts; the engine cannot infer mutually exclusive definitions.
 3. Supply all 80 ACS VRE replicates for every declared group and tract, either
@@ -64,32 +65,40 @@
    interval, alongside multiplicity-adjusted hypothesis tests. Corrected points
    and normal intervals are **not clipped** to [0,1]. These describe segregation
    among the observed tracts, not causal effects or superpopulation uncertainty.
-8. **Validated range (Round 50).** The realistic-error validation used the real
-   2024 MI/NY tract counts and published MOEs (poverty: two groups; household
-   income: three groups), non-negative Gamma counts and replicates, and correlated
-   group errors. Each row reports the county's **noise level** (`noise_level`: the
-   largest, over groups, of the median tract CV from the replicates; a zero count
-   has infinite CV). A row is validated when the noise level is below .50 for
-   bias-corrected D (from .15), isolation and H (two or three groups), or below .30
-   for naive isolation/H (from .15), with at least five populated tracts. The Round
-   28 range (every tract CV <= .15, `max_count_cv`) also still validates. Otherwise
-   rows are exploratory and confirmatory hypotheses are refused
-   (`hypothesis_not_tested`). With 2024 poverty or income groups, 132 of 140 MI/NY
-   counties are validated (the rest have under five tracts). Race and ethnicity groups,
-   which are sparser, were not in the validation: check their noise level, and treat
-   counties above .50 as exploratory. A county with a negative replicate estimate in
-   any tract (2024: the Bronx, Kings, Wayne and seven others) is estimated with clipped
-   replicates (Round 51) and validated in the same noise range for the bias-corrected
-   versions only (`clipped_replicates` > 0); naive isolation and H with clipped cells
-   failed and are exploratory. Contrasts
-   have covariance checks but no separate coverage experiment. Wider intervals
-   are not a remedy for an unsupported error model.
+8. **Validated range (Rounds 50 and 52).** The realistic-error validations used real
+   tract counts and published MOEs (Round 50: 2024 MI/NY poverty, two groups, and
+   household income, three groups; Round 52: 2024 MI/NY race/ethnicity groups from
+   B03002, two, four and five groups, OH/PA poverty and Black/non-Black, and the MI/NY
+   poverty change 2015–2019 to 2020–2024), non-negative Gamma counts and replicates,
+   and correlated group errors. Each row reports the county's **noise level**
+   (`noise_level`: the largest, over groups, of the median tract CV from the
+   replicates; a zero count has infinite CV). Two-group ranges hold for every design
+   judged (the engine cannot tell race groups from poverty groups). A row is
+   validated, with at least five populated tracts, when the noise level is:
+   - bias-corrected D: from .15 to below 1.0;
+   - bias-corrected isolation: any finite level;
+   - bias-corrected H: below 1.0 (two groups), below .50 (three), any finite level
+     (four or five).
+   Naive isolation and H failed race groups at .15–.50 and are exploratory (Round
+   52); naive D was never validated beyond the Round 28 range (every tract CV <= .15,
+   `max_count_cv`), which still validates. An infinite noise level (a group's median
+   tract count is zero, common for small minority groups) is never validated.
+   Otherwise rows are exploratory and confirmatory hypotheses are refused
+   (`hypothesis_not_tested`). A county with a negative replicate estimate in any tract
+   is estimated with clipped replicates (Round 51) and validated for the
+   bias-corrected versions below .50 only (`clipped_replicates` > 0).
+   **Contrasts** between two non-overlapping releases (variances added) are validated
+   when both rows are validated, there are two groups, and the larger noise level is
+   below .50 (Round 52); multigroup cross-release contrasts and same-release county
+   contrasts have no coverage experiment. Wider intervals are not a remedy for an
+   unsupported error model.
 
 Existing manifest tools execute this recipe; no new MCP tool is needed.
 Python entry points are `census.segregation_indices(counts)` and
 `census.segregation_replicate(frame, groups, replicates)`; the latter retains
 raw replicate indices for contrasts. Preserve leading-zero GEOIDs and explicit
 release labels. See `docs/audits/segregation_validation.md` (criterion `4791763`) and
-`docs/audits/segregation_realistic_validation.md` (Round 50, criterion `686d121`).
+`docs/audits/segregation_realistic_validation.md` (Round 50, criterion `686d121`) and
+`docs/audits/segregation_groups_validation.md` (Round 52, criterion `b19696b`).
 References: Duncan & Duncan (1955), ASR 20:210–217; Massey & Denton (1988),
 Social Forces 67:281–315; Reardon & Firebaugh (2002), Sociol Methodol 32:33–67.
