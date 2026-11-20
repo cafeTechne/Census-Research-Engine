@@ -5,6 +5,19 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.63.0 (Round 67): replication C and SCPC at tract level
+
+- Plan `e75a41b`; criterion text `14b78b2`. Deviation 2: the criterion file was a placeholder at `daa1d15` because
+  of a tool error. Simulation S ran under the plan's rule, and the full text was committed before replication C was
+  computed.
+- **Replication C, partly replicated:** Mitchell et al. (2022), ln(tract life expectancy) on ICE in 1,971 NC tracts.
+  5 of 6 slopes replicate. ICE Race and ICE Income match to the printed digit (adjusted R² 19.60% and 48.19%,
+  exact). The combined index's OLS slope is 0.147 against 0.13; its R² differs slightly, which points to a
+  definition difference (the paper's text names total population as the denominator).
+- **S:** on NC tract geometry, SCPC covers .91–.94 at 0–20 km but .75 (ρ̄ .05) and .81 (.10) at 100 km; HC3
+  covers .12–.26. `fit_scpc` now marks tract-level (11-digit GEOID) results exploratory with a note.
+- Goldens byte-identical. Acceptance: goldens byte-identical; 2161 passed, 37 skipped; 0 failures.
+
 ## 0.62.0 (Round 66): first registered replications
 
 - Criterion `dd48bf6`; deviation 1 (`d30d7ed`) made the descriptive interval part run per county, with the rules

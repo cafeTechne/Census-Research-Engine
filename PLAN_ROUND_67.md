@@ -55,9 +55,9 @@ manuscript), Table 3:
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Data and criterion | | |
-| S run | | |
-| Replication result | | |
-| Report, tests | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Data and criterion | done | 1,971 tracts; criterion `14b78b2` (deviation 2: placeholder at `daa1d15`) |
+| S run | done | SCPC fails at 100 km on NC tracts (.75/.81); HC3 .12–.26 |
+| Replication result | done | partly replicated: 5 of 6 slopes; Race and Income exact |
+| Report, tests | done | `r67_replication_nc_ice.md`; 3 tests; tract-level SCPC exploratory |
+| Goldens, final suite | done | identical; 2161 passed, 37 skipped |
+| Exceptions | one | deviation 2 |

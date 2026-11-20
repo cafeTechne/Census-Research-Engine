@@ -19,7 +19,7 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_67.md` (replication C: NC tract life expectancy and ICE). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_68.md` (replication E: tract/county/state shares of life-expectancy variation), drafted after Round 67 merges. Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–63 complete; section 8, Round 64 onward, planned; N39 ACS 2021–2025 refresh deferred to about 2026-12-20): the backlog below plus issues N1–N38 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -68,6 +68,7 @@ manifests refuse them in confirmatory analyses.
 | Combining evidence (`combine_estimates`) | **Passed selected**: Paule–Mandel + Hartung–Knapp pooling for 2–4 estimates (.885–.911; 5–10 with truncation since Round 48); fixed effect only when homogeneity is declared in advance; TOST equivalence; z-test power. DerSimonian–Laird failed with heterogeneity (.82–.84) | `evidence_validation.md`, criterion `3edd5f4` |
 | Agreement between sources (`check_agreement`) | **Passed selected**: bias (.894–.900) and kappa of quintile classes (.883–.912). Failed (estimates only, intervals exploratory): Bland–Altman limits observed (.838) and error-free (.826; both repaired in Round 48), Lin's CCC (.859) and corrected CCC (.38–.77) | `agreement_validation.md`, criterion `e6d4be6` |
 | Composite index scores and Cronbach's α (`build_index`) | **Passed**: per-area score intervals (PCA and equal weights; mean coverage .898–.899, every area ≥ .874); Feldt α interval for independent areas (.891–.912; under-covers with spatial dependence, .58–.67; Round 48 effective-n repair). Quintile stability and typologies descriptive | `index_validation.md`, criterion `e86907d` |
+| Replication C and SCPC at tract level (Round 67) | **Partly replicated**: Mitchell et al. 2022 (NC tract life expectancy on ICE), 5 of 6 slopes; ICE Race and Income match to the printed digit (R² 19.60%, 48.19% exact); the combined index's OLS slope is 13% larger (definition). **SCPC failed on NC tracts** at 100 km (.75/.81; HC3 .12–.26), so tract-level SCPC is exploratory | `r67_nc_ice_replication.md`, `r67_nc_tract_validation.md`; plan `e75a41b`, criterion `14b78b2` (deviation 2) |
 | Replications and segregation on new geometry (Round 66) | **Replicated**: CHR 2025 county Black/White dissimilarity (2,055 counties, exact); Census state Gini B19083 from PUMS (median difference .0008; 10 of 12 intervals contain it). **Simulation on GA/TX/AZ**: isolation and H pass; bias-corrected D failed at noise .75–1 on TX (16 of 18 counties ≥ .80), so its range now ends at .75 | `r66_numeric_replication.md`, `r66_segregation_geometry_validation.md`, criterion `dd48bf6`/`d30d7ed` |
 | Small samples and many covariates (Round 63) | **Passed**: conservative bootstrap-t (`bootstrap_t_cons`) for interrupted series from 17 points (.865–.896); bootstrap-bias-corrected variant from 19; G1 with up to 8 and G2 with up to 7 error-prone covariates when every reliability ≥ .8. **Failed**: every interrupted-series method at 15 points (.849–.855); G2 with 8 (.856) | `small_many_validation.md`, criterion `ac2f34c` |
 | Leftover failures (Round 62) | **Passed**: binomial SCPC with ρ̄ .15 (.886–.954) and .20; clipped six-group bias-corrected H at any finite noise level. **Failed**: Theil T also with 8,000 households (.858): exploratory at every sample size tested | `leftover_failures_validation.md`, criterion `8f14e39` |
@@ -138,6 +139,12 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 67 (v0.63.0; merged, release pending owner approval; implemented by the maintainer agent):**
+replication C is partly replicated (5 of 6 slopes; ICE Race and Income exact). Simulation S found SCPC
+under-covers on North Carolina tract geometry when fields correlate over 100 km, so `fit_scpc` marks tract-level
+results exploratory. Deviation 2: the criterion file was a placeholder at `daa1d15` (a tool error). The plan's rule
+governed S, and the full criterion was committed before C ran. Goldens unchanged. Acceptance: goldens byte-identical; 2161 passed, 37 skipped; 0 failures.
 
 **Round 66 (v0.62.0; merged, release pending owner approval; implemented by the maintainer agent):** first
 registered replications (owner's choice A and B). CHR's county segregation index is reproduced exactly from
@@ -389,6 +396,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 67 | Replication C: NC tract life expectancy and ICE (registered) | Partly replicated (5 of 6 slopes; two indices exact to the printed digit); `r67_replication_nc_ice.md` |
 | 66 | Replications A and B (registered numeric checks) | CHR county dissimilarity reproduced exactly (2,055 counties); state Gini within .001 (10/12 intervals contain it); `r66_replication_chr_segregation.md`, `r66_replication_state_gini.md` |
 | 63 | A simulated 17-point interrupted series with each method (demonstration, not data) | Only `bootstrap_t_cons` is validated at 17 points; `r63_short_series_demonstration.md` |
 | 62 | OH/PA county child poverty as a binomial outcome with SCPC (exploratory example) | Unemployment log-odds slope 0.121 (0.075–0.168), validated; consistent with the OLS percentage-point slope; `r62_binomial_scpc_example.md` |

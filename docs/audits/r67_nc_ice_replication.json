@@ -1,0 +1,119 @@
+{
+ "criterion_commit": "14b78b2",
+ "n_tracts": 1971,
+ "n_joined": 1971,
+ "islands": [
+  "37031970200"
+ ],
+ "interval": "HC3",
+ "slopes": {
+  "ice_race": {
+   "ols": {
+    "published": 0.045,
+    "estimate": 0.04543609628063982,
+    "lower": 0.04201690621704418,
+    "upper": 0.04885528634423546,
+    "ratio": 1.0096910284586627,
+    "same_sign": true,
+    "overlaps": true,
+    "ratio_ok": true,
+    "replicated": true,
+    "adj_r2": 19.60312271686352,
+    "published_adj_r2": 19.6,
+    "hc3": [
+     0.04201690621704418,
+     0.04885528634423546
+    ]
+   },
+   "spatial_error": {
+    "published": 0.054,
+    "estimate": 0.05403692461902612,
+    "lower": 0.049578420944520765,
+    "upper": 0.05849542829353148,
+    "ratio": 1.0006837892412246,
+    "same_sign": true,
+    "overlaps": true,
+    "ratio_ok": true,
+    "replicated": true,
+    "lam": 0.61300833143517,
+    "n": 1970
+   },
+   "eiv": {
+    "estimate": 0.046249535964459805,
+    "lower": 0.042775995534323256,
+    "upper": 0.049723076394596354
+   }
+  },
+  "ice_income": {
+   "ols": {
+    "published": 0.13,
+    "estimate": 0.12597570133884825,
+    "lower": 0.12073668074885947,
+    "upper": 0.131214721928837,
+    "ratio": 0.9690438564526788,
+    "same_sign": true,
+    "overlaps": true,
+    "ratio_ok": true,
+    "replicated": true,
+    "adj_r2": 48.188292311811544,
+    "published_adj_r2": 48.19,
+    "hc3": [
+     0.12073668074885947,
+     0.131214721928837
+    ]
+   },
+   "spatial_error": {
+    "published": 0.12,
+    "estimate": 0.12188633536662125,
+    "lower": 0.1160667119287059,
+    "upper": 0.12770595880453658,
+    "ratio": 1.0157194613885103,
+    "same_sign": true,
+    "overlaps": true,
+    "ratio_ok": true,
+    "replicated": true,
+    "lam": 0.3736524733776874,
+    "n": 1970
+   },
+   "eiv": {
+    "estimate": 0.1328176463154404,
+    "lower": 0.12720449952641968,
+    "upper": 0.13843079310446113
+   }
+  },
+  "ice_income_race": {
+   "ols": {
+    "published": 0.13,
+    "estimate": 0.14645141368196596,
+    "lower": 0.140198352056905,
+    "upper": 0.1527044753070269,
+    "ratio": 1.1265493360151226,
+    "same_sign": true,
+    "overlaps": false,
+    "ratio_ok": true,
+    "replicated": false,
+    "adj_r2": 45.127492637120405,
+    "published_adj_r2": 45.07,
+    "hc3": [
+     0.140198352056905,
+     0.1527044753070269
+    ]
+   },
+   "spatial_error": {
+    "published": 0.13,
+    "estimate": 0.1417749934984614,
+    "lower": 0.1345051499833556,
+    "upper": 0.1490448370135672,
+    "ratio": 1.0905768730650875,
+    "same_sign": true,
+    "overlaps": true,
+    "ratio_ok": true,
+    "replicated": true,
+    "lam": 0.4207759438468302,
+    "n": 1970
+   },
+   "eiv": null
+  }
+ },
+ "outcome": "partly replicated"
+}

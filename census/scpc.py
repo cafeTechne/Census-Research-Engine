@@ -19,6 +19,7 @@ import patsy
 from . import scpc_core as core
 
 AUDIT = "docs/audits/spatial_outside_validation.md"
+TRACT_AUDIT = "docs/audits/r67_nc_tract_validation.md"   # Round 67: tract geometry failed at 100 km
 VALIDATED_RHO = {"ols": (.05, .10), "poisson": (.10,), "binomial": (.15, .20)}
 DEFAULT_RHO = {"ols": .05, "poisson": .10, "binomial": .15}
 _SETUPS: Dict[Any, Dict[str, Any]] = {}
@@ -65,12 +66,18 @@ def fit_scpc(formula: str, frame: pd.DataFrame, model: str = "ols", trials: Opti
             continue
         theta, e = core.influence(X, y, kind, j, trials=t, exposure=ex)
         rows.append(dict(term=term, **core.interval(theta, e, S), p_value=core.p_value(theta, e, S)))
-    validated = rho in VALIDATED_RHO[model] and abs(level-.90) < 1e-12
+    tract_level = bool((ids.str.len() >= 11).all())
+    validated = rho in VALIDATED_RHO[model] and abs(level-.90) < 1e-12 and not tract_level
     notes = [f"SCPC (Mueller and Watson 2022): q = {S['q']} spatial principal components, critical value "
              f"{S['cv']:.3f}, benchmark average correlation {rho} (range {1/S['c0']:.0f} km); worst case over weaker "
              "correlation. Target: the slope on the ACS estimates as observed (not corrected for covariate sampling "
              f"error; use the corrected-slope estimators for that). {AUDIT}."]
-    if not validated:
+    if tract_level:
+        notes.append("EXPLORATORY: SCPC was validated on county geometries only. On North Carolina tracts (Round 67, "
+                     f"{TRACT_AUDIT}) it under-covered when the fields correlate over 100 km (.75 at rho_bar .05, .81 at "
+                     ".10; .91-.94 at 0-20 km). HC3 is far worse there (.12-.26). Prefer county-level analysis "
+                     "for confirmatory spatial inference.")
+    elif not validated:
         notes.append(f"EXPLORATORY: SCPC is validated for OLS (rho_bar .05, .10), Poisson (.10) and binomial (.15, .20) "
                      f"at the 90% level; {model} with rho_bar {rho} is not.")
     return dict(model=model, spatial="scpc", rho_bar=rho, table=pd.DataFrame(rows), n=len(y), validated=validated,
