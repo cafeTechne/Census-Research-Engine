@@ -1,0 +1,48 @@
+{
+ "criterion_commit": "110c22e",
+ "tracts": 65662,
+ "counties": 3020,
+ "states": 49,
+ "primary": {
+  "variances": {
+   "state": 3.174003923673846,
+   "county": 1.7333221484890444,
+   "tract": 11.447079140534985
+  },
+  "shares": {
+   "state": 19.407638996308393,
+   "county": 10.598503130784968,
+   "tract": 69.99385787290663
+  },
+  "converged": true
+ },
+ "published": {
+  "tract": 70.4,
+  "county": 10.7,
+  "state": 19.0
+ },
+ "outcome": "replicated",
+ "secondary": {
+  "log_e0": {
+   "variances": {
+    "state": 0.0005258717999526393,
+    "county": 0.0002902011179091072,
+    "tract": 0.001907725244975872
+   },
+   "shares": {
+    "state": 19.306562693499753,
+    "county": 10.654281285173472,
+    "tract": 70.03915602132678
+   },
+   "converged": true
+  },
+  "tract_in_county": {
+   "county": 26.710148963421098,
+   "tract": 73.28985103657891
+  },
+  "tract_in_state": {
+   "state": 15.310672641065256,
+   "tract": 84.68932735893473
+  }
+ }
+}

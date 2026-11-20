@@ -52,8 +52,8 @@ goldens byte-identical.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Data and criterion | | |
-| Fit and result | | |
-| Report, tests | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Data and criterion | done | counts match the paper exactly; criterion `110c22e` |
+| Fit and result | done | 70.0 / 10.6 / 19.4% vs 70.4 / 10.7 / 19.0%: replicated |
+| Report, tests | done | `r68_replication_le_variance.md`; 1 test |
+| Goldens, final suite | done | identical; 2162 passed, 37 skipped |
+| Exceptions | none | audit header wording fixed after the run (numbers unchanged) |
