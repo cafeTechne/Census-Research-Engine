@@ -82,10 +82,10 @@ The contrast range is set the same way from the contrast design alone (bins by t
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Truth file, script, criterion commit | | |
-| Results by design and bin | | |
-| Combined ranges | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Truth file, script, criterion commit | done | byte-reproducible truth file; `b19696b` |
+| Results by design and bin | done | `9f27cb0`; race5 negative correlation −.2 (not PD at −.3) |
+| Combined ranges | done | bc D [.15, 1), I [0, ∞), H [0, 1); 4/5-group H [0, ∞); naive I/H none; contrasts < .50 |
+| Engine, tests | done | `REALISTIC_RANGES`, `CONTRAST_RANGES`; 8 new tests, 7 older tests updated |
+| Example | done | race designs 88–126 of 145 validated; poverty change small; `/tmp/r52_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2074 passed, 37 skipped |
+| Exceptions | see notes | five-group correlation; `--chunk` option; manifest method text left at Round 28 wording (goldens); new N30 |

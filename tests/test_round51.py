@@ -68,9 +68,9 @@ def test_segregation_clips_by_default_and_validates_bias_corrected_only():
     assert out.noise_level.between(.15, .5).all() and out.validated.all()
     assert all(any("set to zero before the index refits" in n for n in ns) for ns in out.notes)
     naive = sg.segregation_replicate(f, ["a", "b"], r, bias_correction=False).set_index("statistic")
-    # without clipping naive isolation/H would be validated in .15-.30; with clipped cells they failed
+    # naive isolation/H failed with clipped cells (Round 51) and, since Round 52, without them too
     assert not naive.validated.any()
-    assert any("clipped-replicate validation" in n for n in naive.loc["isolation", "notes"])
+    assert any("lacks passing coverage validation" in n for n in naive.loc["isolation", "notes"])
     with pytest.raises(IncompleteReplicatesError, match="strict policy"):
         sg.segregation_replicate(f, ["a", "b"], r, negative_replicates="refuse")
     with pytest.raises(ValueError, match="negative_replicates"):

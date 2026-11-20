@@ -5,6 +5,23 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.49.0 (Round 52): segregation beyond poverty and income
+
+- Freeze the truth file (2024 B03002 for MI/NY/OH/PA, 2024 B17001 for OH/PA, 2015–2019 B17001 for MI/NY; cached
+  API responses, byte-reproducible), the script and the criterion at `b19696b`. Seven designs × two group
+  correlations; finer noise bins above .50; ranges combine every design judging a bin (group-type blind).
+- Passed: bias-corrected D to noise 1.0, isolation at any finite level, two-group H to 1.0; four- and
+  five-group bias-corrected H at any finite level (.953–.997); release contrasts with the larger noise level
+  below .50 (.869–.971). Failed: naive isolation/H for race groups at .15–.50, which removes their Round 50
+  range; naive D; naive multigroup H; bias-corrected D and H above 1.0 for Black/non-Black.
+- `REALISTIC_RANGES` widened and extended to four and five groups; new `CONTRAST_RANGES`; `segregation_test`
+  validates release contrasts only with two groups and the larger noise level below .50. Infinite noise levels
+  are never validated. Goldens byte-identical.
+- Exploratory example: race/ethnicity segregation and the 2019–2024 poverty-segregation change in MI/NY
+  (`docs/studies/r52_segregation_groups_example.md`). Closes N21; new issue N30 (clipping validated only below
+  .50; prison group quarters).
+- Acceptance: goldens byte-identical; 2074 passed, 37 skipped; 0 failures (8 new tests).
+
 ## 0.48.0 (Round 51): negative replicate estimates
 
 - Freeze the script, the SMR policy argument and the criterion at `2837bfb` before the run. Segregation:

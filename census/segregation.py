@@ -33,18 +33,36 @@ MAX_VALIDATED_COUNT_CV = .15
 # (index, variant, number of groups): the upper ends are the audit's (tests/test_round50.py). Variants
 # that failed Round 28 at CV .15 (corrected D, naive isolation and H) start at .15, a conservative
 # engine restriction below the first judged bin. Naive D and naive multigroup H failed.
+# Round 52 (criterion b19696b; docs/audits/segregation_groups_validation.md): race/ethnicity groups
+# (B03002, MI/NY), four and five groups, OH/PA, finer bins above .50. Two-group ranges combine every
+# design judging a bin (Round 50 poverty, Black/non-Black and Hispanic/non-Hispanic MI/NY, OH/PA poverty
+# and Black/non-Black): a bin counts only if all pass (group-type blind). Bias-corrected D and H now reach
+# 1.0, bias-corrected isolation any finite level; naive isolation and H failed race groups at .15-.50 and
+# lost their Round 50 range. Four- and five-group bias-corrected H pass at every finite level; three
+# groups stay at Round 50 (no income county above .50). An infinite noise level (a group's median tract
+# count is zero) is never validated. tests/test_round52.py checks these against the audit.
 REALISTIC_AUDIT = "docs/audits/segregation_realistic_validation.md"
+GROUPS_AUDIT = "docs/audits/segregation_groups_validation.md"
+INF = float("inf")
 REALISTIC_RANGES = {
     ("dissimilarity", "naive", 2): None,
-    ("dissimilarity", "bias_corrected", 2): (.15, .50),
-    ("isolation", "naive", 2): (.15, .30),
-    ("isolation", "bias_corrected", 2): (0., .50),
-    ("theil_h", "naive", 2): (.15, .30),
-    ("theil_h", "bias_corrected", 2): (0., .50),
+    ("dissimilarity", "bias_corrected", 2): (.15, 1.0),
+    ("isolation", "naive", 2): None,
+    ("isolation", "bias_corrected", 2): (0., INF),
+    ("theil_h", "naive", 2): None,
+    ("theil_h", "bias_corrected", 2): (0., 1.0),
     ("theil_h", "naive", 3): None,
     ("theil_h", "bias_corrected", 3): (0., .50),
+    ("theil_h", "naive", 4): None,
+    ("theil_h", "bias_corrected", 4): (0., INF),
+    ("theil_h", "naive", 5): None,
+    ("theil_h", "bias_corrected", 5): (0., INF),
 }
-MAX_VALIDATED_MEDIAN_CV = .50   # upper end of the defaults' validated noise range
+MAX_VALIDATED_MEDIAN_CV = INF   # upper end over all validated ranges (finite noise levels only)
+# Round 52: contrasts between two non-overlapping releases (independent samples, variances added) passed
+# for every two-group variant when the larger of the two noise levels is below .50 (MI/NY poverty 2015-2019
+# vs 2020-2024). Both rows must also be validated. Multigroup cross-release contrasts were not tested.
+CONTRAST_RANGES = {(name, variant): (0., .50) for name in INDICES for variant in ("naive", "bias_corrected")}
 # Round 51 (criterion 2837bfb; docs/audits/negative_replicates_validation.md): Gaussian replicates with
 # negative counts clipped at zero before the refits. Bias-corrected D/isolation/H and three-group H kept
 # their Round 50 ranges (affected-draw coverage .902-.990); naive isolation and H failed the affected-draw
@@ -125,10 +143,11 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
     unbounded, not clipped to [0,1]. Each index defaults to its passing variant.
     A row is validated when its variant passed and the county is in a validated
     range: Round 28 (two groups, every tract group-count CV <= .15,
-    ``max_count_cv``) or Round 50 (``noise_level``, the largest group median tract
-    CV, inside ``REALISTIC_RANGES``: bias-corrected D/isolation/H and three-group
-    H below .50; at least five populated tracts). Otherwise it is exploratory only, and confirmatory manifest
-    hypotheses on it are refused. Multigroup H beyond three groups is exploratory.
+    ``max_count_cv``) or Rounds 50/52 (``noise_level``, the largest group median tract
+    CV, inside ``REALISTIC_RANGES``: bias-corrected D [.15, 1), isolation any finite
+    level, H below 1 (two groups), .50 (three) or any finite level (four or five);
+    at least five populated tracts). Otherwise it is exploratory only, and confirmatory manifest
+    hypotheses on it are refused. Naive isolation/H and H with six or more groups are exploratory.
     ``negative_replicates`` (default ``"clip"``, Round 51): negative replicate group counts are set to
     zero before the index refits; count SEs and the noise level use the unclipped replicates. A county
     with a clipped cell is validated only inside ``CLIP_RANGES`` (bias-corrected variants).
@@ -211,12 +230,12 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
             if clipped:notes.append(f'{clipped} negative replicate group count(s) set to zero before the index refits (Round 51 policy; validated for bias-corrected variants only).')
             if zero:notes.append(f'{zero} zero-total tract(s) excluded in full-sample index; totals recomputed in every refit.')
             if not np.isfinite(raw[k]):notes.append('A declared group has zero county total; index and inference undefined.')
-            if not variant_ok:notes.append('EXPLORATORY ONLY: index/variant/group count/level lacks passing coverage validation (Rounds 28 and 50).')
+            if not variant_ok:notes.append('EXPLORATORY ONLY: index/variant/group count/level lacks passing coverage validation (Rounds 28, 50 and 52).')
             elif not validated:
                 rng_text=f'[{span[0]:.2f}, {span[1]:.2f})' if span is not None else 'none'
                 where=(f'{populated} populated tract(s), fewer than the {MIN_VALIDATED_TRACTS} the Round 50 validation required'
                        if span is not None and span[0]<=noise<span[1] else
-                       f'noise level {noise:.2f} (largest group median tract CV) is outside the Round 50 validated range {rng_text} for this variant')
+                       f'noise level {noise:.2f} (largest group median tract CV) is outside the Rounds 50/52 validated range {rng_text} for this variant')
                 if clipped and span is None:notes.append('EXPLORATORY ONLY: this variant failed the Round 51 clipped-replicate validation; confirmatory tests refused.')
                 else:notes.append(f'EXPLORATORY ONLY: {where}'+('' if clipped else f', and the largest tract group-count CV {max_cv:.2f} exceeds the Round 28 .15')+'; confirmatory tests refused.')
             notes.append('Declared groups must be mutually exclusive; totals are their sum. ACS sampling uncertainty only, not superpopulation or spatial uncertainty.')
@@ -250,14 +269,23 @@ def segregation_test(result, statistic, geoid, null_value=None, compare_geoid=No
         if first.Year!=other.Year:
             if abs(first.Year-other.Year)<5:raise ValueError('overlapping five-year releases refused')
             se=float(np.hypot(first.se,other.se))
+            variant='bias_corrected' if bool(first.bias_correction) else 'naive'
+            span=CONTRAST_RANGES.get((statistic,variant))
+            groups=first.get('groups');noise=max(float(first.get('noise_level',np.inf)),float(other.get('noise_level',np.inf)))
+            contrast_ok=(span is not None and isinstance(groups,(list,tuple)) and len(groups)==2
+                         and span[0]<=noise<span[1])
         else:
             delta=(first[list(REPLICATE_COLUMNS)].to_numpy(float)-other[list(REPLICATE_COLUMNS)].to_numpy(float))-(first.naive_estimate-other.naive_estimate)
             se=float(np.sqrt(.05*np.sum(delta**2)))
     if not np.isfinite(estimate) or not np.isfinite(se) or se<=0:raise ValueError('index or nonzero sampling uncertainty undefined; Wald test not available')
     z=norm.ppf((1+float(first.get('confidence_level',result.attrs.get('confidence_level',.90))))/2)
     validated=bool(first.validated) and (other is None or bool(other.validated))
-    refusal=None if validated else ('segregation result not validated (failed variant, more than three groups, level, '
-                                    'or county outside the validated noise range); exploratory only, confirmatory test refused')
+    cross=other is not None and first.Year!=other.Year
+    if cross:validated=validated and contrast_ok
+    refusal=None if validated else ('segregation result not validated (failed variant, group count, level, county outside '
+                                    'the validated noise range' + (', or a cross-release contrast with more than two groups '
+                                    'or a larger noise level of .50 or more (Round 52)' if cross else '')
+                                    + '); exploratory only, confirmatory test refused')
     return dict(estimate=estimate,test_estimate=estimate-null,validated=validated,confirmatory_refusal=refusal,null_value=null,se=se,se_basis='se_sampling',
                 p_two_sided=float(2*norm.sf(abs((estimate-null)/se))),ci_lower=estimate-z*se,ci_upper=estimate+z*se,
                 geoid=geoid,release=int(first.Year),compare_geoid=other.GEOID if other is not None else None,

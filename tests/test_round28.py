@@ -167,9 +167,10 @@ def test_per_index_variant_gate_patches_imported_flag(monkeypatch):
     monkeypatch.setitem(sg.SEGREGATION_VALIDATED['dissimilarity'],'naive',False)
     assert any('dissimilarity/naive' in e for e in validate_manifest(m,resolve=False))
     m=segregation_manifest('isolation');m['analyses'][0]['args']={'bias_correction':False}
-    assert validate_manifest(m,resolve=False)==[] # Round 50: naive isolation valid at noise .15-.30
-    monkeypatch.setitem(sg.REALISTIC_RANGES,('isolation','naive',2),None)
+    # Round 50 validated naive isolation at noise .15-.30; Round 52 race groups failed it there (refused).
     assert any('isolation/naive' in e for e in validate_manifest(m,resolve=False))
+    monkeypatch.setitem(sg.REALISTIC_RANGES,('isolation','naive',2),(.15,.30))
+    assert validate_manifest(m,resolve=False)==[]
 
 
 def populations():
@@ -301,8 +302,7 @@ def test_corrected_variant_manifest_and_optional_null_defaults_are_consistent(mo
     m=segregation_manifest('isolation');m['analyses'][0]['args']={'bias_correction':None}
     assert validate_manifest(m,resolve=False)==[]
     m['analyses'][0]['args']['bias_correction']=False
-    assert validate_manifest(m,resolve=False)==[] # Round 50: naive isolation valid at noise .15-.30.
-    monkeypatch.setitem(sg.REALISTIC_RANGES,('isolation','naive',2),None)
+    # Round 52: naive isolation lost its Round 50 range (failed race groups at .15-.50).
     assert any('exploratory' in e for e in validate_manifest(m,resolve=False))
     m['exploratory']=True;assert validate_manifest(m,resolve=False)==[]
 

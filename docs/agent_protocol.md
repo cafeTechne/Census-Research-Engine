@@ -526,18 +526,19 @@ require release; compare_release selects the other release (same county if
 compare_geoid omitted). Independent non-overlapping five-year releases add
 variances, not matched replicate deviations. Overlaps/self-comparisons are refused.
 One-sided tests use estimate-null. These are finite-area ACS sampling intervals,
-not causal or superpopulation inference. Validation gate (Round 50, real MI/NY
-tract MOEs, non-negative counts, correlated groups): a row is validated when the
-county's noise level (`noise_level`: the largest, over groups, of the median tract
-CV) is below .50 for bias-corrected D (from .15), isolation and H (two or three
-groups), or below .30 for naive isolation/H (from .15), with at least five
-populated tracts; or when every tract group-count CV is <= .15 (Round 28,
-`max_count_cv`; the only range for naive D). Otherwise rows are exploratory and
-confirmatory hypotheses are refused at run time. About 132 of 140 MI/NY counties
-pass with 2024 poverty or income groups. Race groups and contrasts were not in the
-validation. Counties with clipped negative replicates (Round 51) are validated in the
-same ranges for bias-corrected versions only (`clipped_replicates`). No new
-dependencies or MCP tools.
+not causal or superpopulation inference. Validation gate (Rounds 50 and 52, real
+tract MOEs, non-negative counts, correlated groups; poverty, income and race/ethnicity
+groups, MI/NY and OH/PA): a row is validated, with at least five populated tracts, when
+the county's noise level (`noise_level`: the largest, over groups, of the median tract
+CV) is in [.15, 1.0) for bias-corrected D, finite for bias-corrected isolation, below
+1.0 for two-group and .50 for three-group bias-corrected H, and finite for four- or
+five-group bias-corrected H; or when every tract group-count CV is <= .15 (Round 28,
+`max_count_cv`; the only range for naive D). Naive isolation/H failed race groups
+(Round 52) and are exploratory. An infinite noise level is never validated. Otherwise
+rows are exploratory and confirmatory hypotheses are refused at run time. Counties with
+clipped negative replicates (Round 51) are validated for bias-corrected versions below
+.50 only (`clipped_replicates`). Cross-release contrasts need both rows validated, two
+groups and a larger noise level below .50 (Round 52). No new dependencies or MCP tools.
 
 
 Round 29 manual WONDER references: all county and national files are manual

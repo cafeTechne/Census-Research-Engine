@@ -321,16 +321,19 @@ ratio. See get_research_protocol for scope, covariance metadata and limitations.
 
 Round 28 segregation: get_recipe("segregation"), then existing manifest tools. Tract groups
 are mutually exclusive counts, within county; no metro/pre-aggregation. Defaults are
-bias-corrected (Round 50). Failed overrides and H beyond three groups are exploratory only.
+bias-corrected (Round 50). Failed overrides (naive isolation/H since Round 52) and H with six
+or more groups are exploratory only.
 Strict 80 tract/group replicates; no missing counts held fixed. Negative replicate counts
 are refused unless args.negative_replicates is "clip" (Round 51: validated for the
 bias-corrected versions). Zero tracts recomputed per refit, absent groups undefined. Hypotheses
 need geoid plus explicit null_value for one area; compare_geoid uses per-replicate
 differences. release/compare_release select independent non-overlapping five-year releases;
-variances add. First minus comparison; one-sided tests center on null. A county is
-validated when its noise level (largest group median tract CV) is below .50 with 5+
-populated tracts (Round 50) or every tract CV is <= .15 (Round 28); otherwise
-exploratory and confirmatory tests on it are refused. See protocol.
+variances add; such release contrasts are validated only with two groups and a larger
+noise level below .50 (Round 52). First minus comparison; one-sided tests center on null.
+A county is validated with 5+ populated tracts when its noise level (largest group median
+tract CV) is in range (Rounds 50/52: bias-corrected D [.15, 1), isolation finite, H below
+1 for two groups, .50 for three, finite for four or five) or every tract CV is <= .15
+(Round 28); otherwise exploratory and confirmatory tests on it are refused. See protocol.
 
 
 Inflation: default index is R-CPI-U-RS (the Census Bureau's ACS index); 'c-cpi-u'
