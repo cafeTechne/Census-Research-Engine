@@ -1,7 +1,7 @@
-# Backlog roadmap: repairs and follow-ups after the statistics roadmap (Rounds 43–60)
+# Backlog roadmap: repairs and follow-ups after the statistics roadmap (Rounds 43–63)
 
 **Status: drafted 2026-11-19, after v0.39.0 (Rounds 31–42, DOI 10.5281/zenodo.24371310); Rounds 43–50
-merged 2026-11-19; Rounds 51–56 (section 5) added and merged 2026-11-19; Rounds 43–56 released as v0.53.0 (DOI 10.5281/zenodo.24384786); Rounds 57–60 (section 6) added and merged 2026-11-20, released as v0.57.0 (DOI 10.5281/zenodo.24398149).** The source
+merged 2026-11-19; Rounds 51–56 (section 5) added and merged 2026-11-19; Rounds 43–56 released as v0.53.0 (DOI 10.5281/zenodo.24384786); Rounds 57–60 (section 6) added and merged 2026-11-20, released as v0.57.0 (DOI 10.5281/zenodo.24398149); Rounds 61–63 (section 7) added 2026-11-20.** The source
 from which `PLAN_ROUND_43.md` onward are drafted; it is not itself a plan. **Implementing agents: do not
 read this file unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.** Update
 the status column in section 3 when a round merges.
@@ -54,8 +54,10 @@ implementing Rounds 31–42. The second group was never collected in one place; 
 | N32 | Theil T, Atkinson (.5, 1) and the top-decile share from PUMS failed (.811–.858 in their worst cells: heavy tails, small samples) | R56 | failed method | 60 |
 | N33 | Six or more segregation groups and same-release county contrasts are untested; an infinite noise level (median tract count zero) can never be validated | R52 | validation gap | 57 (six groups, contrasts); infinite noise not planned |
 | N34 | Corrected binomial slopes under spatial dependence are untested (Round 53 validated Poisson/NB2 only) | R53 | validation gap | 58 |
-| N35 | No interrupted-series method is validated below 20 annual points (.857 at 15) | R55 | data limit | not planned |
-| N36 | Spatial EIV with six or more error-prone covariates failed (.804–.811) | R53 | failed method | not planned |
+| N35 | No interrupted-series method is validated below 20 annual points (.857 at 15) | R55 | data limit | 63 (attempt) |
+| N36 | Spatial EIV with six or more error-prone covariates failed (.804–.811) | R53 | failed method | 63 (attempt) |
+| N37 | SCPC, calibrated cluster slopes (Rounds 53, 58) and spatial correlations (Rounds 48, 59) are library/MCP only; manifests cannot request them | R58 | routing | 61 |
+| N38 | Binomial SCPC failed (.793/.846); Theil T failed even with a log transform; clipped six-group segregation counties were never tested | R57, R58, R60 | failed method / gap | 62 |
 
 Pre-Round-31 backlog items (STATUS "Open backlog"): 1 spatial routing and GLM EIV, 2 NB2 for R29,
 3 manifest correlation intervals, 4 GLM measurement-error correction, 5 WONDER child-age reference
@@ -223,3 +225,32 @@ geometry.
 
 Transformed SDR intervals for the failed measures (log Theil T, logit Atkinson and top-decile share) and, if they
 still fail, a minimum-sample gate, judged on Round 56's generator and incomes.
+
+## 7. Rounds 61–63 (drafted 2026-11-20, after v0.57.0)
+
+The remaining items after Round 60: manifest routing for the newer spatial methods, the three leftover failures,
+and two attempts at recorded limits (N35, N36), which may end as confirmed limits.
+
+| Round | Theme | Covers | Status |
+| :--- | :--- | :--- | :--- |
+| 61 | Manifest routing for spatial methods (no new statistics) | N37 | planned |
+| 62 | Leftover failures | N38 (binomial SCPC with stronger benchmarks, Theil T in larger samples, clipped six-group counties) | planned |
+| 63 | Small samples and many covariates | N35 (interrupted series below 20 points), N36 (spatial EIV with six to eight covariates under the reliability gate) | planned |
+
+### Round 61: manifest routing (no new statistics)
+
+Opt-in manifest arguments for already validated methods: `fit_replicate` `args.spatial_scpc` (SCPC, OLS and Poisson;
+with an SCPC p-value from the same worst-case distribution), `regression_calibration` `args.spatial: "clusters"`
+(calibrated IM-8 Poisson/NB2/binomial slopes) and `correlation_matrix` `args.spatial: true` (effective-n intervals,
+including partial). Registered manifests keep their bytes and outputs.
+
+### Round 62: leftover failures
+
+Binomial SCPC with stronger benchmarks (ρ̄ .15, .20); Theil T with the log interval in larger samples (8,000
+households, for a higher record gate); Round 57's clipped-replicate design with six groups.
+
+### Round 63: small samples and many covariates
+
+Interrupted series at 15–19 points: the bias-corrected bootstrap-t with more resamples and a df-adjusted
+studentisation, and a bootstrap with a calibrated nominal level (double bootstrap). Spatial EIV G1/G2 with six to
+eight error-prone covariates at reliability .8 and .9 on MI/NY and OH/PA.
