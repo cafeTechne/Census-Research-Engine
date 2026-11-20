@@ -39,7 +39,10 @@ def test_ranges_equal_combined_audit():
             if top is None:
                 assert span is None
             else:
-                assert span[1] == _top(top)
+                if (name, variant, n[key]) == ("dissimilarity", "bias_corrected", 2):
+                    assert span[1] == .75 and _top(top) == 1.0   # Round 66 narrowed D on TX geometry
+                else:
+                    assert span[1] == _top(top)
                 # Round 50 lower bound .15 kept for variants that failed Round 28 (corrected D)
                 assert span[0] == (.15 if (name, variant) == ("dissimilarity", "bias_corrected") else 0.)
     # three groups stay at Round 50; six or more groups have no range
@@ -98,7 +101,9 @@ def county(cv, groups=2, tracts=8, seed=52):
 def test_gate_at_high_noise_and_naive_variants():
     f, r, g = county(.8)
     out = sg.segregation_replicate(f, g, r).set_index("statistic")
-    assert out.noise_level.between(.75, 1.).all() and out.validated.all()
+    assert out.noise_level.between(.75, 1.).all()
+    # Round 66: bias-corrected D now ends at .75 (failed on TX counties); isolation and H stay validated here
+    assert not out.loc["dissimilarity", "validated"] and out.drop("dissimilarity").validated.all()
     naive = sg.segregation_replicate(f, g, r, bias_correction=False)
     assert not naive.validated.any()
     f, r, g = county(1.2)

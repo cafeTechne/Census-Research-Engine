@@ -1,0 +1,4780 @@
+{
+ "criterion_commit": "d30d7ed",
+ "chr_commit": "a516395d02b1aa6ff10da092267525a215cc3ff4",
+ "chr_sha256": "2c737ea89db403c0cbf825b10ad2e03fccfcdc4e66fd242eb90b2a9c305636fe",
+ "A": {
+  "counties_compared": 2055,
+  "only_ours": [],
+  "only_published": [],
+  "median_abs_difference": 0.0,
+  "share_within_1": 1.0,
+  "max_abs_difference": 2.842170943040401e-14,
+  "large": [],
+  "replicated": true,
+  "interval_part": {
+   "counties": 563,
+   "validated": 308,
+   "failed": [
+    {
+     "county": "48105",
+     "error": "IncompleteReplicatesError"
+    },
+    {
+     "county": "48155",
+     "error": "IncompleteReplicatesError"
+    },
+    {
+     "county": "48243",
+     "error": "IncompleteReplicatesError"
+    },
+    {
+     "county": "48271",
+     "error": "IncompleteReplicatesError"
+    },
+    {
+     "county": "48319",
+     "error": "IncompleteReplicatesError"
+    },
+    {
+     "county": "48327",
+     "error": "IncompleteReplicatesError"
+    },
+    {
+     "county": "48393",
+     "error": "IncompleteReplicatesError"
+    },
+    {
+     "county": "48421",
+     "error": "IncompleteReplicatesError"
+    },
+    {
+     "county": "48431",
+     "error": "IncompleteReplicatesError"
+    },
+    {
+     "county": "48501",
+     "error": "IncompleteReplicatesError"
+    }
+   ],
+   "with_chr_value": 433,
+   "table": [
+    {
+     "GEOID": "04001",
+     "estimate": 0.7324,
+     "ci_lower": 0.6359,
+     "ci_upper": 0.8289,
+     "noise_level": 0.9944,
+     "validated": true
+    },
+    {
+     "GEOID": "04003",
+     "estimate": 0.4658,
+     "ci_lower": 0.4162,
+     "ci_upper": 0.5153,
+     "noise_level": 0.8373,
+     "validated": false
+    },
+    {
+     "GEOID": "04005",
+     "estimate": 0.4376,
+     "ci_lower": 0.3514,
+     "ci_upper": 0.5238,
+     "noise_level": 1.0273,
+     "validated": false
+    },
+    {
+     "GEOID": "04007",
+     "estimate": 0.4858,
+     "ci_lower": 0.3322,
+     "ci_upper": 0.6393,
+     "noise_level": 1.5191,
+     "validated": false
+    },
+    {
+     "GEOID": "04009",
+     "estimate": 0.7113,
+     "ci_lower": 0.6286,
+     "ci_upper": 0.794,
+     "noise_level": 0.8546,
+     "validated": true
+    },
+    {
+     "GEOID": "04011",
+     "estimate": 0.5179,
+     "ci_lower": 0.454,
+     "ci_upper": 0.5818,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "04012",
+     "estimate": 0.4961,
+     "ci_lower": 0.2663,
+     "ci_upper": 0.726,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "04013",
+     "estimate": 0.4678,
+     "ci_lower": 0.4366,
+     "ci_upper": 0.4991,
+     "noise_level": 0.5618,
+     "validated": false
+    },
+    {
+     "GEOID": "04015",
+     "estimate": 0.5074,
+     "ci_lower": 0.4168,
+     "ci_upper": 0.5979,
+     "noise_level": 1.489,
+     "validated": false
+    },
+    {
+     "GEOID": "04017",
+     "estimate": 0.5653,
+     "ci_lower": 0.4689,
+     "ci_upper": 0.6617,
+     "noise_level": 2.3937,
+     "validated": false
+    },
+    {
+     "GEOID": "04019",
+     "estimate": 0.4025,
+     "ci_lower": 0.3573,
+     "ci_upper": 0.4478,
+     "noise_level": 0.6292,
+     "validated": false
+    },
+    {
+     "GEOID": "04021",
+     "estimate": 0.4888,
+     "ci_lower": 0.4428,
+     "ci_upper": 0.5347,
+     "noise_level": 0.69,
+     "validated": false
+    },
+    {
+     "GEOID": "04023",
+     "estimate": 0.3759,
+     "ci_lower": 0.0313,
+     "ci_upper": 0.7204,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "04025",
+     "estimate": 0.4671,
+     "ci_lower": 0.3978,
+     "ci_upper": 0.5365,
+     "noise_level": 1.6132,
+     "validated": false
+    },
+    {
+     "GEOID": "04027",
+     "estimate": 0.4598,
+     "ci_lower": 0.3815,
+     "ci_upper": 0.538,
+     "noise_level": 1.1383,
+     "validated": false
+    },
+    {
+     "GEOID": "13001",
+     "estimate": 0.2826,
+     "ci_lower": 0.1731,
+     "ci_upper": 0.3921,
+     "noise_level": 0.3486,
+     "validated": true
+    },
+    {
+     "GEOID": "13003",
+     "estimate": 0.2238,
+     "ci_lower": 0.1698,
+     "ci_upper": 0.2778,
+     "noise_level": 0.2245,
+     "validated": false
+    },
+    {
+     "GEOID": "13005",
+     "estimate": 0.3343,
+     "ci_lower": 0.2435,
+     "ci_upper": 0.4251,
+     "noise_level": 0.1616,
+     "validated": false
+    },
+    {
+     "GEOID": "13007",
+     "estimate": 0.2568,
+     "ci_lower": 0.0736,
+     "ci_upper": 0.4401,
+     "noise_level": 0.285,
+     "validated": false
+    },
+    {
+     "GEOID": "13009",
+     "estimate": 0.2173,
+     "ci_lower": 0.1479,
+     "ci_upper": 0.2866,
+     "noise_level": 0.2124,
+     "validated": true
+    },
+    {
+     "GEOID": "13011",
+     "estimate": 0.7356,
+     "ci_lower": 0.5525,
+     "ci_upper": 0.9186,
+     "noise_level": 0.8961,
+     "validated": false
+    },
+    {
+     "GEOID": "13013",
+     "estimate": 0.3216,
+     "ci_lower": 0.2669,
+     "ci_upper": 0.3762,
+     "noise_level": 0.3086,
+     "validated": true
+    },
+    {
+     "GEOID": "13015",
+     "estimate": 0.3231,
+     "ci_lower": 0.2629,
+     "ci_upper": 0.3833,
+     "noise_level": 0.4651,
+     "validated": true
+    },
+    {
+     "GEOID": "13017",
+     "estimate": 0.2704,
+     "ci_lower": 0.1766,
+     "ci_upper": 0.3643,
+     "noise_level": 0.2049,
+     "validated": true
+    },
+    {
+     "GEOID": "13019",
+     "estimate": 0.1705,
+     "ci_lower": 0.0508,
+     "ci_upper": 0.2902,
+     "noise_level": 0.3573,
+     "validated": true
+    },
+    {
+     "GEOID": "13021",
+     "estimate": 0.4703,
+     "ci_lower": 0.4421,
+     "ci_upper": 0.4986,
+     "noise_level": 0.2084,
+     "validated": true
+    },
+    {
+     "GEOID": "13023",
+     "estimate": 0.5058,
+     "ci_lower": 0.4142,
+     "ci_upper": 0.5974,
+     "noise_level": 0.2353,
+     "validated": false
+    },
+    {
+     "GEOID": "13025",
+     "estimate": 0.523,
+     "ci_lower": 0.3369,
+     "ci_upper": 0.7092,
+     "noise_level": 0.8204,
+     "validated": true
+    },
+    {
+     "GEOID": "13027",
+     "estimate": 0.3682,
+     "ci_lower": 0.2814,
+     "ci_upper": 0.4549,
+     "noise_level": 0.2049,
+     "validated": true
+    },
+    {
+     "GEOID": "13029",
+     "estimate": 0.2252,
+     "ci_lower": 0.1476,
+     "ci_upper": 0.3029,
+     "noise_level": 0.2628,
+     "validated": true
+    },
+    {
+     "GEOID": "13031",
+     "estimate": 0.3314,
+     "ci_lower": 0.2854,
+     "ci_upper": 0.3773,
+     "noise_level": 0.1869,
+     "validated": true
+    },
+    {
+     "GEOID": "13033",
+     "estimate": 0.2649,
+     "ci_lower": 0.1947,
+     "ci_upper": 0.335,
+     "noise_level": 0.1893,
+     "validated": true
+    },
+    {
+     "GEOID": "13035",
+     "estimate": 0.2366,
+     "ci_lower": 0.1743,
+     "ci_upper": 0.2988,
+     "noise_level": 0.2058,
+     "validated": true
+    },
+    {
+     "GEOID": "13037",
+     "estimate": 0.0998,
+     "ci_lower": -0.0105,
+     "ci_upper": 0.2101,
+     "noise_level": 0.1026,
+     "validated": false
+    },
+    {
+     "GEOID": "13039",
+     "estimate": 0.1834,
+     "ci_lower": 0.106,
+     "ci_upper": 0.2608,
+     "noise_level": 0.2933,
+     "validated": true
+    },
+    {
+     "GEOID": "13043",
+     "estimate": 0.2374,
+     "ci_lower": 0.1262,
+     "ci_upper": 0.3485,
+     "noise_level": 0.1697,
+     "validated": false
+    },
+    {
+     "GEOID": "13045",
+     "estimate": 0.3685,
+     "ci_lower": 0.3336,
+     "ci_upper": 0.4035,
+     "noise_level": 0.2944,
+     "validated": true
+    },
+    {
+     "GEOID": "13047",
+     "estimate": 0.2791,
+     "ci_lower": 0.1308,
+     "ci_upper": 0.4273,
+     "noise_level": 0.7229,
+     "validated": true
+    },
+    {
+     "GEOID": "13049",
+     "estimate": 0.2964,
+     "ci_lower": 0.1676,
+     "ci_upper": 0.4251,
+     "noise_level": 0.2041,
+     "validated": false
+    },
+    {
+     "GEOID": "13051",
+     "estimate": 0.4305,
+     "ci_lower": 0.4057,
+     "ci_upper": 0.4553,
+     "noise_level": 0.1987,
+     "validated": true
+    },
+    {
+     "GEOID": "13053",
+     "estimate": 0.0926,
+     "ci_lower": -0.0133,
+     "ci_upper": 0.1985,
+     "noise_level": 0.2797,
+     "validated": true
+    },
+    {
+     "GEOID": "13055",
+     "estimate": 0.4487,
+     "ci_lower": 0.3652,
+     "ci_upper": 0.5322,
+     "noise_level": 0.4714,
+     "validated": true
+    },
+    {
+     "GEOID": "13057",
+     "estimate": 0.3844,
+     "ci_lower": 0.3291,
+     "ci_upper": 0.4396,
+     "noise_level": 0.5896,
+     "validated": true
+    },
+    {
+     "GEOID": "13059",
+     "estimate": 0.3143,
+     "ci_lower": 0.273,
+     "ci_upper": 0.3556,
+     "noise_level": 0.2914,
+     "validated": true
+    },
+    {
+     "GEOID": "13061",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.1078,
+     "validated": false
+    },
+    {
+     "GEOID": "13063",
+     "estimate": 0.331,
+     "ci_lower": 0.2892,
+     "ci_upper": 0.3728,
+     "noise_level": 0.3887,
+     "validated": true
+    },
+    {
+     "GEOID": "13065",
+     "estimate": -0.0244,
+     "ci_lower": -0.1103,
+     "ci_upper": 0.0616,
+     "noise_level": 0.1773,
+     "validated": false
+    },
+    {
+     "GEOID": "13067",
+     "estimate": 0.4465,
+     "ci_lower": 0.4291,
+     "ci_upper": 0.464,
+     "noise_level": 0.2591,
+     "validated": true
+    },
+    {
+     "GEOID": "13069",
+     "estimate": 0.2501,
+     "ci_lower": 0.1812,
+     "ci_upper": 0.319,
+     "noise_level": 0.2414,
+     "validated": true
+    },
+    {
+     "GEOID": "13071",
+     "estimate": 0.393,
+     "ci_lower": 0.3233,
+     "ci_upper": 0.4628,
+     "noise_level": 0.3099,
+     "validated": true
+    },
+    {
+     "GEOID": "13073",
+     "estimate": 0.2727,
+     "ci_lower": 0.2253,
+     "ci_upper": 0.3201,
+     "noise_level": 0.3127,
+     "validated": true
+    },
+    {
+     "GEOID": "13075",
+     "estimate": 0.2353,
+     "ci_lower": 0.133,
+     "ci_upper": 0.3375,
+     "noise_level": 0.1854,
+     "validated": true
+    },
+    {
+     "GEOID": "13077",
+     "estimate": 0.3843,
+     "ci_lower": 0.3366,
+     "ci_upper": 0.432,
+     "noise_level": 0.249,
+     "validated": true
+    },
+    {
+     "GEOID": "13079",
+     "estimate": 0.6235,
+     "ci_lower": 0.4937,
+     "ci_upper": 0.7533,
+     "noise_level": 0.3829,
+     "validated": false
+    },
+    {
+     "GEOID": "13081",
+     "estimate": 0.2355,
+     "ci_lower": 0.1667,
+     "ci_upper": 0.3043,
+     "noise_level": 0.192,
+     "validated": true
+    },
+    {
+     "GEOID": "13083",
+     "estimate": 0.393,
+     "ci_lower": 0.1495,
+     "ci_upper": 0.6365,
+     "noise_level": 0.6257,
+     "validated": true
+    },
+    {
+     "GEOID": "13085",
+     "estimate": 0.3302,
+     "ci_lower": 0.128,
+     "ci_upper": 0.5325,
+     "noise_level": 0.9944,
+     "validated": true
+    },
+    {
+     "GEOID": "13087",
+     "estimate": 0.432,
+     "ci_lower": 0.3721,
+     "ci_upper": 0.4919,
+     "noise_level": 0.1686,
+     "validated": true
+    },
+    {
+     "GEOID": "13089",
+     "estimate": 0.6994,
+     "ci_lower": 0.6854,
+     "ci_upper": 0.7135,
+     "noise_level": 0.2079,
+     "validated": true
+    },
+    {
+     "GEOID": "13091",
+     "estimate": 0.141,
+     "ci_lower": 0.0733,
+     "ci_upper": 0.2086,
+     "noise_level": 0.2379,
+     "validated": true
+    },
+    {
+     "GEOID": "13093",
+     "estimate": 0.1342,
+     "ci_lower": 0.0546,
+     "ci_upper": 0.2138,
+     "noise_level": 0.1258,
+     "validated": false
+    },
+    {
+     "GEOID": "13095",
+     "estimate": 0.4186,
+     "ci_lower": 0.3828,
+     "ci_upper": 0.4544,
+     "noise_level": 0.2347,
+     "validated": true
+    },
+    {
+     "GEOID": "13097",
+     "estimate": 0.3252,
+     "ci_lower": 0.2822,
+     "ci_upper": 0.3682,
+     "noise_level": 0.1851,
+     "validated": true
+    },
+    {
+     "GEOID": "13099",
+     "estimate": 0.3159,
+     "ci_lower": 0.2491,
+     "ci_upper": 0.3826,
+     "noise_level": 0.19,
+     "validated": true
+    },
+    {
+     "GEOID": "13101",
+     "estimate": 0.2665,
+     "ci_lower": -0.1588,
+     "ci_upper": 0.6919,
+     "noise_level": 0.7694,
+     "validated": false
+    },
+    {
+     "GEOID": "13103",
+     "estimate": 0.2869,
+     "ci_lower": 0.2308,
+     "ci_upper": 0.3429,
+     "noise_level": 0.248,
+     "validated": true
+    },
+    {
+     "GEOID": "13105",
+     "estimate": 0.362,
+     "ci_lower": 0.2684,
+     "ci_upper": 0.4556,
+     "noise_level": 0.2817,
+     "validated": true
+    },
+    {
+     "GEOID": "13107",
+     "estimate": 0.1976,
+     "ci_lower": 0.1208,
+     "ci_upper": 0.2744,
+     "noise_level": 0.2215,
+     "validated": true
+    },
+    {
+     "GEOID": "13109",
+     "estimate": 0.272,
+     "ci_lower": 0.192,
+     "ci_upper": 0.352,
+     "noise_level": 0.1341,
+     "validated": false
+    },
+    {
+     "GEOID": "13111",
+     "estimate": 0.6105,
+     "ci_lower": 0.3161,
+     "ci_upper": 0.9049,
+     "noise_level": 1.1746,
+     "validated": false
+    },
+    {
+     "GEOID": "13113",
+     "estimate": 0.4389,
+     "ci_lower": 0.3966,
+     "ci_upper": 0.4813,
+     "noise_level": 0.2048,
+     "validated": true
+    },
+    {
+     "GEOID": "13115",
+     "estimate": 0.4618,
+     "ci_lower": 0.4216,
+     "ci_upper": 0.5019,
+     "noise_level": 0.4075,
+     "validated": true
+    },
+    {
+     "GEOID": "13117",
+     "estimate": 0.3841,
+     "ci_lower": 0.3221,
+     "ci_upper": 0.446,
+     "noise_level": 0.6339,
+     "validated": true
+    },
+    {
+     "GEOID": "13119",
+     "estimate": 0.5301,
+     "ci_lower": 0.4256,
+     "ci_upper": 0.6347,
+     "noise_level": 0.4844,
+     "validated": true
+    },
+    {
+     "GEOID": "13121",
+     "estimate": 0.704,
+     "ci_lower": 0.692,
+     "ci_upper": 0.7161,
+     "noise_level": 0.2691,
+     "validated": true
+    },
+    {
+     "GEOID": "13123",
+     "estimate": 0.4773,
+     "ci_lower": 0.3516,
+     "ci_upper": 0.6031,
+     "noise_level": 0.9826,
+     "validated": true
+    },
+    {
+     "GEOID": "13125",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.096,
+     "validated": false
+    },
+    {
+     "GEOID": "13127",
+     "estimate": 0.5214,
+     "ci_lower": 0.4757,
+     "ci_upper": 0.567,
+     "noise_level": 0.3009,
+     "validated": true
+    },
+    {
+     "GEOID": "13129",
+     "estimate": 0.5427,
+     "ci_lower": 0.4378,
+     "ci_upper": 0.6476,
+     "noise_level": 0.7119,
+     "validated": true
+    },
+    {
+     "GEOID": "13131",
+     "estimate": 0.2136,
+     "ci_lower": 0.1408,
+     "ci_upper": 0.2864,
+     "noise_level": 0.2354,
+     "validated": true
+    },
+    {
+     "GEOID": "13133",
+     "estimate": 0.4449,
+     "ci_lower": 0.3878,
+     "ci_upper": 0.502,
+     "noise_level": 0.2439,
+     "validated": true
+    },
+    {
+     "GEOID": "13135",
+     "estimate": 0.35,
+     "ci_lower": 0.3279,
+     "ci_upper": 0.3721,
+     "noise_level": 0.2557,
+     "validated": true
+    },
+    {
+     "GEOID": "13137",
+     "estimate": 0.5458,
+     "ci_lower": 0.4804,
+     "ci_upper": 0.6113,
+     "noise_level": 0.8533,
+     "validated": true
+    },
+    {
+     "GEOID": "13139",
+     "estimate": 0.4462,
+     "ci_lower": 0.3887,
+     "ci_upper": 0.5038,
+     "noise_level": 0.5774,
+     "validated": true
+    },
+    {
+     "GEOID": "13141",
+     "estimate": 0.196,
+     "ci_lower": 0.0527,
+     "ci_upper": 0.3393,
+     "noise_level": 0.1478,
+     "validated": false
+    },
+    {
+     "GEOID": "13143",
+     "estimate": 0.4868,
+     "ci_lower": 0.3813,
+     "ci_upper": 0.5923,
+     "noise_level": 0.5841,
+     "validated": true
+    },
+    {
+     "GEOID": "13145",
+     "estimate": 0.2063,
+     "ci_lower": 0.1456,
+     "ci_upper": 0.2669,
+     "noise_level": 0.1924,
+     "validated": true
+    },
+    {
+     "GEOID": "13147",
+     "estimate": 0.3395,
+     "ci_lower": 0.2835,
+     "ci_upper": 0.3955,
+     "noise_level": 0.3468,
+     "validated": true
+    },
+    {
+     "GEOID": "13149",
+     "estimate": 0.3314,
+     "ci_lower": 0.175,
+     "ci_upper": 0.4877,
+     "noise_level": 0.415,
+     "validated": false
+    },
+    {
+     "GEOID": "13151",
+     "estimate": 0.3794,
+     "ci_lower": 0.3512,
+     "ci_upper": 0.4075,
+     "noise_level": 0.2063,
+     "validated": true
+    },
+    {
+     "GEOID": "13153",
+     "estimate": 0.2579,
+     "ci_lower": 0.216,
+     "ci_upper": 0.2997,
+     "noise_level": 0.2117,
+     "validated": true
+    },
+    {
+     "GEOID": "13155",
+     "estimate": 0.5567,
+     "ci_lower": 0.4559,
+     "ci_upper": 0.6575,
+     "noise_level": 0.1303,
+     "validated": false
+    },
+    {
+     "GEOID": "13157",
+     "estimate": 0.2238,
+     "ci_lower": 0.1372,
+     "ci_upper": 0.3104,
+     "noise_level": 0.4077,
+     "validated": true
+    },
+    {
+     "GEOID": "13159",
+     "estimate": 0.3714,
+     "ci_lower": 0.2761,
+     "ci_upper": 0.4667,
+     "noise_level": 0.2935,
+     "validated": true
+    },
+    {
+     "GEOID": "13161",
+     "estimate": 0.3004,
+     "ci_lower": 0.1578,
+     "ci_upper": 0.4429,
+     "noise_level": 0.4875,
+     "validated": true
+    },
+    {
+     "GEOID": "13163",
+     "estimate": 0.2754,
+     "ci_lower": 0.1896,
+     "ci_upper": 0.3612,
+     "noise_level": 0.1262,
+     "validated": false
+    },
+    {
+     "GEOID": "13165",
+     "estimate": -0.1204,
+     "ci_lower": -0.2457,
+     "ci_upper": 0.0049,
+     "noise_level": 0.1866,
+     "validated": false
+    },
+    {
+     "GEOID": "13167",
+     "estimate": 0.3516,
+     "ci_lower": 0.295,
+     "ci_upper": 0.4082,
+     "noise_level": 0.1738,
+     "validated": false
+    },
+    {
+     "GEOID": "13169",
+     "estimate": 0.2935,
+     "ci_lower": 0.2333,
+     "ci_upper": 0.3538,
+     "noise_level": 0.1895,
+     "validated": true
+    },
+    {
+     "GEOID": "13171",
+     "estimate": 0.392,
+     "ci_lower": 0.3331,
+     "ci_upper": 0.4509,
+     "noise_level": 0.203,
+     "validated": false
+    },
+    {
+     "GEOID": "13173",
+     "estimate": 0.2611,
+     "ci_lower": 0.1305,
+     "ci_upper": 0.3917,
+     "noise_level": 0.1415,
+     "validated": false
+    },
+    {
+     "GEOID": "13175",
+     "estimate": 0.4207,
+     "ci_lower": 0.3708,
+     "ci_upper": 0.4706,
+     "noise_level": 0.1667,
+     "validated": true
+    },
+    {
+     "GEOID": "13177",
+     "estimate": 0.0227,
+     "ci_lower": -0.0844,
+     "ci_upper": 0.1297,
+     "noise_level": 0.2452,
+     "validated": true
+    },
+    {
+     "GEOID": "13179",
+     "estimate": 0.2696,
+     "ci_lower": 0.2201,
+     "ci_upper": 0.3192,
+     "noise_level": 0.1648,
+     "validated": true
+    },
+    {
+     "GEOID": "13181",
+     "estimate": 0.2104,
+     "ci_lower": 0.1116,
+     "ci_upper": 0.3093,
+     "noise_level": 0.1144,
+     "validated": false
+    },
+    {
+     "GEOID": "13183",
+     "estimate": 0.0923,
+     "ci_lower": 0.0043,
+     "ci_upper": 0.1802,
+     "noise_level": 0.1736,
+     "validated": false
+    },
+    {
+     "GEOID": "13185",
+     "estimate": 0.4945,
+     "ci_lower": 0.4674,
+     "ci_upper": 0.5215,
+     "noise_level": 0.1686,
+     "validated": true
+    },
+    {
+     "GEOID": "13187",
+     "estimate": 0.6411,
+     "ci_lower": 0.5054,
+     "ci_upper": 0.7768,
+     "noise_level": 1.0217,
+     "validated": false
+    },
+    {
+     "GEOID": "13189",
+     "estimate": 0.3186,
+     "ci_lower": 0.2309,
+     "ci_upper": 0.4064,
+     "noise_level": 0.213,
+     "validated": true
+    },
+    {
+     "GEOID": "13191",
+     "estimate": 0.1426,
+     "ci_lower": 0.0232,
+     "ci_upper": 0.2619,
+     "noise_level": 0.3621,
+     "validated": true
+    },
+    {
+     "GEOID": "13193",
+     "estimate": 0.0878,
+     "ci_lower": -0.0023,
+     "ci_upper": 0.1779,
+     "noise_level": 0.1408,
+     "validated": false
+    },
+    {
+     "GEOID": "13195",
+     "estimate": 0.3796,
+     "ci_lower": 0.2982,
+     "ci_upper": 0.461,
+     "noise_level": 0.3743,
+     "validated": true
+    },
+    {
+     "GEOID": "13197",
+     "estimate": 0.6677,
+     "ci_lower": 0.5764,
+     "ci_upper": 0.759,
+     "noise_level": 0.2312,
+     "validated": false
+    },
+    {
+     "GEOID": "13199",
+     "estimate": 0.2303,
+     "ci_lower": 0.1696,
+     "ci_upper": 0.291,
+     "noise_level": 0.1133,
+     "validated": false
+    },
+    {
+     "GEOID": "13201",
+     "estimate": 0.4407,
+     "ci_lower": 0.2832,
+     "ci_upper": 0.5981,
+     "noise_level": 0.2805,
+     "validated": false
+    },
+    {
+     "GEOID": "13205",
+     "estimate": 0.4845,
+     "ci_lower": 0.4329,
+     "ci_upper": 0.536,
+     "noise_level": 0.1477,
+     "validated": false
+    },
+    {
+     "GEOID": "13207",
+     "estimate": 0.2534,
+     "ci_lower": 0.1713,
+     "ci_upper": 0.3355,
+     "noise_level": 0.1924,
+     "validated": true
+    },
+    {
+     "GEOID": "13209",
+     "estimate": 0.4505,
+     "ci_lower": 0.4001,
+     "ci_upper": 0.5009,
+     "noise_level": 0.2341,
+     "validated": false
+    },
+    {
+     "GEOID": "13211",
+     "estimate": 0.2743,
+     "ci_lower": 0.1788,
+     "ci_upper": 0.3699,
+     "noise_level": 0.3198,
+     "validated": true
+    },
+    {
+     "GEOID": "13213",
+     "estimate": 0.6586,
+     "ci_lower": 0.5776,
+     "ci_upper": 0.7395,
+     "noise_level": 1.006,
+     "validated": false
+    },
+    {
+     "GEOID": "13215",
+     "estimate": 0.5347,
+     "ci_lower": 0.5109,
+     "ci_upper": 0.5584,
+     "noise_level": 0.202,
+     "validated": true
+    },
+    {
+     "GEOID": "13217",
+     "estimate": 0.3871,
+     "ci_lower": 0.3479,
+     "ci_upper": 0.4262,
+     "noise_level": 0.18,
+     "validated": true
+    },
+    {
+     "GEOID": "13219",
+     "estimate": 0.4501,
+     "ci_lower": 0.3029,
+     "ci_upper": 0.5974,
+     "noise_level": 0.7497,
+     "validated": true
+    },
+    {
+     "GEOID": "13221",
+     "estimate": 0.0976,
+     "ci_lower": -0.0385,
+     "ci_upper": 0.2336,
+     "noise_level": 0.3379,
+     "validated": true
+    },
+    {
+     "GEOID": "13223",
+     "estimate": 0.3201,
+     "ci_lower": 0.2773,
+     "ci_upper": 0.363,
+     "noise_level": 0.2313,
+     "validated": true
+    },
+    {
+     "GEOID": "13225",
+     "estimate": 0.4284,
+     "ci_lower": 0.3659,
+     "ci_upper": 0.4908,
+     "noise_level": 0.1552,
+     "validated": true
+    },
+    {
+     "GEOID": "13227",
+     "estimate": 0.2372,
+     "ci_lower": -0.0254,
+     "ci_upper": 0.4998,
+     "noise_level": 1.501,
+     "validated": false
+    },
+    {
+     "GEOID": "13229",
+     "estimate": 0.3825,
+     "ci_lower": 0.2242,
+     "ci_upper": 0.5407,
+     "noise_level": 0.5169,
+     "validated": true
+    },
+    {
+     "GEOID": "13231",
+     "estimate": 0.2002,
+     "ci_lower": 0.0882,
+     "ci_upper": 0.3121,
+     "noise_level": 0.2885,
+     "validated": true
+    },
+    {
+     "GEOID": "13233",
+     "estimate": 0.2458,
+     "ci_lower": 0.1543,
+     "ci_upper": 0.3374,
+     "noise_level": 0.3179,
+     "validated": true
+    },
+    {
+     "GEOID": "13235",
+     "estimate": 0.3758,
+     "ci_lower": 0.2745,
+     "ci_upper": 0.4772,
+     "noise_level": 0.1538,
+     "validated": false
+    },
+    {
+     "GEOID": "13237",
+     "estimate": 0.5706,
+     "ci_lower": 0.4737,
+     "ci_upper": 0.6674,
+     "noise_level": 0.4418,
+     "validated": true
+    },
+    {
+     "GEOID": "13239",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.158,
+     "validated": false
+    },
+    {
+     "GEOID": "13241",
+     "estimate": 0.6219,
+     "ci_lower": 0.4275,
+     "ci_upper": 0.8163,
+     "noise_level": 1.1382,
+     "validated": false
+    },
+    {
+     "GEOID": "13243",
+     "estimate": 0.1316,
+     "ci_lower": 0.0052,
+     "ci_upper": 0.2581,
+     "noise_level": 0.1727,
+     "validated": false
+    },
+    {
+     "GEOID": "13245",
+     "estimate": 0.4429,
+     "ci_lower": 0.4151,
+     "ci_upper": 0.4708,
+     "noise_level": 0.205,
+     "validated": true
+    },
+    {
+     "GEOID": "13247",
+     "estimate": 0.1984,
+     "ci_lower": 0.1508,
+     "ci_upper": 0.246,
+     "noise_level": 0.206,
+     "validated": true
+    },
+    {
+     "GEOID": "13249",
+     "estimate": 0.4355,
+     "ci_lower": 0.312,
+     "ci_upper": 0.5589,
+     "noise_level": 0.4754,
+     "validated": false
+    },
+    {
+     "GEOID": "13251",
+     "estimate": 0.1572,
+     "ci_lower": 0.0695,
+     "ci_upper": 0.245,
+     "noise_level": 0.1945,
+     "validated": true
+    },
+    {
+     "GEOID": "13253",
+     "estimate": 0.3706,
+     "ci_lower": 0.2788,
+     "ci_upper": 0.4623,
+     "noise_level": 0.1516,
+     "validated": false
+    },
+    {
+     "GEOID": "13255",
+     "estimate": 0.4069,
+     "ci_lower": 0.3582,
+     "ci_upper": 0.4555,
+     "noise_level": 0.2034,
+     "validated": true
+    },
+    {
+     "GEOID": "13257",
+     "estimate": 0.4715,
+     "ci_lower": 0.3851,
+     "ci_upper": 0.5578,
+     "noise_level": 0.4743,
+     "validated": true
+    },
+    {
+     "GEOID": "13259",
+     "estimate": -0.0882,
+     "ci_lower": -0.1917,
+     "ci_upper": 0.0153,
+     "noise_level": 0.1231,
+     "validated": false
+    },
+    {
+     "GEOID": "13261",
+     "estimate": 0.2591,
+     "ci_lower": 0.1859,
+     "ci_upper": 0.3323,
+     "noise_level": 0.209,
+     "validated": true
+    },
+    {
+     "GEOID": "13263",
+     "estimate": 0.2281,
+     "ci_lower": 0.1188,
+     "ci_upper": 0.3373,
+     "noise_level": 0.1449,
+     "validated": false
+    },
+    {
+     "GEOID": "13265",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.1923,
+     "validated": false
+    },
+    {
+     "GEOID": "13267",
+     "estimate": 0.2662,
+     "ci_lower": 0.1962,
+     "ci_upper": 0.3363,
+     "noise_level": 0.3213,
+     "validated": true
+    },
+    {
+     "GEOID": "13269",
+     "estimate": 0.1911,
+     "ci_lower": 0.0709,
+     "ci_upper": 0.3113,
+     "noise_level": 0.1733,
+     "validated": false
+    },
+    {
+     "GEOID": "13271",
+     "estimate": 0.2152,
+     "ci_lower": 0.1287,
+     "ci_upper": 0.3018,
+     "noise_level": 0.2185,
+     "validated": true
+    },
+    {
+     "GEOID": "13273",
+     "estimate": 0.3009,
+     "ci_lower": 0.2166,
+     "ci_upper": 0.3853,
+     "noise_level": 0.1614,
+     "validated": false
+    },
+    {
+     "GEOID": "13275",
+     "estimate": 0.3634,
+     "ci_lower": 0.3138,
+     "ci_upper": 0.413,
+     "noise_level": 0.1924,
+     "validated": true
+    },
+    {
+     "GEOID": "13277",
+     "estimate": 0.485,
+     "ci_lower": 0.4392,
+     "ci_upper": 0.5309,
+     "noise_level": 0.2414,
+     "validated": true
+    },
+    {
+     "GEOID": "13279",
+     "estimate": 0.3589,
+     "ci_lower": 0.291,
+     "ci_upper": 0.4269,
+     "noise_level": 0.3395,
+     "validated": true
+    },
+    {
+     "GEOID": "13281",
+     "estimate": 0.5904,
+     "ci_lower": 0.4267,
+     "ci_upper": 0.7542,
+     "noise_level": 1.3843,
+     "validated": false
+    },
+    {
+     "GEOID": "13283",
+     "estimate": 0.2173,
+     "ci_lower": 0.1267,
+     "ci_upper": 0.3078,
+     "noise_level": 0.4649,
+     "validated": false
+    },
+    {
+     "GEOID": "13285",
+     "estimate": 0.4114,
+     "ci_lower": 0.3707,
+     "ci_upper": 0.4521,
+     "noise_level": 0.2238,
+     "validated": true
+    },
+    {
+     "GEOID": "13287",
+     "estimate": 0.5677,
+     "ci_lower": 0.4853,
+     "ci_upper": 0.6501,
+     "noise_level": 0.1734,
+     "validated": false
+    },
+    {
+     "GEOID": "13289",
+     "estimate": 0.4985,
+     "ci_lower": 0.4068,
+     "ci_upper": 0.5901,
+     "noise_level": 0.1549,
+     "validated": false
+    },
+    {
+     "GEOID": "13291",
+     "estimate": 0.7587,
+     "ci_lower": 0.6264,
+     "ci_upper": 0.8911,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "13293",
+     "estimate": 0.4374,
+     "ci_lower": 0.366,
+     "ci_upper": 0.5088,
+     "noise_level": 0.2353,
+     "validated": true
+    },
+    {
+     "GEOID": "13295",
+     "estimate": 0.3204,
+     "ci_lower": 0.2277,
+     "ci_upper": 0.4131,
+     "noise_level": 0.5849,
+     "validated": true
+    },
+    {
+     "GEOID": "13297",
+     "estimate": 0.3959,
+     "ci_lower": 0.3449,
+     "ci_upper": 0.4469,
+     "noise_level": 0.2653,
+     "validated": true
+    },
+    {
+     "GEOID": "13299",
+     "estimate": 0.4389,
+     "ci_lower": 0.3772,
+     "ci_upper": 0.5005,
+     "noise_level": 0.2023,
+     "validated": true
+    },
+    {
+     "GEOID": "13301",
+     "estimate": 0.1651,
+     "ci_lower": 0.058,
+     "ci_upper": 0.2721,
+     "noise_level": 0.1026,
+     "validated": false
+    },
+    {
+     "GEOID": "13303",
+     "estimate": 0.1571,
+     "ci_lower": 0.0959,
+     "ci_upper": 0.2182,
+     "noise_level": 0.1158,
+     "validated": false
+    },
+    {
+     "GEOID": "13305",
+     "estimate": 0.2742,
+     "ci_lower": 0.1862,
+     "ci_upper": 0.3623,
+     "noise_level": 0.2891,
+     "validated": true
+    },
+    {
+     "GEOID": "13307",
+     "estimate": 0.0636,
+     "ci_lower": -0.1128,
+     "ci_upper": 0.24,
+     "noise_level": 0.2184,
+     "validated": false
+    },
+    {
+     "GEOID": "13309",
+     "estimate": 0.024,
+     "ci_lower": -0.1395,
+     "ci_upper": 0.1875,
+     "noise_level": 0.196,
+     "validated": false
+    },
+    {
+     "GEOID": "13311",
+     "estimate": 0.642,
+     "ci_lower": 0.5068,
+     "ci_upper": 0.7772,
+     "noise_level": 0.8932,
+     "validated": true
+    },
+    {
+     "GEOID": "13313",
+     "estimate": 0.3416,
+     "ci_lower": 0.2434,
+     "ci_upper": 0.4399,
+     "noise_level": 0.5672,
+     "validated": true
+    },
+    {
+     "GEOID": "13315",
+     "estimate": 0.3113,
+     "ci_lower": 0.2265,
+     "ci_upper": 0.3961,
+     "noise_level": 0.1707,
+     "validated": false
+    },
+    {
+     "GEOID": "13317",
+     "estimate": 0.2399,
+     "ci_lower": 0.1509,
+     "ci_upper": 0.3289,
+     "noise_level": 0.2555,
+     "validated": false
+    },
+    {
+     "GEOID": "13319",
+     "estimate": 0.1833,
+     "ci_lower": 0.0996,
+     "ci_upper": 0.267,
+     "noise_level": 0.1039,
+     "validated": false
+    },
+    {
+     "GEOID": "13321",
+     "estimate": 0.3081,
+     "ci_lower": 0.2401,
+     "ci_upper": 0.3761,
+     "noise_level": 0.2391,
+     "validated": true
+    },
+    {
+     "GEOID": "26001",
+     "estimate": 0.3661,
+     "ci_lower": 0.1716,
+     "ci_upper": 0.5606,
+     "noise_level": 1.2134,
+     "validated": false
+    },
+    {
+     "GEOID": "26003",
+     "estimate": 0.6265,
+     "ci_lower": 0.5417,
+     "ci_upper": 0.7113,
+     "noise_level": 0.258,
+     "validated": false
+    },
+    {
+     "GEOID": "26005",
+     "estimate": 0.253,
+     "ci_lower": 0.1568,
+     "ci_upper": 0.3493,
+     "noise_level": 0.6108,
+     "validated": true
+    },
+    {
+     "GEOID": "26007",
+     "estimate": 0.5146,
+     "ci_lower": 0.4051,
+     "ci_upper": 0.6241,
+     "noise_level": 0.8587,
+     "validated": true
+    },
+    {
+     "GEOID": "26009",
+     "estimate": 0.6072,
+     "ci_lower": 0.3852,
+     "ci_upper": 0.8293,
+     "noise_level": 1.627,
+     "validated": false
+    },
+    {
+     "GEOID": "26011",
+     "estimate": 0.3292,
+     "ci_lower": 0.1203,
+     "ci_upper": 0.5381,
+     "noise_level": 0.7302,
+     "validated": true
+    },
+    {
+     "GEOID": "26013",
+     "estimate": 0.4744,
+     "ci_lower": 0.395,
+     "ci_upper": 0.5537,
+     "noise_level": 0.4819,
+     "validated": false
+    },
+    {
+     "GEOID": "26015",
+     "estimate": 0.5406,
+     "ci_lower": 0.4266,
+     "ci_upper": 0.6547,
+     "noise_level": 1.1225,
+     "validated": false
+    },
+    {
+     "GEOID": "26017",
+     "estimate": 0.3819,
+     "ci_lower": 0.2707,
+     "ci_upper": 0.4931,
+     "noise_level": 0.8905,
+     "validated": false
+    },
+    {
+     "GEOID": "26019",
+     "estimate": 0.1638,
+     "ci_lower": -0.0578,
+     "ci_upper": 0.3853,
+     "noise_level": 1.1475,
+     "validated": false
+    },
+    {
+     "GEOID": "26021",
+     "estimate": 0.6732,
+     "ci_lower": 0.6441,
+     "ci_upper": 0.7022,
+     "noise_level": 0.5162,
+     "validated": true
+    },
+    {
+     "GEOID": "26023",
+     "estimate": 0.7524,
+     "ci_lower": 0.6319,
+     "ci_upper": 0.873,
+     "noise_level": 0.9485,
+     "validated": true
+    },
+    {
+     "GEOID": "26025",
+     "estimate": 0.5717,
+     "ci_lower": 0.5353,
+     "ci_upper": 0.6081,
+     "noise_level": 0.4504,
+     "validated": true
+    },
+    {
+     "GEOID": "26027",
+     "estimate": 0.5122,
+     "ci_lower": 0.4557,
+     "ci_upper": 0.5687,
+     "noise_level": 0.5866,
+     "validated": true
+    },
+    {
+     "GEOID": "26029",
+     "estimate": 0.6851,
+     "ci_lower": 0.5587,
+     "ci_upper": 0.8116,
+     "noise_level": 1.8428,
+     "validated": false
+    },
+    {
+     "GEOID": "26031",
+     "estimate": 0.5126,
+     "ci_lower": 0.3516,
+     "ci_upper": 0.6736,
+     "noise_level": 0.9532,
+     "validated": true
+    },
+    {
+     "GEOID": "26033",
+     "estimate": 0.8354,
+     "ci_lower": 0.7822,
+     "ci_upper": 0.8885,
+     "noise_level": 1.5588,
+     "validated": false
+    },
+    {
+     "GEOID": "26035",
+     "estimate": 0.4416,
+     "ci_lower": 0.2975,
+     "ci_upper": 0.5856,
+     "noise_level": 1.046,
+     "validated": false
+    },
+    {
+     "GEOID": "26037",
+     "estimate": 0.325,
+     "ci_lower": 0.2202,
+     "ci_upper": 0.4298,
+     "noise_level": 0.7283,
+     "validated": true
+    },
+    {
+     "GEOID": "26039",
+     "estimate": 0.2031,
+     "ci_lower": -0.0472,
+     "ci_upper": 0.4535,
+     "noise_level": 0.8622,
+     "validated": true
+    },
+    {
+     "GEOID": "26041",
+     "estimate": 0.1594,
+     "ci_lower": -0.0659,
+     "ci_upper": 0.3847,
+     "noise_level": 1.0031,
+     "validated": false
+    },
+    {
+     "GEOID": "26043",
+     "estimate": 0.3915,
+     "ci_lower": 0.1999,
+     "ci_upper": 0.5832,
+     "noise_level": 0.7151,
+     "validated": true
+    },
+    {
+     "GEOID": "26045",
+     "estimate": 0.6233,
+     "ci_lower": 0.5778,
+     "ci_upper": 0.6688,
+     "noise_level": 0.6023,
+     "validated": true
+    },
+    {
+     "GEOID": "26047",
+     "estimate": 0.4095,
+     "ci_lower": 0.2478,
+     "ci_upper": 0.5712,
+     "noise_level": 0.9814,
+     "validated": true
+    },
+    {
+     "GEOID": "26049",
+     "estimate": 0.6619,
+     "ci_lower": 0.6436,
+     "ci_upper": 0.6801,
+     "noise_level": 0.4191,
+     "validated": true
+    },
+    {
+     "GEOID": "26051",
+     "estimate": 0.6298,
+     "ci_lower": 0.4402,
+     "ci_upper": 0.8195,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "26053",
+     "estimate": 0.2776,
+     "ci_lower": 0.0443,
+     "ci_upper": 0.5109,
+     "noise_level": 0.7299,
+     "validated": true
+    },
+    {
+     "GEOID": "26055",
+     "estimate": 0.3074,
+     "ci_lower": 0.1641,
+     "ci_upper": 0.4507,
+     "noise_level": 0.8969,
+     "validated": true
+    },
+    {
+     "GEOID": "26057",
+     "estimate": 0.7301,
+     "ci_lower": 0.658,
+     "ci_upper": 0.8022,
+     "noise_level": 0.6473,
+     "validated": true
+    },
+    {
+     "GEOID": "26059",
+     "estimate": 0.3174,
+     "ci_lower": 0.191,
+     "ci_upper": 0.4439,
+     "noise_level": 0.7555,
+     "validated": true
+    },
+    {
+     "GEOID": "26061",
+     "estimate": 0.2898,
+     "ci_lower": 0.1212,
+     "ci_upper": 0.4584,
+     "noise_level": 0.803,
+     "validated": false
+    },
+    {
+     "GEOID": "26063",
+     "estimate": 0.4484,
+     "ci_lower": 0.3463,
+     "ci_upper": 0.5505,
+     "noise_level": 1.3507,
+     "validated": false
+    },
+    {
+     "GEOID": "26065",
+     "estimate": 0.4713,
+     "ci_lower": 0.4408,
+     "ci_upper": 0.5018,
+     "noise_level": 0.4003,
+     "validated": true
+    },
+    {
+     "GEOID": "26067",
+     "estimate": 0.5451,
+     "ci_lower": 0.4458,
+     "ci_upper": 0.6443,
+     "noise_level": 0.8289,
+     "validated": true
+    },
+    {
+     "GEOID": "26069",
+     "estimate": 0.5152,
+     "ci_lower": 0.3445,
+     "ci_upper": 0.6859,
+     "noise_level": 1.0233,
+     "validated": false
+    },
+    {
+     "GEOID": "26071",
+     "estimate": 0.3921,
+     "ci_lower": 0.251,
+     "ci_upper": 0.5333,
+     "noise_level": 1.2332,
+     "validated": false
+    },
+    {
+     "GEOID": "26073",
+     "estimate": 0.4535,
+     "ci_lower": 0.3892,
+     "ci_upper": 0.5178,
+     "noise_level": 0.5191,
+     "validated": true
+    },
+    {
+     "GEOID": "26075",
+     "estimate": 0.6371,
+     "ci_lower": 0.6028,
+     "ci_upper": 0.6713,
+     "noise_level": 0.53,
+     "validated": false
+    },
+    {
+     "GEOID": "26077",
+     "estimate": 0.4921,
+     "ci_lower": 0.4629,
+     "ci_upper": 0.5212,
+     "noise_level": 0.3732,
+     "validated": true
+    },
+    {
+     "GEOID": "26079",
+     "estimate": 0.5198,
+     "ci_lower": 0.4996,
+     "ci_upper": 0.5401,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "26081",
+     "estimate": 0.5683,
+     "ci_lower": 0.5436,
+     "ci_upper": 0.593,
+     "noise_level": 0.466,
+     "validated": true
+    },
+    {
+     "GEOID": "26083",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "26085",
+     "estimate": 0.4595,
+     "ci_lower": 0.4234,
+     "ci_upper": 0.4955,
+     "noise_level": 0.256,
+     "validated": false
+    },
+    {
+     "GEOID": "26087",
+     "estimate": 0.7828,
+     "ci_lower": 0.7254,
+     "ci_upper": 0.8402,
+     "noise_level": 1.5406,
+     "validated": false
+    },
+    {
+     "GEOID": "26089",
+     "estimate": 0.4336,
+     "ci_lower": 0.2861,
+     "ci_upper": 0.5812,
+     "noise_level": 0.9306,
+     "validated": true
+    },
+    {
+     "GEOID": "26091",
+     "estimate": 0.6008,
+     "ci_lower": 0.5376,
+     "ci_upper": 0.664,
+     "noise_level": 0.7085,
+     "validated": false
+    },
+    {
+     "GEOID": "26093",
+     "estimate": 0.5968,
+     "ci_lower": 0.5214,
+     "ci_upper": 0.6722,
+     "noise_level": 1.5755,
+     "validated": false
+    },
+    {
+     "GEOID": "26095",
+     "estimate": 0.3572,
+     "ci_lower": 0.3294,
+     "ci_upper": 0.385,
+     "noise_level": 0.4802,
+     "validated": false
+    },
+    {
+     "GEOID": "26097",
+     "estimate": 0.5284,
+     "ci_lower": 0.3907,
+     "ci_upper": 0.666,
+     "noise_level": 0.8535,
+     "validated": true
+    },
+    {
+     "GEOID": "26099",
+     "estimate": 0.4849,
+     "ci_lower": 0.4638,
+     "ci_upper": 0.5059,
+     "noise_level": 0.4089,
+     "validated": true
+    },
+    {
+     "GEOID": "26101",
+     "estimate": 0.6557,
+     "ci_lower": 0.5777,
+     "ci_upper": 0.7337,
+     "noise_level": 0.6542,
+     "validated": true
+    },
+    {
+     "GEOID": "26103",
+     "estimate": 0.5941,
+     "ci_lower": 0.5074,
+     "ci_upper": 0.6807,
+     "noise_level": 0.9375,
+     "validated": true
+    },
+    {
+     "GEOID": "26105",
+     "estimate": 0.4905,
+     "ci_lower": 0.3612,
+     "ci_upper": 0.6199,
+     "noise_level": 0.8401,
+     "validated": true
+    },
+    {
+     "GEOID": "26107",
+     "estimate": 0.447,
+     "ci_lower": 0.3333,
+     "ci_upper": 0.5607,
+     "noise_level": 0.6446,
+     "validated": true
+    },
+    {
+     "GEOID": "26109",
+     "estimate": 0.3941,
+     "ci_lower": 0.2843,
+     "ci_upper": 0.5038,
+     "noise_level": 0.6468,
+     "validated": true
+    },
+    {
+     "GEOID": "26111",
+     "estimate": 0.4792,
+     "ci_lower": 0.3679,
+     "ci_upper": 0.5905,
+     "noise_level": 0.7951,
+     "validated": true
+    },
+    {
+     "GEOID": "26113",
+     "estimate": 0.1934,
+     "ci_lower": -0.0812,
+     "ci_upper": 0.468,
+     "noise_level": 0.7348,
+     "validated": true
+    },
+    {
+     "GEOID": "26115",
+     "estimate": 0.512,
+     "ci_lower": 0.4412,
+     "ci_upper": 0.5828,
+     "noise_level": 0.8632,
+     "validated": true
+    },
+    {
+     "GEOID": "26117",
+     "estimate": 0.5756,
+     "ci_lower": 0.4696,
+     "ci_upper": 0.6817,
+     "noise_level": 0.8055,
+     "validated": true
+    },
+    {
+     "GEOID": "26119",
+     "estimate": 0.4939,
+     "ci_lower": 0.3472,
+     "ci_upper": 0.6406,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "26121",
+     "estimate": 0.7291,
+     "ci_lower": 0.6968,
+     "ci_upper": 0.7614,
+     "noise_level": 0.5217,
+     "validated": true
+    },
+    {
+     "GEOID": "26123",
+     "estimate": 0.3792,
+     "ci_lower": 0.2769,
+     "ci_upper": 0.4816,
+     "noise_level": 0.5488,
+     "validated": true
+    },
+    {
+     "GEOID": "26125",
+     "estimate": 0.6308,
+     "ci_lower": 0.6169,
+     "ci_upper": 0.6447,
+     "noise_level": 0.4801,
+     "validated": true
+    },
+    {
+     "GEOID": "26127",
+     "estimate": 0.2354,
+     "ci_lower": 0.0408,
+     "ci_upper": 0.4299,
+     "noise_level": 0.8119,
+     "validated": true
+    },
+    {
+     "GEOID": "26129",
+     "estimate": 0.4708,
+     "ci_lower": 0.3233,
+     "ci_upper": 0.6183,
+     "noise_level": 0.9801,
+     "validated": true
+    },
+    {
+     "GEOID": "26131",
+     "estimate": 0.5238,
+     "ci_lower": 0.4213,
+     "ci_upper": 0.6262,
+     "noise_level": 1.2748,
+     "validated": false
+    },
+    {
+     "GEOID": "26133",
+     "estimate": 0.0444,
+     "ci_lower": -0.1357,
+     "ci_upper": 0.2246,
+     "noise_level": 0.6285,
+     "validated": true
+    },
+    {
+     "GEOID": "26135",
+     "estimate": 0.3696,
+     "ci_lower": 0.2214,
+     "ci_upper": 0.5178,
+     "noise_level": 0.9483,
+     "validated": true
+    },
+    {
+     "GEOID": "26137",
+     "estimate": 0.3309,
+     "ci_lower": 0.1384,
+     "ci_upper": 0.5234,
+     "noise_level": 0.7895,
+     "validated": true
+    },
+    {
+     "GEOID": "26139",
+     "estimate": 0.4377,
+     "ci_lower": 0.3721,
+     "ci_upper": 0.5032,
+     "noise_level": 0.8103,
+     "validated": true
+    },
+    {
+     "GEOID": "26141",
+     "estimate": 0.4018,
+     "ci_lower": 0.2126,
+     "ci_upper": 0.5909,
+     "noise_level": 4.3608,
+     "validated": false
+    },
+    {
+     "GEOID": "26143",
+     "estimate": 0.5189,
+     "ci_lower": 0.4123,
+     "ci_upper": 0.6255,
+     "noise_level": 1.4642,
+     "validated": false
+    },
+    {
+     "GEOID": "26145",
+     "estimate": 0.6456,
+     "ci_lower": 0.6259,
+     "ci_upper": 0.6652,
+     "noise_level": 0.3476,
+     "validated": true
+    },
+    {
+     "GEOID": "26147",
+     "estimate": 0.5715,
+     "ci_lower": 0.5087,
+     "ci_upper": 0.6343,
+     "noise_level": 0.9752,
+     "validated": true
+    },
+    {
+     "GEOID": "26149",
+     "estimate": 0.5975,
+     "ci_lower": 0.5053,
+     "ci_upper": 0.6897,
+     "noise_level": 0.7084,
+     "validated": true
+    },
+    {
+     "GEOID": "26151",
+     "estimate": 0.415,
+     "ci_lower": 0.3164,
+     "ci_upper": 0.5136,
+     "noise_level": 1.0642,
+     "validated": false
+    },
+    {
+     "GEOID": "26153",
+     "estimate": 0.1474,
+     "ci_lower": -0.166,
+     "ci_upper": 0.4607,
+     "noise_level": 0.882,
+     "validated": false
+    },
+    {
+     "GEOID": "26155",
+     "estimate": 0.4068,
+     "ci_lower": 0.2931,
+     "ci_upper": 0.5205,
+     "noise_level": 0.8715,
+     "validated": true
+    },
+    {
+     "GEOID": "26157",
+     "estimate": 0.2422,
+     "ci_lower": 0.1343,
+     "ci_upper": 0.35,
+     "noise_level": 0.6213,
+     "validated": true
+    },
+    {
+     "GEOID": "26159",
+     "estimate": 0.5018,
+     "ci_lower": 0.4427,
+     "ci_upper": 0.561,
+     "noise_level": 0.6316,
+     "validated": true
+    },
+    {
+     "GEOID": "26161",
+     "estimate": 0.5205,
+     "ci_lower": 0.4937,
+     "ci_upper": 0.5474,
+     "noise_level": 0.4005,
+     "validated": true
+    },
+    {
+     "GEOID": "26163",
+     "estimate": 0.7546,
+     "ci_lower": 0.746,
+     "ci_upper": 0.7631,
+     "noise_level": 0.2367,
+     "validated": true
+    },
+    {
+     "GEOID": "26165",
+     "estimate": 0.3294,
+     "ci_lower": 0.1469,
+     "ci_upper": 0.5118,
+     "noise_level": 0.6503,
+     "validated": true
+    },
+    {
+     "GEOID": "36001",
+     "estimate": 0.515,
+     "ci_lower": 0.4874,
+     "ci_upper": 0.5426,
+     "noise_level": 0.4128,
+     "validated": true
+    },
+    {
+     "GEOID": "36003",
+     "estimate": 0.5401,
+     "ci_lower": 0.4554,
+     "ci_upper": 0.6248,
+     "noise_level": 1.3428,
+     "validated": false
+    },
+    {
+     "GEOID": "36005",
+     "estimate": 0.6922,
+     "ci_lower": 0.6763,
+     "ci_upper": 0.7081,
+     "noise_level": 0.5149,
+     "validated": false
+    },
+    {
+     "GEOID": "36007",
+     "estimate": 0.5568,
+     "ci_lower": 0.5121,
+     "ci_upper": 0.6016,
+     "noise_level": 0.5794,
+     "validated": true
+    },
+    {
+     "GEOID": "36009",
+     "estimate": 0.3792,
+     "ci_lower": 0.3087,
+     "ci_upper": 0.4497,
+     "noise_level": 0.5934,
+     "validated": true
+    },
+    {
+     "GEOID": "36011",
+     "estimate": 0.5159,
+     "ci_lower": 0.4556,
+     "ci_upper": 0.5762,
+     "noise_level": 0.822,
+     "validated": true
+    },
+    {
+     "GEOID": "36013",
+     "estimate": 0.4706,
+     "ci_lower": 0.4038,
+     "ci_upper": 0.5374,
+     "noise_level": 0.661,
+     "validated": true
+    },
+    {
+     "GEOID": "36015",
+     "estimate": 0.5148,
+     "ci_lower": 0.4625,
+     "ci_upper": 0.5672,
+     "noise_level": 0.488,
+     "validated": true
+    },
+    {
+     "GEOID": "36017",
+     "estimate": 0.1092,
+     "ci_lower": -0.0697,
+     "ci_upper": 0.2882,
+     "noise_level": 0.7513,
+     "validated": true
+    },
+    {
+     "GEOID": "36019",
+     "estimate": 0.531,
+     "ci_lower": 0.4541,
+     "ci_upper": 0.6079,
+     "noise_level": 0.686,
+     "validated": true
+    },
+    {
+     "GEOID": "36021",
+     "estimate": 0.4675,
+     "ci_lower": 0.4038,
+     "ci_upper": 0.5312,
+     "noise_level": 0.7024,
+     "validated": true
+    },
+    {
+     "GEOID": "36023",
+     "estimate": 0.4694,
+     "ci_lower": 0.4091,
+     "ci_upper": 0.5297,
+     "noise_level": 0.4852,
+     "validated": true
+    },
+    {
+     "GEOID": "36025",
+     "estimate": 0.4494,
+     "ci_lower": 0.2928,
+     "ci_upper": 0.6061,
+     "noise_level": 0.765,
+     "validated": true
+    },
+    {
+     "GEOID": "36027",
+     "estimate": 0.4545,
+     "ci_lower": 0.4136,
+     "ci_upper": 0.4954,
+     "noise_level": 0.4589,
+     "validated": true
+    },
+    {
+     "GEOID": "36029",
+     "estimate": 0.6853,
+     "ci_lower": 0.666,
+     "ci_upper": 0.7045,
+     "noise_level": 0.5319,
+     "validated": true
+    },
+    {
+     "GEOID": "36031",
+     "estimate": 0.6936,
+     "ci_lower": 0.6408,
+     "ci_upper": 0.7465,
+     "noise_level": 1.0148,
+     "validated": false
+    },
+    {
+     "GEOID": "36033",
+     "estimate": 0.6707,
+     "ci_lower": 0.5885,
+     "ci_upper": 0.7529,
+     "noise_level": 0.8223,
+     "validated": true
+    },
+    {
+     "GEOID": "36035",
+     "estimate": 0.4014,
+     "ci_lower": 0.3132,
+     "ci_upper": 0.4896,
+     "noise_level": 0.6664,
+     "validated": true
+    },
+    {
+     "GEOID": "36037",
+     "estimate": 0.3329,
+     "ci_lower": 0.2377,
+     "ci_upper": 0.428,
+     "noise_level": 0.5825,
+     "validated": true
+    },
+    {
+     "GEOID": "36039",
+     "estimate": 0.6929,
+     "ci_lower": 0.6248,
+     "ci_upper": 0.7611,
+     "noise_level": 0.8049,
+     "validated": true
+    },
+    {
+     "GEOID": "36041",
+     "estimate": 0.6024,
+     "ci_lower": 0.4965,
+     "ci_upper": 0.7083,
+     "noise_level": 1.5802,
+     "validated": false
+    },
+    {
+     "GEOID": "36043",
+     "estimate": 0.3795,
+     "ci_lower": 0.2622,
+     "ci_upper": 0.4968,
+     "noise_level": 0.8161,
+     "validated": false
+    },
+    {
+     "GEOID": "36045",
+     "estimate": 0.3865,
+     "ci_lower": 0.3034,
+     "ci_upper": 0.4696,
+     "noise_level": 0.5775,
+     "validated": false
+    },
+    {
+     "GEOID": "36047",
+     "estimate": 0.7591,
+     "ci_lower": 0.7513,
+     "ci_upper": 0.7669,
+     "noise_level": 0.3619,
+     "validated": true
+    },
+    {
+     "GEOID": "36049",
+     "estimate": 0.1589,
+     "ci_lower": -0.0157,
+     "ci_upper": 0.3334,
+     "noise_level": 0.7913,
+     "validated": true
+    },
+    {
+     "GEOID": "36051",
+     "estimate": 0.526,
+     "ci_lower": 0.4371,
+     "ci_upper": 0.6148,
+     "noise_level": 0.7329,
+     "validated": true
+    },
+    {
+     "GEOID": "36053",
+     "estimate": 0.5606,
+     "ci_lower": 0.4923,
+     "ci_upper": 0.6289,
+     "noise_level": 0.6968,
+     "validated": true
+    },
+    {
+     "GEOID": "36055",
+     "estimate": 0.6405,
+     "ci_lower": 0.6252,
+     "ci_upper": 0.6557,
+     "noise_level": 0.388,
+     "validated": true
+    },
+    {
+     "GEOID": "36057",
+     "estimate": 0.5937,
+     "ci_lower": 0.5136,
+     "ci_upper": 0.6738,
+     "noise_level": 0.4846,
+     "validated": true
+    },
+    {
+     "GEOID": "36059",
+     "estimate": 0.7739,
+     "ci_lower": 0.7608,
+     "ci_upper": 0.787,
+     "noise_level": 0.5892,
+     "validated": false
+    },
+    {
+     "GEOID": "36061",
+     "estimate": 0.6606,
+     "ci_lower": 0.6455,
+     "ci_upper": 0.6756,
+     "noise_level": 0.3986,
+     "validated": true
+    },
+    {
+     "GEOID": "36063",
+     "estimate": 0.555,
+     "ci_lower": 0.5075,
+     "ci_upper": 0.6026,
+     "noise_level": 0.5882,
+     "validated": true
+    },
+    {
+     "GEOID": "36065",
+     "estimate": 0.6754,
+     "ci_lower": 0.6451,
+     "ci_upper": 0.7058,
+     "noise_level": 0.5902,
+     "validated": true
+    },
+    {
+     "GEOID": "36067",
+     "estimate": 0.6066,
+     "ci_lower": 0.581,
+     "ci_upper": 0.6323,
+     "noise_level": 0.5039,
+     "validated": false
+    },
+    {
+     "GEOID": "36069",
+     "estimate": 0.4983,
+     "ci_lower": 0.433,
+     "ci_upper": 0.5637,
+     "noise_level": 0.7124,
+     "validated": true
+    },
+    {
+     "GEOID": "36071",
+     "estimate": 0.4379,
+     "ci_lower": 0.3979,
+     "ci_upper": 0.478,
+     "noise_level": 0.4012,
+     "validated": true
+    },
+    {
+     "GEOID": "36073",
+     "estimate": 0.4762,
+     "ci_lower": 0.3888,
+     "ci_upper": 0.5635,
+     "noise_level": 0.4714,
+     "validated": true
+    },
+    {
+     "GEOID": "36075",
+     "estimate": 0.6418,
+     "ci_lower": 0.58,
+     "ci_upper": 0.7035,
+     "noise_level": 1.1937,
+     "validated": false
+    },
+    {
+     "GEOID": "36077",
+     "estimate": 0.508,
+     "ci_lower": 0.4338,
+     "ci_upper": 0.5822,
+     "noise_level": 0.6301,
+     "validated": true
+    },
+    {
+     "GEOID": "36079",
+     "estimate": 0.3795,
+     "ci_lower": 0.298,
+     "ci_upper": 0.461,
+     "noise_level": 0.6332,
+     "validated": true
+    },
+    {
+     "GEOID": "36081",
+     "estimate": 0.8006,
+     "ci_lower": 0.7911,
+     "ci_upper": 0.8102,
+     "noise_level": 0.4966,
+     "validated": true
+    },
+    {
+     "GEOID": "36083",
+     "estimate": 0.5383,
+     "ci_lower": 0.4915,
+     "ci_upper": 0.5852,
+     "noise_level": 0.6278,
+     "validated": true
+    },
+    {
+     "GEOID": "36085",
+     "estimate": 0.752,
+     "ci_lower": 0.733,
+     "ci_upper": 0.771,
+     "noise_level": 0.6283,
+     "validated": false
+    },
+    {
+     "GEOID": "36087",
+     "estimate": 0.5748,
+     "ci_lower": 0.5438,
+     "ci_upper": 0.6058,
+     "noise_level": 0.4364,
+     "validated": true
+    },
+    {
+     "GEOID": "36089",
+     "estimate": 0.6106,
+     "ci_lower": 0.5468,
+     "ci_upper": 0.6744,
+     "noise_level": 0.7848,
+     "validated": false
+    },
+    {
+     "GEOID": "36091",
+     "estimate": 0.3359,
+     "ci_lower": 0.2395,
+     "ci_upper": 0.4323,
+     "noise_level": 0.8209,
+     "validated": true
+    },
+    {
+     "GEOID": "36093",
+     "estimate": 0.5249,
+     "ci_lower": 0.476,
+     "ci_upper": 0.5738,
+     "noise_level": 0.397,
+     "validated": true
+    },
+    {
+     "GEOID": "36095",
+     "estimate": 0.2725,
+     "ci_lower": 0.1422,
+     "ci_upper": 0.4028,
+     "noise_level": 0.4562,
+     "validated": true
+    },
+    {
+     "GEOID": "36097",
+     "estimate": -0.0649,
+     "ci_lower": -0.3394,
+     "ci_upper": 0.2097,
+     "noise_level": 0.5178,
+     "validated": true
+    },
+    {
+     "GEOID": "36099",
+     "estimate": 0.3846,
+     "ci_lower": 0.3036,
+     "ci_upper": 0.4655,
+     "noise_level": 0.5173,
+     "validated": false
+    },
+    {
+     "GEOID": "36101",
+     "estimate": 0.4116,
+     "ci_lower": 0.3512,
+     "ci_upper": 0.472,
+     "noise_level": 0.6195,
+     "validated": true
+    },
+    {
+     "GEOID": "36103",
+     "estimate": 0.5342,
+     "ci_lower": 0.5034,
+     "ci_upper": 0.565,
+     "noise_level": 0.5984,
+     "validated": false
+    },
+    {
+     "GEOID": "36105",
+     "estimate": 0.4331,
+     "ci_lower": 0.359,
+     "ci_upper": 0.5072,
+     "noise_level": 0.5656,
+     "validated": false
+    },
+    {
+     "GEOID": "36107",
+     "estimate": 0.2382,
+     "ci_lower": 0.0836,
+     "ci_upper": 0.3928,
+     "noise_level": 0.8594,
+     "validated": true
+    },
+    {
+     "GEOID": "36109",
+     "estimate": 0.4352,
+     "ci_lower": 0.375,
+     "ci_upper": 0.4953,
+     "noise_level": 0.4632,
+     "validated": true
+    },
+    {
+     "GEOID": "36111",
+     "estimate": 0.3668,
+     "ci_lower": 0.3041,
+     "ci_upper": 0.4296,
+     "noise_level": 0.5721,
+     "validated": true
+    },
+    {
+     "GEOID": "36113",
+     "estimate": 0.2978,
+     "ci_lower": 0.1644,
+     "ci_upper": 0.4312,
+     "noise_level": 0.8545,
+     "validated": true
+    },
+    {
+     "GEOID": "36115",
+     "estimate": 0.6325,
+     "ci_lower": 0.5617,
+     "ci_upper": 0.7034,
+     "noise_level": 0.8769,
+     "validated": true
+    },
+    {
+     "GEOID": "36117",
+     "estimate": 0.3521,
+     "ci_lower": 0.256,
+     "ci_upper": 0.4483,
+     "noise_level": 0.6507,
+     "validated": true
+    },
+    {
+     "GEOID": "36119",
+     "estimate": 0.6068,
+     "ci_lower": 0.585,
+     "ci_upper": 0.6287,
+     "noise_level": 0.4523,
+     "validated": true
+    },
+    {
+     "GEOID": "36121",
+     "estimate": 0.704,
+     "ci_lower": 0.6375,
+     "ci_upper": 0.7704,
+     "noise_level": 0.7252,
+     "validated": true
+    },
+    {
+     "GEOID": "36123",
+     "estimate": 0.2503,
+     "ci_lower": 0.0767,
+     "ci_upper": 0.4239,
+     "noise_level": 0.8188,
+     "validated": true
+    },
+    {
+     "GEOID": "48001",
+     "estimate": 0.4909,
+     "ci_lower": 0.4289,
+     "ci_upper": 0.5528,
+     "noise_level": 0.3162,
+     "validated": true
+    },
+    {
+     "GEOID": "48003",
+     "estimate": 0.7704,
+     "ci_lower": 0.5914,
+     "ci_upper": 0.9494,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48005",
+     "estimate": 0.413,
+     "ci_lower": 0.3561,
+     "ci_upper": 0.47,
+     "noise_level": 0.3556,
+     "validated": true
+    },
+    {
+     "GEOID": "48007",
+     "estimate": 0.2545,
+     "ci_lower": 0.0199,
+     "ci_upper": 0.4891,
+     "noise_level": 1.2055,
+     "validated": false
+    },
+    {
+     "GEOID": "48009",
+     "estimate": 0.4666,
+     "ci_lower": 0.2576,
+     "ci_upper": 0.6757,
+     "noise_level": 0.6152,
+     "validated": false
+    },
+    {
+     "GEOID": "48011",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 1.4328,
+     "validated": false
+    },
+    {
+     "GEOID": "48013",
+     "estimate": 0.2904,
+     "ci_lower": 0.1106,
+     "ci_upper": 0.4703,
+     "noise_level": 1.0127,
+     "validated": false
+    },
+    {
+     "GEOID": "48015",
+     "estimate": 0.2483,
+     "ci_lower": 0.1267,
+     "ci_upper": 0.3698,
+     "noise_level": 0.4307,
+     "validated": true
+    },
+    {
+     "GEOID": "48017",
+     "estimate": 0.4332,
+     "ci_lower": 0.3633,
+     "ci_upper": 0.5032,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48019",
+     "estimate": 0.3405,
+     "ci_lower": 0.0325,
+     "ci_upper": 0.6485,
+     "noise_level": 1.1595,
+     "validated": false
+    },
+    {
+     "GEOID": "48021",
+     "estimate": 0.4209,
+     "ci_lower": 0.3419,
+     "ci_upper": 0.4998,
+     "noise_level": 0.6068,
+     "validated": false
+    },
+    {
+     "GEOID": "48023",
+     "estimate": 0.4823,
+     "ci_lower": -0.0034,
+     "ci_upper": 0.968,
+     "noise_level": 0.914,
+     "validated": false
+    },
+    {
+     "GEOID": "48025",
+     "estimate": 0.5216,
+     "ci_lower": 0.3935,
+     "ci_upper": 0.6497,
+     "noise_level": 1.0349,
+     "validated": false
+    },
+    {
+     "GEOID": "48027",
+     "estimate": 0.4511,
+     "ci_lower": 0.4227,
+     "ci_upper": 0.4796,
+     "noise_level": 0.2671,
+     "validated": true
+    },
+    {
+     "GEOID": "48029",
+     "estimate": 0.4139,
+     "ci_lower": 0.3866,
+     "ci_upper": 0.4412,
+     "noise_level": 0.4708,
+     "validated": true
+    },
+    {
+     "GEOID": "48031",
+     "estimate": 0.1948,
+     "ci_lower": -0.1354,
+     "ci_upper": 0.525,
+     "noise_level": 0.9406,
+     "validated": false
+    },
+    {
+     "GEOID": "48033",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.8762,
+     "validated": false
+    },
+    {
+     "GEOID": "48035",
+     "estimate": 0.193,
+     "ci_lower": 0.0382,
+     "ci_upper": 0.3477,
+     "noise_level": 0.5598,
+     "validated": true
+    },
+    {
+     "GEOID": "48037",
+     "estimate": 0.4255,
+     "ci_lower": 0.3852,
+     "ci_upper": 0.4658,
+     "noise_level": 0.241,
+     "validated": true
+    },
+    {
+     "GEOID": "48039",
+     "estimate": 0.4512,
+     "ci_lower": 0.417,
+     "ci_upper": 0.4854,
+     "noise_level": 0.3852,
+     "validated": true
+    },
+    {
+     "GEOID": "48041",
+     "estimate": 0.3776,
+     "ci_lower": 0.3244,
+     "ci_upper": 0.4308,
+     "noise_level": 0.4311,
+     "validated": true
+    },
+    {
+     "GEOID": "48043",
+     "estimate": 0.0429,
+     "ci_lower": -0.2787,
+     "ci_upper": 0.3645,
+     "noise_level": 1.5452,
+     "validated": false
+    },
+    {
+     "GEOID": "48045",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.6962,
+     "validated": false
+    },
+    {
+     "GEOID": "48047",
+     "estimate": 0.4387,
+     "ci_lower": 0.1442,
+     "ci_upper": 0.7333,
+     "noise_level": 1.2478,
+     "validated": false
+    },
+    {
+     "GEOID": "48049",
+     "estimate": 0.4206,
+     "ci_lower": 0.335,
+     "ci_upper": 0.5061,
+     "noise_level": 0.5704,
+     "validated": true
+    },
+    {
+     "GEOID": "48051",
+     "estimate": 0.2544,
+     "ci_lower": 0.1462,
+     "ci_upper": 0.3625,
+     "noise_level": 0.3535,
+     "validated": true
+    },
+    {
+     "GEOID": "48053",
+     "estimate": 0.529,
+     "ci_lower": 0.4064,
+     "ci_upper": 0.6516,
+     "noise_level": 1.2496,
+     "validated": false
+    },
+    {
+     "GEOID": "48055",
+     "estimate": 0.3381,
+     "ci_lower": 0.2311,
+     "ci_upper": 0.4451,
+     "noise_level": 0.6748,
+     "validated": true
+    },
+    {
+     "GEOID": "48057",
+     "estimate": 0.4164,
+     "ci_lower": 0.3034,
+     "ci_upper": 0.5294,
+     "noise_level": 1.0899,
+     "validated": false
+    },
+    {
+     "GEOID": "48059",
+     "estimate": 0.4686,
+     "ci_lower": 0.2098,
+     "ci_upper": 0.7275,
+     "noise_level": 0.7403,
+     "validated": false
+    },
+    {
+     "GEOID": "48061",
+     "estimate": 0.6774,
+     "ci_lower": 0.6073,
+     "ci_upper": 0.7475,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48063",
+     "estimate": 0.1684,
+     "ci_lower": 0.0386,
+     "ci_upper": 0.2981,
+     "noise_level": 0.3167,
+     "validated": false
+    },
+    {
+     "GEOID": "48065",
+     "estimate": 0.3092,
+     "ci_lower": 0.0275,
+     "ci_upper": 0.591,
+     "noise_level": 0.7475,
+     "validated": false
+    },
+    {
+     "GEOID": "48067",
+     "estimate": 0.2615,
+     "ci_lower": 0.1809,
+     "ci_upper": 0.3421,
+     "noise_level": 0.342,
+     "validated": true
+    },
+    {
+     "GEOID": "48069",
+     "estimate": 0.4069,
+     "ci_lower": -0.0119,
+     "ci_upper": 0.8258,
+     "noise_level": 1.0733,
+     "validated": false
+    },
+    {
+     "GEOID": "48071",
+     "estimate": 0.1146,
+     "ci_lower": -0.0213,
+     "ci_upper": 0.2505,
+     "noise_level": 0.334,
+     "validated": true
+    },
+    {
+     "GEOID": "48073",
+     "estimate": 0.4023,
+     "ci_lower": 0.3387,
+     "ci_upper": 0.466,
+     "noise_level": 0.3266,
+     "validated": true
+    },
+    {
+     "GEOID": "48075",
+     "estimate": 0.5961,
+     "ci_lower": 0.4615,
+     "ci_upper": 0.7308,
+     "noise_level": 0.4325,
+     "validated": false
+    },
+    {
+     "GEOID": "48077",
+     "estimate": 0.585,
+     "ci_lower": 0.348,
+     "ci_upper": 0.8219,
+     "noise_level": 0.8074,
+     "validated": false
+    },
+    {
+     "GEOID": "48079",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.1289,
+     "validated": false
+    },
+    {
+     "GEOID": "48081",
+     "estimate": -0.0096,
+     "ci_lower": -0.339,
+     "ci_upper": 0.3198,
+     "noise_level": 0.6213,
+     "validated": false
+    },
+    {
+     "GEOID": "48083",
+     "estimate": 0.2307,
+     "ci_lower": -0.0673,
+     "ci_upper": 0.5288,
+     "noise_level": 0.5923,
+     "validated": false
+    },
+    {
+     "GEOID": "48085",
+     "estimate": 0.2516,
+     "ci_lower": 0.212,
+     "ci_upper": 0.2911,
+     "noise_level": 0.3943,
+     "validated": true
+    },
+    {
+     "GEOID": "48087",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.3304,
+     "validated": false
+    },
+    {
+     "GEOID": "48089",
+     "estimate": 0.238,
+     "ci_lower": 0.1183,
+     "ci_upper": 0.3577,
+     "noise_level": 0.2909,
+     "validated": true
+    },
+    {
+     "GEOID": "48091",
+     "estimate": 0.3433,
+     "ci_lower": 0.2446,
+     "ci_upper": 0.442,
+     "noise_level": 0.7479,
+     "validated": true
+    },
+    {
+     "GEOID": "48093",
+     "estimate": 0.5109,
+     "ci_lower": 0.1949,
+     "ci_upper": 0.827,
+     "noise_level": 1.3591,
+     "validated": false
+    },
+    {
+     "GEOID": "48095",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.4456,
+     "validated": false
+    },
+    {
+     "GEOID": "48097",
+     "estimate": 0.5868,
+     "ci_lower": 0.5038,
+     "ci_upper": 0.6698,
+     "noise_level": 0.534,
+     "validated": false
+    },
+    {
+     "GEOID": "48099",
+     "estimate": 0.3507,
+     "ci_lower": 0.3067,
+     "ci_upper": 0.3948,
+     "noise_level": 0.2888,
+     "validated": true
+    },
+    {
+     "GEOID": "48101",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.5409,
+     "validated": false
+    },
+    {
+     "GEOID": "48103",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.4184,
+     "validated": false
+    },
+    {
+     "GEOID": "48107",
+     "estimate": 0.1383,
+     "ci_lower": -0.1875,
+     "ci_upper": 0.4641,
+     "noise_level": 0.5504,
+     "validated": false
+    },
+    {
+     "GEOID": "48109",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 1.0232,
+     "validated": false
+    },
+    {
+     "GEOID": "48111",
+     "estimate": -0.0258,
+     "ci_lower": -0.4397,
+     "ci_upper": 0.3881,
+     "noise_level": 1.1864,
+     "validated": false
+    },
+    {
+     "GEOID": "48113",
+     "estimate": 0.5669,
+     "ci_lower": 0.5513,
+     "ci_upper": 0.5824,
+     "noise_level": 0.3426,
+     "validated": true
+    },
+    {
+     "GEOID": "48115",
+     "estimate": 0.6109,
+     "ci_lower": 0.4297,
+     "ci_upper": 0.7921,
+     "noise_level": 0.7337,
+     "validated": false
+    },
+    {
+     "GEOID": "48117",
+     "estimate": 0.6376,
+     "ci_lower": 0.5643,
+     "ci_upper": 0.7109,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48119",
+     "estimate": 0.4557,
+     "ci_lower": 0.3152,
+     "ci_upper": 0.5962,
+     "noise_level": 0.3882,
+     "validated": false
+    },
+    {
+     "GEOID": "48121",
+     "estimate": 0.4062,
+     "ci_lower": 0.3797,
+     "ci_upper": 0.4326,
+     "noise_level": 0.4059,
+     "validated": true
+    },
+    {
+     "GEOID": "48123",
+     "estimate": 0.21,
+     "ci_lower": 0.1136,
+     "ci_upper": 0.3064,
+     "noise_level": 0.3014,
+     "validated": true
+    },
+    {
+     "GEOID": "48125",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.8176,
+     "validated": false
+    },
+    {
+     "GEOID": "48127",
+     "estimate": 0.2232,
+     "ci_lower": -0.2545,
+     "ci_upper": 0.7008,
+     "noise_level": 1.5166,
+     "validated": false
+    },
+    {
+     "GEOID": "48129",
+     "estimate": 0.4224,
+     "ci_lower": 0.3312,
+     "ci_upper": 0.5136,
+     "noise_level": 0.6312,
+     "validated": false
+    },
+    {
+     "GEOID": "48131",
+     "estimate": 0.5406,
+     "ci_lower": 0.4257,
+     "ci_upper": 0.6555,
+     "noise_level": 1.5166,
+     "validated": false
+    },
+    {
+     "GEOID": "48133",
+     "estimate": 0.0537,
+     "ci_lower": -0.1399,
+     "ci_upper": 0.2473,
+     "noise_level": 0.733,
+     "validated": true
+    },
+    {
+     "GEOID": "48135",
+     "estimate": 0.3221,
+     "ci_lower": 0.1949,
+     "ci_upper": 0.4494,
+     "noise_level": 0.6186,
+     "validated": false
+    },
+    {
+     "GEOID": "48137",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 1.038,
+     "validated": false
+    },
+    {
+     "GEOID": "48139",
+     "estimate": 0.3108,
+     "ci_lower": 0.2662,
+     "ci_upper": 0.3553,
+     "noise_level": 0.3317,
+     "validated": true
+    },
+    {
+     "GEOID": "48141",
+     "estimate": 0.3199,
+     "ci_lower": 0.2534,
+     "ci_upper": 0.3864,
+     "noise_level": 0.7257,
+     "validated": false
+    },
+    {
+     "GEOID": "48143",
+     "estimate": 0.5221,
+     "ci_lower": 0.3853,
+     "ci_upper": 0.6588,
+     "noise_level": 0.9961,
+     "validated": true
+    },
+    {
+     "GEOID": "48145",
+     "estimate": 0.54,
+     "ci_lower": 0.4582,
+     "ci_upper": 0.6218,
+     "noise_level": 0.2973,
+     "validated": true
+    },
+    {
+     "GEOID": "48147",
+     "estimate": 0.5881,
+     "ci_lower": 0.5083,
+     "ci_upper": 0.6679,
+     "noise_level": 0.5008,
+     "validated": true
+    },
+    {
+     "GEOID": "48149",
+     "estimate": 0.1751,
+     "ci_lower": 0.029,
+     "ci_upper": 0.3212,
+     "noise_level": 0.7319,
+     "validated": true
+    },
+    {
+     "GEOID": "48151",
+     "estimate": 0.1528,
+     "ci_lower": -0.148,
+     "ci_upper": 0.4536,
+     "noise_level": 0.4649,
+     "validated": false
+    },
+    {
+     "GEOID": "48153",
+     "estimate": 0.3847,
+     "ci_lower": 0.2303,
+     "ci_upper": 0.5391,
+     "noise_level": 0.608,
+     "validated": false
+    },
+    {
+     "GEOID": "48157",
+     "estimate": 0.4839,
+     "ci_lower": 0.4546,
+     "ci_upper": 0.5132,
+     "noise_level": 0.3191,
+     "validated": true
+    },
+    {
+     "GEOID": "48159",
+     "estimate": 0.5807,
+     "ci_lower": 0.428,
+     "ci_upper": 0.7333,
+     "noise_level": 0.5901,
+     "validated": false
+    },
+    {
+     "GEOID": "48161",
+     "estimate": 0.2948,
+     "ci_lower": 0.207,
+     "ci_upper": 0.3827,
+     "noise_level": 0.3039,
+     "validated": true
+    },
+    {
+     "GEOID": "48163",
+     "estimate": 0.1134,
+     "ci_lower": -0.0897,
+     "ci_upper": 0.3164,
+     "noise_level": 0.8898,
+     "validated": false
+    },
+    {
+     "GEOID": "48165",
+     "estimate": 0.7112,
+     "ci_lower": 0.5092,
+     "ci_upper": 0.9131,
+     "noise_level": 0.9296,
+     "validated": false
+    },
+    {
+     "GEOID": "48167",
+     "estimate": 0.4816,
+     "ci_lower": 0.4468,
+     "ci_upper": 0.5165,
+     "noise_level": 0.4943,
+     "validated": true
+    },
+    {
+     "GEOID": "48169",
+     "estimate": 0.7821,
+     "ci_lower": 0.6443,
+     "ci_upper": 0.92,
+     "noise_level": 0.4939,
+     "validated": false
+    },
+    {
+     "GEOID": "48171",
+     "estimate": 0.4812,
+     "ci_lower": 0.3672,
+     "ci_upper": 0.5953,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48173",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48175",
+     "estimate": 0.0567,
+     "ci_lower": -0.1353,
+     "ci_upper": 0.2487,
+     "noise_level": 0.3722,
+     "validated": false
+    },
+    {
+     "GEOID": "48177",
+     "estimate": 0.2397,
+     "ci_lower": 0.0627,
+     "ci_upper": 0.4167,
+     "noise_level": 0.3905,
+     "validated": true
+    },
+    {
+     "GEOID": "48179",
+     "estimate": 0.5634,
+     "ci_lower": 0.4913,
+     "ci_upper": 0.6354,
+     "noise_level": 0.6835,
+     "validated": true
+    },
+    {
+     "GEOID": "48181",
+     "estimate": 0.3385,
+     "ci_lower": 0.2602,
+     "ci_upper": 0.4167,
+     "noise_level": 0.5174,
+     "validated": true
+    },
+    {
+     "GEOID": "48183",
+     "estimate": 0.3873,
+     "ci_lower": 0.3381,
+     "ci_upper": 0.4366,
+     "noise_level": 0.2373,
+     "validated": true
+    },
+    {
+     "GEOID": "48185",
+     "estimate": 0.536,
+     "ci_lower": 0.4396,
+     "ci_upper": 0.6325,
+     "noise_level": 0.5102,
+     "validated": true
+    },
+    {
+     "GEOID": "48187",
+     "estimate": 0.4022,
+     "ci_lower": 0.3447,
+     "ci_upper": 0.4596,
+     "noise_level": 0.4982,
+     "validated": true
+    },
+    {
+     "GEOID": "48189",
+     "estimate": 0.4214,
+     "ci_lower": 0.2727,
+     "ci_upper": 0.57,
+     "noise_level": 0.7976,
+     "validated": false
+    },
+    {
+     "GEOID": "48191",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.1609,
+     "validated": false
+    },
+    {
+     "GEOID": "48193",
+     "estimate": 0.2281,
+     "ci_lower": 0.0113,
+     "ci_upper": 0.445,
+     "noise_level": 0.6762,
+     "validated": false
+    },
+    {
+     "GEOID": "48195",
+     "estimate": 0.3324,
+     "ci_lower": 0.2706,
+     "ci_upper": 0.3941,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48197",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.4951,
+     "validated": false
+    },
+    {
+     "GEOID": "48199",
+     "estimate": 0.6917,
+     "ci_lower": 0.6115,
+     "ci_upper": 0.7719,
+     "noise_level": 0.8177,
+     "validated": true
+    },
+    {
+     "GEOID": "48201",
+     "estimate": 0.5737,
+     "ci_lower": 0.5554,
+     "ci_upper": 0.5919,
+     "noise_level": 0.3829,
+     "validated": true
+    },
+    {
+     "GEOID": "48203",
+     "estimate": 0.4825,
+     "ci_lower": 0.435,
+     "ci_upper": 0.53,
+     "noise_level": 0.2829,
+     "validated": true
+    },
+    {
+     "GEOID": "48205",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.3066,
+     "validated": false
+    },
+    {
+     "GEOID": "48207",
+     "estimate": 0.1554,
+     "ci_lower": 0.0009,
+     "ci_upper": 0.3099,
+     "noise_level": 0.2781,
+     "validated": false
+    },
+    {
+     "GEOID": "48209",
+     "estimate": 0.4602,
+     "ci_lower": 0.3969,
+     "ci_upper": 0.5236,
+     "noise_level": 0.6418,
+     "validated": false
+    },
+    {
+     "GEOID": "48211",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 1.0239,
+     "validated": false
+    },
+    {
+     "GEOID": "48213",
+     "estimate": 0.441,
+     "ci_lower": 0.3522,
+     "ci_upper": 0.5299,
+     "noise_level": 0.6015,
+     "validated": true
+    },
+    {
+     "GEOID": "48215",
+     "estimate": 0.7055,
+     "ci_lower": 0.66,
+     "ci_upper": 0.751,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48217",
+     "estimate": 0.4416,
+     "ci_lower": 0.3489,
+     "ci_upper": 0.5344,
+     "noise_level": 0.4307,
+     "validated": true
+    },
+    {
+     "GEOID": "48219",
+     "estimate": 0.427,
+     "ci_lower": 0.2571,
+     "ci_upper": 0.5969,
+     "noise_level": 0.5345,
+     "validated": false
+    },
+    {
+     "GEOID": "48221",
+     "estimate": 0.497,
+     "ci_lower": 0.3641,
+     "ci_upper": 0.6298,
+     "noise_level": 0.955,
+     "validated": true
+    },
+    {
+     "GEOID": "48223",
+     "estimate": 0.4594,
+     "ci_lower": 0.3834,
+     "ci_upper": 0.5354,
+     "noise_level": 0.4405,
+     "validated": true
+    },
+    {
+     "GEOID": "48225",
+     "estimate": 0.3386,
+     "ci_lower": 0.2597,
+     "ci_upper": 0.4176,
+     "noise_level": 0.291,
+     "validated": true
+    },
+    {
+     "GEOID": "48227",
+     "estimate": 0.4172,
+     "ci_lower": 0.3012,
+     "ci_upper": 0.5332,
+     "noise_level": 0.5128,
+     "validated": true
+    },
+    {
+     "GEOID": "48229",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.773,
+     "validated": false
+    },
+    {
+     "GEOID": "48231",
+     "estimate": 0.4452,
+     "ci_lower": 0.3854,
+     "ci_upper": 0.505,
+     "noise_level": 0.4774,
+     "validated": true
+    },
+    {
+     "GEOID": "48233",
+     "estimate": 0.5271,
+     "ci_lower": 0.3619,
+     "ci_upper": 0.6922,
+     "noise_level": 1.0089,
+     "validated": false
+    },
+    {
+     "GEOID": "48235",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48237",
+     "estimate": 0.4308,
+     "ci_lower": 0.229,
+     "ci_upper": 0.6326,
+     "noise_level": 0.4694,
+     "validated": false
+    },
+    {
+     "GEOID": "48239",
+     "estimate": 0.0644,
+     "ci_lower": -0.1141,
+     "ci_upper": 0.2428,
+     "noise_level": 0.3865,
+     "validated": false
+    },
+    {
+     "GEOID": "48241",
+     "estimate": 0.5571,
+     "ci_lower": 0.4968,
+     "ci_upper": 0.6174,
+     "noise_level": 0.3479,
+     "validated": true
+    },
+    {
+     "GEOID": "48245",
+     "estimate": 0.6128,
+     "ci_lower": 0.5892,
+     "ci_upper": 0.6363,
+     "noise_level": 0.2326,
+     "validated": true
+    },
+    {
+     "GEOID": "48247",
+     "estimate": 0.0785,
+     "ci_lower": 0.0272,
+     "ci_upper": 0.1298,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48249",
+     "estimate": 0.6777,
+     "ci_lower": 0.5758,
+     "ci_upper": 0.7795,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48251",
+     "estimate": 0.3823,
+     "ci_lower": 0.3122,
+     "ci_upper": 0.4524,
+     "noise_level": 0.5602,
+     "validated": true
+    },
+    {
+     "GEOID": "48253",
+     "estimate": 0.731,
+     "ci_lower": 0.6754,
+     "ci_upper": 0.7865,
+     "noise_level": 0.3853,
+     "validated": true
+    },
+    {
+     "GEOID": "48255",
+     "estimate": 0.3763,
+     "ci_lower": 0.251,
+     "ci_upper": 0.5015,
+     "noise_level": 0.7106,
+     "validated": true
+    },
+    {
+     "GEOID": "48257",
+     "estimate": 0.4574,
+     "ci_lower": 0.4126,
+     "ci_upper": 0.5022,
+     "noise_level": 0.395,
+     "validated": true
+    },
+    {
+     "GEOID": "48259",
+     "estimate": 0.4657,
+     "ci_lower": 0.2939,
+     "ci_upper": 0.6375,
+     "noise_level": 1.2006,
+     "validated": false
+    },
+    {
+     "GEOID": "48261",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48263",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 1.5312,
+     "validated": false
+    },
+    {
+     "GEOID": "48265",
+     "estimate": 0.4173,
+     "ci_lower": 0.3023,
+     "ci_upper": 0.5322,
+     "noise_level": 0.9894,
+     "validated": true
+    },
+    {
+     "GEOID": "48267",
+     "estimate": -0.2164,
+     "ci_lower": -0.6787,
+     "ci_upper": 0.2458,
+     "noise_level": 0.7346,
+     "validated": false
+    },
+    {
+     "GEOID": "48269",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48273",
+     "estimate": 0.4017,
+     "ci_lower": 0.255,
+     "ci_upper": 0.5484,
+     "noise_level": 0.7946,
+     "validated": true
+    },
+    {
+     "GEOID": "48275",
+     "estimate": 0.1673,
+     "ci_lower": -0.093,
+     "ci_upper": 0.4275,
+     "noise_level": 0.4367,
+     "validated": false
+    },
+    {
+     "GEOID": "48277",
+     "estimate": 0.4584,
+     "ci_lower": 0.3949,
+     "ci_upper": 0.5219,
+     "noise_level": 0.3338,
+     "validated": true
+    },
+    {
+     "GEOID": "48279",
+     "estimate": 0.1759,
+     "ci_lower": -0.0017,
+     "ci_upper": 0.3534,
+     "noise_level": 0.5211,
+     "validated": true
+    },
+    {
+     "GEOID": "48281",
+     "estimate": 0.5408,
+     "ci_lower": 0.3899,
+     "ci_upper": 0.6917,
+     "noise_level": 0.7648,
+     "validated": true
+    },
+    {
+     "GEOID": "48283",
+     "estimate": 0.3023,
+     "ci_lower": 0.1171,
+     "ci_upper": 0.4876,
+     "noise_level": 0.7695,
+     "validated": false
+    },
+    {
+     "GEOID": "48285",
+     "estimate": 0.4267,
+     "ci_lower": 0.3104,
+     "ci_upper": 0.5429,
+     "noise_level": 0.4852,
+     "validated": true
+    },
+    {
+     "GEOID": "48287",
+     "estimate": 0.4981,
+     "ci_lower": 0.4097,
+     "ci_upper": 0.5865,
+     "noise_level": 0.348,
+     "validated": false
+    },
+    {
+     "GEOID": "48289",
+     "estimate": 0.4779,
+     "ci_lower": 0.3921,
+     "ci_upper": 0.5637,
+     "noise_level": 0.3909,
+     "validated": true
+    },
+    {
+     "GEOID": "48291",
+     "estimate": 0.4029,
+     "ci_lower": 0.3171,
+     "ci_upper": 0.4886,
+     "noise_level": 0.5359,
+     "validated": true
+    },
+    {
+     "GEOID": "48293",
+     "estimate": 0.3066,
+     "ci_lower": 0.2435,
+     "ci_upper": 0.3698,
+     "noise_level": 0.2654,
+     "validated": true
+    },
+    {
+     "GEOID": "48295",
+     "estimate": 0.3472,
+     "ci_lower": -0.0648,
+     "ci_upper": 0.7592,
+     "noise_level": 1.0026,
+     "validated": false
+    },
+    {
+     "GEOID": "48297",
+     "estimate": 0.5144,
+     "ci_lower": 0.3555,
+     "ci_upper": 0.6734,
+     "noise_level": 0.5692,
+     "validated": false
+    },
+    {
+     "GEOID": "48299",
+     "estimate": 0.3679,
+     "ci_lower": 0.1793,
+     "ci_upper": 0.5565,
+     "noise_level": 1.1447,
+     "validated": false
+    },
+    {
+     "GEOID": "48301",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48303",
+     "estimate": 0.4603,
+     "ci_lower": 0.4115,
+     "ci_upper": 0.5091,
+     "noise_level": 0.5592,
+     "validated": false
+    },
+    {
+     "GEOID": "48305",
+     "estimate": 0.5721,
+     "ci_lower": 0.4754,
+     "ci_upper": 0.6688,
+     "noise_level": 0.5329,
+     "validated": false
+    },
+    {
+     "GEOID": "48307",
+     "estimate": 0.4458,
+     "ci_lower": 0.3875,
+     "ci_upper": 0.504,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48309",
+     "estimate": 0.5461,
+     "ci_lower": 0.5229,
+     "ci_upper": 0.5694,
+     "noise_level": 0.2929,
+     "validated": true
+    },
+    {
+     "GEOID": "48311",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48313",
+     "estimate": 0.4866,
+     "ci_lower": 0.4306,
+     "ci_upper": 0.5427,
+     "noise_level": 0.3229,
+     "validated": false
+    },
+    {
+     "GEOID": "48315",
+     "estimate": 0.2074,
+     "ci_lower": 0.1099,
+     "ci_upper": 0.3049,
+     "noise_level": 0.212,
+     "validated": false
+    },
+    {
+     "GEOID": "48317",
+     "estimate": 0.3548,
+     "ci_lower": 0.2809,
+     "ci_upper": 0.4287,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48321",
+     "estimate": 0.4898,
+     "ci_lower": 0.3912,
+     "ci_upper": 0.5885,
+     "noise_level": 0.591,
+     "validated": true
+    },
+    {
+     "GEOID": "48323",
+     "estimate": 0.8316,
+     "ci_lower": 0.6253,
+     "ci_upper": 1.0379,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48325",
+     "estimate": 0.3364,
+     "ci_lower": 0.2153,
+     "ci_upper": 0.4574,
+     "noise_level": 0.9195,
+     "validated": true
+    },
+    {
+     "GEOID": "48329",
+     "estimate": 0.4386,
+     "ci_lower": 0.351,
+     "ci_upper": 0.5261,
+     "noise_level": 0.6298,
+     "validated": false
+    },
+    {
+     "GEOID": "48331",
+     "estimate": 0.2996,
+     "ci_lower": 0.1968,
+     "ci_upper": 0.4024,
+     "noise_level": 0.4131,
+     "validated": true
+    },
+    {
+     "GEOID": "48333",
+     "estimate": -0.1006,
+     "ci_lower": -0.4927,
+     "ci_upper": 0.2914,
+     "noise_level": 0.7967,
+     "validated": false
+    },
+    {
+     "GEOID": "48335",
+     "estimate": 0.3026,
+     "ci_lower": 0.207,
+     "ci_upper": 0.3982,
+     "noise_level": 0.4637,
+     "validated": false
+    },
+    {
+     "GEOID": "48337",
+     "estimate": 0.8874,
+     "ci_lower": 0.8755,
+     "ci_upper": 0.8993,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48339",
+     "estimate": 0.3716,
+     "ci_lower": 0.3207,
+     "ci_upper": 0.4225,
+     "noise_level": 0.6732,
+     "validated": true
+    },
+    {
+     "GEOID": "48341",
+     "estimate": 0.3837,
+     "ci_lower": 0.2505,
+     "ci_upper": 0.5169,
+     "noise_level": 0.6401,
+     "validated": true
+    },
+    {
+     "GEOID": "48343",
+     "estimate": 0.2377,
+     "ci_lower": 0.1323,
+     "ci_upper": 0.343,
+     "noise_level": 0.2543,
+     "validated": false
+    },
+    {
+     "GEOID": "48345",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.899,
+     "validated": false
+    },
+    {
+     "GEOID": "48347",
+     "estimate": 0.4442,
+     "ci_lower": 0.3949,
+     "ci_upper": 0.4935,
+     "noise_level": 0.2704,
+     "validated": true
+    },
+    {
+     "GEOID": "48349",
+     "estimate": 0.1543,
+     "ci_lower": 0.0756,
+     "ci_upper": 0.233,
+     "noise_level": 0.3241,
+     "validated": true
+    },
+    {
+     "GEOID": "48351",
+     "estimate": 0.2572,
+     "ci_lower": 0.1529,
+     "ci_upper": 0.3615,
+     "noise_level": 0.3569,
+     "validated": true
+    },
+    {
+     "GEOID": "48353",
+     "estimate": 0.3993,
+     "ci_lower": 0.1546,
+     "ci_upper": 0.644,
+     "noise_level": 0.5709,
+     "validated": true
+    },
+    {
+     "GEOID": "48355",
+     "estimate": 0.4948,
+     "ci_lower": 0.4402,
+     "ci_upper": 0.5494,
+     "noise_level": 0.6587,
+     "validated": false
+    },
+    {
+     "GEOID": "48357",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48359",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.5849,
+     "validated": false
+    },
+    {
+     "GEOID": "48361",
+     "estimate": 0.7228,
+     "ci_lower": 0.669,
+     "ci_upper": 0.7767,
+     "noise_level": 0.7991,
+     "validated": true
+    },
+    {
+     "GEOID": "48363",
+     "estimate": 0.6517,
+     "ci_lower": 0.5678,
+     "ci_upper": 0.7357,
+     "noise_level": 0.9983,
+     "validated": true
+    },
+    {
+     "GEOID": "48365",
+     "estimate": 0.1366,
+     "ci_lower": 0.0441,
+     "ci_upper": 0.2291,
+     "noise_level": 0.3114,
+     "validated": true
+    },
+    {
+     "GEOID": "48367",
+     "estimate": 0.4352,
+     "ci_lower": 0.3352,
+     "ci_upper": 0.5353,
+     "noise_level": 0.7639,
+     "validated": false
+    },
+    {
+     "GEOID": "48369",
+     "estimate": 0.4094,
+     "ci_lower": 0.0348,
+     "ci_upper": 0.784,
+     "noise_level": 0.7635,
+     "validated": false
+    },
+    {
+     "GEOID": "48371",
+     "estimate": 0.4854,
+     "ci_lower": 0.3443,
+     "ci_upper": 0.6265,
+     "noise_level": 0.747,
+     "validated": true
+    },
+    {
+     "GEOID": "48373",
+     "estimate": 0.495,
+     "ci_lower": 0.4065,
+     "ci_upper": 0.5836,
+     "noise_level": 0.5426,
+     "validated": true
+    },
+    {
+     "GEOID": "48375",
+     "estimate": 0.6568,
+     "ci_lower": 0.6184,
+     "ci_upper": 0.6953,
+     "noise_level": 0.5308,
+     "validated": false
+    },
+    {
+     "GEOID": "48377",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48379",
+     "estimate": 0.3346,
+     "ci_lower": 0.0759,
+     "ci_upper": 0.5933,
+     "noise_level": 0.5474,
+     "validated": false
+    },
+    {
+     "GEOID": "48381",
+     "estimate": 0.3329,
+     "ci_lower": 0.2529,
+     "ci_upper": 0.4129,
+     "noise_level": 0.6602,
+     "validated": true
+    },
+    {
+     "GEOID": "48383",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.217,
+     "validated": false
+    },
+    {
+     "GEOID": "48385",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.6127,
+     "validated": false
+    },
+    {
+     "GEOID": "48387",
+     "estimate": 0.5905,
+     "ci_lower": 0.5041,
+     "ci_upper": 0.6768,
+     "noise_level": 0.3579,
+     "validated": true
+    },
+    {
+     "GEOID": "48389",
+     "estimate": 0.5816,
+     "ci_lower": 0.4071,
+     "ci_upper": 0.756,
+     "noise_level": 0.8195,
+     "validated": false
+    },
+    {
+     "GEOID": "48391",
+     "estimate": 0.5042,
+     "ci_lower": 0.3957,
+     "ci_upper": 0.6127,
+     "noise_level": 0.3302,
+     "validated": false
+    },
+    {
+     "GEOID": "48395",
+     "estimate": 0.5148,
+     "ci_lower": 0.4408,
+     "ci_upper": 0.5887,
+     "noise_level": 0.272,
+     "validated": true
+    },
+    {
+     "GEOID": "48397",
+     "estimate": 0.3547,
+     "ci_lower": 0.3049,
+     "ci_upper": 0.4046,
+     "noise_level": 0.4391,
+     "validated": true
+    },
+    {
+     "GEOID": "48399",
+     "estimate": 0.2144,
+     "ci_lower": 0.0238,
+     "ci_upper": 0.405,
+     "noise_level": 0.8402,
+     "validated": false
+    },
+    {
+     "GEOID": "48401",
+     "estimate": 0.2715,
+     "ci_lower": 0.2044,
+     "ci_upper": 0.3387,
+     "noise_level": 0.2707,
+     "validated": true
+    },
+    {
+     "GEOID": "48403",
+     "estimate": 0.2109,
+     "ci_lower": 0.0302,
+     "ci_upper": 0.3915,
+     "noise_level": 0.477,
+     "validated": false
+    },
+    {
+     "GEOID": "48405",
+     "estimate": 0.5238,
+     "ci_lower": 0.4171,
+     "ci_upper": 0.6305,
+     "noise_level": 0.2133,
+     "validated": false
+    },
+    {
+     "GEOID": "48407",
+     "estimate": 0.3551,
+     "ci_lower": 0.251,
+     "ci_upper": 0.4593,
+     "noise_level": 0.4669,
+     "validated": true
+    },
+    {
+     "GEOID": "48409",
+     "estimate": 0.2418,
+     "ci_lower": 0.0967,
+     "ci_upper": 0.387,
+     "noise_level": 0.7288,
+     "validated": false
+    },
+    {
+     "GEOID": "48411",
+     "estimate": 0.3541,
+     "ci_lower": 0.2069,
+     "ci_upper": 0.5013,
+     "noise_level": 0.634,
+     "validated": false
+    },
+    {
+     "GEOID": "48413",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 1.0047,
+     "validated": false
+    },
+    {
+     "GEOID": "48415",
+     "estimate": 0.5184,
+     "ci_lower": 0.4131,
+     "ci_upper": 0.6237,
+     "noise_level": 0.8751,
+     "validated": false
+    },
+    {
+     "GEOID": "48417",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 0.5082,
+     "validated": false
+    },
+    {
+     "GEOID": "48419",
+     "estimate": 0.2537,
+     "ci_lower": 0.1542,
+     "ci_upper": 0.3533,
+     "noise_level": 0.2555,
+     "validated": true
+    },
+    {
+     "GEOID": "48423",
+     "estimate": 0.4247,
+     "ci_lower": 0.3916,
+     "ci_upper": 0.4578,
+     "noise_level": 0.3201,
+     "validated": true
+    },
+    {
+     "GEOID": "48425",
+     "estimate": 0.2953,
+     "ci_lower": 0.0304,
+     "ci_upper": 0.5602,
+     "noise_level": 0.5938,
+     "validated": false
+    },
+    {
+     "GEOID": "48427",
+     "estimate": 0.9176,
+     "ci_lower": 0.8374,
+     "ci_upper": 0.9978,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48429",
+     "estimate": -0.0317,
+     "ci_lower": -0.2534,
+     "ci_upper": 0.1899,
+     "noise_level": 0.5672,
+     "validated": false
+    },
+    {
+     "GEOID": "48433",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 1.4812,
+     "validated": false
+    },
+    {
+     "GEOID": "48435",
+     "estimate": 0.0,
+     "ci_lower": 0.0,
+     "ci_upper": 0.0,
+     "noise_level": 5.4969,
+     "validated": false
+    },
+    {
+     "GEOID": "48437",
+     "estimate": 0.0167,
+     "ci_lower": -0.0949,
+     "ci_upper": 0.1284,
+     "noise_level": 0.2551,
+     "validated": false
+    },
+    {
+     "GEOID": "48439",
+     "estimate": 0.4816,
+     "ci_lower": 0.4637,
+     "ci_upper": 0.4996,
+     "noise_level": 0.3462,
+     "validated": true
+    },
+    {
+     "GEOID": "48441",
+     "estimate": 0.2524,
+     "ci_lower": 0.1826,
+     "ci_upper": 0.3222,
+     "noise_level": 0.4911,
+     "validated": true
+    },
+    {
+     "GEOID": "48443",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48445",
+     "estimate": 0.4547,
+     "ci_lower": 0.1866,
+     "ci_upper": 0.7228,
+     "noise_level": 0.368,
+     "validated": false
+    },
+    {
+     "GEOID": "48447",
+     "estimate": NaN,
+     "ci_lower": NaN,
+     "ci_upper": NaN,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48449",
+     "estimate": 0.4547,
+     "ci_lower": 0.349,
+     "ci_upper": 0.5605,
+     "noise_level": 0.3558,
+     "validated": true
+    },
+    {
+     "GEOID": "48451",
+     "estimate": 0.2959,
+     "ci_lower": 0.216,
+     "ci_upper": 0.3759,
+     "noise_level": 0.5894,
+     "validated": true
+    },
+    {
+     "GEOID": "48453",
+     "estimate": 0.4878,
+     "ci_lower": 0.4592,
+     "ci_upper": 0.5163,
+     "noise_level": 0.5594,
+     "validated": false
+    },
+    {
+     "GEOID": "48455",
+     "estimate": 0.5634,
+     "ci_lower": 0.4672,
+     "ci_upper": 0.6596,
+     "noise_level": 0.3208,
+     "validated": true
+    },
+    {
+     "GEOID": "48457",
+     "estimate": 0.5552,
+     "ci_lower": 0.4315,
+     "ci_upper": 0.6789,
+     "noise_level": 0.4735,
+     "validated": true
+    },
+    {
+     "GEOID": "48459",
+     "estimate": 0.3346,
+     "ci_lower": 0.2558,
+     "ci_upper": 0.4134,
+     "noise_level": 0.3613,
+     "validated": true
+    },
+    {
+     "GEOID": "48461",
+     "estimate": 0.2762,
+     "ci_lower": -0.0882,
+     "ci_upper": 0.6406,
+     "noise_level": 0.8112,
+     "validated": false
+    },
+    {
+     "GEOID": "48463",
+     "estimate": 0.7056,
+     "ci_lower": 0.5154,
+     "ci_upper": 0.8958,
+     "noise_level": 1.1442,
+     "validated": false
+    },
+    {
+     "GEOID": "48465",
+     "estimate": 0.357,
+     "ci_lower": 0.1953,
+     "ci_upper": 0.5186,
+     "noise_level": 0.9912,
+     "validated": true
+    },
+    {
+     "GEOID": "48467",
+     "estimate": 0.3543,
+     "ci_lower": 0.2304,
+     "ci_upper": 0.4782,
+     "noise_level": 0.7759,
+     "validated": true
+    },
+    {
+     "GEOID": "48469",
+     "estimate": 0.4162,
+     "ci_lower": 0.3372,
+     "ci_upper": 0.4952,
+     "noise_level": 0.4688,
+     "validated": true
+    },
+    {
+     "GEOID": "48471",
+     "estimate": 0.2938,
+     "ci_lower": 0.2401,
+     "ci_upper": 0.3474,
+     "noise_level": 0.1961,
+     "validated": true
+    },
+    {
+     "GEOID": "48473",
+     "estimate": 0.6291,
+     "ci_lower": 0.5656,
+     "ci_upper": 0.6925,
+     "noise_level": 0.3251,
+     "validated": true
+    },
+    {
+     "GEOID": "48475",
+     "estimate": 0.2472,
+     "ci_lower": -0.0388,
+     "ci_upper": 0.5332,
+     "noise_level": 0.5542,
+     "validated": false
+    },
+    {
+     "GEOID": "48477",
+     "estimate": 0.4178,
+     "ci_lower": 0.3387,
+     "ci_upper": 0.4968,
+     "noise_level": 0.3323,
+     "validated": true
+    },
+    {
+     "GEOID": "48479",
+     "estimate": 0.6596,
+     "ci_lower": 0.5782,
+     "ci_upper": 0.7411,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48481",
+     "estimate": 0.3609,
+     "ci_lower": 0.2589,
+     "ci_upper": 0.4629,
+     "noise_level": 0.4217,
+     "validated": true
+    },
+    {
+     "GEOID": "48483",
+     "estimate": 0.2814,
+     "ci_lower": -0.0836,
+     "ci_upper": 0.6464,
+     "noise_level": 0.5985,
+     "validated": false
+    },
+    {
+     "GEOID": "48485",
+     "estimate": 0.3776,
+     "ci_lower": 0.3181,
+     "ci_upper": 0.4371,
+     "noise_level": 0.4568,
+     "validated": true
+    },
+    {
+     "GEOID": "48487",
+     "estimate": 0.3158,
+     "ci_lower": 0.1398,
+     "ci_upper": 0.4918,
+     "noise_level": 0.3621,
+     "validated": false
+    },
+    {
+     "GEOID": "48489",
+     "estimate": 0.4958,
+     "ci_lower": 0.3991,
+     "ci_upper": 0.5924,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48491",
+     "estimate": 0.3662,
+     "ci_lower": 0.3205,
+     "ci_upper": 0.412,
+     "noise_level": 0.5516,
+     "validated": false
+    },
+    {
+     "GEOID": "48493",
+     "estimate": 0.3635,
+     "ci_lower": 0.2545,
+     "ci_upper": 0.4725,
+     "noise_level": 0.7372,
+     "validated": true
+    },
+    {
+     "GEOID": "48495",
+     "estimate": 0.6359,
+     "ci_lower": 0.3507,
+     "ci_upper": 0.9212,
+     "noise_level": 0.9562,
+     "validated": false
+    },
+    {
+     "GEOID": "48497",
+     "estimate": 0.4597,
+     "ci_lower": 0.3581,
+     "ci_upper": 0.5613,
+     "noise_level": 0.7633,
+     "validated": true
+    },
+    {
+     "GEOID": "48499",
+     "estimate": 0.6415,
+     "ci_lower": 0.5899,
+     "ci_upper": 0.6932,
+     "noise_level": 0.954,
+     "validated": true
+    },
+    {
+     "GEOID": "48503",
+     "estimate": 0.4457,
+     "ci_lower": 0.196,
+     "ci_upper": 0.6953,
+     "noise_level": 0.9655,
+     "validated": true
+    },
+    {
+     "GEOID": "48505",
+     "estimate": 0.2525,
+     "ci_lower": -0.1224,
+     "ci_upper": 0.6275,
+     "noise_level": Infinity,
+     "validated": false
+    },
+    {
+     "GEOID": "48507",
+     "estimate": 0.9546,
+     "ci_lower": 0.6689,
+     "ci_upper": 1.2403,
+     "noise_level": Infinity,
+     "validated": false
+    }
+   ]
+  }
+ },
+ "B": {
+  "table": [
+   {
+    "state": "56",
+    "published": 0.4483,
+    "published_moe": 0.0089,
+    "households": 12040,
+    "negative_share": 0.00058,
+    "primary_negatives_to_zero_estimate": 0.44585,
+    "primary_negatives_to_zero_lower": 0.43961,
+    "primary_negatives_to_zero_upper": 0.45208,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.44544,
+    "secondary_negatives_dropped_lower": 0.4392,
+    "secondary_negatives_dropped_upper": 0.45169,
+    "secondary_negatives_dropped_validated": true,
+    "difference": -0.00245,
+    "contains": true
+   },
+   {
+    "state": "50",
+    "published": 0.4522,
+    "published_moe": 0.0053,
+    "households": 13943,
+    "negative_share": 0.00108,
+    "primary_negatives_to_zero_estimate": 0.45266,
+    "primary_negatives_to_zero_lower": 0.44692,
+    "primary_negatives_to_zero_upper": 0.45841,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.45194,
+    "secondary_negatives_dropped_lower": 0.44622,
+    "secondary_negatives_dropped_upper": 0.45766,
+    "secondary_negatives_dropped_validated": true,
+    "difference": 0.00046,
+    "contains": true
+   },
+   {
+    "state": "10",
+    "published": 0.4495,
+    "published_moe": 0.0057,
+    "households": 19428,
+    "negative_share": 0.00093,
+    "primary_negatives_to_zero_estimate": 0.45033,
+    "primary_negatives_to_zero_lower": 0.44391,
+    "primary_negatives_to_zero_upper": 0.45675,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.44987,
+    "secondary_negatives_dropped_lower": 0.44345,
+    "secondary_negatives_dropped_upper": 0.45628,
+    "secondary_negatives_dropped_validated": true,
+    "difference": 0.00083,
+    "contains": true
+   },
+   {
+    "state": "35",
+    "published": 0.4774,
+    "published_moe": 0.0034,
+    "households": 39193,
+    "negative_share": 0.00046,
+    "primary_negatives_to_zero_estimate": 0.47591,
+    "primary_negatives_to_zero_lower": 0.47234,
+    "primary_negatives_to_zero_upper": 0.47948,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.47573,
+    "secondary_negatives_dropped_lower": 0.47216,
+    "secondary_negatives_dropped_upper": 0.4793,
+    "secondary_negatives_dropped_validated": true,
+    "difference": -0.00149,
+    "contains": true
+   },
+   {
+    "state": "28",
+    "published": 0.484,
+    "published_moe": 0.0033,
+    "households": 55471,
+    "negative_share": 0.00054,
+    "primary_negatives_to_zero_estimate": 0.48425,
+    "primary_negatives_to_zero_lower": 0.48127,
+    "primary_negatives_to_zero_upper": 0.48723,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.48401,
+    "secondary_negatives_dropped_lower": 0.48103,
+    "secondary_negatives_dropped_upper": 0.48698,
+    "secondary_negatives_dropped_validated": true,
+    "difference": 0.00025,
+    "contains": true
+   },
+   {
+    "state": "04",
+    "published": 0.4624,
+    "published_moe": 0.0023,
+    "households": 135458,
+    "negative_share": 0.00058,
+    "primary_negatives_to_zero_estimate": 0.4616,
+    "primary_negatives_to_zero_lower": 0.45939,
+    "primary_negatives_to_zero_upper": 0.4638,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.46128,
+    "secondary_negatives_dropped_lower": 0.45908,
+    "secondary_negatives_dropped_upper": 0.46348,
+    "secondary_negatives_dropped_validated": true,
+    "difference": -0.0008,
+    "contains": true
+   },
+   {
+    "state": "13",
+    "published": 0.4779,
+    "published_moe": 0.002,
+    "households": 186383,
+    "negative_share": 0.00038,
+    "primary_negatives_to_zero_estimate": 0.47704,
+    "primary_negatives_to_zero_lower": 0.47526,
+    "primary_negatives_to_zero_upper": 0.47882,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.47686,
+    "secondary_negatives_dropped_lower": 0.47509,
+    "secondary_negatives_dropped_upper": 0.47864,
+    "secondary_negatives_dropped_validated": true,
+    "difference": -0.00086,
+    "contains": true
+   },
+   {
+    "state": "26",
+    "published": 0.4639,
+    "published_moe": 0.0015,
+    "households": 206202,
+    "negative_share": 0.00041,
+    "primary_negatives_to_zero_estimate": 0.46317,
+    "primary_negatives_to_zero_lower": 0.46166,
+    "primary_negatives_to_zero_upper": 0.46469,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.46291,
+    "secondary_negatives_dropped_lower": 0.46141,
+    "secondary_negatives_dropped_upper": 0.4644,
+    "secondary_negatives_dropped_validated": true,
+    "difference": -0.00073,
+    "contains": true
+   },
+   {
+    "state": "36",
+    "published": 0.5152,
+    "published_moe": 0.0015,
+    "households": 373199,
+    "negative_share": 0.00045,
+    "primary_negatives_to_zero_estimate": 0.51385,
+    "primary_negatives_to_zero_lower": 0.51242,
+    "primary_negatives_to_zero_upper": 0.51528,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.51365,
+    "secondary_negatives_dropped_lower": 0.51221,
+    "secondary_negatives_dropped_upper": 0.51508,
+    "secondary_negatives_dropped_validated": true,
+    "difference": -0.00135,
+    "contains": true
+   },
+   {
+    "state": "48",
+    "published": 0.4765,
+    "published_moe": 0.0014,
+    "households": 490577,
+    "negative_share": 0.0005,
+    "primary_negatives_to_zero_estimate": 0.47604,
+    "primary_negatives_to_zero_lower": 0.4749,
+    "primary_negatives_to_zero_upper": 0.47718,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.47582,
+    "secondary_negatives_dropped_lower": 0.47469,
+    "secondary_negatives_dropped_upper": 0.47696,
+    "secondary_negatives_dropped_validated": true,
+    "difference": -0.00046,
+    "contains": true
+   },
+   {
+    "state": "06",
+    "published": 0.4887,
+    "published_moe": 0.0009,
+    "households": 655358,
+    "negative_share": 0.00062,
+    "primary_negatives_to_zero_estimate": 0.48761,
+    "primary_negatives_to_zero_lower": 0.48666,
+    "primary_negatives_to_zero_upper": 0.48855,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.48729,
+    "secondary_negatives_dropped_lower": 0.48635,
+    "secondary_negatives_dropped_upper": 0.48823,
+    "secondary_negatives_dropped_validated": true,
+    "difference": -0.00109,
+    "contains": false
+   },
+   {
+    "state": "37",
+    "published": 0.476,
+    "published_moe": 0.0017,
+    "households": 205273,
+    "negative_share": 0.00032,
+    "primary_negatives_to_zero_estimate": 0.47418,
+    "primary_negatives_to_zero_lower": 0.4726,
+    "primary_negatives_to_zero_upper": 0.47576,
+    "primary_negatives_to_zero_validated": true,
+    "secondary_negatives_dropped_estimate": 0.47404,
+    "secondary_negatives_dropped_lower": 0.47247,
+    "secondary_negatives_dropped_upper": 0.47562,
+    "secondary_negatives_dropped_validated": true,
+    "difference": -0.00182,
+    "contains": false
+   }
+  ],
+  "median_abs_difference": 0.0008444803056497641,
+  "contained": 10,
+  "mean_difference": -0.0007921432258946454,
+  "replicated": true
+ }
+}

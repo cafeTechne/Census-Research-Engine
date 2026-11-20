@@ -75,7 +75,7 @@
    replicates; a zero count has infinite CV). Two-group ranges hold for every design
    judged (the engine cannot tell race groups from poverty groups). A row is
    validated, with at least five populated tracts, when the noise level is:
-   - bias-corrected D: from .15 to below 1.0;
+   - bias-corrected D: from .15 to below .75 (Round 66: the .75-1 bin failed on Texas counties);
    - bias-corrected isolation: any finite level;
    - bias-corrected H: below 1.0 (two groups), below .50 (three), any finite level
      (four or five).

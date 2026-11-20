@@ -63,10 +63,10 @@ downloaded beforehand, but no comparison is made before the commit.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| A spec and criterion | | |
-| B spec and criterion | | |
-| S criterion and run | | |
-| A / B results | | |
-| Reports, tests | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| A spec and criterion | done | CHR's own code read: B11002 household population, Hispanic Whites included; `dd48bf6` |
+| B spec and criterion | done | 12 states; negatives to 0 (primary) |
+| S criterion and run | done | isolation, H pass; D fails [.75, 1) on TX, so the range narrows to .75 |
+| A / B results | done | A exact (2,055 counties); B .0008, 10/12: both replicated |
+| Reports, tests | done | two study reports; 3 tests; Round 52 tests updated |
+| Goldens, final suite | done | identical; 2158 passed, 37 skipped |
+| Exceptions | one | deviation 1: descriptive interval part per county (`d30d7ed`) |

@@ -391,7 +391,7 @@ variances add; such release contrasts are validated only with two groups and a l
 noise level below .50 (Round 52); same-release county contrasts likewise, except corrected
 D (Round 57). args.group_quarters {gq, total, max_share} leaves out group-quarters tracts. First minus comparison; one-sided tests center on null.
 A county is validated with 5+ populated tracts when its noise level (largest group median
-tract CV) is in range (Rounds 50/52: bias-corrected D [.15, 1), isolation finite, H below
+tract CV) is in range (Rounds 50/52/66: bias-corrected D [.15, .75), isolation finite, H below
 1 for two groups, .50 for three, finite for four to six) or every tract CV is <= .15
 (Round 28); otherwise exploratory and confirmatory tests on it are refused. See protocol.
 
