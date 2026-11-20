@@ -161,9 +161,11 @@ and six error-prone covariates.
 
 ### Round 54: OH/PA external validity, part 2
 
-Re-run the Round 45 (censored NB2, IM-8 counts, noisy offsets), Round 46 (regression calibration) and Round 48
-(effective-n intervals) designs on OH/PA geometry with fixed seeds and a pre-set criterion; try IM-8 C1 with
-`within_states` clusters and with 6 and 10 clusters on OH/PA (N19).
+Re-run the geography-dependent designs on OH/PA geometry with fixed seeds and a pre-set criterion: Round 45
+IM-8 counts, Round 53 calibrated IM-8 counts, G1/G2 with three to five error-prone covariates (independent-area
+designs do not depend on geography; Round 48's effective-n designs need OH/PA reference targets and are left).
+Repair naive IM-8 outside MI/NY (N19) with fewer, larger within-state clusters (G = 4, 6), judged on both
+geometries.
 
 ### Round 55: short series and estimated reference populations
 
