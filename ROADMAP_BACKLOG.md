@@ -1,7 +1,7 @@
 # Backlog roadmap: repairs and follow-ups after the statistics roadmap (Rounds 43–63)
 
 **Status: drafted 2026-11-19, after v0.39.0 (Rounds 31–42, DOI 10.5281/zenodo.24371310); Rounds 43–50
-merged 2026-11-19; Rounds 51–56 (section 5) added and merged 2026-11-19; Rounds 43–56 released as v0.53.0 (DOI 10.5281/zenodo.24384786); Rounds 57–60 (section 6) added and merged 2026-11-20, released as v0.57.0 (DOI 10.5281/zenodo.24398149); Rounds 61–63 (section 7) added and merged 2026-11-20, released as v0.60.0 (DOI 10.5281/zenodo.24400452).** The source
+merged 2026-11-19; Rounds 51–56 (section 5) added and merged 2026-11-19; Rounds 43–56 released as v0.53.0 (DOI 10.5281/zenodo.24384786); Rounds 57–60 (section 6) added and merged 2026-11-20, released as v0.57.0 (DOI 10.5281/zenodo.24398149); Rounds 61–63 (section 7) added and merged 2026-11-20, released as v0.60.0 (DOI 10.5281/zenodo.24400452); section 8 (Round 64 onward) added 2026-11-20.** The source
 from which `PLAN_ROUND_43.md` onward are drafted; it is not itself a plan. **Implementing agents: do not
 read this file unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.** Update
 the status column in section 3 when a round merges.
@@ -58,6 +58,13 @@ implementing Rounds 31–42. The second group was never collected in one place; 
 | N36 | Spatial EIV with six or more error-prone covariates failed (.804–.811) | R53 | failed method | 63 (attempt) |
 | N37 | SCPC, calibrated cluster slopes (Rounds 53, 58) and spatial correlations (Rounds 48, 59) are library/MCP only; manifests cannot request them | R58 | routing | 61 |
 | N38 | Binomial SCPC failed (.793/.846); Theil T failed even with a log transform; clipped six-group segregation counties were never tested | R57, R58, R60 | failed method / gap | 62 |
+| N39 | The ACS 2021–2025 five-year release (due about December 2026) needs its metadata archive, a concordance audit and a price-index refresh; BLS's 2025 annual average is still provisional | owner, 2026-11-20 | data refresh | deferred: revisit about 2026-12-20 |
+| N40 | The CLI `tool` command cannot run nine shared workflows (`compare_groups`, `test_association`, `estimate_effect`, `check_agreement`, `combine_estimates`, `rank_areas`, `build_index`, `list_health_sources`, `run_variant`) | README review, 2026-11-20 | routing | 64 |
+| N41 | Interrupted series and censored NB2 are Python-only; agents (the primary operators) cannot reach them through MCP | R45, R55, R63 | routing | 64 |
+| N42 | Rule text is copied by hand into `mcp_server.py`; five of its 15 copied passages have drifted from `docs/agent_protocol.md` | README review, 2026-11-20 | documentation drift | 64 |
+| N43 | Nothing checks that agent-facing text routes each research question to a tool the profile actually has, or that results flag out-of-scope designs | owner, 2026-11-20 | agent usability | 64 |
+| N44 | Nearly all spatial and measurement-error validation rests on two county geometries (MI/NY, OH/PA); tracts, states with many small counties and large Western counties are untested | owner, 2026-11-20 | external validity | 65+ |
+| N45 | No registered study uses a method added after Round 30; the end-to-end chain (manifest, gates, reporting) is untested on real questions with known answers | owner, 2026-11-20 | external validity | 65+ |
 
 Pre-Round-31 backlog items (STATUS "Open backlog"): 1 spatial routing and GLM EIV, 2 NB2 for R29,
 3 manifest correlation intervals, 4 GLM measurement-error correction, 5 WONDER child-age reference
@@ -254,3 +261,35 @@ households, for a higher record gate); Round 57's clipped-replicate design with 
 Interrupted series at 15–19 points: the bias-corrected bootstrap-t with more resamples and a df-adjusted
 studentisation, and a bootstrap with a calibrated nominal level (double bootstrap). Spatial EIV G1/G2 with six to
 eight error-prone covariates at reliability .8 and .9 on MI/NY and OH/PA.
+
+## 8. Round 64 onward (drafted 2026-11-20, after v0.60.0)
+
+The owner's priorities after Round 63: make the engine reachable by agents first; then test it against published
+findings, pairing each replication with a simulation on the same geography (a replication shows whether we get the
+published answer; only a simulation shows whether our intervals stay honest there). The ACS 2021–2025 refresh (N39)
+waits about a month.
+
+| Round | Theme | Covers | Status |
+| :--- | :--- | :--- | :--- |
+| 64 | Agent access (no new statistics) | N40–N43 | planned |
+| 65 | Replication shortlist: 4–6 published findings with exact data specs, for owner approval | N44, N45 | after 64 |
+| 66+ | Registered replications, each with a matching simulation on its geography | N44, N45 | after owner approval of 65 |
+
+### Round 64: agent access
+
+CLI allowlist for the nine missing workflows; an MCP tool for interrupted series and a `fit_model` route for censored
+NB2; `docs/agent_protocol.md` as the single source of the rule passages, generated into `mcp_server.py` and checked
+by a test; the core profile's text names only tools the profile has (or labels them "full profile"); a routing
+contract (research question → tool, arguments, expected validated/exploratory flag) run as a test, plus matching
+tasks in the local-model harness for when model evaluations resume.
+
+### Round 65: replication shortlist
+
+Open-access studies only (no paywall circumvention), using public ACS five-year tables at county or tract level with
+stated releases and variables, and outcomes we can obtain (PLACES, USALEEP, County Health Rankings, Census-published
+values; WONDER only from owner exports). Two kinds: direct numeric checks (published segregation indices, the Census
+Gini B19083) and association studies covering tracts and states with many small counties. For each: the published
+estimate, our exact data spec, the planned simulation geometry and the pre-set "replicated" rule (same sign, our
+interval contains theirs, effect ratio within a set band). Ends with the owner choosing the set; nothing is
+registered before that.
+
