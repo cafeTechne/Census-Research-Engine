@@ -57,9 +57,9 @@ count as non-coverage.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion commit | | |
-| Results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Core, script, criterion commit | done | `60a3b06` |
+| Results | done | Atkinson 1 (T1), Atkinson .5 and top share (T1, 7,000 records); Theil fails; T2 worse (`60fb599`) |
+| Engine, tests | done | `REPAIRED`, `interval` column, record gate; 4 new tests |
+| Example | done | Michigan earnings/income re-run; `/tmp/r60_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2121 passed, 37 skipped |
+| Exceptions | none | Theil T stays exploratory |

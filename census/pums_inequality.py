@@ -5,7 +5,9 @@ Validated (``docs/audits/pums_inequality_validation.md``, criterion d91201b; Rou
 lognormal, heavier-tailed and zero-inflated incomes): the Gini coefficient (.861-.908), log P90/P10 and log
 P80/P20 (.888-.923) and the difference in Gini between two groups (.873-.899). Failed (exploratory, reported
 with a note): Theil T (.811-.904), Atkinson .5 (.845-.898) and 1 (.858-.902), and the top-decile share
-(.850-.906). Quantile ratios of heaped dollar amounts get the same heaping check as medians (Round 32).
+(.850-.906). Round 60 repaired three of them with logit-transformed SDR intervals (Atkinson 1 everywhere;
+Atkinson .5 and the top-decile share from 7,000 records); Theil T stays exploratory. Quantile ratios of heaped
+dollar amounts get the same heaping check as medians (Round 32).
 """
 from typing import Any, Dict, Optional
 
@@ -19,6 +21,12 @@ from .pums_inference import HEAPING_LIMIT, _flags, _frame, _label
 AUDIT = "docs/audits/pums_inequality_validation.md"
 VALIDATED = {"gini": True, "theil_t": False, "atkinson_0.5": False, "atkinson_1": False, "log_p90_p10": True,
              "log_p80_p20": True, "top10_share": False}
+# Round 60 (criterion 60a3b06; docs/audits/pums_inequality_repair_validation.md): transformed SDR intervals (logit)
+# validated Atkinson 1 everywhere (.872-.893) and Atkinson .5 and the top-decile share with at least 7,000
+# unweighted records (at least .871 in the 3,000-household cells; down to .846 in smaller samples). Theil T still
+# failed (.820-.889 with the log transform; .859 at 3,000 households); the SDR bias correction lowered coverage.
+REPAIR_AUDIT = "docs/audits/pums_inequality_repair_validation.md"
+REPAIRED = {"atkinson_1": None, "atkinson_0.5": 7000, "top10_share": 7000}   # measure -> minimum records (None: none)
 GINI_DIFFERENCE_VALIDATED = True
 QUANTILES = {"log_p90_p10": (.9, .1), "log_p80_p20": (.8, .2)}
 
@@ -41,12 +49,24 @@ def _table(y, W, min_n):
         for m in core.NEEDS_POSITIVE:
             vals[m] = vals_pos[m]
     rows, notes = [], []
+    n_records = len(y)
     for m in core.MEASURES:
         if m not in vals:
             continue
-        s = core.sdr_summary(vals[m])
+        s = core.sdr_summary(vals[m]); method = "normal"
         ok = VALIDATED[m] and s["se"] > 0
         note = None
+        if m in REPAIRED:
+            try:
+                t = core.transformed_summary(vals[m], core.TRANSFORM[m])
+                s = dict(s, lower=t["lower"], upper=t["upper"]); method = core.TRANSFORM[m]
+                gate = REPAIRED[m]
+                ok = s["se"] > 0 and (gate is None or n_records >= gate)
+                if not ok and gate is not None:
+                    note = (f"{n_records} records, fewer than the {gate} the Round 60 validation required for this measure; "
+                            "exploratory")
+            except ValueError:
+                note = "transformed interval undefined; exploratory"
         if m in QUANTILES:
             ys = y[positive] if not positive.all() else y
             heap = _heaping(ys, W[positive, 0] if not positive.all() else W[:, 0], QUANTILES[m])
@@ -54,9 +74,9 @@ def _table(y, W, min_n):
                 ok = False
                 note = (f"{heap:.0%} of the weight sits exactly at a quantile used (heaped values); replicate SEs are "
                         "unreliable (validation used continuous incomes)")
-        if not VALIDATED[m]:
-            note = "failed the Round 56 coverage validation; exploratory only"
-        rows.append(dict(measure=m, **s, validated=bool(ok), note=note))
+        if not VALIDATED[m] and m not in REPAIRED:
+            note = "failed the Round 56 and Round 60 coverage validations; exploratory only"
+        rows.append(dict(measure=m, **s, interval=method, validated=bool(ok), note=note))
     if not positive.all():
         notes.append(f"{int((~positive).sum())} zero income record(s): included in the Gini and top share; excluded "
                      "from Theil, Atkinson and the quantile ratios.")

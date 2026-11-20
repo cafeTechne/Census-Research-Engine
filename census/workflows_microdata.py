@@ -114,7 +114,8 @@ def test_association(
             "means" (var by groups; difference and test), "medians" (var by two groups),
             "proportion" (share with var true; Korn-Graubard interval), or "inequality" (var: a
             nonnegative income, e.g. "HINCP" with weight="housing"; Gini, log P90/P10 and P80/P20
-            validated, Round 56; Theil, Atkinson and top share exploratory; optional by with two
+            validated, Round 56; Atkinson validated with transformed intervals, top share and
+            Atkinson .5 from 7,000 records, Round 60; Theil exploratory; optional by with two
             groups adds the Gini difference).
         row/col, var/by, exposure/outcome: PUMS variables or conditions, e.g. "DIS",
             "HICOV == 2", "POVPIP < 100".
