@@ -127,7 +127,7 @@ def test_three_group_h_validated_four_groups_not():
     # Round 52: bias-corrected four- and five-group H validated (race groups); naive and six+ groups not.
     assert sg.segregation_replicate(f, list("abcd"), r).validated.all()
     assert sg.variant_validated("theil_h", "bias_corrected", 3) and not sg.variant_validated("theil_h", "naive", 3)
-    assert sg.variant_validated("theil_h", "bias_corrected", 4) and not sg.variant_validated("theil_h", "bias_corrected", 6)
+    assert sg.variant_validated("theil_h", "bias_corrected", 4) and not sg.variant_validated("theil_h", "bias_corrected", 7)  # six groups: Round 57
 
 
 def test_rule_text_mirrored():

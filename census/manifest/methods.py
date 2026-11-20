@@ -706,10 +706,13 @@ def _check_smr(stage, ctx):
 
 
 def _run_segregation(a, args, frame, level, replicates, correction, ctx):
-    from ..segregation import segregation_replicate
+    from ..segregation import segregation_replicate, group_quarters_tracts
+    gq = args.get("group_quarters")
+    exclude = (group_quarters_tracts(frame, gq["gq"], gq["total"], gq.get("max_share", .5)) if gq else None)
     return segregation_replicate(frame, a["groups"], replicates, within=a["within"], level=level,
                                  bias_correction=args.get("bias_correction"),
-                                 negative_replicates=args.get("negative_replicates", "refuse"))
+                                 negative_replicates=args.get("negative_replicates", "refuse"),
+                                 exclude_tracts=exclude)
 
 
 def _stat_segregation(h, res):
@@ -735,8 +738,16 @@ def _check_segregation(stage, ctx):
             errors.append("segregation groups must be distinct")
         if a.get("within")!="county" or manifest.get("geography",{}).get("level")!="tract" or manifest.get("aggregation"):
             errors.append("segregation requires tract geography, within county, and no pre-aggregation; metro/CBSA unsupported")
-        if set(args)-{"bias_correction", "negative_replicates"}:
-            errors.append(f"segregation does not take args {sorted(set(args)-{'bias_correction', 'negative_replicates'})}")
+        allowed={"bias_correction", "negative_replicates", "group_quarters"}
+        if set(args)-allowed:
+            errors.append(f"segregation does not take args {sorted(set(args)-allowed)}")
+        gq=args.get("group_quarters")
+        if gq is not None:
+            share=gq.get("max_share", .5) if isinstance(gq, dict) else None
+            if (not isinstance(gq, dict) or set(gq)-{"gq","total","max_share"} or gq.get("gq") not in ctx["names"]
+                    or gq.get("total") not in ctx["names"] or type(share) not in (int, float) or not 0 < share <= 1):
+                errors.append("segregation group_quarters must be {gq: manifest variable, total: manifest variable, "
+                              "max_share: number in (0, 1]} (Round 57)")
         if args.get("negative_replicates", "refuse") not in ("refuse", "clip"):
             errors.append("segregation negative_replicates must be 'refuse' (default for registered manifests) or 'clip' (Round 51)")
         if args.get("bias_correction") is not None and type(args["bias_correction"]) is not bool:
@@ -812,6 +823,10 @@ def _text_segregation(a, text):
     from ..segregation import DEFAULT_BIAS_CORRECTION
     specified=(a.get("args") or {}).get("bias_correction")
     versions=", ".join(f"{name}: {'bias-corrected' if (DEFAULT_BIAS_CORRECTION[name] if specified is None else specified) else 'naive'}" for name in DEFAULT_BIAS_CORRECTION)
+    gq=(a.get("args") or {}).get("group_quarters")
+    if gq:
+        text=text+(f" Tracts whose group-quarters share ({gq['gq']} / {gq['total']}) was at least "
+                   f"{gq.get('max_share', .5):g} were left out (Round 57), so the indices describe the remaining tracts.")
     if (a.get("args") or {}).get("negative_replicates", "refuse") == "clip":
         text=text.replace("with no negative-count clipping", "with negative replicate counts set to zero before the refits "
                           "(Round 51; counties with a clipped count are validated only for the bias-corrected versions)")

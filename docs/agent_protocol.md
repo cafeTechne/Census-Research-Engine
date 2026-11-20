@@ -549,14 +549,18 @@ tract MOEs, non-negative counts, correlated groups; poverty, income and race/eth
 groups, MI/NY and OH/PA): a row is validated, with at least five populated tracts, when
 the county's noise level (`noise_level`: the largest, over groups, of the median tract
 CV) is in [.15, 1.0) for bias-corrected D, finite for bias-corrected isolation, below
-1.0 for two-group and .50 for three-group bias-corrected H, and finite for four- or
-five-group bias-corrected H; or when every tract group-count CV is <= .15 (Round 28,
+1.0 for two-group and .50 for three-group bias-corrected H, and finite for four- to
+six-group bias-corrected H (six groups: Round 57); or when every tract group-count CV is <= .15 (Round 28,
 `max_count_cv`; the only range for naive D). Naive isolation/H failed race groups
 (Round 52) and are exploratory. An infinite noise level is never validated. Otherwise
 rows are exploratory and confirmatory hypotheses are refused at run time. Counties with
-clipped negative replicates (Round 51) are validated for bias-corrected versions below
-.50 only (`clipped_replicates`). Cross-release contrasts need both rows validated, two
-groups and a larger noise level below .50 (Round 52). No new dependencies or MCP tools.
+clipped negative replicates are validated for bias-corrected versions only: D below .50,
+isolation below .75, two-group H below 1.0, four- or five-group H at any finite level
+(Rounds 51 and 57; `clipped_replicates`). Cross-release contrasts need both rows validated,
+two groups and a larger noise level below .50 (Round 52); same-release county contrasts
+the same, except corrected D (failed, Round 57). Group-quarters tracts (prisons,
+dormitories) can be left out with args.group_quarters {gq, total, max_share} or
+`exclude_tracts`: a definitional choice to report. No new dependencies or MCP tools.
 
 
 Round 29 manual WONDER references: all county and national files are manual

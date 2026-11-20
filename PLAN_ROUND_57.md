@@ -73,9 +73,9 @@ is the true difference. Pairs are binned by the larger noise level; all six two-
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Truth file, script, criterion commit | | |
-| A / B / C results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Truth file, script, criterion commit | done | six-group truth file byte-reproducible; `8bcad0b` |
+| A / B / C results | done | clipped I to .75, H to 1.0, 4/5-group H inf; six-group H inf; contrasts .50 except corrected D (`60e4830`) |
+| Engine, tests | done | ranges, contrast gate, `exclude_tracts`, `args.group_quarters`; 5 new tests, 5 older assertions updated |
+| Example | done | 114 / 130 counties validated; prison tracts drive Wyoming's H; `/tmp/r57_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2105 passed, 37 skipped |
+| Exceptions | see notes | six-group ρ −.15 (stated in the criterion); clipped six-group counties stay exploratory (untested) |
