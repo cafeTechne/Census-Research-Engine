@@ -43,7 +43,7 @@ Same 8 cells: ρ ∈ {.1, .4} × weight CV ∈ {.3, 1.0} × m ∈ {800, 3000} ho
 **Incomes**, from the generator's person income y₁ (lognormal; it depends on A and geography):
 - **I1** = y₁;
 - **I2** = y₁^1.6 (heavier tail; log SD about 1);
-- **I3** = y₁ with zeros where the generator's binary attribute D is true (about one person in seven).
+- **I3** = y₁ with zeros where the generator's binary attribute D is true (about 30% of persons; P(N(0,1) > .5244)).
 
 **Targets.** Population values from a reference population of 2,000,000 households (seed `[20280201, 2000000]`,
 ρ = .25; marginal distributions do not depend on ρ, weights or m), computed with the same core at unit
