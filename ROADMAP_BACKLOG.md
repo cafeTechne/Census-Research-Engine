@@ -1,7 +1,7 @@
-# Backlog roadmap: repairs and follow-ups after the statistics roadmap (Rounds 43–56)
+# Backlog roadmap: repairs and follow-ups after the statistics roadmap (Rounds 43–60)
 
 **Status: drafted 2026-11-19, after v0.39.0 (Rounds 31–42, DOI 10.5281/zenodo.24371310); Rounds 43–50
-merged 2026-11-19; Rounds 51–56 (section 5) added and merged 2026-11-19; Rounds 43–56 released as v0.53.0 (DOI 10.5281/zenodo.24384786).** The source
+merged 2026-11-19; Rounds 51–56 (section 5) added and merged 2026-11-19; Rounds 43–56 released as v0.53.0 (DOI 10.5281/zenodo.24384786); Rounds 57–60 (section 6) added 2026-11-20.** The source
 from which `PLAN_ROUND_43.md` onward are drafted; it is not itself a plan. **Implementing agents: do not
 read this file unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.** Update
 the status column in section 3 when a round merges.
@@ -48,9 +48,14 @@ implementing Rounds 31–42. The second group was never collected in one place; 
 | N26 | SMR intervals treat the reference population as fixed; an ACS-estimated reference denominator (backlog 6) is untested | R24, R28 | validation gap | 55 |
 | N27 | No microdata inequality measures (Gini, Theil, Atkinson, percentile ratios) with SDR replicate variance (backlog 6) | R49 | missing capability | 56 |
 | N28 | SMR refuses negative band replicates although the expected count is linear in the bands | R24 | code / failed input | 51 |
-| N30 | Clipped negative replicates are validated only below noise .50 (Round 51); race-group counties usually have noise above .50 and clipped cells, so 11–32 of 145 MI/NY counties per race design stay exploratory. Rural highs are driven by prison group quarters, which the engine does not separate | R52 | validation gap | not planned |
-| N31 | Round 54: naive IM outside MI/NY has no validated repair (4 or 6 within-state clusters failed on OH/PA); G1 with three to five and G2 with five error-prone covariates failed on OH/PA at low reliability with correlated fields; a fresh-seed MI/NY IM-8 rerun covered .849 in one cell; Round 48 effective-n intervals were not re-checked on OH/PA (targets are MI/NY-specific) | R54 | external validity | not planned |
-| N29 | IM-8 versions of correlation and α intervals failed; partial correlations under spatial dependence exploratory; PUMS GEE deferred (SDR replicates already carry the design) | R48, R49 | failed method / deferred | not planned |
+| N30 | Clipped negative replicates are validated only below noise .50 (Round 51); race-group counties usually have noise above .50 and clipped cells, so 11–32 of 145 MI/NY counties per race design stay exploratory. Rural highs are driven by prison group quarters, which the engine does not separate | R52 | validation gap | 57 |
+| N31 | Round 54: naive IM outside MI/NY has no validated repair (4 or 6 within-state clusters failed on OH/PA); G1 with three to five and G2 with five error-prone covariates failed on OH/PA at low reliability with correlated fields; a fresh-seed MI/NY IM-8 rerun covered .849 in one cell; Round 48 effective-n intervals were not re-checked on OH/PA (targets are MI/NY-specific) | R54 | external validity | 58, 59 |
+| N29 | IM-8 versions of correlation and α intervals failed; partial correlations under spatial dependence exploratory; PUMS GEE deferred (SDR replicates already carry the design) | R48, R49 | failed method / deferred | 59 (partial correlations); IM-8 correlation/α superseded by the effective-n intervals (Round 48); PUMS GEE closed: not needed |
+| N32 | Theil T, Atkinson (.5, 1) and the top-decile share from PUMS failed (.811–.858 in their worst cells: heavy tails, small samples) | R56 | failed method | 60 |
+| N33 | Six or more segregation groups and same-release county contrasts are untested; an infinite noise level (median tract count zero) can never be validated | R52 | validation gap | 57 (six groups, contrasts); infinite noise not planned |
+| N34 | Corrected binomial slopes under spatial dependence are untested (Round 53 validated Poisson/NB2 only) | R53 | validation gap | 58 |
+| N35 | No interrupted-series method is validated below 20 annual points (.857 at 15) | R55 | data limit | not planned |
+| N36 | Spatial EIV with six or more error-prone covariates failed (.804–.811) | R53 | failed method | not planned |
 
 Pre-Round-31 backlog items (STATUS "Open backlog"): 1 spatial routing and GLM EIV, 2 NB2 for R29,
 3 manifest correlation intervals, 4 GLM measurement-error correction, 5 WONDER child-age reference
@@ -179,3 +184,42 @@ standardization) with the reference variance in the combined interval.
 Gini, Theil T, Atkinson (ε = 0.5, 1), P90/P10 and P80/P20 ratios and top-decile share from PUMS income with
 the SDR replicate variance, and differences between groups or states; validated by resampling a synthetic
 population with the PUMS design, as in Round 49.
+
+## 6. Rounds 57–60 (drafted 2026-11-20, after v0.53.0)
+
+Same ground rules. Open issues N29–N34 (N35 and N36 are recorded limits, not planned).
+
+| Round | Theme | Covers | Status |
+| :--- | :--- | :--- | :--- |
+| 57 | Segregation: remaining gaps | N30, N33 (clipped replicates above noise .50, six groups, same-release county contrasts, group-quarters tracts) | planned |
+| 58 | Spatial inference outside MI/NY | N31 (naive slopes, G1/G2 with three to five covariates, the MI/NY IM-8 cell), N34 | planned |
+| 59 | Correlations under spatial dependence | N29 (partial correlations), N31 (Round 48 designs on OH/PA) | planned |
+| 60 | PUMS inequality repairs | N32 | planned |
+
+### Round 57: segregation, remaining gaps
+
+Round 51's clipped-replicate design on Round 52's race designs, with the bins above .50, so that clipped counties
+can be validated where their unclipped counterparts are; six-group H (B03002 split into White, Black, Asian,
+Hispanic, multiracial and other); contrasts between two counties of the same release (per-replicate
+differences). An option to leave out tracts dominated by group quarters (B26001 share of B01003 at or above a
+threshold), a definitional choice reported with the result, for the prison-tract artefact.
+
+### Round 58: spatial inference outside MI/NY
+
+Spatial-correlation-robust intervals for the naive (observed-estimate) slope that do not rely on clusters being
+independent: SCPC (Müller and Watson 2022: principal components of a worst-case exponential correlation, a
+simulated critical value over correlation ranges at least as large as the calibrated one), for linear, binomial and
+Poisson slopes, on MI/NY and OH/PA. A rerun of the doubtful MI/NY IM-8 cell with 10,000 draws. G1/G2 with three to
+five error-prone covariates at reliability .8 (a reliability gate) on both geometries. Calibrated binomial slopes
+with IM-8 clusters.
+
+### Round 59: correlations under spatial dependence
+
+Effective-sample-size intervals for partial correlations (residualised on the controls, df reduced by their
+number). Round 48's effective-n correlation and α designs re-run on OH/PA with targets recomputed for that
+geometry.
+
+### Round 60: PUMS inequality repairs
+
+Transformed SDR intervals for the failed measures (log Theil T, logit Atkinson and top-decile share) and, if they
+still fail, a minimum-sample gate, judged on Round 56's generator and incomes.
