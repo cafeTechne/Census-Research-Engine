@@ -170,8 +170,8 @@ geometries.
 
 ### Round 55: short series and estimated reference populations
 
-Interrupted series at 15–29 points: AR(1) with a bias-corrected autocorrelation and t reference, and a fixed-b
-(Kiefer–Vogelsang) HAC test. SMRs whose reference population is itself an ACS estimate (internal and external
+Interrupted series at 15–29 points: the Round 48 bootstrap-t with a bias-corrected AR coefficient, and an
+equal-weighted cosine (fixed-smoothing) HAR t test. SMRs whose reference population is itself an ACS estimate (internal and external
 standardization) with the reference variance in the combined interval.
 
 ### Round 56: microdata inequality measures
