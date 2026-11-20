@@ -851,8 +851,10 @@ RC_VALIDATED = {"ols": True, "wls": True, "binomial": False, "poisson": True, "n
 # Round 53 (docs/audits/glm_correction2_validation.md): validation flags per SE method. Set only from the
 # pre-specified simulation; the jackknife entries are False until the audit says otherwise.
 RC_JACKKNIFE_AUDIT = "docs/audits/glm_correction2_validation.md"
+# Round 53 (criterion 8d48956): the delete-one-area jackknife (t, n - p df) passed for binomial (.882-.904),
+# Poisson (.886-.904) and NB2 (.897-.908) against the true slope; linear models were not re-tested with it.
 RC_VALIDATED_SE = {"bootstrap": dict(RC_VALIDATED),
-                   "jackknife": {"ols": False, "wls": False, "binomial": False, "poisson": False, "negbin": False}}
+                   "jackknife": {"ols": False, "wls": False, "binomial": True, "poisson": True, "negbin": True}}
 
 
 def regression_calibration(
@@ -883,8 +885,9 @@ def regression_calibration(
     Crainiceanu (2006), "Measurement Error in Nonlinear Models", 2nd ed., ch. 4.
     Exact for linear models; an approximation for GLMs (ch. 4.8). SEs from
     ``n_boot`` row-bootstrap replicates that re-estimate the calibration.
-    Validated for ols, wls, poisson and negbin (``RC_VALIDATED``; Round 46); binomial is
-    exploratory (coverage .851-.889 at nominal .90).
+    Validated (``RC_VALIDATED_SE``): bootstrap for ols, wls, poisson and negbin (Round 46; binomial
+    under-covered, .851-.889); jackknife for binomial, poisson and negbin (Round 53). Use
+    ``se_method="jackknife"`` for binomial slopes.
     """
     if se_method not in ("bootstrap", "jackknife"):
         raise ValueError("se_method must be 'bootstrap' or 'jackknife'")
@@ -917,8 +920,9 @@ def regression_calibration(
     if model in ("poisson", "negbin"):
         notes.append(f"Validated for {model} slopes against the error-free slope (Round 46, {RC_AUDIT}).")
     elif not RC_VALIDATED[model]:
-        notes.append(f"EXPLORATORY: regression calibration for {model} slopes under-covered (.851 at nominal "
-                     f".90 with reliability .9 and correlated errors; {RC_AUDIT}); not for confirmatory claims.")
+        notes.append(f"EXPLORATORY: regression calibration for {model} slopes under-covered with bootstrap SEs (.851 at "
+                     f"nominal .90 with reliability .9 and correlated errors; {RC_AUDIT}); se_method='jackknife' is "
+                     f"validated ({RC_JACKKNIFE_AUDIT}).")
     return _corrected_result(formula, model, naive, cal.params, se_total, confidence_level,
                              "regression_calibration", notes, diagnostics, int(cal.nobs))
 
@@ -948,8 +952,10 @@ def _rc_jackknife(formula, model, spec, data, n_trials, notes, others, naive, ca
     notes = notes + [f"regression calibration of {list(spec)} given {others}; se_total from {n} delete-one-area "
                      f"jackknife refits including calibration; t intervals with {df} df", FH_POINTER]
     if not RC_VALIDATED_SE["jackknife"][model]:
-        notes.append(f"EXPLORATORY: regression calibration with jackknife SEs is not validated for {model} "
-                     f"({RC_JACKKNIFE_AUDIT}); not for confirmatory claims.")
+        notes.append(f"Jackknife SEs were not validated for {model} (only binomial, poisson and negbin; "
+                     f"{RC_JACKKNIFE_AUDIT}); the bootstrap is validated for linear models.")
+    else:
+        notes.append(f"Validated for {model} slopes against the error-free slope (Round 53, {RC_JACKKNIFE_AUDIT}).")
     return _corrected_result(formula, model, naive, cal.params, se_total, confidence_level,
                              "regression_calibration", notes, diagnostics, int(cal.nobs), df=df)
 

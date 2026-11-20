@@ -64,9 +64,9 @@ and failed fits are reported.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion commit | | |
-| J / S / M results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Core, script, criterion commit | done | `8d48956` |
+| J / S / M results | done | J1 passes all three GLMs; S1 passes Poisson/NB2; G1/G2 pass p = 5, fail p = 6 (`11e526b`) |
+| Engine, tests | done | `RC_VALIDATED_SE`, `calibrate=`, cap 5, MCP `se_method`; 7 new tests, Round 46 tests updated |
+| Example | done | child poverty; jackknife SEs ~40–50% wider than bootstrap; `/tmp/r53_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2082 passed, 37 skipped |
+| Exceptions | see notes | J0 dropped (Round 46 audit is the comparison); `fit_eiv` method text left at "four" (goldens) |

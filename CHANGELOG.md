@@ -5,6 +5,22 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.50.0 (Round 53): corrected GLM slopes, part 2
+
+- Freeze `regression_calibration(se_method="jackknife")`, the new `census/rc_spatial_core.py`, the script and
+  the criterion at `8d48956`. Round 46's binomial failure was in the SE (bias −.016 to −.001), so the repair is
+  a delete-one-area jackknife (≈ HC3; t with n − p df).
+- Passed: RC jackknife for binomial (.882–.904), Poisson (.886–.904) and NB2 (.897–.908); pooled calibration with
+  IM-8 count slopes under spatial dependence for Poisson (.877–.904) and NB2 (.894–.909; naive IM-8 .349–.890);
+  G1/G2 with five error-prone covariates (.864–.925, unstable at reliability .7 with correlated fields). Failed:
+  six covariates (.804–.811).
+- `RC_VALIDATED_SE`; `fit_count_model(spatial="clusters", calibrate=...)`; `VALIDATED_MAX_ERROR_COVARIATES = 5`;
+  MCP `fit_model(se_method=...)` and the calibrated IM-8 route; manifests accept `args.se_method`. Goldens
+  byte-identical.
+- Exploratory example: county child poverty on income and unemployment (`docs/studies/r53_rc_example.md`).
+  Closes backlog 4, N22 and N23 (except binomial under spatial dependence and six or more covariates).
+- Acceptance: goldens byte-identical; 2082 passed, 37 skipped; 0 failures (7 new tests).
+
 ## 0.49.0 (Round 52): segregation beyond poverty and income
 
 - Freeze the truth file (2024 B03002 for MI/NY/OH/PA, 2024 B17001 for OH/PA, 2015–2019 B17001 for MI/NY; cached
