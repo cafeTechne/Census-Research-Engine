@@ -5,6 +5,16 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.59.0 (Round 62): leftover failures
+
+- Freeze the script and the criterion at `8f14e39` (generators and targets imported unchanged from Rounds 30–58).
+- Passed: binomial SCPC with ρ̄ .15 (.886–.954) and .20 (.909–.966); clipped six-group bias-corrected H at any finite
+  noise level. Failed: Theil T with 8,000 households (.858): it stays exploratory.
+- `scpc.VALIDATED_RHO["binomial"] = (.15, .20)` (default .15); six-group `CLIP_RANGES`; Theil note. Goldens
+  byte-identical.
+- Exploratory example (`docs/studies/r62_binomial_scpc_example.md`). Closes N38 (Theil T as a confirmed limit).
+- Acceptance: goldens byte-identical; 2132 passed, 37 skipped; 0 failures (5 new tests).
+
 ## 0.58.0 (Round 61): manifest routing for spatial methods
 
 - No new statistics. Opt-in manifest arguments for validated methods: `fit_replicate` `args.spatial_scpc` (SCPC naive

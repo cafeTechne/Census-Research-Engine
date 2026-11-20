@@ -92,6 +92,9 @@ CLIP_RANGES = {
     ("theil_h", "bias_corrected", 4): (0., INF),
     ("theil_h", "naive", 5): None,
     ("theil_h", "bias_corrected", 5): (0., INF),
+    # Round 62 (criterion 8f14e39; docs/audits/leftover_failures_validation.md): clipped six-group H.
+    ("theil_h", "naive", 6): None,
+    ("theil_h", "bias_corrected", 6): (0., INF),
 }
 # Round 57: contrasts between two counties of the same release (per-replicate differences) passed for every
 # two-group variant except corrected D (.855) when the larger noise level is below .50. Both rows must also be

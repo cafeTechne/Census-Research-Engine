@@ -52,9 +52,9 @@ Failed draws count as non-coverage.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Script, criterion commit | | |
-| A / B / C results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Script, criterion commit | done | `8f14e39` |
+| A / B / C results | done | binomial SCPC passes at .15/.20; clipped six-group H passes; Theil fails at 8,000 households (`2d6a0dd`) |
+| Engine, tests | done | binomial SCPC default .15; six-group clip ranges; Theil note; 5 new tests, 5 older assertions updated |
+| Example | done | OH/PA binomial child poverty with SCPC; `/tmp/r62_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2132 passed, 37 skipped |
+| Exceptions | none | Theil T confirmed exploratory |

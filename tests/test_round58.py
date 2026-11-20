@@ -20,7 +20,7 @@ def test_flags_equal_the_fixed_audit():
     for model in ("linear", "poisson", "binomial"):
         key = "ols" if model == "linear" else model
         passing = tuple(r for r in (.05, .10) if p[f"SCPC{int(100*r):02d}_{model}"])
-        assert scpc.VALIDATED_RHO[key] == passing
+        assert tuple(r for r in scpc.VALIDATED_RHO[key] if r in (.05, .10)) == passing   # Round 62 added .15/.20 for binomial
     assert scpc.DEFAULT_RHO["ols"] == .05 and scpc.DEFAULT_RHO["poisson"] == .10
     assert all(p[f"{g}_p{k}_rel80"] for g in ("G1", "G2") for k in (3, 4, 5)) and spatial_eiv.RELIABILITY_GATE == .8
     assert p["B1_binomial"] is models.RC_CLUSTERS_BINOMIAL_VALIDATED is True
@@ -65,7 +65,7 @@ def test_fit_scpc_flags_and_mcp(tmp_path):
     assert poi["validated"] and poi["rho_bar"] == .10
     assert not scpc.fit_scpc("c ~ x", f, "poisson", exposure="E", coords=coords, rho_bar=.05)["validated"]
     f["p"] = 1/(1+np.exp(-f.x)); f["T"] = 200.
-    assert not scpc.fit_scpc("p ~ x", f, "binomial", trials="T", coords=coords)["validated"]
+    assert not scpc.fit_scpc("p ~ x", f, "binomial", trials="T", coords=coords, rho_bar=.10)["validated"]   # .15 since Round 62
     from census import workflows_inference as wi
     p = tmp_path/"f.csv"; f.to_csv(p, index=False)
     with mock.patch("census.small_spatial.frame_coordinates", return_value=coords):

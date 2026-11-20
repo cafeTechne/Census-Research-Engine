@@ -5,7 +5,8 @@ Validated (``docs/audits/spatial_outside_validation.md``, criterion e8c6c8c; Rou
 spatially correlated covariate and error fields, observed-estimate target):
 - OLS with rho_bar .05 (.861-.930) and .10 (.897-.947);
 - Poisson with rho_bar .10 (.863-.934); .05 failed (.830);
-- binomial failed at both (.793 and .846): exploratory.
+- binomial failed at both (.793 and .846); Round 62 (docs/audits/leftover_failures_validation.md, criterion
+  8f14e39): binomial passes with the stronger benchmarks rho_bar .15 (.886-.954) and .20 (.909-.966).
 SCPC does not assume independent clusters, so it holds on adjacent states (OH/PA), where IM-8 under-covered.
 The target is the slope on the ACS estimates as observed (attenuated by covariate sampling error, as IM-8 C1).
 """
@@ -18,8 +19,8 @@ import patsy
 from . import scpc_core as core
 
 AUDIT = "docs/audits/spatial_outside_validation.md"
-VALIDATED_RHO = {"ols": (.05, .10), "poisson": (.10,), "binomial": ()}
-DEFAULT_RHO = {"ols": .05, "poisson": .10, "binomial": .10}
+VALIDATED_RHO = {"ols": (.05, .10), "poisson": (.10,), "binomial": (.15, .20)}
+DEFAULT_RHO = {"ols": .05, "poisson": .10, "binomial": .15}
 _SETUPS: Dict[Any, Dict[str, Any]] = {}
 
 
@@ -70,7 +71,7 @@ def fit_scpc(formula: str, frame: pd.DataFrame, model: str = "ols", trials: Opti
              "correlation. Target: the slope on the ACS estimates as observed (not corrected for covariate sampling "
              f"error; use the corrected-slope estimators for that). {AUDIT}."]
     if not validated:
-        notes.append(f"EXPLORATORY: SCPC is validated for OLS (rho_bar .05, .10) and Poisson (.10) at the 90% level; "
-                     f"{model} with rho_bar {rho} is not (binomial failed).")
+        notes.append(f"EXPLORATORY: SCPC is validated for OLS (rho_bar .05, .10), Poisson (.10) and binomial (.15, .20) "
+                     f"at the 90% level; {model} with rho_bar {rho} is not.")
     return dict(model=model, spatial="scpc", rho_bar=rho, table=pd.DataFrame(rows), n=len(y), validated=validated,
                 notes=notes, audit=AUDIT)

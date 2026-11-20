@@ -32,8 +32,8 @@ refused). Each measure comes with the SDR replicate interval:
 - **Round 60 repairs** (`docs/audits/pums_inequality_repair_validation.md`): with logit-transformed SDR
   intervals, Atkinson (ε = 1) is validated; Atkinson (ε = .5) and the top-decile share are validated with at least
   7,000 records (they under-covered in samples of about 2,000). The `interval` column names the method.
-- **Exploratory:** Theil T (under-covered with heavy-tailed incomes even with a log transform; a bias correction
-  made it worse).
+- **Exploratory:** Theil T (under-covered with heavy-tailed incomes even with a log transform, also with 8,000
+  households in Round 62; a bias correction made it worse). Use the Gini or Atkinson instead.
 - Zero incomes stay in the Gini. Theil, Atkinson and the ratios use positive incomes only (noted). Quantile
   ratios of heaped dollar amounts are flagged exploratory, as medians are.
 

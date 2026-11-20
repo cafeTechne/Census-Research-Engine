@@ -299,8 +299,9 @@ def _stat_coefficient(h, res):
     if scpc is not None and not scpc["validated"]:
         return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
                 "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
-                "confirmatory_refusal": "SCPC is validated for OLS (rho_bar .05, .10) and Poisson (.10) only "
-                                        "(docs/audits/spatial_outside_validation.md)"}
+                "confirmatory_refusal": "SCPC is validated for OLS (rho_bar .05, .10), Poisson (.10) and binomial "
+                                        "(.15, .20) only (docs/audits/spatial_outside_validation.md, "
+                                        "docs/audits/leftover_failures_validation.md)"}
     if res.diagnostics.get("regression_calibration_validated") is False:
         return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
                 "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
@@ -430,8 +431,8 @@ def _check_fit_replicate(stage, ctx):
             elif glm not in ("ols", "poisson", "binomial"):
                 errors.append(prefix+"spatial_scpc supports model ols, poisson or binomial")
             elif (rho if rho is not None else DEFAULT_RHO[glm]) not in VALIDATED_RHO[glm] and not manifest.get("exploratory", False):
-                errors.append(prefix+f"SCPC with model {glm} and this rho_bar was not validated (Round 58: ols .05/.10, "
-                              "poisson .10); exploratory only")
+                errors.append(prefix+f"SCPC with model {glm} and this rho_bar was not validated (Rounds 58/62: ols "
+                              ".05/.10, poisson .10, binomial .15/.20); exploratory only")
             bad = sorted(k for k in ("weights", "scale", "spatial_se", "spatial_clusters") if aargs.get(k) is not None)
             if bad:
                 errors.append(prefix+f"spatial_scpc does not combine with {bad}")

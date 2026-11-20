@@ -87,8 +87,8 @@
    (`hypothesis_not_tested`). A county with a negative replicate estimate in any tract
    is estimated with clipped replicates (Rounds 51 and 57) and validated for the
    bias-corrected versions only: D below .50, isolation below .75, two-group H below 1.0,
-   four- or five-group H at any finite level (`clipped_replicates` > 0). Six-group
-   bias-corrected H is validated at any finite noise level (Round 57).
+   four- to six-group H at any finite level (`clipped_replicates` > 0; six groups since
+   Round 62). Six-group bias-corrected H is validated at any finite noise level (Round 57).
    **Contrasts** between two non-overlapping releases (variances added) are validated
    when both rows are validated, there are two groups, and the larger noise level is
    below .50 (Round 52). Contrasts between two counties of the same release

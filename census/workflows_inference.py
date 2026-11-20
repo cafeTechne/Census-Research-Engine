@@ -232,7 +232,7 @@ def fit_model(
             error_covariates, then fits IM-8 count slopes (Round 53; validated; needs exposure);
             model "binomial" with trials likewise (Round 58; validated).
             method="replicate": "scpc" gives SCPC spatial intervals for naive slopes (Round 58;
-            validated for ols and poisson, also outside MI/NY; binomial exploratory).
+            validated for ols, poisson and (Round 62) binomial, also outside MI/NY).
         se_method: method="regression_calibration": "bootstrap" (default) or "jackknife"
             (delete-one-area; Round 53; validated for binomial, poisson and negbin).
 
