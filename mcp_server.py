@@ -159,7 +159,7 @@ and G2 with five did not (.807-.859 at reliability .7 with correlated fields).
 Round 58 (docs/audits/spatial_outside_validation.md): SCPC (census.scpc.fit_scpc;
 fit_model(method="replicate", spatial="scpc")) gives naive-slope intervals that do not assume
 independent clusters. It is validated for OLS (rho_bar .05) and Poisson (.10) on MI/NY and OH/PA
-alike; binomial SCPC failed (exploratory). A 10,000-draw rerun confirmed IM-8 OLS at .858 in the
+alike; binomial SCPC failed at .05/.10 but passes at rho_bar .15 (Round 62, the default for binomial). A 10,000-draw rerun confirmed IM-8 OLS at .858 in the
 low-reliability, correlated MI/NY cell, so prefer SCPC for OLS. With every error-prone covariate's
 reliability >= .8, G1/G2 with three to five covariates pass on OH/PA too (reliability is
 reported). Calibrated binomial slopes with IM-8 clusters are validated
@@ -189,7 +189,7 @@ Round 56: test_association(kind="inequality", var=<nonnegative income>[, by=<two
 the Gini coefficient (.861-.908), log P90/P10 and log P80/P20 (.888-.923) and the Gini difference
 between two groups (.873-.899), all validated with SDR replicate variance. Round 60: with logit-transformed
 SDR intervals Atkinson (eps 1) is validated, and Atkinson (.5) and the top-decile share with at least 7,000
-records; Theil T still failed (exploratory). Results name the interval method. Zero incomes stay in the
+records; Theil T still failed, also with 8,000 households (Round 62; exploratory). Results name the interval method. Zero incomes stay in the
 Gini; negative incomes are refused; heaped quantiles are flagged as for medians.
 
 Round 33 rank methods (recipe rank_methods): correlation_matrix returns
@@ -215,7 +215,7 @@ census.spatial_eiv.fit_spatial_eiv. Both passed (coverage .863-.918; 145 MI/NY c
 up to two error-prone covariates; reliability .7-.9); Rounds 46 and 53 extended both to five
 (more are exploratory). In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
 Round 61 manifest options: fit_replicate args.spatial_scpc {} or {rho_bar} (SCPC naive slopes; OLS,
-Poisson with exposure; binomial exploratory; population target, no weights/scale/spatial_se);
+Poisson with exposure; binomial with trials (rho_bar .15/.20, Round 62); population target, no weights/scale/spatial_se);
 regression_calibration args.spatial "clusters" with model poisson/negbin (exposure) or binomial
 (trials); correlation_matrix args.spatial true with interval "validated" (effective-n intervals).
 Round 53: fit_model(method="regression_calibration", se_method="jackknife") is validated for

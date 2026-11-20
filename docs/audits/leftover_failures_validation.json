@@ -1,0 +1,571 @@
+{
+ "cells": [
+  {
+   "problem": "A",
+   "geometry": "miny",
+   "r30_cell": 4,
+   "draws": 2000,
+   "coverage": {
+    "SCPC15": 0.9345,
+    "SCPC20": 0.9485
+   },
+   "failed": {
+    "SCPC15": 0,
+    "SCPC20": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "miny",
+   "r30_cell": 5,
+   "draws": 2000,
+   "coverage": {
+    "SCPC15": 0.9325,
+    "SCPC20": 0.9495
+   },
+   "failed": {
+    "SCPC15": 0,
+    "SCPC20": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "miny",
+   "r30_cell": 6,
+   "draws": 2000,
+   "coverage": {
+    "SCPC15": 0.8925,
+    "SCPC20": 0.9145
+   },
+   "failed": {
+    "SCPC15": 0,
+    "SCPC20": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "miny",
+   "r30_cell": 7,
+   "draws": 2000,
+   "coverage": {
+    "SCPC15": 0.9185,
+    "SCPC20": 0.938
+   },
+   "failed": {
+    "SCPC15": 0,
+    "SCPC20": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r30_cell": 4,
+   "draws": 2000,
+   "coverage": {
+    "SCPC15": 0.941,
+    "SCPC20": 0.9585
+   },
+   "failed": {
+    "SCPC15": 0,
+    "SCPC20": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r30_cell": 5,
+   "draws": 2000,
+   "coverage": {
+    "SCPC15": 0.954,
+    "SCPC20": 0.966
+   },
+   "failed": {
+    "SCPC15": 0,
+    "SCPC20": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r30_cell": 6,
+   "draws": 2000,
+   "coverage": {
+    "SCPC15": 0.886,
+    "SCPC20": 0.909
+   },
+   "failed": {
+    "SCPC15": 0,
+    "SCPC20": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "ohpa",
+   "r30_cell": 7,
+   "draws": 2000,
+   "coverage": {
+    "SCPC15": 0.9115,
+    "SCPC20": 0.93
+   },
+   "failed": {
+    "SCPC15": 0,
+    "SCPC20": 0
+   }
+  },
+  {
+   "problem": "A",
+   "geometry": "miny",
+   "r30_cell": 7,
+   "long": true,
+   "draws": 10000,
+   "coverage": {
+    "SCPC15": 0.9205,
+    "SCPC20": 0.9401
+   },
+   "failed": {
+    "SCPC15": 0,
+    "SCPC20": 0
+   }
+  },
+  {
+   "problem": "B",
+   "rho": 0.1,
+   "weight_cv": 0.3,
+   "households": 8000,
+   "draws": 2000,
+   "coverage": {
+    "I1|T0": 0.8855,
+    "I1|T1": 0.888,
+    "I2|T0": 0.8845,
+    "I2|T1": 0.8855
+   },
+   "failed": {
+    "I1|T0": 0,
+    "I1|T1": 0,
+    "I2|T0": 0,
+    "I2|T1": 0
+   }
+  },
+  {
+   "problem": "B",
+   "rho": 0.1,
+   "weight_cv": 1.0,
+   "households": 8000,
+   "draws": 2000,
+   "coverage": {
+    "I1|T0": 0.874,
+    "I1|T1": 0.873,
+    "I2|T0": 0.8585,
+    "I2|T1": 0.8585
+   },
+   "failed": {
+    "I1|T0": 0,
+    "I1|T1": 0,
+    "I2|T0": 0,
+    "I2|T1": 0
+   }
+  },
+  {
+   "problem": "B",
+   "rho": 0.4,
+   "weight_cv": 0.3,
+   "households": 8000,
+   "draws": 2000,
+   "coverage": {
+    "I1|T0": 0.8965,
+    "I1|T1": 0.8985,
+    "I2|T0": 0.886,
+    "I2|T1": 0.888
+   },
+   "failed": {
+    "I1|T0": 0,
+    "I1|T1": 0,
+    "I2|T0": 0,
+    "I2|T1": 0
+   }
+  },
+  {
+   "problem": "B",
+   "rho": 0.4,
+   "weight_cv": 1.0,
+   "households": 8000,
+   "draws": 2000,
+   "coverage": {
+    "I1|T0": 0.8795,
+    "I1|T1": 0.8795,
+    "I2|T0": 0.864,
+    "I2|T1": 0.8645
+   },
+   "failed": {
+    "I1|T0": 0,
+    "I1|T1": 0,
+    "I2|T0": 0,
+    "I2|T1": 0
+   }
+  }
+ ],
+ "passed": {
+  "binomial_SCPC15": true,
+  "binomial_SCPC20": true,
+  "theil_t_T1_8000": false,
+  "clip_six": {
+   "H_bc": "inf",
+   "H_naive": null
+  }
+ },
+ "six_group_clipped": {
+  "H_bc": {
+   "bins": [
+    {
+     "bin": "[0, .15)",
+     "counties": 0,
+     "judged": false,
+     "cells": {
+      "0.0": null,
+      "-0.15": null
+     },
+     "passed": false,
+     "affected": {
+      "0.0": {
+       "pairs": 0,
+       "coverage": null
+      },
+      "-0.15": {
+       "pairs": 0,
+       "coverage": null
+      }
+     }
+    },
+    {
+     "bin": "[.15, .30)",
+     "counties": 0,
+     "judged": false,
+     "cells": {
+      "0.0": null,
+      "-0.15": null
+     },
+     "passed": false,
+     "affected": {
+      "0.0": {
+       "pairs": 0,
+       "coverage": null
+      },
+      "-0.15": {
+       "pairs": 0,
+       "coverage": null
+      }
+     }
+    },
+    {
+     "bin": "[.30, .50)",
+     "counties": 0,
+     "judged": false,
+     "cells": {
+      "0.0": null,
+      "-0.15": null
+     },
+     "passed": false,
+     "affected": {
+      "0.0": {
+       "pairs": 0,
+       "coverage": null
+      },
+      "-0.15": {
+       "pairs": 0,
+       "coverage": null
+      }
+     }
+    },
+    {
+     "bin": "[.50, .75)",
+     "counties": 4,
+     "judged": false,
+     "cells": {
+      "0.0": {
+       "mean": 0.95475,
+       "share_ge_80": 1.0,
+       "min": 0.936
+      },
+      "-0.15": {
+       "mean": 0.958875,
+       "share_ge_80": 1.0,
+       "min": 0.9435
+      }
+     },
+     "passed": false,
+     "affected": {
+      "0.0": {
+       "pairs": 7994,
+       "coverage": 0.9547160370277709
+      },
+      "-0.15": {
+       "pairs": 7995,
+       "coverage": 0.9588492808005004
+      }
+     }
+    },
+    {
+     "bin": "[.75, 1)",
+     "counties": 11,
+     "judged": true,
+     "cells": {
+      "0.0": {
+       "mean": 0.9556818181818181,
+       "share_ge_80": 1.0,
+       "min": 0.891
+      },
+      "-0.15": {
+       "mean": 0.9581363636363637,
+       "share_ge_80": 1.0,
+       "min": 0.908
+      }
+     },
+     "passed": true,
+     "affected": {
+      "0.0": {
+       "pairs": 21997,
+       "coverage": 0.9557212347138246
+      },
+      "-0.15": {
+       "pairs": 21999,
+       "coverage": 0.9581344606573026
+      }
+     }
+    },
+    {
+     "bin": "[1, inf)",
+     "counties": 97,
+     "judged": true,
+     "cells": {
+      "0.0": {
+       "mean": 0.9728917525773195,
+       "share_ge_80": 1.0,
+       "min": 0.824
+      },
+      "-0.15": {
+       "mean": 0.9722113402061855,
+       "share_ge_80": 1.0,
+       "min": 0.808
+      }
+     },
+     "passed": true,
+     "affected": {
+      "0.0": {
+       "pairs": 193987,
+       "coverage": 0.9728899359235412
+      },
+      "-0.15": {
+       "pairs": 193988,
+       "coverage": 0.9722147761717219
+      }
+     }
+    }
+   ],
+   "validated_max_noise": "inf",
+   "failed_draws": 6752
+  },
+  "H_naive": {
+   "bins": [
+    {
+     "bin": "[0, .15)",
+     "counties": 0,
+     "judged": false,
+     "cells": {
+      "0.0": null,
+      "-0.15": null
+     },
+     "passed": false,
+     "affected": {
+      "0.0": {
+       "pairs": 0,
+       "coverage": null
+      },
+      "-0.15": {
+       "pairs": 0,
+       "coverage": null
+      }
+     }
+    },
+    {
+     "bin": "[.15, .30)",
+     "counties": 0,
+     "judged": false,
+     "cells": {
+      "0.0": null,
+      "-0.15": null
+     },
+     "passed": false,
+     "affected": {
+      "0.0": {
+       "pairs": 0,
+       "coverage": null
+      },
+      "-0.15": {
+       "pairs": 0,
+       "coverage": null
+      }
+     }
+    },
+    {
+     "bin": "[.30, .50)",
+     "counties": 0,
+     "judged": false,
+     "cells": {
+      "0.0": null,
+      "-0.15": null
+     },
+     "passed": false,
+     "affected": {
+      "0.0": {
+       "pairs": 0,
+       "coverage": null
+      },
+      "-0.15": {
+       "pairs": 0,
+       "coverage": null
+      }
+     }
+    },
+    {
+     "bin": "[.50, .75)",
+     "counties": 4,
+     "judged": false,
+     "cells": {
+      "0.0": {
+       "mean": 0.811875,
+       "share_ge_80": 0.5,
+       "min": 0.723
+      },
+      "-0.15": {
+       "mean": 0.802,
+       "share_ge_80": 0.5,
+       "min": 0.6875
+      }
+     },
+     "passed": false,
+     "affected": {
+      "0.0": {
+       "pairs": 7994,
+       "coverage": 0.8119839879909933
+      },
+      "-0.15": {
+       "pairs": 7995,
+       "coverage": 0.8018761726078799
+      }
+     }
+    },
+    {
+     "bin": "[.75, 1)",
+     "counties": 11,
+     "judged": true,
+     "cells": {
+      "0.0": {
+       "mean": 0.7880909090909092,
+       "share_ge_80": 0.45454545454545453,
+       "min": 0.683
+      },
+      "-0.15": {
+       "mean": 0.7689090909090909,
+       "share_ge_80": 0.18181818181818182,
+       "min": 0.6665
+      }
+     },
+     "passed": false,
+     "affected": {
+      "0.0": {
+       "pairs": 21997,
+       "coverage": 0.7881074692003455
+      },
+      "-0.15": {
+       "pairs": 21999,
+       "coverage": 0.7688985862993772
+      }
+     }
+    },
+    {
+     "bin": "[1, inf)",
+     "counties": 97,
+     "judged": true,
+     "cells": {
+      "0.0": {
+       "mean": 0.6357319587628867,
+       "share_ge_80": 0.14432989690721648,
+       "min": 0.0945
+      },
+      "-0.15": {
+       "mean": 0.610721649484536,
+       "share_ge_80": 0.08247422680412371,
+       "min": 0.071
+      }
+     },
+     "passed": false,
+     "affected": {
+      "0.0": {
+       "pairs": 193987,
+       "coverage": 0.6357230123668081
+      },
+      "-0.15": {
+       "pairs": 193988,
+       "coverage": 0.6107130337959049
+      }
+     }
+    }
+   ],
+   "validated_max_noise": null,
+   "failed_draws": 6752
+  }
+ },
+ "criterion_commit": "8f14e39",
+ "draws_per_cell": 2000,
+ "r_draws": 10000,
+ "seed": 20280701,
+ "frozen_sha256": {
+  "scripts/leftover_failures_validation.py": "48fee09aad4b6ed02284be3cd8fa7a466906baf2076b1ac56515e14d1e52aebc",
+  "census/scpc_core.py": "645152e2a37956f8dabb5570b07021e3f22064133afde7bf5fb0b8cef62c7f5d",
+  "census/pums_inequality_core.py": "4d8eb9d143ac924274fd65c082f512aadcf0df796742123591795d3aa8c7d750",
+  "census/segregation.py": "39d84413e50f93afadc2ce789abe472e124650caa4ed1f8f707e04baebc4dceb",
+  "census/im_acs.py": "3e5f570b70b9009b2f1e1e757da1b2c80d497d7f1ada20c3fb6addc18b1c7bef",
+  "census/simulation.py": "b0ba4c803939d8803fc8a7e702b4f70bda5f486736bd651b8630d7e1262b198e",
+  "census/pums_tests.py": "bbd88b8263fff87216b79af19e9cd0fcb549ab82ea7aa42d6c65e0e66f630040",
+  "scripts/spatial_outside_validation.py": "4c863504dfd45c5bf7a613b8c6fc48d0a532add5ccf776220170452fe886215b",
+  "scripts/im_acs_validation.py": "e99807321946f64c356bc37a86c4d76d2099f851bd27b113f47bc5000f891896",
+  "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+  "scripts/pums_tests_validation.py": "e9a2782447d1271dc794a2dfffd85563565b996846886fa63111629444300643",
+  "scripts/pums_inequality_validation.py": "fd5880eab0a1e43f314476938857a6c62686b6eda889b37d1540656f905a04f3",
+  "scripts/segregation_realistic_validation.py": "4189fb28304f5f7d71d7bf393cb3c1d17ca81e53f3cb2a5e8524f50cdcefe7ee",
+  "scripts/negative_replicates_validation.py": "7415a0b24c66a0e3a215b63928b5bc1322d90bc361497e5e9ee5c0f90c10f67d",
+  "scripts/segregation_groups_validation.py": "63bd2552879c12e404c134102c458384eedc8f0f7ec1fcdca99970bf88ea186b",
+  "scripts/segregation_gaps_validation.py": "8c4d5789b58afbb5a579816135519868181c51b6402c6c7b670af63e13ee0d17",
+  "docs/audits/pums_inequality_targets.json": "10cb7e30e7459953bbe2506cffa04295381364cb71474f85916a7c66897a6ef5",
+  "docs/audits/segregation_r57_counts.csv.gz": "b6886050f5514e9a3a74881cd5a31c5c83dca7e376ad2f76b0b18f5760060e3d",
+  "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f",
+  "docs/audits/ohpa_geometry.json": "f61210f89306468ce61ba754fe9ab4344cfd7c4f1a428bf959c321710e6d97b2",
+  "docs/audits/leftover_failures_validation_criterion.md": "ac78775ae0b02076796f3505268af0a79d9c1fcf6a6d5110bac5c01e1243e097"
+ },
+ "scpc": {
+  "miny": {
+   "0.15": {
+    "q": 4,
+    "cv": 2.93875786874477,
+    "benchmark_range_km": 151.8429367619429
+   },
+   "0.2": {
+    "q": 4,
+    "cv": 3.255244451008764,
+    "benchmark_range_km": 200.287671337369
+   }
+  },
+  "ohpa": {
+   "0.15": {
+    "q": 4,
+    "cv": 3.0499717023657817,
+    "benchmark_range_km": 109.31677230697849
+   },
+   "0.2": {
+    "q": 4,
+    "cv": 3.3714736579015145,
+    "benchmark_range_km": 138.67331685722434
+   }
+  }
+ }
+}

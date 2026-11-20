@@ -46,8 +46,9 @@ def test_scpc_manifest_gates():
     assert not ok({"spatial_scpc": {}, "model": "poisson"})                       # needs exposure
     assert ok({"spatial_scpc": {}, "model": "poisson", "exposure": "pop"})
     assert not ok({"spatial_scpc": {"rho_bar": .05}, "model": "poisson", "exposure": "pop"})   # not validated
-    assert not ok({"spatial_scpc": {}, "model": "binomial", "trials": "pop"})
-    assert ok({"spatial_scpc": {}, "model": "binomial", "trials": "pop"}, exploratory=True)
+    assert not ok({"spatial_scpc": {"rho_bar": .10}, "model": "binomial", "trials": "pop"})
+    assert ok({"spatial_scpc": {"rho_bar": .10}, "model": "binomial", "trials": "pop"}, exploratory=True)
+    assert ok({"spatial_scpc": {}, "model": "binomial", "trials": "pop"})          # rho .15 validated (Round 62)
     assert not ok({"spatial_scpc": {}, "scale": "robust", "model": "poisson", "exposure": "pop"})
     assert not ok({"spatial_scpc": {}, "target": "these_areas"})
 
@@ -63,7 +64,7 @@ def test_scpc_runner_and_hypothesis():
     assert s["p_two_sided"] == pytest.approx(ref.p_value) and "confirmatory_refusal" not in s
     f["p"] = 1/(1+np.exp(-f.x)); f["T"] = 300.
     b = mm._run_fit_replicate(dict(method="fit_replicate", formula="p ~ x"),
-                              {"spatial_scpc": {}, "model": "binomial", "trials": "T"}, f, .9, None, "holm", ctx)
+                              {"spatial_scpc": {"rho_bar": .10}, "model": "binomial", "trials": "T"}, f, .9, None, "holm", ctx)
     assert "SCPC is validated for OLS" in mm._stat_coefficient({"term": "x"}, b)["confirmatory_refusal"]
 
 

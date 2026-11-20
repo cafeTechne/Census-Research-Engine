@@ -227,7 +227,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    estimand: the coefficient on ACS estimates as observed, not corrected). IM-EIV,
    WLS, other k, CR1/WCR stay refused. Terms constant within clusters are not estimable.
    Validated on MI/NY only (failed OH/PA re-checks, Round 44; 4 or 6 clusters too, Round 54).
-   Outside MI/NY, or for OLS anywhere, use fit_model(spatial="scpc") (Round 58; ols, poisson).
+   Outside MI/NY, or for OLS anywhere, use fit_model(spatial="scpc") (Rounds 58/62; ols,
+   poisson, binomial).
 10. Validated methods, Rounds 31-42 (else exploratory; get_recipe(name) has the scope;
    tools marked [full] exist only in the full profile):
    - compare_groups (group_comparison): t-tests, ANOVA, ANCOVA, joint_test; wild score

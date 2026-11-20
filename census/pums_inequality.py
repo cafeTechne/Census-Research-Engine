@@ -27,6 +27,8 @@ VALIDATED = {"gini": True, "theil_t": False, "atkinson_0.5": False, "atkinson_1"
 # failed (.820-.889 with the log transform; .859 at 3,000 households); the SDR bias correction lowered coverage.
 REPAIR_AUDIT = "docs/audits/pums_inequality_repair_validation.md"
 REPAIRED = {"atkinson_1": None, "atkinson_0.5": 7000, "top10_share": 7000}   # measure -> minimum records (None: none)
+# Round 62 (docs/audits/leftover_failures_validation.md): Theil T failed again with 8,000 households (log interval,
+# .858 for the heavy-tailed income): a confirmed limit, exploratory at any sample size tested.
 GINI_DIFFERENCE_VALIDATED = True
 QUANTILES = {"log_p90_p10": (.9, .1), "log_p80_p20": (.8, .2)}
 
@@ -75,7 +77,7 @@ def _table(y, W, min_n):
                 note = (f"{heap:.0%} of the weight sits exactly at a quantile used (heaped values); replicate SEs are "
                         "unreliable (validation used continuous incomes)")
         if not VALIDATED[m] and m not in REPAIRED:
-            note = "failed the Round 56 and Round 60 coverage validations; exploratory only"
+            note = "failed the Round 56, 60 and 62 coverage validations (also with 8,000 households); exploratory only"
         rows.append(dict(measure=m, **s, interval=method, validated=bool(ok), note=note))
     if not positive.all():
         notes.append(f"{int((~positive).sum())} zero income record(s): included in the Gini and top share; excluded "

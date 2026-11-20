@@ -38,7 +38,7 @@ cell (a 10,000-draw rerun gave .858). On OH/PA, G2 replicated with up to four er
 three to five and G2 with five did not at reliability .7 but did at .8 (Round 58; the reliability of each
 covariate is reported). **Round 58: SCPC** (`fit_model(method="replicate", spatial="scpc")`,
 `census.scpc.fit_scpc`) is validated for naive OLS and Poisson slopes on both MI/NY and OH/PA and is the
-recommended spatial interval outside MI/NY; binomial SCPC failed. Corrected binomial slopes with IM-8 clusters:
+recommended spatial interval outside MI/NY; binomial SCPC passes with the stronger benchmark rho_bar .15 (Round 62; the default). Corrected binomial slopes with IM-8 clusters:
 `fit_model(method="regression_calibration", model="binomial", spatial="clusters", trials=...)` (validated).
 See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 

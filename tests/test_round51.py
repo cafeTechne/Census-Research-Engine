@@ -37,7 +37,7 @@ def test_clip_ranges_equal_audit():
                 assert span[0] == sg.REALISTIC_RANGES[(name, variant, n[design])][0]
                 assert span[1] <= sg.REALISTIC_RANGES[(name, variant, n[design])][1]
             seen += 1
-    assert seen == 8 and len(sg.CLIP_RANGES) == 12   # Round 57 added four and five groups
+    assert seen == 8 and len(sg.CLIP_RANGES) == 14   # Rounds 57/62 added four, five and six groups
     assert sg.DEFAULT_NEGATIVE_REPLICATES == "clip"
     # the audit's stress test produced negative replicates
     for design in ("two", "three"):
