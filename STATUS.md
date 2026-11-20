@@ -3,8 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.53.0 (Rounds 43–56, the backlog roadmap, released as one bundle; DOI
-10.5281/zenodo.24384786). Previous: v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
+**Current release:** v0.57.0 (Rounds 57–60, backlog roadmap section 6, released as one bundle; DOI
+10.5281/zenodo.24398149). Previous: v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
 10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
 10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
@@ -136,26 +136,26 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 60 (v0.57.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 60 (v0.57.0; released in the bundled v0.57.0; implemented by the maintainer agent):**
 PUMS inequality repairs (criterion `60a3b06`): logit-transformed SDR intervals validate Atkinson (ε 1) and, from
 7,000 records, Atkinson (ε .5) and the top-decile share; Theil T stays exploratory. `pums_inequality` reports the
 interval method and applies the record gate. Exploratory example (`r60_inequality_repair_example.md`). Goldens
 unchanged. Acceptance: 2121 passed, 37 skipped; 0 failures.
 
-**Round 59 (v0.56.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 59 (v0.56.0; released in the bundled v0.57.0; implemented by the maintainer agent):**
 correlations under spatial dependence (criterion `669a506`): effective-n partial correlations validated
 (`correlation_matrix(spatial=True)` now covers them); Round 48's correlation and α intervals replicate on OH/PA
 (targets recomputed for that geometry). Exploratory example (`r59_spatial_correlation_example.md`). Goldens
 unchanged. Acceptance: 2117 passed, 37 skipped; 0 failures.
 
-**Round 58 (v0.55.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 58 (v0.55.0; released in the bundled v0.57.0; implemented by the maintainer agent):**
 spatial inference outside MI/NY (criterion `e8c6c8c`): SCPC (`census.scpc.fit_scpc`, MCP `fit_model(spatial="scpc")`)
 validated for naive OLS and Poisson slopes on both regions; IM-8 OLS gets a note (.858 in a 10,000-draw rerun);
 spatial EIV reports covariate reliabilities and is validated outside MI/NY at reliability ≥ .8; calibrated binomial
 IM-8 slopes (`regression_calibration_clusters`). Exploratory example (`r58_scpc_example.md`). Goldens unchanged.
 Acceptance: 2112 passed, 37 skipped; 0 failures.
 
-**Round 57 (v0.54.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 57 (v0.54.0; released in the bundled v0.57.0; implemented by the maintainer agent):**
 segregation gaps (criterion `8bcad0b`): clipped race-design counties validated above .50 for bias-corrected
 isolation and H; six-group H validated; same-release county contrasts gated (corrected D refused); new
 `exclude_tracts`, `group_quarters_tracts` and manifest `args.group_quarters`. Exploratory example

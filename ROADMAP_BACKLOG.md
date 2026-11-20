@@ -1,7 +1,7 @@
 # Backlog roadmap: repairs and follow-ups after the statistics roadmap (Rounds 43–60)
 
 **Status: drafted 2026-11-19, after v0.39.0 (Rounds 31–42, DOI 10.5281/zenodo.24371310); Rounds 43–50
-merged 2026-11-19; Rounds 51–56 (section 5) added and merged 2026-11-19; Rounds 43–56 released as v0.53.0 (DOI 10.5281/zenodo.24384786); Rounds 57–60 (section 6) added and merged 2026-11-20.** The source
+merged 2026-11-19; Rounds 51–56 (section 5) added and merged 2026-11-19; Rounds 43–56 released as v0.53.0 (DOI 10.5281/zenodo.24384786); Rounds 57–60 (section 6) added and merged 2026-11-20, released as v0.57.0 (DOI 10.5281/zenodo.24398149).** The source
 from which `PLAN_ROUND_43.md` onward are drafted; it is not itself a plan. **Implementing agents: do not
 read this file unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.** Update
 the status column in section 3 when a round merges.
