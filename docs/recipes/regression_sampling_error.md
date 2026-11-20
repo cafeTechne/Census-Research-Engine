@@ -34,8 +34,12 @@ R21b EIV re-checks are unavailable; R22 and R29 MI/NY C1 re-checks are post hoc,
 author self-review, not independent. OH/PA is outside this validation geometry: naive IM-8 under-covered there
 with spatially correlated fields (Round 44), and 4 or 6 within-state clusters did not fix it (Round 54,
 `docs/audits/ohpa_revalidation2.md`). A fresh-seed MI/NY rerun covered .849 in one low-reliability, correlated
-cell. On OH/PA, G2 replicated with up to four error-prone covariates; G1 with three to five and G2 with five did
-not.
+cell (a 10,000-draw rerun gave .858). On OH/PA, G2 replicated with up to four error-prone covariates; G1 with
+three to five and G2 with five did not at reliability .7 but did at .8 (Round 58; the reliability of each
+covariate is reported). **Round 58: SCPC** (`fit_model(method="replicate", spatial="scpc")`,
+`census.scpc.fit_scpc`) is validated for naive OLS and Poisson slopes on both MI/NY and OH/PA and is the
+recommended spatial interval outside MI/NY; binomial SCPC failed. Corrected binomial slopes with IM-8 clusters:
+`fit_model(method="regression_calibration", model="binomial", spatial="clusters", trials=...)` (validated).
 See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
 **Spatially correlated areas (Round 35).** For corrected (EIV) slopes when neighbouring areas are

@@ -229,7 +229,10 @@ def fit_model(
             correlated (Rounds 35, 46 and 53; linear; validated with up to five error-prone covariates).
             model="negbin": "clusters" gives IM-8 count slopes (Round 45; validated).
             method="regression_calibration", model "poisson"/"negbin": "clusters" calibrates the
-            error_covariates, then fits IM-8 count slopes (Round 53; validated; needs exposure).
+            error_covariates, then fits IM-8 count slopes (Round 53; validated; needs exposure);
+            model "binomial" with trials likewise (Round 58; validated).
+            method="replicate": "scpc" gives SCPC spatial intervals for naive slopes (Round 58;
+            validated for ols and poisson, also outside MI/NY; binomial exploratory).
         se_method: method="regression_calibration": "bootstrap" (default) or "jackknife"
             (delete-one-area; Round 53; validated for binomial, poisson and negbin).
 
@@ -300,9 +303,30 @@ def fit_model(
             res["table"] = res["table"].to_dict("records")
             what = "IM-8 negative binomial slopes (Round 45)" if spatial else "Negative binomial (NB2, HC3) slopes (Round 39)"
             return _ok(f"{what}; validated.", "report slopes with their intervals", **_jsonable(res))
+        elif method == "replicate" and spatial == "scpc":
+            from census.scpc import fit_scpc
+            if model not in ("ols", "poisson", "binomial"):
+                return _fail(errors.INVALID_INPUT, "spatial='scpc' supports model ols, poisson or binomial.")
+            res = fit_scpc(formula, frame, model, trials=trials, exposure=exposure, level=confidence_level)
+            from census.results import _jsonable
+            res["table"] = res["table"].to_dict("records")
+            return _ok(f"Naive {model} slopes with SCPC spatial intervals (Round 58); "
+                       f"{'validated' if res['validated'] else 'exploratory'}.",
+                       "report slopes with their intervals; the target is the slope on the estimates as observed",
+                       **_jsonable(res))
         elif method == "replicate":
             result = models.fit_replicate(formula, frame, _read_replicates(replicates_path), model=model,
                                           confidence_level=confidence_level, target=target, **extra)
+        elif method == "regression_calibration" and spatial and model == "binomial":
+            if spatial != "clusters" or not trials or not error_covariates:
+                return _fail(errors.INVALID_INPUT, "binomial spatial regression calibration needs spatial='clusters', "
+                             "trials and error_covariates.")
+            res = models.regression_calibration_clusters(formula, frame, error_covariates, trials,
+                                                         level=confidence_level)
+            from census.results import _jsonable
+            res["table"] = res["table"].to_dict("records")
+            return _ok("Calibrated IM-8 binomial slopes (Round 58); validated.",
+                       "report the corrected slopes with their intervals", **_jsonable(res))
         elif method == "regression_calibration" and spatial:
             from census.count_models import fit_count_model
             if spatial != "clusters" or model not in ("poisson", "negbin") or not exposure or not error_covariates:

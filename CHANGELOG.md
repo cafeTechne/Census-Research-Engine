@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.55.0 (Round 58): spatial inference outside MI/NY
+
+- Freeze the new `census/scpc_core.py` (Müller–Watson SCPC: principal components of a worst-case exponential
+  correlation, Imhof critical values, size checked by simulation), `rc_im_binomial`, the script and the criterion at
+  `e8c6c8c`. 43 cells on MI/NY and OH/PA.
+- Passed: SCPC for naive OLS (ρ̄ .05: .861–.930) and Poisson (ρ̄ .10: .863–.934) slopes on both regions; G1/G2 with
+  three to five error-prone covariates at reliability .8 (.886–.934); calibrated binomial slopes with IM-8
+  (.877–.907). Failed: binomial SCPC; IM-8 OLS in the low-reliability, correlated MI/NY cell (.858 in 10,000 draws).
+- New `census.scpc.fit_scpc` and MCP `fit_model(spatial="scpc")`; `models.regression_calibration_clusters` and the
+  binomial MCP route; spatial EIV reports reliabilities and applies the .8 gate outside MI/NY; IM-8 OLS note.
+  Goldens byte-identical. Manifests have no SCPC option yet (exception).
+- Exploratory example (`docs/studies/r58_scpc_example.md`). Closes N31 (except Round 48 designs, Round 59) and N34.
+- Acceptance: goldens byte-identical; 2112 passed, 37 skipped; 0 failures (7 new tests).
+
 ## 0.54.0 (Round 57): segregation, remaining gaps
 
 - Freeze the six-group truth file (2024 MI/NY B03002), the script and the criterion at `8bcad0b`. Twelve cells:

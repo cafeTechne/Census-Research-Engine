@@ -52,7 +52,8 @@ and OH/PA (`docs/studies/r44_posthoc_r29.md`), so the Round 39 Poisson caveat do
 spatial inference outside MI/NY, prefer the corrected-slope `fit_eiv` `spatial` options (replicated on
 OH/PA with up to two error-prone covariates, and G2 with up to four; Round 54) or, for counts, IM-8 count
 slopes (replicated on OH/PA, Round 54); naive IM-8 failed the OH/PA re-checks with spatially correlated fields,
-also with 4 or 6 clusters (Round 54).
+also with 4 or 6 clusters (Round 54). For naive OLS and Poisson slopes use SCPC (`spatial="scpc"`, validated on
+both regions in Round 58).
 
 **Hidden counts and spatial clustering (Round 45).** Prefer
 `census.missing_censored_its.fit_censored_negbin` (validated) to dropping counties whose WONDER counts are

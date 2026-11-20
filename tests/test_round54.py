@@ -64,7 +64,10 @@ def test_spatial_eiv_note_outside_miny(monkeypatch):
     f = f.assign(GEOID="39"+f.GEOID.str[2:]); long = long.assign(GEOID="39"+long.GEOID.str[2:])
     coords = coords.assign(GEOID="39"+coords.GEOID.str[2:])
     out = spatial_eiv.fit_spatial_eiv(f"y ~ {rhs}", f, long, method="g1", coords=coords, fixed_variables=("y",))
-    assert any("EXPLORATORY OUTSIDE MI/NY" in n for n in out["notes"])
+    # Round 58: the note depends on the estimated reliability (gate .8, tests/test_round58.py)
+    low = min(out["reliability"].values()) < spatial_eiv.RELIABILITY_GATE
+    assert any("EXPLORATORY OUTSIDE MI/NY" in n for n in out["notes"]) is low
+    assert any("Outside MI/NY" in n for n in out["notes"]) is (not low)
     out = spatial_eiv.fit_spatial_eiv(f"y ~ {rhs}", f, long, method="g2", coords=coords, fixed_variables=("y",))
     assert not any("EXPLORATORY OUTSIDE MI/NY" in n for n in out["notes"])        # G2 with three replicated
 

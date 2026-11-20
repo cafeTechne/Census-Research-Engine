@@ -28,3 +28,26 @@ def rc_im(y, W, se, Z, exposure, labels, family, j=1):
     xhat = _calibrate(frame, {w: w+"_se" for w in ws}, zs)[ws].to_numpy(float)
     X = np.column_stack((np.ones(len(W)), xhat, Z))
     return im_counts(y, X, exposure, labels, family, j=j)
+
+
+def rc_im_binomial(y, W, se, Z, trials, labels, j=1):
+    """Round 58: binomial counterpart of ``rc_im``. Pooled calibration (``models._calibrate``), then IM over the
+    fixed clusters with a binomial GLM per cluster (``im_clusters_core``; t(G - 1)). Terms constant within every
+    cluster (e.g. a state indicator with within-state clusters) are absorbed by the cluster intercepts."""
+    from .im_acs import constant_columns
+    from . import im_clusters_core as imc
+    W = np.atleast_2d(np.asarray(W, float)); se = np.atleast_2d(np.asarray(se, float))
+    Z = np.zeros((len(W), 0)) if Z is None else np.asarray(Z, float).reshape(len(W), -1)
+    k, m = W.shape[1], Z.shape[1]
+    ws = [f"w{i}" for i in range(k)]; zs = [f"z{i}" for i in range(m)]
+    frame = pd.DataFrame(np.column_stack((W, se, Z)), columns=ws+[w+"_se" for w in ws]+zs)
+    xhat = _calibrate(frame, {w: w+"_se" for w in ws}, zs)[ws].to_numpy(float)
+    X = np.column_stack((np.ones(len(W)), xhat, Z))
+    labels = np.asarray(labels)
+    keep, _ = constant_columns(X, labels, ["Intercept"]+ws+zs)
+    if not keep[j]:
+        raise ValueError("slope column constant within clusters")
+    s = imc.summarize(imc.cluster_coefficients(X[:, keep], y, labels, "binomial", trials=trials))
+    jj = int(np.flatnonzero(keep).tolist().index(j))
+    return dict(estimate=float(s["estimate"][jj]), se=float(s["se"][jj]), lower=float(s["lower"][jj]),
+                upper=float(s["upper"][jj]), df=s["df"])
