@@ -63,3 +63,40 @@ def sdr_summary(theta, level=.90):
     est = float(theta[0]); se = float(np.sqrt(.05*np.sum((theta[1:]-est)**2)))
     z = norm.ppf((1+level)/2)
     return dict(estimate=est, se=se, lower=est-z*se, upper=est+z*se)
+
+
+# Round 60: transformed and bias-corrected SDR intervals for the measures that failed Round 56.
+TRANSFORM = {"theil_t": "log", "atkinson_0.5": "logit", "atkinson_1": "logit", "top10_share": "logit"}
+
+
+def _fwd(x, kind):
+    x = np.asarray(x, float)
+    return np.log(x) if kind == "log" else np.log(x/(1-x))
+
+
+def _inv(y, kind):
+    return float(np.exp(y)) if kind == "log" else float(1/(1+np.exp(-y)))
+
+
+def transformed_summary(theta, kind, center=None, level=.90):
+    """T1 (center None) / T2 (center = bias-corrected value): SDR SE of the transformed replicates, normal interval
+    on the transformed scale around the (possibly corrected) estimate, back-transformed."""
+    theta = np.asarray(theta, float)
+    if theta.shape != (81,) or not np.isfinite(theta).all():
+        raise ValueError("81 finite full-sample and replicate values required")
+    lo_ok = theta > 0 if kind == "log" else (theta > 0) & (theta < 1)
+    if not lo_ok.all():
+        raise ValueError("values outside the transform's domain")
+    t = _fwd(theta, kind)
+    se = float(np.sqrt(.05*np.sum((t[1:]-t[0])**2)))
+    est = float(theta[0]) if center is None else float(center)
+    if not (est > 0 if kind == "log" else 0 < est < 1):
+        raise ValueError("corrected estimate outside the transform's domain")
+    c = float(_fwd(est, kind)); z = norm.ppf((1+level)/2)
+    return dict(estimate=est, se_transformed=se, lower=_inv(c-z*se, kind), upper=_inv(c+z*se, kind))
+
+
+def bias_corrected(theta):
+    """Round 50's SDR bias correction: theta - 4 (mean theta_r - theta)."""
+    theta = np.asarray(theta, float)
+    return float(theta[0]-4*(theta[1:].mean()-theta[0]))
