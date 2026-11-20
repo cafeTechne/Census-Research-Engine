@@ -1,0 +1,497 @@
+{
+ "cells": [
+  {
+   "problem": "J",
+   "model": "binomial",
+   "reliability": 0.9,
+   "error_corr": 0.0,
+   "coverage": {
+    "J1": 0.8955
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": 0.0007223671221376349
+   }
+  },
+  {
+   "problem": "J",
+   "model": "binomial",
+   "reliability": 0.9,
+   "error_corr": 0.3,
+   "coverage": {
+    "J1": 0.8825
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": -0.005495706291109126
+   }
+  },
+  {
+   "problem": "J",
+   "model": "binomial",
+   "reliability": 0.7,
+   "error_corr": 0.0,
+   "coverage": {
+    "J1": 0.904
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": -0.0032601540295325027
+   }
+  },
+  {
+   "problem": "J",
+   "model": "binomial",
+   "reliability": 0.7,
+   "error_corr": 0.3,
+   "coverage": {
+    "J1": 0.8895
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": -0.01992348779516767
+   }
+  },
+  {
+   "problem": "J",
+   "model": "poisson",
+   "reliability": 0.9,
+   "error_corr": 0.0,
+   "coverage": {
+    "J1": 0.8865
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": 0.0007989669333769434
+   }
+  },
+  {
+   "problem": "J",
+   "model": "poisson",
+   "reliability": 0.9,
+   "error_corr": 0.3,
+   "coverage": {
+    "J1": 0.8875
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": -0.00425961970383143
+   }
+  },
+  {
+   "problem": "J",
+   "model": "poisson",
+   "reliability": 0.7,
+   "error_corr": 0.0,
+   "coverage": {
+    "J1": 0.904
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": 0.0014572392229489362
+   }
+  },
+  {
+   "problem": "J",
+   "model": "poisson",
+   "reliability": 0.7,
+   "error_corr": 0.3,
+   "coverage": {
+    "J1": 0.9
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": -0.013786204125529666
+   }
+  },
+  {
+   "problem": "J",
+   "model": "negbin",
+   "reliability": 0.9,
+   "error_corr": 0.0,
+   "coverage": {
+    "J1": 0.9055
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": 0.0013097631166354984
+   }
+  },
+  {
+   "problem": "J",
+   "model": "negbin",
+   "reliability": 0.9,
+   "error_corr": 0.3,
+   "coverage": {
+    "J1": 0.8995
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": -0.0027529718736284403
+   }
+  },
+  {
+   "problem": "J",
+   "model": "negbin",
+   "reliability": 0.7,
+   "error_corr": 0.0,
+   "coverage": {
+    "J1": 0.9085
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": 0.0034084973927277495
+   }
+  },
+  {
+   "problem": "J",
+   "model": "negbin",
+   "reliability": 0.7,
+   "error_corr": 0.3,
+   "coverage": {
+    "J1": 0.897
+   },
+   "failed": {
+    "J1": 0
+   },
+   "bias": {
+    "J1": -0.016919648893320316
+   }
+  },
+  {
+   "problem": "S",
+   "model": "poisson",
+   "reliability": 0.9,
+   "range_km": 0,
+   "coverage": {
+    "S1": 0.9045,
+    "S0": 0.853
+   },
+   "failed": {
+    "S1": 0,
+    "S0": 0
+   },
+   "bias": {
+    "S1": -1.9703623788780433e-05,
+    "S0": -0.01940322525773369
+   }
+  },
+  {
+   "problem": "S",
+   "model": "poisson",
+   "reliability": 0.9,
+   "range_km": 100,
+   "coverage": {
+    "S1": 0.896,
+    "S0": 0.788
+   },
+   "failed": {
+    "S1": 0,
+    "S0": 0
+   },
+   "bias": {
+    "S1": -0.00965171906668949,
+    "S0": -0.03477989650390256
+   }
+  },
+  {
+   "problem": "S",
+   "model": "poisson",
+   "reliability": 0.7,
+   "range_km": 0,
+   "coverage": {
+    "S1": 0.9005,
+    "S0": 0.497
+   },
+   "failed": {
+    "S1": 0,
+    "S0": 0
+   },
+   "bias": {
+    "S1": 0.003167180844292572,
+    "S0": -0.06591836062611645
+   }
+  },
+  {
+   "problem": "S",
+   "model": "poisson",
+   "reliability": 0.7,
+   "range_km": 100,
+   "coverage": {
+    "S1": 0.8775,
+    "S0": 0.3495
+   },
+   "failed": {
+    "S1": 0,
+    "S0": 0
+   },
+   "bias": {
+    "S1": -0.021168231523429393,
+    "S0": -0.09549346014686352
+   }
+  },
+  {
+   "problem": "S",
+   "model": "negbin",
+   "reliability": 0.9,
+   "range_km": 0,
+   "coverage": {
+    "S1": 0.909,
+    "S0": 0.8905
+   },
+   "failed": {
+    "S1": 0,
+    "S0": 0
+   },
+   "bias": {
+    "S1": -0.002094837680946593,
+    "S0": -0.022468054650270575
+   }
+  },
+  {
+   "problem": "S",
+   "model": "negbin",
+   "reliability": 0.9,
+   "range_km": 100,
+   "coverage": {
+    "S1": 0.8945,
+    "S0": 0.8695
+   },
+   "failed": {
+    "S1": 0,
+    "S0": 0
+   },
+   "bias": {
+    "S1": -0.006512924502312001,
+    "S0": -0.03194485955533716
+   }
+  },
+  {
+   "problem": "S",
+   "model": "negbin",
+   "reliability": 0.7,
+   "range_km": 0,
+   "coverage": {
+    "S1": 0.8945,
+    "S0": 0.734
+   },
+   "failed": {
+    "S1": 0,
+    "S0": 0
+   },
+   "bias": {
+    "S1": 0.002795667073917263,
+    "S0": -0.058277335499714006
+   }
+  },
+  {
+   "problem": "S",
+   "model": "negbin",
+   "reliability": 0.7,
+   "range_km": 100,
+   "coverage": {
+    "S1": 0.8945,
+    "S0": 0.578
+   },
+   "failed": {
+    "S1": 0,
+    "S0": 0
+   },
+   "bias": {
+    "S1": -0.02228973731868228,
+    "S0": -0.1013209508946728
+   }
+  },
+  {
+   "problem": "M",
+   "p": 5,
+   "reliability": 0.9,
+   "range_km": 0,
+   "coverage": {
+    "G1": 0.9055,
+    "G2": 0.899
+   },
+   "failed": {
+    "G1": 0,
+    "G2": 0
+   },
+   "bias": {
+    "G1": -0.006110255361209516,
+    "G2": -0.006408829756207379
+   }
+  },
+  {
+   "problem": "M",
+   "p": 5,
+   "reliability": 0.9,
+   "range_km": 100,
+   "coverage": {
+    "G1": 0.885,
+    "G2": 0.884
+   },
+   "failed": {
+    "G1": 0,
+    "G2": 0
+   },
+   "bias": {
+    "G1": 0.01735113346457562,
+    "G2": 0.003613358216203677
+   }
+  },
+  {
+   "problem": "M",
+   "p": 5,
+   "reliability": 0.7,
+   "range_km": 0,
+   "coverage": {
+    "G1": 0.9085,
+    "G2": 0.9255
+   },
+   "failed": {
+    "G1": 1,
+    "G2": 2
+   },
+   "bias": {
+    "G1": 0.01713209071672195,
+    "G2": -0.009581647504663504
+   }
+  },
+  {
+   "problem": "M",
+   "p": 5,
+   "reliability": 0.7,
+   "range_km": 100,
+   "coverage": {
+    "G1": 0.8645,
+    "G2": 0.885
+   },
+   "failed": {
+    "G1": 68,
+    "G2": 200
+   },
+   "bias": {
+    "G1": -0.21376166676184088,
+    "G2": 1.243804171163691
+   }
+  },
+  {
+   "problem": "M",
+   "p": 6,
+   "reliability": 0.9,
+   "range_km": 0,
+   "coverage": {
+    "G1": 0.9095,
+    "G2": 0.895
+   },
+   "failed": {
+    "G1": 0,
+    "G2": 0
+   },
+   "bias": {
+    "G1": 0.006580743033068881,
+    "G2": -2.644896690551235e-06
+   }
+  },
+  {
+   "problem": "M",
+   "p": 6,
+   "reliability": 0.9,
+   "range_km": 100,
+   "coverage": {
+    "G1": 0.898,
+    "G2": 0.883
+   },
+   "failed": {
+    "G1": 0,
+    "G2": 0
+   },
+   "bias": {
+    "G1": 0.025621585311669803,
+    "G2": -0.0037455593744337157
+   }
+  },
+  {
+   "problem": "M",
+   "p": 6,
+   "reliability": 0.7,
+   "range_km": 0,
+   "coverage": {
+    "G1": 0.897,
+    "G2": 0.933
+   },
+   "failed": {
+    "G1": 4,
+    "G2": 8
+   },
+   "bias": {
+    "G1": 0.0017457386621746451,
+    "G2": -0.03594254226359245
+   }
+  },
+  {
+   "problem": "M",
+   "p": 6,
+   "reliability": 0.7,
+   "range_km": 100,
+   "coverage": {
+    "G1": 0.811,
+    "G2": 0.804
+   },
+   "failed": {
+    "G1": 185,
+    "G2": 373
+   },
+   "bias": {
+    "G1": -0.34529782030697626,
+    "G2": -0.1641799247834636
+   }
+  }
+ ],
+ "passed": {
+  "J1_binomial": true,
+  "J1_poisson": true,
+  "J1_negbin": true,
+  "S1_poisson": true,
+  "S1_negbin": true,
+  "G1_p5": true,
+  "G2_p5": true,
+  "G1_p6": false,
+  "G2_p6": false
+ },
+ "criterion_commit": "8d48956",
+ "draws_per_cell": 2000,
+ "seed": 20271101,
+ "frozen_sha256": {
+  "scripts/glm_correction2_validation.py": "ec901534221efebe6b44f55ebd414ae7ba41670595d077d9ed7776db73203e51",
+  "census/models.py": "487a4e84745423cea08fc0ca2fdef29c72e2be660d9531143697e2e5c8e96bbb",
+  "census/rc_spatial_core.py": "0ad97575cf64b68938f2e6a138ceadf2724c5f66493e3cc86e950ca4cb011852",
+  "census/count_repairs_core.py": "48a47b6fcfd65f760b0f201262d2319674eec457d4dd81c1fb2de7ec04d49deb",
+  "census/spatial_eiv_core.py": "d1136dea82ab42a8afdd6594457f48db7eb2b3f15a19c9d373f683e86ba6885a",
+  "census/simulation.py": "b0ba4c803939d8803fc8a7e702b4f70bda5f486736bd651b8630d7e1262b198e",
+  "scripts/spatial_hac_validation.py": "93aa150aa2a3dae17c5c3bed2692d5c6f8d388a0d8ba9dfb8e58ee901e8bf216",
+  "docs/audits/glm_correction2_validation_criterion.md": "6d02a9e8a6449bacfaee0ea8704ab08a2c446ec23fad30945c2c6188667e32f8",
+  "docs/audits/im_acs_beta_star.json": "bc0253b8df4b7e86c4c2d589087be34ade3807830490516e8cb84525a44c388f"
+ }
+}
