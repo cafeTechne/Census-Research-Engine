@@ -388,6 +388,10 @@ correlated fields the point estimates were unstable, mean bias up to +.17 on .5)
 (coverage .864-.925, docs/audits/glm_correction2_validation.md; at reliability .7 with correlated fields up
 to 10% of fits failed and estimates were very unstable); six failed and more than five are exploratory.
 In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
+Round 61 manifest options: fit_replicate args.spatial_scpc {} or {rho_bar} (SCPC naive slopes; OLS,
+Poisson with exposure; binomial exploratory; population target, no weights/scale/spatial_se);
+regression_calibration args.spatial "clusters" with model poisson/negbin (exposure) or binomial
+(trials); correlation_matrix args.spatial true with interval "validated" (effective-n intervals).
 R21b post hoc: H1 and H4 still hold under both.
 
 ## Composite indices (Round 36)

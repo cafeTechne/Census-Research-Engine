@@ -63,5 +63,7 @@ multiply imputes it (validated); `impute=["w", "v"]` imputes two by chained equa
 **In pre-registered manifests (Round 43).** Counts: `fit_replicate` with `"args": {"model": "negbin",
 "exposure": "<denominator>"}` (NB2-HC3, population target). Corrected slopes with spatial dependence:
 `fit_eiv` with `"args": {"spatial": "clusters"}` (eight fixed clusters, t(7)) or `{"spatial": "error"}`
-(spatial-error whitening), up to five error-prone covariates (Round 53). `validate_manifest` refuses the options
-outside their validated range.
+(spatial-error whitening), up to five error-prone covariates (Round 53). Round 61: naive slopes with SCPC,
+`fit_replicate` `"args": {"spatial_scpc": {}}` (OLS; Poisson with `exposure`; optional `rho_bar`); corrected count or
+binomial slopes with IM-8, `regression_calibration` `"args": {"spatial": "clusters", "model": ..., "exposure"|"trials": ...}`.
+`validate_manifest` refuses the options outside their validated range.

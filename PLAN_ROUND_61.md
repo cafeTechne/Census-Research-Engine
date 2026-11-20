@@ -41,8 +41,8 @@ Version 0.58.0. Baseline: v0.57.0 (2121 passed, 37 skipped). Branch `phase61/man
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| SCPC p-value | | |
-| Manifest options and checks | | |
-| Rule text, tests | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| SCPC p-value | done | worst case over the grid; equals .10 at the critical value |
+| Manifest options and checks | done | `spatial_scpc`, RC `spatial: "clusters"`, correlation `spatial` |
+| Rule text, tests | done | 6 new tests |
+| Goldens, final suite | done | identical; 2127 passed, 37 skipped |
+| Exceptions | none | no example (routing only, as Round 43) |

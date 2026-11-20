@@ -5,6 +5,16 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.58.0 (Round 61): manifest routing for spatial methods
+
+- No new statistics. Opt-in manifest arguments for validated methods: `fit_replicate` `args.spatial_scpc` (SCPC naive
+  slopes, OLS/Poisson), `regression_calibration` `args.spatial: "clusters"` (calibrated IM-8 Poisson/NB2/binomial
+  slopes) and `correlation_matrix` `args.spatial: true` (effective-n intervals, including partial).
+- `scpc_core.p_value`: worst-case SCPC p-value over the benchmark grid, consistent with the interval; `fit_scpc`
+  reports it.
+- Registered manifests and both goldens unchanged. Closes N37.
+- Acceptance: goldens byte-identical; 2127 passed, 37 skipped; 0 failures (6 new tests).
+
 ## 0.57.0 (Round 60): PUMS inequality repairs
 
 - Freeze `transformed_summary`, `bias_corrected` (in `census/pums_inequality_core.py`), the script and the criterion

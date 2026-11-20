@@ -19,7 +19,7 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_61.md` (manifest routing for spatial methods). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_62.md` (leftover failures), committed after Round 61 merges. Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–60 complete; Rounds 61–63 planned): the backlog below plus issues N1–N38 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -135,6 +135,11 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 61 (v0.58.0; merged, release pending owner approval; implemented by the maintainer agent):**
+manifest routing for spatial methods, no new statistics: `fit_replicate` `args.spatial_scpc` (with an SCPC p-value
+consistent with the interval), `regression_calibration` `args.spatial: "clusters"` and `correlation_matrix`
+`args.spatial: true`. Registered manifests unchanged; goldens unchanged. Acceptance: 2127 passed, 37 skipped; 0 failures.
 
 **Round 60 (v0.57.0; released in the bundled v0.57.0; implemented by the maintainer agent):**
 PUMS inequality repairs (criterion `60a3b06`): logit-transformed SDR intervals validate Atkinson (ε 1) and, from
