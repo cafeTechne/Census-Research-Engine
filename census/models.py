@@ -670,6 +670,10 @@ def fit_replicate(
         if spatial_clusters["method"] == "im" and cluster_info.get("validation_audit"):
             notes.append("IM targets the coefficient on the ACS estimates as observed; attenuated toward 0 if covariates have sampling error, and not corrected. With noisy controls the bias need not be toward 0; true-slope inference is not validated.")
             notes.append("Independent ACS error enters between-cluster spread; ACS replicates are not added to se_cluster_mean. Population target only; docs/audits/im_acs_validation.md.")
+            if model == "ols":
+                notes.append("Round 58: in a 10,000-draw rerun, IM-8 OLS covered .858 with covariate reliability .7 and "
+                             "strongly correlated fields (MI/NY); census.scpc.fit_scpc (validated for OLS on MI/NY and "
+                             "OH/PA) is the more robust interval (docs/audits/spatial_outside_validation.md).")
             if cluster_info['not_estimable_terms']:
                 notes.append(f"Within-cluster constant nuisance terms absorbed by cluster intercepts, not estimable under IM: {cluster_info['not_estimable_terms']}")
             from .spatial_clusters import geography_notes
@@ -958,6 +962,47 @@ def _rc_jackknife(formula, model, spec, data, n_trials, notes, others, naive, ca
         notes.append(f"Validated for {model} slopes against the error-free slope (Round 53, {RC_JACKKNIFE_AUDIT}).")
     return _corrected_result(formula, model, naive, cal.params, se_total, confidence_level,
                              "regression_calibration", notes, diagnostics, int(cal.nobs), df=df)
+
+
+# Round 58 (criterion e8c6c8c; docs/audits/spatial_outside_validation.md): binomial slopes with pooled
+# calibration and IM-8 clusters covered the true slope .877-.907 (MI/NY, reliability .7-.9, 0 and 100 km fields).
+RC_CLUSTERS_BINOMIAL_VALIDATED = True
+
+
+def regression_calibration_clusters(formula: str, frame: pd.DataFrame, error_covariates, trials: str,
+                                    coords: Optional[pd.DataFrame] = None, within_states: bool = False,
+                                    level: float = .90) -> Dict[str, Any]:
+    """Binomial slopes corrected by regression calibration (pooled over all areas), then IM over eight fixed
+    spatial clusters (binomial GLM per cluster, t(7)). Terms constant within every cluster are absorbed."""
+    import patsy
+    from .im_acs import constant_columns
+    from . import im_clusters_core as imc
+    from .spatial_clusters import assignment_for_frame, geography_notes
+    if abs(level-.90) > 1e-12:
+        raise ValueError("validated at the 90% level only")
+    spec = _error_spec(frame, error_covariates)
+    outcome = _outcome(formula)
+    used = [v for v in formula_variables(formula, frame) if v in frame.columns]
+    data = frame.dropna(subset=used+list(spec.values())+[trials]).reset_index(drop=True)
+    assign = assignment_for_frame(data, coords, {"k": 8, "method": "im"}, within_states=within_states).set_index("GEOID")
+    others = [v for v in used if v not in spec and v != outcome and pd.api.types.is_numeric_dtype(data[v])]
+    cal = _calibrate(data, spec, others)
+    y_df, X_df = patsy.dmatrices(formula, cal, return_type="dataframe", NA_action="raise")
+    labels = assign.loc[cal.GEOID.astype(str), "cluster"].to_numpy()
+    terms = list(X_df.columns)
+    keep, dropped = constant_columns(X_df.to_numpy(float), labels, terms)
+    s = imc.summarize(imc.cluster_coefficients(X_df.to_numpy(float)[:, keep], y_df.to_numpy(float)[:, 0], labels,
+                                               "binomial", trials=cal[trials].to_numpy(float)))
+    kept = [t for t, k in zip(terms, keep) if k]
+    rows = [dict(term=t, estimate=float(s["estimate"][i]), se=float(s["se"][i]), lower=float(s["lower"][i]),
+                 upper=float(s["upper"][i]), df=s["df"]) for i, t in enumerate(kept) if t != "Intercept"]
+    notes = [f"Regression calibration of {list(spec)} given {others} (pooled), then IM-8 binomial slopes, t(7); "
+             "validated against the true slope (Round 58, docs/audits/spatial_outside_validation.md)."]
+    if dropped:
+        notes.append(f"Absorbed by the cluster intercepts (not estimable): {dropped}")
+    notes += geography_notes(assign.reset_index(), kind="counts")
+    return dict(model="binomial", spatial="clusters", table=pd.DataFrame(rows), n=len(cal),
+                validated=RC_CLUSTERS_BINOMIAL_VALIDATED, notes=notes)
 
 
 # ---------------------------------------------------------------------------

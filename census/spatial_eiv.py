@@ -34,6 +34,10 @@ VALIDATED_MAX_ERROR_COVARIATES = 5
 MORE_COVARIATES_AUDIT = "docs/audits/glm_correction_validation.md"
 FIVE_COVARIATES_AUDIT = "docs/audits/glm_correction2_validation.md"
 OHPA2_AUDIT = "docs/audits/ohpa_revalidation2.md"
+# Round 58 (criterion e8c6c8c; docs/audits/spatial_outside_validation.md): with every error-prone covariate at
+# reliability .8, G1 and G2 with three to five covariates covered .886-.934 on both MI/NY and OH/PA.
+RELIABILITY_GATE = .8
+GATE_AUDIT = "docs/audits/spatial_outside_validation.md"
 
 
 def _design(formula, frame, replicates, fixed_variables):
@@ -106,11 +110,19 @@ def fit_spatial_eiv(formula: str, frame: pd.DataFrame, replicates: pd.DataFrame,
         notes.extend(n for n in geography_notes(assign.loc[ids].reset_index()) if n.startswith("CLUSTERS CROSS"))
     validated = len(error_prone) <= VALIDATED_MAX_ERROR_COVARIATES
     outside = sorted(set(ids.str[:2]) - {"26", "36"})
+    cols = [names.index(c) for c in error_prone]
+    rel = {c: float(1-np.mean(.05*np.sum(D[:, :, j]**2, axis=0))/np.var(X[:, j], ddof=1)) for c, j in zip(error_prone, cols)}
+    min_rel = min(rel.values())
     if outside and ((method == "g1" and len(error_prone) >= 3) or (method == "g2" and len(error_prone) >= 5)):
-        notes.append(f"EXPLORATORY OUTSIDE MI/NY (states {outside}): {method.upper()} with {len(error_prone)} error-prone "
-                     "covariates under-covered in the Round 54 OH/PA re-check at reliability .7 with spatially correlated "
-                     f"fields (.807-.859, with many failed fits; {OHPA2_AUDIT}). G2 with up to four and both methods with "
-                     "up to two (Round 44) replicated there.")
+        if min_rel >= RELIABILITY_GATE:
+            notes.append(f"Outside MI/NY (states {outside}) with {len(error_prone)} error-prone covariates: every estimated "
+                         f"reliability is >= {RELIABILITY_GATE} (lowest {min_rel:.2f}), the range validated on OH/PA in "
+                         f"Round 58 ({GATE_AUDIT}).")
+        else:
+            notes.append(f"EXPLORATORY OUTSIDE MI/NY (states {outside}): {method.upper()} with {len(error_prone)} error-prone "
+                         f"covariates and a covariate reliability of {min_rel:.2f} (< {RELIABILITY_GATE}) under-covered in the "
+                         f"Round 54 OH/PA re-check (.807-.859; {OHPA2_AUDIT}); at reliability {RELIABILITY_GATE} it passed "
+                         f"(Round 58, {GATE_AUDIT}).")
     if 3 <= len(error_prone) <= 4:
         notes.append("With 3-4 error-prone covariates, low reliability (.7) and spatially correlated fields, Round 46 "
                      "point estimates were unstable (mean bias up to +.17 on a slope of .5; up to 5.7% failed fits) "
@@ -123,5 +135,5 @@ def fit_spatial_eiv(formula: str, frame: pd.DataFrame, replicates: pd.DataFrame,
     if not validated:
         notes.append(f"EXPLORATORY: {len(error_prone)} error-prone covariates; validated with at most "
                      f"{VALIDATED_MAX_ERROR_COVARIATES} ({AUDIT}; {MORE_COVARIATES_AUDIT}; {FIVE_COVARIATES_AUDIT}).")
-    return dict(method=method, table=table, n=len(y), validated=validated, error_prone=error_prone,
+    return dict(method=method, table=table, n=len(y), validated=validated, error_prone=error_prone, reliability=rel,
                 notes=notes, audit=AUDIT, **extra)

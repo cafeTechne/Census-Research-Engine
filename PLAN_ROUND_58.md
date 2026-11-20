@@ -77,9 +77,9 @@ Failed fits count as non-coverage. R also reports the 10,000-draw IM-8 coverage 
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion commit | | |
-| N / R / G / B results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Core, script, criterion commit | done | SCPC size checked by simulation (.1014); `e8c6c8c` |
+| N / R / G / B results | done | SCPC passes OLS (.05) and Poisson (.10), fails binomial; IM-8 OLS cell .858; G gate .8 passes; B passes (`19ef455`) |
+| Engine, tests | done | `census.scpc`, MCP `spatial="scpc"`, binomial RC clusters, reliability gate; 7 new tests |
+| Example | done | OH/PA child poverty with SCPC; `/tmp/r58_example_outputs.tar.gz` |
+| Goldens, final suite | done | identical; 2112 passed, 37 skipped |
+| Exceptions | see notes | SCPC ρ̄ variants .05/.10 instead of .02/.05 (set before freezing, documented); no manifest SCPC option yet |
