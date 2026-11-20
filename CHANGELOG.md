@@ -5,6 +5,15 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.64.0 (Round 68): replication E
+
+- Criterion `110c22e`, committed after a counts-only data check. That check matched the paper exactly: 65,662
+  tracts, 3,020 counties.
+- **Replicated:** Boing et al. (2020) headline variance shares of tract life expectancy. A three-level REML null
+  model gives 70.0% tract, 10.6% county and 19.4% state, against 70.4/10.7/19.0 published.
+- New backlog issue N46: `multilevel_model` is two-level only. No engine change; goldens byte-identical.
+- Acceptance: goldens byte-identical; 2162 passed, 37 skipped; 0 failures.
+
 ## 0.63.0 (Round 67): replication C and SCPC at tract level
 
 - Plan `e75a41b`; criterion text `14b78b2`. Deviation 2: the criterion file was a placeholder at `daa1d15` because
