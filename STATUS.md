@@ -3,8 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.57.0 (Rounds 57–60, backlog roadmap section 6, released as one bundle; DOI
-10.5281/zenodo.24398149). Previous: v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
+**Current release:** v0.60.0 (Rounds 61–63, backlog roadmap section 7, released as one bundle; DOI
+10.5281/zenodo.24400452). Previous: v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
 10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
 10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
@@ -138,18 +138,18 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 63 (v0.60.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 63 (v0.60.0; merged, released in the bundled v0.60.0; implemented by the maintainer agent):**
 small samples and many covariates (criterion `ac2f34c`): `interrupted_series(method="bootstrap_t_cons")` validated
 from 17 points (`bootstrap_t_bb` from 19; nothing at 15); spatial EIV under the reliability gate with up to 8 (G1)
 or 7 (G2) error-prone covariates. Demonstration (`r63_short_series_demonstration.md`). Goldens unchanged.
 Acceptance: 2137 passed, 37 skipped; 0 failures.
 
-**Round 62 (v0.59.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 62 (v0.59.0; merged, released in the bundled v0.60.0; implemented by the maintainer agent):**
 leftover failures (criterion `8f14e39`): binomial SCPC validated at ρ̄ .15 (default) and .20; clipped six-group
 segregation counties validated; Theil T confirmed exploratory (fails with 8,000 households). Exploratory example
 (`r62_binomial_scpc_example.md`). Goldens unchanged. Acceptance: 2132 passed, 37 skipped; 0 failures.
 
-**Round 61 (v0.58.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 61 (v0.58.0; merged, released in the bundled v0.60.0; implemented by the maintainer agent):**
 manifest routing for spatial methods, no new statistics: `fit_replicate` `args.spatial_scpc` (with an SCPC p-value
 consistent with the interval), `regression_calibration` `args.spatial: "clusters"` and `correlation_matrix`
 `args.spatial: true`. Registered manifests unchanged; goldens unchanged. Acceptance: 2127 passed, 37 skipped; 0 failures.
