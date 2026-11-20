@@ -54,7 +54,11 @@
    uncertainty is zero and explicitly noted. At zero observed counts, the combined
    test is undefined; report the exact fixed-E interval only. Reference-rate
    uncertainty is excluded unless `reference_counts` is supplied. With it, add
-   sum_b (E_b/E)^2/D_b to log variance, treating reference person-years as known.
+   sum_b (E_b/E)^2/D_b to log variance, treating reference person-years as known. If the
+   reference person-years are themselves survey estimates (e.g. ACS state age bands), give
+   their per-band SEs in `args.reference_population_se`; the engine adds
+   sum_b (E_b/E)^2 (se_b/P_b)^2 (Round 55, validated .892-.908). At typical state-level CVs
+   (.02) the change is negligible.
    Reference rates stay fixed during ACS refits. For pooled studies, sum band
    contributions before squaring: the same reference rates are shared across
    counties. Do not average per-county variances as if they were independent.

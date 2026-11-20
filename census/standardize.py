@@ -171,6 +171,10 @@ def age_adjusted_interval(cases: Sequence[float], populations: Sequence[float], 
 # Set only from the pre-specified simulation report.
 SMR_REFERENCE_VALIDATED = True  # criterion 134bf7f; docs/audits/smr_reference_validation.md
 SMR_VALIDATED = True  # docs/audits/smr_validation.md (680707e criterion)
+# Round 55 (criterion dd6d6b7; docs/audits/short_series_reference_validation.md): adding the sampling variance of
+# survey-estimated reference person-years covered .892-.908 (reference population CV .02-.08); without it
+# .863-.907 (smallest at CV .08 with 500 reference deaths and E = 100).
+SMR_REFERENCE_POPULATION_VALIDATED = True
 # Round 51 (criterion 2837bfb; docs/audits/negative_replicates_validation.md): negative band replicates used
 # as published ("accept", .903-.922) or clipped at zero ("clip", .891-.917) both passed in all eight cells.
 # The default is "accept": the expected count is linear in the bands, so no information is discarded.
@@ -179,7 +183,8 @@ DEFAULT_SMR_NEGATIVE_REPLICATES = "accept"
 
 
 def indirect_standardize(observed, band_populations, reference_rates, band_replicates=None, level=0.90,
-                         *, period_years=1, reference_counts=None, negative_replicates=None):
+                         *, period_years=1, reference_counts=None, negative_replicates=None,
+                         reference_population_se=None):
     """Indirect SMR and fixed-expected Garwood / combined log-Wald intervals.
 
     ``observed`` is a GEOID-indexed Series of nonnegative integer counts;
@@ -196,7 +201,9 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
     replicate. Optional positive integer reference_counts adds independent-Poisson
     reference-rate uncertainty. Reference person-years must be treated as fixed.
     Shared reference uncertainty is pooled by band before squaring, not averaged
-    as independent area uncertainty. For an internal reference, ignoring positive
+    as independent area uncertainty. ``reference_population_se`` (Round 55; needs reference_counts): per-band
+    SEs of the reference person-years P_b = D_b / rate_b when they are survey estimates (e.g. ACS); adds
+    sum_b (E_b/E)^2 (se_b/P_b)^2 to the log variance. For an internal reference, ignoring positive
     study/reference covariance makes intervals conservative (not refused).
     At O=0 only the exact fixed-E interval is defined. Fixed-E exact intervals do
     not incorporate population or reference-rate uncertainty.
@@ -231,6 +238,14 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
                 or (reference != np.floor(reference)).any()):
             raise ValueError("reference_counts must be positive integers, one per population band; zero reference deaths refused")
         reference = reference.astype(float)
+    ref_cv2 = None
+    if reference_population_se is not None:
+        if reference is None:
+            raise ValueError("reference_population_se requires reference_counts (reference rates are D_b / P_b)")
+        rse = np.asarray(reference_population_se, float)
+        if rse.ndim != 1 or rse.size != rates.size or not np.isfinite(rse).all() or (rse < 0).any():
+            raise ValueError("reference_population_se must be finite nonnegative, one per population band")
+        ref_cv2 = (rse*rates/reference)**2      # (se_b / P_b)^2 with P_b = D_b / rate_b
     e = period_years*(pop@rates)
     if not np.isfinite(e).all() or (e <= 0).any():
         raise ValueError("expected counts must be positive")
@@ -239,7 +254,8 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
         notes.append(f"Reference rates are per person-year; expected counts multiply band populations by period_years={period_years}.")
     if reference is not None:
         notes[0] = "Combined log interval includes independent-Poisson reference-rate uncertainty; exact Garwood interval still conditions on expected counts."
-        notes.append("Reference person-years are treated as fixed. For internal standardization (study areas included in the reference population), ignoring positive study/reference covariance makes the combined interval conservative; no refusal.")
+        if ref_cv2 is None:
+            notes.append("Reference person-years are treated as fixed. For internal standardization (study areas included in the reference population), ignoring positive study/reference covariance makes the combined interval conservative; no refusal.")
     o, e = np.r_[o, o.sum()], np.r_[e, e.sum()]
     ve = np.zeros(len(o))
     if band_replicates is not None:
@@ -270,7 +286,10 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
     if reference is not None:
         components = period_years*pop*rates
         components = np.vstack((components, components.sum(axis=0)))
-        reference_variance = np.sum((components/e[:,None])**2/reference, axis=1)
+        reference_variance = np.sum((components/e[:,None])**2*(1/reference+(0 if ref_cv2 is None else ref_cv2)), axis=1)
+        if ref_cv2 is not None:
+            notes.append("Reference person-years are survey estimates: their sampling variance (se_b/P_b)^2 is added per band "
+                         "(Round 55); covariance with study-area estimates is ignored (conservative for an internal reference).")
     alpha = 1-level
     lower = np.zeros(len(o)); positive = o > 0
     lower[positive] = chi2.ppf(alpha/2, 2*o[positive])/(2*e[positive])

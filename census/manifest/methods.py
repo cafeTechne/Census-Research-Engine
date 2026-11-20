@@ -560,7 +560,8 @@ def _run_smr(a, args, frame, level, replicates, correction, ctx):
     try:
         result = indirect_standardize(observed, populations, rates, reps, level,
                                       period_years=a.get("period_years",1), reference_counts=counts,
-                                      negative_replicates=args.get("negative_replicates", "refuse"))
+                                      negative_replicates=args.get("negative_replicates", "refuse"),
+                                      reference_population_se=args.get("reference_population_se"))
         if len(frame) != input_rows:
             note = f"Complete-case analysis excluded {input_rows-len(frame)} area row(s) with missing observed counts or populations."
             result["notes"] = result["notes"].map(lambda notes: notes+[note])
@@ -650,8 +651,16 @@ def _check_smr(stage, ctx):
     args = a.get("args") or {}
     if not SMR_VALIDATED and not ctx["manifest"].get("exploratory", False):
         errors.append(prefix+"smr failed validation; exploratory only (docs/audits/smr_validation.md)")
-    if set(args)-{"target", "negative_replicates"}:
-        errors.append(prefix+f"smr does not take args {sorted(set(args)-{'target', 'negative_replicates'})}")
+    allowed = {"target", "negative_replicates", "reference_population_se"}
+    if set(args)-allowed:
+        errors.append(prefix+f"smr does not take args {sorted(set(args)-allowed)}")
+    rpse = args.get("reference_population_se")
+    if rpse is not None:
+        bands_ = a.get("population_bands")
+        if (a.get("reference_counts") is None or not isinstance(rpse, list) or not isinstance(bands_, list)
+                or len(rpse) != len(bands_) or not all(type(v) in (int, float) and np.isfinite(v) and v >= 0 for v in rpse)):
+            errors.append(prefix+"smr reference_population_se must be finite nonnegative numbers, one per band, with "
+                          "literal reference_counts (Round 55)")
     if args.get("negative_replicates", "refuse") not in ("refuse", "accept", "clip"):
         errors.append(prefix+"smr negative_replicates must be 'refuse' (default for registered manifests), 'accept' or 'clip' (Round 51)")
     if args.get("target", "conservative") != "conservative":

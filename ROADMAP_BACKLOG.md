@@ -136,7 +136,7 @@ Same ground rules (section 1 above). Open issues N19–N28 plus the remaining ST
 | 52 | Segregation beyond poverty and income | N21 (race/ethnicity groups, 4–5 groups, period contrasts, OH/PA) | merged (v0.49.0) |
 | 53 | Corrected GLM slopes, part 2 | N22, N23 (binomial repair, corrected counts under IM-8, 5–6 error-prone covariates) | merged (v0.50.0) |
 | 54 | OH/PA external validity, part 2 | N19, N24 (Rounds 45–48 re-checked; naive IM-8 repair outside MI/NY) | merged (v0.51.0) |
-| 55 | Short series and estimated reference populations | N25, N26 | planned |
+| 55 | Short series and estimated reference populations | N25, N26 | merged (v0.52.0) |
 | 56 | Microdata inequality measures | N27 | planned |
 
 ### Round 51: negative replicate estimates

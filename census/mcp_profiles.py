@@ -256,7 +256,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    "negbin" for fit_replicate, spatial "clusters"|"error" for fit_eiv.
 11. Exploratory only: cr() splines except binomial/Poisson with joint_test; joint_wald;
    censored Poisson for hidden WONDER counts (use the validated censored NB2 in the
-   library, Round 45); interrupted series under 20+ points.
+   library, Round 45); interrupted series under 20 points (bootstrap_t_bc validated
+   for 20+, Round 55).
 12. Event-count EB smoothing (small_area): fixed expected counts, keep WONDER [1,9]
    suppression, never impute suppressed counts or call EB limits ACS MOEs.
 13. Segregation: get_recipe('segregation'). Tract groups are mutually exclusive
