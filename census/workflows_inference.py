@@ -195,6 +195,7 @@ def fit_model(
     trials: Optional[str] = None,
     spatial: Optional[str] = None,
     impute: Optional[Union[str, List[str]]] = None,
+    se_method: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Fit a regression whose standard errors account for ACS sampling error.
 
@@ -205,7 +206,7 @@ def fit_model(
             measured with ACS error; corrects attenuation and correlated errors from the
             replicates; needs replicates_path; model ols or wls), "regression_calibration"
             (predictors measured with error; corrects attenuation; validated for ols, wls,
-            poisson and negbin, exploratory for binomial), "simex" (not
+            poisson and negbin; binomial needs se_method="jackknife"), "simex" (not
             validated for confirmatory use), "fay_herriot" (outcome with known SE in se_col).
         target: "population" (default: the general relationship, model SE),
             "these_areas" (these areas in this period, replicate SE), or
@@ -225,8 +226,12 @@ def fit_model(
             list of two (chained equations; Round 47; validated).
         spatial: method="eiv": "clusters" (8 fixed spatial clusters, pooled correction) or
             "error" (spatial-error whitening) for corrected slopes when areas are spatially
-            correlated (Rounds 35 and 46; linear; validated with up to four error-prone covariates).
+            correlated (Rounds 35, 46 and 53; linear; validated with up to five error-prone covariates).
             model="negbin": "clusters" gives IM-8 count slopes (Round 45; validated).
+            method="regression_calibration", model "poisson"/"negbin": "clusters" calibrates the
+            error_covariates, then fits IM-8 count slopes (Round 53; validated; needs exposure).
+        se_method: method="regression_calibration": "bootstrap" (default) or "jackknife"
+            (delete-one-area; Round 53; validated for binomial, poisson and negbin).
 
     target applies to method="replicate" only; corrected methods report se_total.
     Results report se_model, se_sampling, se_total and which sources are included.
@@ -298,11 +303,25 @@ def fit_model(
         elif method == "replicate":
             result = models.fit_replicate(formula, frame, _read_replicates(replicates_path), model=model,
                                           confidence_level=confidence_level, target=target, **extra)
+        elif method == "regression_calibration" and spatial:
+            from census.count_models import fit_count_model
+            if spatial != "clusters" or model not in ("poisson", "negbin") or not exposure or not error_covariates:
+                return _fail(errors.INVALID_INPUT, "spatial regression calibration needs spatial='clusters', "
+                             "model 'poisson' or 'negbin', exposure and error_covariates.")
+            res = fit_count_model(formula, frame, exposure, model, confidence_level, spatial="clusters",
+                                  calibrate=error_covariates)
+            from census.results import _jsonable
+            res["table"] = res["table"].to_dict("records")
+            return _ok(f"Calibrated IM-8 {model} slopes (Round 53); {'validated' if res['validated'] else 'exploratory'}.",
+                       "report the corrected slopes with their intervals", **_jsonable(res))
         elif method in ("regression_calibration", "simex"):
             if not error_covariates:
                 return _fail(errors.INVALID_INPUT, f"{method} needs error_covariates.")
+            if se_method is not None and method != "regression_calibration":
+                return _fail(errors.INVALID_INPUT, "se_method applies to method='regression_calibration' only.")
             fn = models.regression_calibration if method == "regression_calibration" else models.simex
-            result = fn(formula, frame, error_covariates, model=model, confidence_level=confidence_level, **extra)
+            kw = {"se_method": se_method} if se_method else {}
+            result = fn(formula, frame, error_covariates, model=model, confidence_level=confidence_level, **extra, **kw)
         else:
             if not se_col:
                 return _fail(errors.INVALID_INPUT, "fay_herriot needs se_col (the outcome's SE column).")
@@ -332,8 +351,9 @@ def fit_model(
     next_step = interval_next_step(info)
     if method == "simex":
         next_step += "; SIMEX under-covers and is exploratory only, not for confirmatory claims"
-    if method == "regression_calibration" and model == "binomial":
-        next_step += "; binomial regression calibration under-covers and is exploratory only, not for confirmatory claims"
+    if method == "regression_calibration" and model == "binomial" and se_method != "jackknife":
+        next_step += ("; binomial regression calibration with bootstrap SEs under-covers and is exploratory only; "
+                      "use se_method='jackknife' (validated, Round 53)")
     return _ok(f"{result_summary(result)}; intervals and p-values use {se_basis}", next_step,
                **{k: v for k, v in out.items() if k != "summary"})
 

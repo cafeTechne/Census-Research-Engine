@@ -23,16 +23,24 @@ VALIDATED_FAMILIES = {"negbin": True, "poisson": False, "zip": False}
 
 def fit_count_model(formula: str, frame: pd.DataFrame, exposure: str, family: str = "negbin",
                     level: float = 0.90, spatial: Optional[str] = None, coords: Optional[pd.DataFrame] = None,
-                    within_states: bool = False) -> Dict[str, Any]:
+                    within_states: bool = False, calibrate=None) -> Dict[str, Any]:
     """Coefficient table for a count outcome with an exposure (offset log exposure).
 
     ``spatial="clusters"``: IM-8 (Round 45, ``docs/audits/count_repairs_validation.md``): per-cluster count
     GLMs (negbin at the full-sample alpha, or poisson) averaged over the eight fixed clusters, t(7); validated
-    for negbin and poisson (.894-.909, MI/NY geometry, spatially correlated residuals)."""
+    for negbin and poisson (.894-.909, MI/NY geometry, spatially correlated residuals).
+
+    ``calibrate`` (Round 53, with ``spatial="clusters"`` only): error-prone covariates as names (SE column
+    ``<name>_se``) or ``{name: se_column}``; each is replaced by E[X | W, Z] pooled over all areas
+    (``census.models`` regression calibration) before the IM-8 cluster fits. Validated for negbin and
+    poisson against the true slope (.877-.909; ``docs/audits/glm_correction2_validation.md``)."""
     if family not in VALIDATED_FAMILIES:
         raise ValueError("family must be negbin (validated), poisson or zip")
+    if calibrate is not None and spatial is None:
+        raise ValueError("calibrate needs spatial='clusters'; for independent areas use "
+                         "models.regression_calibration(model='poisson'|'negbin')")
     if spatial is not None:
-        return _fit_count_im(formula, frame, exposure, family, level, spatial, coords, within_states)
+        return _fit_count_im(formula, frame, exposure, family, level, spatial, coords, within_states, calibrate)
     data = frame.dropna(subset=[exposure]).copy()
     y, X = patsy.dmatrices(formula, data, return_type="dataframe", NA_action="drop")
     E = data.loc[X.index, exposure].to_numpy(float)
@@ -55,9 +63,13 @@ def fit_count_model(formula: str, frame: pd.DataFrame, exposure: str, family: st
 
 SPATIAL_VALIDATED = {"negbin": True, "poisson": True, "zip": False}
 REPAIRS_AUDIT = "docs/audits/count_repairs_validation.md"
+# Round 53 (criterion 8d48956): pooled regression calibration + IM-8 count slopes (rc_spatial_core.rc_im)
+# covered the true slope .877-.909 (Poisson, NB2; reliability .7-.9; independent and 100 km fields).
+SPATIAL_RC_VALIDATED = {"negbin": True, "poisson": True}
+SPATIAL_RC_AUDIT = "docs/audits/glm_correction2_validation.md"
 
 
-def _fit_count_im(formula, frame, exposure, family, level, spatial, coords, within_states):
+def _fit_count_im(formula, frame, exposure, family, level, spatial, coords, within_states, calibrate=None):
     from scipy import stats
     from . import count_repairs_core as cr
     from .spatial_clusters import assignment_for_frame, geography_notes
@@ -69,6 +81,18 @@ def _fit_count_im(formula, frame, exposure, family, level, spatial, coords, with
         raise ValueError("IM-8 count intervals are validated at the 90% level only")
     data = frame.dropna(subset=[exposure]).copy()
     assign = assignment_for_frame(data, coords, {"k": 8, "method": "im"}, within_states=within_states).set_index("GEOID")
+    cal_note = None
+    if calibrate is not None:
+        from .models import _calibrate, _error_spec, formula_variables
+        spec = _error_spec(data, calibrate)
+        outcome = formula.split("~", 1)[0].strip()
+        used = [v for v in formula_variables(formula, data) if v in data.columns]
+        data = data.dropna(subset=used+list(spec.values())).reset_index(drop=True)
+        others = [v for v in used if v not in spec and v not in (outcome, exposure)
+                  and pd.api.types.is_numeric_dtype(data[v])]
+        data = _calibrate(data, spec, others)
+        cal_note = (f"Regression calibration of {list(spec)} given {others} (pooled over all areas) before the IM-8 "
+                    f"fits; validated for {family} against the true slope (Round 53, {SPATIAL_RC_AUDIT}).")
     y, X = patsy.dmatrices(formula, data, return_type="dataframe", NA_action="drop")
     E = data.loc[X.index, exposure].to_numpy(float)
     labels = assign.loc[data.loc[X.index, "GEOID"].astype(str), "cluster"].to_numpy()
@@ -86,10 +110,13 @@ def _fit_count_im(formula, frame, exposure, family, level, spatial, coords, with
         rows.append(dict(term=term, df=7, **r))
     notes = [f"IM-8 {family} slopes: per-cluster count GLMs averaged over eight fixed clusters, t(7) "
              f"({REPAIRS_AUDIT}); exposure held fixed (NB2 with noisy ACS exposures covered .888-.891)."]
+    if cal_note:
+        notes.append(cal_note)
     if absorbed:
         notes.append(f"Absorbed by the cluster intercepts (not estimable): {absorbed}")
     notes += geography_notes(assign.reset_index())
-    return dict(family=family, spatial="clusters", table=pd.DataFrame(rows), n=len(X), validated=SPATIAL_VALIDATED[family],
+    validated = SPATIAL_VALIDATED[family] and (calibrate is None or SPATIAL_RC_VALIDATED.get(family, False))
+    return dict(family=family, spatial="clusters", table=pd.DataFrame(rows), n=len(X), validated=validated,
                 notes=notes, audit=REPAIRS_AUDIT)
 
 

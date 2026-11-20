@@ -67,6 +67,7 @@ manifests refuse them in confirmatory analyses.
 | Combining evidence (`combine_estimates`) | **Passed selected**: Paule–Mandel + Hartung–Knapp pooling for 2–4 estimates (.885–.911; 5–10 with truncation since Round 48); fixed effect only when homogeneity is declared in advance; TOST equivalence; z-test power. DerSimonian–Laird failed with heterogeneity (.82–.84) | `evidence_validation.md`, criterion `3edd5f4` |
 | Agreement between sources (`check_agreement`) | **Passed selected**: bias (.894–.900) and kappa of quintile classes (.883–.912). Failed (estimates only, intervals exploratory): Bland–Altman limits observed (.838) and error-free (.826; both repaired in Round 48), Lin's CCC (.859) and corrected CCC (.38–.77) | `agreement_validation.md`, criterion `e6d4be6` |
 | Composite index scores and Cronbach's α (`build_index`) | **Passed**: per-area score intervals (PCA and equal weights; mean coverage .898–.899, every area ≥ .874); Feldt α interval for independent areas (.891–.912; under-covers with spatial dependence, .58–.67; Round 48 effective-n repair). Quintile stability and typologies descriptive | `index_validation.md`, criterion `e86907d` |
+| Corrected GLM slopes, part 2 (Round 53) | **Passed**: regression calibration with delete-one-area jackknife SEs (t, n − p df) for binomial (.882–.904; the bootstrap failed at .851), Poisson (.886–.904) and NB2 (.897–.908); pooled calibration + IM-8 count slopes under spatial dependence for Poisson (.877–.904) and NB2 (.894–.909; naive IM-8 .349–.890); G1/G2 with five error-prone covariates (.864–.925; at reliability .7 with correlated fields up to 10% failed fits and very unstable estimates). **Failed**: six covariates (.804–.811) | `glm_correction2_validation.md`, criterion `8d48956` |
 | GLM regression calibration (Round 46) | **Passed** for Poisson (.869–.893) and NB2 (.887–.918) against the true slope (two error-prone covariates, reliability .7–.9, error correlation 0–.3; naive GLMs .38–.85); **binomial failed** (.851–.889): exploratory, refused in confirmatory manifests | `glm_correction_validation.md`, criterion `4aceb22` |
 | Count repairs (Round 45) | **Passed**: interval-censored NB2 for hidden 1–9 counts .869–.898 (censored Poisson .83–.86); IM-8 count slopes, NB2 at the full-sample α .896–.909 and Poisson .894–.905 (pooled NB2-HC3 fell to .80 with spatial correlation; MI/NY geometry); NB2 with noisy ACS exposures held fixed .888–.891 (Poisson .83–.86) | `count_repairs_validation.md`, criterion `0c368dd` |
 | Corrected EIV slopes under spatial dependence (`fit_spatial_eiv`) | **Passed**: G1 pooled-correction IM-8 .879–.899; G2 SAR-whitened Fuller .863–.918 (true slope; reliability .7–.9; independent and 100 km fields; up to two error-prone covariates; **Round 46: three and four also pass**, .876–.927, with unstable point estimates at reliability .7 and correlated fields). Library, MCP and (Round 43) manifests via `fit_eiv` `args.spatial`. **Replicated on OH/PA (Round 44):** G1 .867–.909, G2 .863–.921 | `spatial_eiv_validation.md`, criterion `46fab40`; `ohpa_revalidation.md` |
@@ -126,6 +127,13 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 53 (v0.50.0; merged, release pending owner approval; implemented by the maintainer agent):**
+corrected GLM slopes, part 2 (criterion `8d48956`): `regression_calibration(se_method="jackknife")` validated
+for binomial, Poisson and NB2 (closes backlog 4); `fit_count_model(spatial="clusters", calibrate=[...])` for
+spatially correlated counts; spatial EIV validated with five error-prone covariates. MCP `fit_model(se_method=)`
+and calibrated IM-8 route. Exploratory example (`r53_rc_example.md`): child poverty on income and unemployment;
+jackknife SEs about 40–50% wider than the bootstrap's. Goldens unchanged. Acceptance: 2082 passed, 37 skipped; 0 failures.
 
 **Round 52 (v0.49.0; merged, release pending owner approval; implemented by the maintainer agent):**
 segregation beyond poverty and income (criterion `b19696b`): race/ethnicity groups (B03002), four and five
@@ -297,6 +305,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 | 24 | LBW inequality by poverty (exploratory) | RII 1.25 (90% CI 1.00–1.57); all intervals include the null |
 | 26 | Cached spatial re-check / OLS sensitivity | IM unavailable for registered ACS/EIV inputs; `r26_posthoc_spatial_clusters.md` |
 | 29 | WONDER mortality and held-out OH/PA replication | H1–H3 supported and replicated; H2 stable in registered sensitivity; spatial inference unresolved |
+| 53 | County child poverty on income and unemployment, binomial with corrected slopes (exploratory example) | Calibration raises the unemployment slope 5% (reliability .78); validated jackknife intervals ~40–50% wider than the bootstrap's (income −1.11, −1.76 to −0.45; unemployment 0.134, 0.028 to 0.240 per point); `r53_rc_example.md` |
 | 52 | Race/ethnicity segregation and the 2019–2024 poverty-segregation change, MI/NY (exploratory example) | Black–non-Black H validated in 102 counties (highest Wyoming NY .52, Wayne .50; prison group quarters drive rural highs); four-group H in 88; poverty segregation changed little (median D +.004; 23 of 133 intervals exclude zero, unadjusted); `r52_segregation_groups_example.md` |
 | 51 | Counties with negative 2024 replicate estimates (exploratory example) | All ten county-designs Round 50 refused (Bronx, Kings, Wayne and others) estimated and validated with clipped replicates; dropping tracts instead moves Sullivan's D from .326 to .346; `r51_negative_replicates_example.md` |
 | 50 | County poverty and income segregation, MI/NY 2024 (exploratory example) | 132 of 140 counties validated (0–1 under Round 28); Washtenaw has the highest poverty H (0.19); 5 counties per design refused for negative VRE replicates; `r50_segregation_example.md` |
@@ -329,7 +338,7 @@ models, and MI/NY-only validation geography).
    spatially correlated fields (exploratory outside MI/NY). Pooled k-means clusters can straddle adjacent
    states, leaving a state term partly constant (refused): the engine says so, and `within_states=True`
    (Round 45; `fit_spatial_eiv`, `fit_count_model`) assigns clusters within each state. Count slopes under
-   IM-8 and NB2 with noisy exposures were validated in Round 45; G1/G2 with three and four error-prone covariates in Round 46. Remaining: more than four; corrected GLM slopes under spatial dependence. No extra cluster counts or retuned
+   IM-8 and NB2 with noisy exposures were validated in Round 45; G1/G2 with three and four error-prone covariates in Round 46, five in Round 53 (six failed); corrected Poisson/NB2 slopes under spatial dependence in Round 53. Remaining: six or more covariates; corrected binomial slopes under spatial dependence. No extra cluster counts or retuned
    simulations were tried. Do not substitute naive C1 for registered EIV. Rounds 45–46 validations use MI/NY geometry;
    they were not re-checked on OH/PA.
 2. Closed in Round 44: Poisson HC3 (used by R29) under-covered with strong overdispersion in Round 39;
@@ -337,7 +346,7 @@ models, and MI/NY-only validation geography).
    falls back to Nelder–Mead when BFGS fails (large counts, little overdispersion).
 3. Closed in Round 43: manifests opt in to the Round 33 intervals with `correlation_matrix`
    `args.interval: "validated"`; registered manifests keep the Fisher-z interval (their bytes are fixed).
-4. Mostly closed in Round 46: `regression_calibration` is validated for Poisson and NB2 slopes (independent areas); binomial failed narrowly (.851) and stays exploratory. A binomial repair (e.g. a likelihood-based correction) is not planned.
+4. Closed in Round 53: `regression_calibration` is validated for Poisson and NB2 slopes (Round 46, bootstrap SEs) and, with `se_method="jackknife"`, for binomial, Poisson and NB2 (Round 53; the binomial bootstrap failure was an SE problem, not bias). Spatially correlated counts: calibration + IM-8 (Round 53). Corrected binomial slopes under spatial dependence remain untested.
 5. Held-out OH/PA mortality replication completed in Round 29 under the unchanged registered protocol;
    all three associations replicate, including both H2 suppression sensitivities. All 62 manual WONDER
    exports pass inventory. Later causes with suppressed national child-age reference cells need a

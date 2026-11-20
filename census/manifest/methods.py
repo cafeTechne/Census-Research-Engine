@@ -213,13 +213,14 @@ def _stat_coefficient(h, res):
         return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
                 "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
                 "confirmatory_refusal": f"spatial EIV with {len(sp['error_prone'])} error-prone covariates is exploratory "
-                                        "(validated with at most 4; docs/audits/spatial_eiv_validation.md, "
-                                        "docs/audits/glm_correction_validation.md)"}
+                                        "(validated with at most 5; docs/audits/spatial_eiv_validation.md, "
+                                        "docs/audits/glm_correction_validation.md, docs/audits/glm_correction2_validation.md)"}
     if res.diagnostics.get("regression_calibration_validated") is False:
         return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
                 "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
-                "confirmatory_refusal": f"regression calibration for {res.model_type} slopes is exploratory "
-                                        "(docs/audits/glm_correction_validation.md)"}
+                "confirmatory_refusal": f"regression calibration for {res.model_type} slopes is exploratory with this "
+                                        "SE method (docs/audits/glm_correction_validation.md; binomial needs "
+                                        "args.se_method 'jackknife', docs/audits/glm_correction2_validation.md)"}
     return {"estimate": float(row["estimate"]), "se": (None if se_col == "bootstrap_test" else float(row[se_col])), "se_basis": se_col,
             "p_two_sided": float(row["p_value"]),
             "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"])}
@@ -767,6 +768,15 @@ def _check_segregation(stage, ctx):
             errors.append(f"segregation {stat}/{variant}/group count failed or lacks coverage validation; exploratory only")
 
 
+def _text_regression_calibration(a, text):
+    if (a.get("args") or {}).get("se_method") != "jackknife":
+        return text
+    return text.replace("standard errors (se_total, used for normal-theory intervals and p-values) by row bootstrap "
+                        "re-estimating the calibration",
+                        "standard errors (se_total, used for t intervals with n - p df and p-values) by delete-one-area "
+                        "jackknife re-estimating the calibration (Round 53)")
+
+
 def _text_smr(a, text):
     policy=(a.get("args") or {}).get("negative_replicates", "refuse")
     if policy != "refuse":
@@ -836,6 +846,7 @@ METHODS: Dict[str, MethodSpec] = {
         replicate=False,
         external_outcome=False,
         check=_check_spatial,
+        format_text=_text_regression_calibration,
         text=(
             'Covariates measured with known ACS sampling error ({cov}) were corrected by regression '
             'calibration with heteroscedastic known error variances; standard errors (se_total, used for '

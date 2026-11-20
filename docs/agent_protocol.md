@@ -165,7 +165,7 @@ Validated in `docs/audits/inference_validation.md` by simulation with known trut
 | :--- | :--- | :--- |
 | Model-ready data | `build_analysis_frame` | Each variable keeps `_se` and `_cv`; `use_replicates=True` attaches Census replicates |
 | Regression | `fit_model(method="replicate")` | Intervals default to `target="population"` (model SE; coverage 0.896). `target="these_areas"` uses replicate SEs for the relationship among these areas in this period (0.895). `"conservative"` adds both and is too wide (0.961) |
-| Noisy predictors | `fit_model(method="regression_calibration")` | Corrects attenuation (bias removed, coverage 0.89). Validated for ols, wls, poisson and negbin (Round 46: .869-.918); binomial is exploratory (.851). Replicates do not correct attenuation. SIMEX under-covers (0.81) and is not for confirmatory use |
+| Noisy predictors | `fit_model(method="regression_calibration")` | Corrects attenuation (bias removed, coverage 0.89). Validated for ols, wls, poisson and negbin with bootstrap SEs (Round 46: .869-.918); binomial needs `se_method="jackknife"` (Round 53: .882-.904; bootstrap .851). Spatially correlated counts: `spatial="clusters"` with model poisson/negbin (calibration + IM-8, Round 53: .877-.909). Replicates do not correct attenuation. SIMEX under-covers (0.81) and is not for confirmatory use |
 | Noisy small areas | `small_area_estimates` (Fay–Herriot) | Reproduces the published `sae` reference to about six significant figures; EBLUP intervals cover 0.897. Report `gamma` (how far each area moved toward the model) |
 | Correlations | `correlation_matrix` | Intervals cover the correlation of the observed estimates (0.895). Sampling error shrinks correlations toward zero; `disattenuate=True` reports a corrected value alongside |
 | Trends | `trend_test` | Only non-overlapping releases (at least 5 years apart); overlapping sets are refused |
@@ -360,8 +360,10 @@ correlated: fit_model(method="eiv", spatial="clusters"|"error") or
 census.spatial_eiv.fit_spatial_eiv. Both passed (coverage .863-.918; 145 MI/NY counties;
 up to two error-prone covariates; reliability .7-.9). Round 46 extended both to three and four
 error-prone covariates (coverage .876-.927, docs/audits/glm_correction_validation.md; at reliability .7 with
-correlated fields the point estimates were unstable, mean bias up to +.17 on .5); more than four are
-exploratory. In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
+correlated fields the point estimates were unstable, mean bias up to +.17 on .5); Round 53 to five
+(coverage .864-.925, docs/audits/glm_correction2_validation.md; at reliability .7 with correlated fields up
+to 10% of fits failed and estimates were very unstable); six failed and more than five are exploratory.
+In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
 R21b post hoc: H1 and H4 still hold under both.
 
 ## Composite indices (Round 36)
@@ -429,9 +431,10 @@ with one control need declared ACS replicates), and a pair the engine labels exp
 is not tested in a confirmatory run. fit_replicate args.model "negbin" with exposure
 (NB2-HC3, population target only; no weights, scale or spatial options; external WONDER
 counts allowed as for Poisson). fit_eiv args.spatial "clusters" (G1) or "error" (G2):
-unweighted OLS, no cluster/spatial_se/spatial_clusters; more than four error-prone
-covariates are not tested in a confirmatory run (Round 46). regression_calibration with
-model "binomial" is exploratory and not tested in a confirmatory run (Round 46).
+unweighted OLS, no cluster/spatial_se/spatial_clusters; more than five error-prone
+covariates are not tested in a confirmatory run (Rounds 46 and 53). regression_calibration with
+model "binomial" needs args.se_method "jackknife" (Round 53); with the default bootstrap it is
+exploratory and not tested in a confirmatory run.
 
 ## Count repairs (Round 45)
 

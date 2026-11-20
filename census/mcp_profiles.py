@@ -240,9 +240,10 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    - correlation_matrix [full] (rank_methods): Spearman/Kendall intervals; Pearson/partial only
      with replicates. Spatially dependent areas: spatial=True (not partial).
    - rank_areas [full]: report rank intervals, never point ranks.
-   - fit_model: method="eiv" with spatial="clusters"|"error" (corrected slopes, <=4 noisy
+   - fit_model: method="eiv" with spatial="clusters"|"error" (corrected slopes, <=5 noisy
      covariates); model="negbin" for counts (Poisson HC3 under-covers when overdispersed;
-     spatial="clusters" gives IM-8 count slopes);
+     spatial="clusters" gives IM-8 count slopes); method="regression_calibration": binomial
+     needs se_method="jackknife"; counts with spatial="clusters" (Round 53);
      model="beta" for shares; model="median"; impute="w" or ["w","v"] for incomplete covariates.
    - build_index [full] (composite_index): score intervals, Feldt alpha (spatial=True if dependent); no outcome as indicator.
    - check_agreement [full] (agreement): bias, kappa, Bland-Altman limits; CCC exploratory.

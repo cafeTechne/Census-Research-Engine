@@ -192,8 +192,12 @@ excluded, never ranked. Areas are treated as independent samples.
 Round 35 spatial EIV: corrected (error-free) linear slopes when areas are spatially
 correlated: fit_model(method="eiv", spatial="clusters"|"error") or
 census.spatial_eiv.fit_spatial_eiv. Both passed (coverage .863-.918; 145 MI/NY counties;
-up to two error-prone covariates; reliability .7-.9); more error-prone covariates are
-exploratory. In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
+up to two error-prone covariates; reliability .7-.9); Rounds 46 and 53 extended both to five
+(more are exploratory). In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
+Round 53: fit_model(method="regression_calibration", se_method="jackknife") is validated for
+binomial, poisson and negbin slopes (binomial with the default bootstrap is exploratory);
+fit_model(method="regression_calibration", model="poisson"|"negbin", spatial="clusters",
+exposure=...) calibrates error_covariates then fits IM-8 count slopes (validated).
 R21b post hoc: H1 and H4 still hold under both.
 
 Round 36 composite indices (full profile tool build_index; recipe composite_index):

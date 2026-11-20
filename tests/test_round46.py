@@ -26,7 +26,9 @@ def test_flags_equal_the_fixed_audit():
         assert RC_VALIDATED[m] == passed[f"R1_{m}"]
     assert RC_VALIDATED["ols"] and RC_VALIDATED["wls"]
     largest = max(p for p in (3, 4) if passed[f"G1_p{p}"] and passed[f"G2_p{p}"])
-    assert spatial_eiv.VALIDATED_MAX_ERROR_COVARIATES == largest == 4
+    assert largest == 4
+    # Round 53 (tests/test_round53.py) raised the cap to five error-prone covariates.
+    assert spatial_eiv.VALIDATED_MAX_ERROR_COVARIATES >= largest
 
 
 def frame(model, n=150, seed=46):
@@ -87,7 +89,7 @@ def several(p, n=160, seed=46):
     return f, long, coords, " + ".join(names)
 
 
-@pytest.mark.parametrize("p,ok", [(4, True), (5, False)])
+@pytest.mark.parametrize("p,ok", [(4, True), (5, True), (6, False)])  # five validated in Round 53
 def test_spatial_eiv_validated_up_to_four(p, ok):
     f, long, coords, rhs = several(p)
     out = spatial_eiv.fit_spatial_eiv(f"y ~ {rhs}", f, long, method="g2", coords=coords, fixed_variables=("y",))

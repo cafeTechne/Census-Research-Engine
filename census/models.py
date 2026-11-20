@@ -798,18 +798,20 @@ def _calibrate(data: pd.DataFrame, spec: Dict[str, str], others: List[str]) -> p
     return out
 
 
-def _corrected_result(formula, model, naive, est, se_total, confidence_level, method, notes, diagnostics, n) -> ModelResult:
+def _corrected_result(formula, model, naive, est, se_total, confidence_level, method, notes, diagnostics, n,
+                      df=None) -> ModelResult:
     se_model = naive.bse.reindex(est.index)
     se_samp = pd.Series(np.sqrt(np.maximum(se_total.to_numpy(float) ** 2 - se_model.to_numpy(float) ** 2, 0.0)),
                         index=est.index)
     table = _table(est, se_model, se_samp, confidence_level)
     # keep the reported total exactly (it is not reconstructed from components)
-    z = _z(confidence_level)
+    z = _z(confidence_level) if df is None else float(sps.t.ppf(0.5 + confidence_level / 2.0, df))
     table["se_total"] = se_total.to_numpy(float)
     table["ci_lower"] = table["estimate"] - z * table["se_total"]
     table["ci_upper"] = table["estimate"] + z * table["se_total"]
     with np.errstate(divide="ignore", invalid="ignore"):
-        table["p_value"] = 2 * sps.norm.sf(np.abs(table["estimate"] / table["se_total"]))
+        stat = np.abs(table["estimate"] / table["se_total"])
+        table["p_value"] = 2 * (sps.norm.sf(stat) if df is None else sps.t.sf(stat, df))
     table["naive_estimate"] = naive.params.reindex(est.index).to_numpy(float)
     table["naive_se"] = se_model.to_numpy(float)
     diagnostics["naive"] = pd.DataFrame({"term": list(naive.params.index), "estimate": naive.params.to_numpy(float),
@@ -846,6 +848,13 @@ def _setup(formula, frame, error_covariates, model, weights, exposure, trials):
 # Poisson .869-.893, NB2 .887-.918; binomial failed at .851 with reliability .9 and correlated errors).
 RC_AUDIT = "docs/audits/glm_correction_validation.md"
 RC_VALIDATED = {"ols": True, "wls": True, "binomial": False, "poisson": True, "negbin": True}
+# Round 53 (docs/audits/glm_correction2_validation.md): validation flags per SE method. Set only from the
+# pre-specified simulation; the jackknife entries are False until the audit says otherwise.
+RC_JACKKNIFE_AUDIT = "docs/audits/glm_correction2_validation.md"
+# Round 53 (criterion 8d48956): the delete-one-area jackknife (t, n - p df) passed for binomial (.882-.904),
+# Poisson (.886-.904) and NB2 (.897-.908) against the true slope; linear models were not re-tested with it.
+RC_VALIDATED_SE = {"bootstrap": dict(RC_VALIDATED),
+                   "jackknife": {"ols": False, "wls": False, "binomial": True, "poisson": True, "negbin": True}}
 
 
 def regression_calibration(
@@ -860,8 +869,13 @@ def regression_calibration(
     n_boot: int = 200,
     seed: Optional[int] = 0,
     cv_threshold: float = DEFAULT_CV_THRESHOLD,
+    se_method: str = "bootstrap",
 ) -> ModelResult:
     """Regression calibration for covariates with known sampling SEs.
+
+    ``se_method``: ``"bootstrap"`` (``n_boot`` row-bootstrap refits, normal intervals) or
+    ``"jackknife"`` (Round 53: delete-one-area refits, each re-estimating the calibration;
+    variance (n-1)/n sum (b_(i) - mean)^2, close to HC3; t intervals with n - p df).
 
     ``error_covariates``: names (SE column ``<name>_se``) or ``{name: se_column}``.
     Each W is replaced by E[X | W, Z] = mu + Cov(X,(W,Z)) Var_i(W,Z)^{-1} ((W,Z) - mu),
@@ -871,12 +885,18 @@ def regression_calibration(
     Crainiceanu (2006), "Measurement Error in Nonlinear Models", 2nd ed., ch. 4.
     Exact for linear models; an approximation for GLMs (ch. 4.8). SEs from
     ``n_boot`` row-bootstrap replicates that re-estimate the calibration.
-    Validated for ols, wls, poisson and negbin (``RC_VALIDATED``; Round 46); binomial is
-    exploratory (coverage .851-.889 at nominal .90).
+    Validated (``RC_VALIDATED_SE``): bootstrap for ols, wls, poisson and negbin (Round 46; binomial
+    under-covered, .851-.889); jackknife for binomial, poisson and negbin (Round 53). Use
+    ``se_method="jackknife"`` for binomial slopes.
     """
+    if se_method not in ("bootstrap", "jackknife"):
+        raise ValueError("se_method must be 'bootstrap' or 'jackknife'")
     model, spec, data, n_trials, notes, others = _setup(formula, frame, error_covariates, model, weights, exposure, trials)
     naive = _fit(formula, data, model, weights, exposure, n_trials)
     cal = _fit(formula, _calibrate(data, spec, others), model, weights, exposure, n_trials)
+    if se_method == "jackknife":
+        return _rc_jackknife(formula, model, spec, data, n_trials, notes, others, naive, cal, weights, exposure,
+                             confidence_level, cv_threshold)
     rng = np.random.default_rng(seed)
     boots = []
     for _ in range(n_boot):
@@ -900,10 +920,44 @@ def regression_calibration(
     if model in ("poisson", "negbin"):
         notes.append(f"Validated for {model} slopes against the error-free slope (Round 46, {RC_AUDIT}).")
     elif not RC_VALIDATED[model]:
-        notes.append(f"EXPLORATORY: regression calibration for {model} slopes under-covered (.851 at nominal "
-                     f".90 with reliability .9 and correlated errors; {RC_AUDIT}); not for confirmatory claims.")
+        notes.append(f"EXPLORATORY: regression calibration for {model} slopes under-covered with bootstrap SEs (.851 at "
+                     f"nominal .90 with reliability .9 and correlated errors; {RC_AUDIT}); se_method='jackknife' is "
+                     f"validated ({RC_JACKKNIFE_AUDIT}).")
     return _corrected_result(formula, model, naive, cal.params, se_total, confidence_level,
                              "regression_calibration", notes, diagnostics, int(cal.nobs))
+
+
+def _rc_jackknife(formula, model, spec, data, n_trials, notes, others, naive, cal, weights, exposure,
+                  confidence_level, cv_threshold) -> ModelResult:
+    """Delete-one-area jackknife of regression calibration (calibration re-estimated in every refit)."""
+    n = len(data)
+    rows = []
+    for i in range(n):
+        keep = np.r_[0:i, i + 1:n]
+        d = data.iloc[keep].reset_index(drop=True)
+        res = _fit(formula, _calibrate(d, spec, others), model, weights, exposure,
+                   None if n_trials is None else n_trials[keep])
+        b = res.params.reindex(cal.params.index).to_numpy(float)
+        if not np.isfinite(b).all():
+            raise ValueError("jackknife refit failed; regression calibration interval undefined")
+        rows.append(b)
+    J = np.vstack(rows)
+    se_total = pd.Series(np.sqrt((n - 1) / n * ((J - J.mean(axis=0)) ** 2).sum(axis=0)), index=cal.params.index)
+    df = n - len(cal.params)
+    diagnostics = {"reliability_screen": _screen_summary(data, formula, cv_threshold),
+                   "jackknife_refits": n,
+                   "reliability_ratio": {w: float(1 - np.mean(data[s] ** 2) / np.var(data[w], ddof=1))
+                                         for w, s in spec.items()},
+                   "regression_calibration_validated": bool(RC_VALIDATED_SE["jackknife"][model])}
+    notes = notes + [f"regression calibration of {list(spec)} given {others}; se_total from {n} delete-one-area "
+                     f"jackknife refits including calibration; t intervals with {df} df", FH_POINTER]
+    if not RC_VALIDATED_SE["jackknife"][model]:
+        notes.append(f"Jackknife SEs were not validated for {model} (only binomial, poisson and negbin; "
+                     f"{RC_JACKKNIFE_AUDIT}); the bootstrap is validated for linear models.")
+    else:
+        notes.append(f"Validated for {model} slopes against the error-free slope (Round 53, {RC_JACKKNIFE_AUDIT}).")
+    return _corrected_result(formula, model, naive, cal.params, se_total, confidence_level,
+                             "regression_calibration", notes, diagnostics, int(cal.nobs), df=df)
 
 
 # ---------------------------------------------------------------------------

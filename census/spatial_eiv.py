@@ -27,9 +27,12 @@ from . import spatial_eiv_core as core
 
 AUDIT = "docs/audits/spatial_eiv_validation.md"
 VALIDATED = {"g1": True, "g2": True}
-# Round 35 validated p <= 2; Round 46 (docs/audits/glm_correction_validation.md) p = 3 and 4.
-VALIDATED_MAX_ERROR_COVARIATES = 4
+# Round 35 validated p <= 2; Round 46 (docs/audits/glm_correction_validation.md) p = 3 and 4; Round 53
+# (docs/audits/glm_correction2_validation.md) p = 5 (G1 .864-.908, G2 .884-.925); p = 6 failed (.804-.811
+# at reliability .7 with 100 km fields).
+VALIDATED_MAX_ERROR_COVARIATES = 5
 MORE_COVARIATES_AUDIT = "docs/audits/glm_correction_validation.md"
+FIVE_COVARIATES_AUDIT = "docs/audits/glm_correction2_validation.md"
 
 
 def _design(formula, frame, replicates, fixed_variables):
@@ -101,12 +104,17 @@ def fit_spatial_eiv(formula: str, frame: pd.DataFrame, replicates: pd.DataFrame,
         from .spatial_clusters import geography_notes
         notes.extend(n for n in geography_notes(assign.loc[ids].reset_index()) if n.startswith("CLUSTERS CROSS"))
     validated = len(error_prone) <= VALIDATED_MAX_ERROR_COVARIATES
-    if 3 <= len(error_prone) <= VALIDATED_MAX_ERROR_COVARIATES:
+    if 3 <= len(error_prone) <= 4:
         notes.append("With 3-4 error-prone covariates, low reliability (.7) and spatially correlated fields, Round 46 "
                      "point estimates were unstable (mean bias up to +.17 on a slope of .5; up to 5.7% failed fits) "
                      f"although interval coverage held (.88-.93; {MORE_COVARIATES_AUDIT}).")
+    if len(error_prone) == 5:
+        notes.append("With 5 error-prone covariates, low reliability (.7) and spatially correlated fields, Round 53 "
+                     "point estimates were very unstable (mean bias -.21 (G1) and +1.24 (G2) on a slope of .5; 3.4% and "
+                     "10% failed fits) although interval coverage held (.864-.925; "
+                     f"{FIVE_COVARIATES_AUDIT}). Check each covariate's reliability before relying on it.")
     if not validated:
         notes.append(f"EXPLORATORY: {len(error_prone)} error-prone covariates; validated with at most "
-                     f"{VALIDATED_MAX_ERROR_COVARIATES} ({AUDIT}; {MORE_COVARIATES_AUDIT}).")
+                     f"{VALIDATED_MAX_ERROR_COVARIATES} ({AUDIT}; {MORE_COVARIATES_AUDIT}; {FIVE_COVARIATES_AUDIT}).")
     return dict(method=method, table=table, n=len(y), validated=validated, error_prone=error_prone,
                 notes=notes, audit=AUDIT, **extra)
