@@ -171,6 +171,10 @@ def age_adjusted_interval(cases: Sequence[float], populations: Sequence[float], 
 # Set only from the pre-specified simulation report.
 SMR_REFERENCE_VALIDATED = True  # criterion 134bf7f; docs/audits/smr_reference_validation.md
 SMR_VALIDATED = True  # docs/audits/smr_validation.md (680707e criterion)
+# Round 55 (criterion dd6d6b7; docs/audits/short_series_reference_validation.md): adding the sampling variance of
+# survey-estimated reference person-years covered .892-.908 (reference population CV .02-.08); without it
+# .863-.907 (smallest at CV .08 with 500 reference deaths and E = 100).
+SMR_REFERENCE_POPULATION_VALIDATED = True
 # Round 51 (criterion 2837bfb; docs/audits/negative_replicates_validation.md): negative band replicates used
 # as published ("accept", .903-.922) or clipped at zero ("clip", .891-.917) both passed in all eight cells.
 # The default is "accept": the expected count is linear in the bands, so no information is discarded.

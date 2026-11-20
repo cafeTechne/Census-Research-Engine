@@ -262,7 +262,9 @@ while Garwood limits condition on expected counts. Zero observed counts have
 only an exact fixed-E interval. Optional positive integer `period_years` (default 1)
 scales E for a multi-year count period; optional positive integer `reference_counts`
 adds sum_b (E_b/E)^2/D_b to log variance. Both fields are hashed. Reference
-person-years are fixed, zero reference deaths are refused, and pooled band
+person-years are fixed unless they are survey estimates: then args.reference_population_se
+(one SE per band; Round 55, validated .892-.908) adds sum_b (E_b/E)^2 (se_b/P_b)^2. Zero
+reference deaths are refused, and pooled band
 contributions are summed before squaring because rates are shared. An internal
 reference makes the independent-count interval conservative (not refused).
 Without reference_counts, rates are fixed as before. No band replicates
@@ -459,7 +461,9 @@ census.missing_censored_its.fit_censored_poisson uses WONDER counts hidden as 1-
 information without estimating them (under-covered .84-.86, though better than dropping them);
 interrupted_series for annual series (20-point series: every method under-covered, .47-.81).
 Round 48: interrupted_series(method="bootstrap_t") is validated for 30+ annual points
-(.883-.896); shorter series stay exploratory (REML .79-.88; bootstrap-t .846 at 15 points).
+(.883-.896). Round 55: method="bootstrap_t_bc" (bootstrap series at a bias-corrected AR
+coefficient) is validated for 20+ points (.867-.889); below 20 points no method is validated
+(.857 at 15 points), and the EWC HAR test failed (.61-.72).
 
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 

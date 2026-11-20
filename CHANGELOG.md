@@ -5,6 +5,19 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.52.0 (Round 55): short interrupted series and estimated reference populations
+
+- Freeze the new `census/its_small_core.py`, the SMR `reference_population_se` term, the script and the criterion
+  at `dd6d6b7`. Six AR(1) series cells (15–25 points) and eight SMR cells.
+- Passed: the bootstrap-t with bootstrap series at a bias-corrected AR coefficient for 20+ points (.867–.889; .857
+  at 15); SMRs with the sampling variance of survey-estimated reference person-years (.892–.908). Failed: the EWC
+  HAR t test (.616–.720).
+- `interrupted_series(method="bootstrap_t_bc")` (validated 20+; `ITS_BOOTSTRAP_BC_MIN_N`); `method="ewc"`
+  (exploratory); `indirect_standardize(reference_population_se=...)` and manifest `smr` `args.reference_population_se`.
+  Goldens byte-identical.
+- Demonstration on simulated inputs (`docs/studies/r55_demonstration.md`). Closes N25 for 20+ points and N26.
+- Acceptance: goldens byte-identical; 2094 passed, 37 skipped; 0 failures (6 new tests).
+
 ## 0.51.0 (Round 54): OH/PA external validity, part 2
 
 - Freeze the script, the within-state 4/6-cluster geometry, the new `census/im_clusters_core.py` and the criterion

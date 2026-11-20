@@ -19,6 +19,13 @@ from . import small_spatial_core as sc
 AUDIT = "docs/audits/small_spatial_validation.md"
 ITS_BOOTSTRAP_MIN_N = 30
 ITS_REML_VALIDATED = False
+# Round 55 (criterion dd6d6b7; docs/audits/short_series_reference_validation.md): the bootstrap-t with the
+# bootstrap series at a bias-corrected AR coefficient covered both changes .867-.889 at 20 and 25 points
+# (.857 at 15 points with phi .6); the EWC HAR t test failed everywhere (.61-.72). The plain bootstrap-t (a
+# comparison arm there) covered .872+ at 25 points; its validated minimum stays 30.
+SHORT_SERIES_AUDIT = "docs/audits/short_series_reference_validation.md"
+ITS_BOOTSTRAP_BC_MIN_N = 20
+ITS_EWC_VALIDATED = False
 NEFF_CORRELATION_VALIDATED = {"spearman": True, "kendall": True, "pearson": True, "partial": False}
 NEFF_ALPHA_VALIDATED = True
 HKSJ_TRUNCATED_MAX_K = 10

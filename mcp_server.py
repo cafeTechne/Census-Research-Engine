@@ -263,7 +263,8 @@ Round 42: fit_model(impute="w") multiply imputes one incomplete covariate (20 dr
 rules; validated, also when missingness depends on the outcome). Exploratory library functions:
 census.missing_censored_its.fit_censored_poisson uses WONDER counts hidden as 1-9 as interval
 information without estimating them (under-covered .84-.86, though better than dropping them);
-interrupted_series for annual series (20-point series: every method under-covered, .47-.81).
+interrupted_series for annual series (20-point series: every Round 42 method under-covered, .47-.81;
+Round 55: method="bootstrap_t_bc" is validated for 20+ points, "bootstrap_t" for 30+).
 
 Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
 and scale:"robust"; Poisson counts use exposure
@@ -286,7 +287,8 @@ Garwood limits condition on expected counts. No replicates means zero expected u
 noted; O=0 has only the exact fixed-E interval. period_years (positive integer, default 1)
 scales E for annual rates. Positive integer reference_counts adds sum((E_b/E)^2/D_b) to log
 variance; zero reference deaths refused. Both fields hashed. Without counts, reference
-rates are fixed. Reference person-years are always fixed. Pool band contributions before
+rates are fixed. Reference person-years are fixed unless args.reference_population_se gives
+their survey SEs (Round 55; validated). Pool band contributions before
 squaring because reference rates are shared across areas. Internal-reference covariance
 omission is conservative, noted, not refused. Negative band replicates are refused unless
 args.negative_replicates is "accept" or "clip" (both validated in Round 51).

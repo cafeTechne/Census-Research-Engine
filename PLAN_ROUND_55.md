@@ -68,9 +68,9 @@ SMR 1.2 (study expected count from the true rates).
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion commit | | |
-| I / R results | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Core, script, criterion commit | done | `dd6d6b7` |
+| I / R results | done | bias-corrected bootstrap-t validated from 20 points; EWC fails; reference-population SE passes (`881c410`) |
+| Engine, tests | done | `bootstrap_t_bc`, `reference_population_se` (library, manifest args); 6 new tests |
+| Example | done | demonstration on simulated inputs (`r55_demonstration.md`) |
+| Goldens, final suite | done | identical; 2094 passed, 37 skipped |
+| Exceptions | see notes | demonstration instead of a data example; plain bootstrap-t threshold kept at 30 (comparison arm passed from 25) |
