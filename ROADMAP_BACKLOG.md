@@ -272,8 +272,11 @@ waits about a month.
 | Round | Theme | Covers | Status |
 | :--- | :--- | :--- | :--- |
 | 64 | Agent access (no new statistics) | N40–N43 | merged (v0.61.0) |
-| 65 | Replication shortlist: 4–6 published findings with exact data specs, for owner approval | N44, N45 | shortlist delivered (`docs/studies/replication_shortlist.md`); awaiting owner choice |
-| 66+ | Registered replications, each with a matching simulation on its geography | N44, N45 | after owner approval of 65 |
+| 65 | Replication shortlist | N44, N45 | done: owner chose A, B, C and E (headline only) on 2026-11-20; D waits for the Part G WONDER export |
+| 66 | Numeric replications A (CHR county Black/White dissimilarity, all counties) and B (Census state Gini, B19083), plus segregation coverage on GA/TX/AZ county geometry | N44 | planned |
+| 67 | Replication C (Mitchell et al. 2022, NC tract life expectancy and ICE), plus SCPC and spatial-error coverage on NC tract geometry | N44, N45 | after 66 |
+| 68 | Replication E (Boing et al. 2020 headline: tract/county/state shares of life-expectancy variation), plus three-level multilevel coverage | N44, N45 | after 67 |
+| 69 | Replication D (Monnat 2018, county drug mortality) with censored NB2 and SCPC on national county geometry | N44, N45 | after the owner's Part G export |
 
 ### Round 64: agent access
 
