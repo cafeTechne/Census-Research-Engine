@@ -293,6 +293,7 @@ equates to a zero true slope only with a single error-prone covariate and errors
 independent of the outcome's error; do not extend that claim to noisy controls.
 Poisson exposure/expected-death offsets remain fixed.
 
+<!-- mcp-rules:A -->
 C2 IM-EIV failed (unstable corrected moment matrices) and stays refused, even
 in exploratory manifests; never substitute C1 for registered EIV without a new
 specification. WLS remains unsupported. Only k=8 passed. CR1/WCR refusals remain.
@@ -326,6 +327,7 @@ See docs/audits/im_acs_validation.md and docs/studies/r30_posthoc_im_acs.md.
 
 ## Group comparisons (Round 31)
 
+<!-- mcp-rules:A -->
 Round 31 group comparisons: compare_groups (recipe group_comparison) runs t-tests,
 one-way ANOVA, ANCOVA and two-way interactions through fit_replicate. Joint tests
 use joint_test (manifest statistic; variable or term, two_sided only). Validated
@@ -339,6 +341,7 @@ stays exploratory; confirmatory binomial/Poisson splines need joint_test hypothe
 
 ## PUMS tests (Round 32)
 
+<!-- mcp-rules:A -->
 Round 32 PUMS tests: test_association (recipe pums_tests) on PUMS microdata with
 the 80 replicate weights. Validated (docs/audits/pums_tests_validation.md, household
 clustering, weight CV up to 1.0, 800-3000 households): first-order Rao-Scott
@@ -356,6 +359,7 @@ Gini; negative incomes are refused; heaped quantiles are flagged as for medians.
 
 ## Rank methods and diagnostics (Round 33)
 
+<!-- mcp-rules:A -->
 Round 33 rank methods (recipe rank_methods): correlation_matrix returns
 validated_intervals per pair. Spearman and Kendall Fisher-type intervals passed
 without replicates; Pearson and partial (one control) intervals pass only with
@@ -372,6 +376,7 @@ RESET): information only, never a gate.
 
 ## Ranking areas (Round 34)
 
+<!-- mcp-rules:A -->
 Round 34 ranking (recipe rank_areas): rank_areas gives Klein-Wright-Wieczorek rank
 intervals (individual, or joint for all areas) and each area versus a reference (fixed
 value, or a weighted mean of the areas whose errors it shares; Holm or simultaneous).
@@ -381,6 +386,7 @@ excluded, never ranked. Areas are treated as independent samples.
 
 ## Spatial EIV (Round 35)
 
+<!-- mcp-rules:A -->
 Round 35 spatial EIV: corrected (error-free) linear slopes when areas are spatially
 correlated: fit_model(method="eiv", spatial="clusters"|"error") or
 census.spatial_eiv.fit_spatial_eiv. Both passed (coverage .863-.918; 145 MI/NY counties;
@@ -388,7 +394,13 @@ up to two error-prone covariates; reliability .7-.9). Round 46 extended both to 
 error-prone covariates (coverage .876-.927, docs/audits/glm_correction_validation.md; at reliability .7 with
 correlated fields the point estimates were unstable, mean bias up to +.17 on .5); Round 53 to five
 (coverage .864-.925, docs/audits/glm_correction2_validation.md; at reliability .7 with correlated fields up
-to 10% of fits failed and estimates were very unstable); six failed and more than five are exploratory.
+to 10% of fits failed and estimates were very unstable); six failed at reliability .7. Round 63: when every
+error-prone covariate's estimated reliability is >= .8, "clusters" is validated with up to eight and "error" with
+up to seven (docs/audits/small_many_validation.md); otherwise more than five are exploratory.
+Round 53: fit_model(method="regression_calibration", se_method="jackknife") is validated for binomial,
+poisson and negbin slopes (binomial with the default bootstrap is exploratory);
+fit_model(method="regression_calibration", model="poisson"|"negbin", spatial="clusters", exposure=...)
+calibrates error_covariates then fits IM-8 count slopes (validated).
 In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
 Round 61 manifest options: fit_replicate args.spatial_scpc {} or {rho_bar} (SCPC naive slopes; OLS,
 Poisson with exposure; binomial with trials (rho_bar .15/.20, Round 62); population target, no weights/scale/spatial_se);
@@ -398,6 +410,7 @@ R21b post hoc: H1 and H4 still hold under both.
 
 ## Composite indices (Round 36)
 
+<!-- mcp-rules:A -->
 Round 36 composite indices (full profile tool build_index; recipe composite_index):
 first principal component or equal weights; full-sample standardisation and loadings
 fixed in every replicate. Validated: per-area score intervals (with replicates) and the
@@ -407,6 +420,7 @@ indicator of the index used to explain it (circularity).
 
 ## Agreement between sources (Round 37)
 
+<!-- mcp-rules:A -->
 Round 37 agreement (full profile tool check_agreement; recipe agreement): bias (b - a)
 and Cohen's kappa of quintile classes passed validation for independent areas. Bland-Altman
 limits of agreement (observed and error-free) use moment-based SEs since Round 48 (validated,
@@ -414,6 +428,7 @@ limits of agreement (observed and error-free) use moment-based SEs since Round 4
 
 ## Combining evidence (Round 38)
 
+<!-- mcp-rules:A -->
 Round 38 combining evidence (full profile tool combine_estimates; recipe
 combine_estimates): pooling uses Paule-Mandel + Hartung-Knapp (validated for up to 4
 estimates; Round 48: 5-10 with the variance factor truncated at 1, .874-.918); the fixed-effect interval only if homogeneity is declared in advance;
@@ -423,6 +438,7 @@ new analysis, never a reinterpretation of a registered study.
 
 ## Multivariate tests and count models (Round 39)
 
+<!-- mcp-rules:A -->
 Round 39: compare_groups(outcomes=[...]) adds a joint MANOVA/MANCOVA test (multivariate wild
 score bootstrap, one sign per area; validated, size .090-.101; Pillai's trace shown for
 comparison). Count slopes: fit_model(model="negbin", exposure=...) uses NB2 with HC3
@@ -431,6 +447,7 @@ with strong overdispersion (.81-.87) and zero-inflated Poisson failed (explorato
 
 ## Beta and median regression (Round 40)
 
+<!-- mcp-rules:A -->
 Round 40: fit_model(model="beta") (shares in 0-1; logit mean; HC0 sandwich) and
 fit_model(model="median") (median regression; kernel SE) passed validation (.885-.917; naive
 target; independent areas). Beta model-based SEs failed. Adding replicate variance
@@ -439,6 +456,7 @@ multinomial, median and probit models were added in Round 49 (`pums_regression`)
 
 ## Causal tools (Round 41)
 
+<!-- mcp-rules:A -->
 Round 41 causal tools (full profile tool estimate_effect; recipe causal): treatment
 effects (AIPW default) validated with precisely measured confounders; 2SLS with an
 independent second measurement as instrument removes covariate attenuation (validated;
@@ -455,6 +473,7 @@ also covered at every F, but its estimate is unstable below F = 10, so report th
 
 ## Manifest routing (Round 43)
 
+<!-- mcp-rules:A -->
 Round 43 manifest options (opt-in; registered manifests unchanged): correlation_matrix
 args.interval "validated" uses the Round 33 intervals (Spearman/Kendall; Pearson/partial
 with one control need declared ACS replicates), and a pair the engine labels exploratory
@@ -468,20 +487,24 @@ exploratory and not tested in a confirmatory run.
 
 ## Count repairs (Round 45)
 
-Round 45 count repairs: interval-censored NB2 (census.missing_censored_its.fit_censored_negbin)
-uses WONDER counts hidden as 1-9 as interval information, validated (.869-.898), and never outputs a
-hidden value; fit_model(model="negbin", spatial="clusters") gives IM-8 count slopes (validated on
+<!-- mcp-rules:A -->
+Round 45 count repairs: interval-censored NB2 (fit_model(model="negbin", exposure=..., censored=
+"<true/false column>") since Round 64; census.missing_censored_its.fit_censored_negbin) uses WONDER
+counts hidden as 1-9 as interval information, validated (.869-.898), and never outputs a hidden value; fit_model(model="negbin", spatial="clusters") gives IM-8 count slopes (validated on
 the MI/NY geometry; outside it the result carries a note); NB2 with noisy ACS exposures held fixed
 covered (.888-.891). within_states=True assigns the eight clusters within each state.
 
 ## Missing data, censored counts, time series (Round 42)
 
+<!-- mcp-rules:A -->
 Round 42: fit_model(impute="w") multiply imputes one incomplete covariate (20 draws, Rubin's
 rules; validated, also when missingness depends on the outcome). Round 47: impute=["w", "v"] imputes
-two by chained equations (validated .898-.916; complete case .84 when missingness depends on the outcome). Exploratory library functions:
-census.missing_censored_its.fit_censored_poisson uses WONDER counts hidden as 1-9 as interval
-information without estimating them (under-covered .84-.86, though better than dropping them);
-interrupted_series for annual series (20-point series: every method under-covered, .47-.81).
+two by chained equations (validated .898-.916; complete case .84 when missingness depends on the outcome). Exploratory:
+census.missing_censored_its.fit_censored_poisson (library only) uses WONDER counts hidden as 1-9 as interval
+information without estimating them (under-covered .84-.86, though better than dropping them).
+Time series: the interrupted_series tool (Round 64; full profile; census.missing_censored_its.interrupted_series)
+for ANNUAL series, never overlapping ACS five-year releases (20-point series: every Round 42 method
+under-covered, .47-.81).
 Round 48: interrupted_series(method="bootstrap_t") is validated for 30+ annual points
 (.883-.896). Round 55: method="bootstrap_t_bc" (bootstrap series at a bias-corrected AR
 coefficient) is validated for 20+ points (.867-.889). Round 63: method="bootstrap_t_cons"
@@ -581,6 +604,7 @@ dormitories) can be left out with args.group_quarters {gq, total, max_share} or
 `exclude_tracts`: a definitional choice to report. No new dependencies or MCP tools.
 
 
+<!-- mcp-rules:B -->
 Round 29 manual WONDER references: all county and national files are manual
 exports; the engine never contacts WONDER. `acs_age_sex_bands` builds the fixed
 20-band B01001 order (male youngest–oldest, then female). `smr` may replace literal

@@ -14,12 +14,12 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | Path | What |
 | :--- | :--- |
 | `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
-| `mcp_server.py` | MCP server (70 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
+| `mcp_server.py` | MCP server (71 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_64.md` (agent access). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | None queued: Round 65 (replication shortlist) is drafted after the owner reviews Round 64. Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–63 complete; section 8, Round 64 onward, planned; N39 ACS 2021–2025 refresh deferred to about 2026-12-20): the backlog below plus issues N1–N38 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -137,6 +137,13 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 64 (v0.61.0; merged, release pending owner approval; implemented by the maintainer agent):**
+agent access, no new statistics (N40–N43): the CLI runs every shared workflow; new MCP tool `interrupted_series`
+(full profile) and `fit_model(model="negbin", censored=...)` for interval-censored NB2; `docs/agent_protocol.md` is
+the single source of the rule passages, generated into `mcp_server.py` by `scripts/sync_rule_text.py` (five stale
+copies corrected); core-profile text names only reachable tools; routing contract `docs/agent_routing.md` (15
+questions, tested). Goldens unchanged. Acceptance: 2155 passed, 37 skipped; 0 failures.
 
 **Round 63 (v0.60.0; merged, released in the bundled v0.60.0; implemented by the maintainer agent):**
 small samples and many covariates (criterion `ac2f34c`): `interrupted_series(method="bootstrap_t_cons")` validated

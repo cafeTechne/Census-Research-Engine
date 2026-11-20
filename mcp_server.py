@@ -69,7 +69,7 @@ load_dotenv()
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PROTOCOL_PATH = os.path.join(ROOT, "docs", "agent_protocol.md")
 
-INSTRUCTIONS = """\
+_INSTR_HEAD = """\
 US Census ACS 5-year data server. Agents run the full workflow, including review.
 
 Extraction:
@@ -135,8 +135,10 @@ as observed, not a measurement-error-corrected true slope. Sampling error can
 attenuate it; noisy controls can bias it in either direction. A zero naive slope
 equates to a zero true slope only with a single error-prone covariate and errors
 independent of the outcome's error; do not extend that claim to noisy controls.
-Poisson exposure/expected-death offsets remain fixed.
+Poisson exposure/expected-death offsets remain fixed."""
 
+# BEGIN GENERATED RULES A (scripts/sync_rule_text.py; source: docs/agent_protocol.md <!-- mcp-rules:A --> paragraphs)
+_RULES_A = """
 C2 IM-EIV failed (unstable corrected moment matrices) and stays refused, even
 in exploratory manifests; never substitute C1 for registered EIV without a new
 specification. WLS remains unsupported. Only k=8 passed. CR1/WCR refusals remain.
@@ -200,7 +202,11 @@ without replicates; Pearson and partial (one control) intervals pass only with
 replicates (ACS replicate variance added), else exploratory. Estimand: the observed-
 estimate correlation (attenuated). compare_groups(method="rank"): Brunner-Munzel
 superiority (two groups) and Kruskal-Wallis (3+), validated for independent areas.
-All correlation intervals under-covered (0.60-0.89) with spatially correlated areas.
+All correlation intervals under-covered (0.60-0.89) with spatially correlated areas. Round 48:
+correlation_matrix(spatial=True) uses the effective sample size (Spearman .875-.917, Kendall
+.862-.905, Pearson with replicates .864-.967). Round 59: partial correlations (one control,
+replicates) use the effective n of the residual series (.869-.971), and all of these intervals and
+the effective-n alpha replicated on OH/PA (docs/audits/spatial_correlation_validation.md).
 OLS fit_model/compare_groups add model diagnostics (VIF, Cook's distance, Breusch-Pagan,
 RESET): information only, never a gate.
 
@@ -214,33 +220,39 @@ excluded, never ranked. Areas are treated as independent samples.
 Round 35 spatial EIV: corrected (error-free) linear slopes when areas are spatially
 correlated: fit_model(method="eiv", spatial="clusters"|"error") or
 census.spatial_eiv.fit_spatial_eiv. Both passed (coverage .863-.918; 145 MI/NY counties;
-up to two error-prone covariates; reliability .7-.9); Rounds 46 and 53 extended both to five
-(more are exploratory). In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
+up to two error-prone covariates; reliability .7-.9). Round 46 extended both to three and four
+error-prone covariates (coverage .876-.927, docs/audits/glm_correction_validation.md; at reliability .7 with
+correlated fields the point estimates were unstable, mean bias up to +.17 on .5); Round 53 to five
+(coverage .864-.925, docs/audits/glm_correction2_validation.md; at reliability .7 with correlated fields up
+to 10% of fits failed and estimates were very unstable); six failed at reliability .7. Round 63: when every
+error-prone covariate's estimated reliability is >= .8, "clusters" is validated with up to eight and "error" with
+up to seven (docs/audits/small_many_validation.md); otherwise more than five are exploratory.
+Round 53: fit_model(method="regression_calibration", se_method="jackknife") is validated for binomial,
+poisson and negbin slopes (binomial with the default bootstrap is exploratory);
+fit_model(method="regression_calibration", model="poisson"|"negbin", spatial="clusters", exposure=...)
+calibrates error_covariates then fits IM-8 count slopes (validated).
+In manifests: fit_eiv args.spatial (Round 43); fit_eiv spatial_clusters stays refused.
 Round 61 manifest options: fit_replicate args.spatial_scpc {} or {rho_bar} (SCPC naive slopes; OLS,
 Poisson with exposure; binomial with trials (rho_bar .15/.20, Round 62); population target, no weights/scale/spatial_se);
 regression_calibration args.spatial "clusters" with model poisson/negbin (exposure) or binomial
 (trials); correlation_matrix args.spatial true with interval "validated" (effective-n intervals).
-Round 53: fit_model(method="regression_calibration", se_method="jackknife") is validated for
-binomial, poisson and negbin slopes (binomial with the default bootstrap is exploratory);
-fit_model(method="regression_calibration", model="poisson"|"negbin", spatial="clusters",
-exposure=...) calibrates error_covariates then fits IM-8 count slopes (validated).
 R21b post hoc: H1 and H4 still hold under both.
 
 Round 36 composite indices (full profile tool build_index; recipe composite_index):
 first principal component or equal weights; full-sample standardisation and loadings
 fixed in every replicate. Validated: per-area score intervals (with replicates) and the
 Feldt interval for Cronbach's alpha (independent areas; it under-covers with spatial
-dependence). Quintile stability and typologies are descriptive. An outcome cannot be an
+dependence; build_index(spatial=True) uses the effective sample size, validated .912-.926 in Round 48). Quintile stability and typologies are descriptive. An outcome cannot be an
 indicator of the index used to explain it (circularity).
 
 Round 37 agreement (full profile tool check_agreement; recipe agreement): bias (b - a)
 and Cohen's kappa of quintile classes passed validation for independent areas. Bland-Altman
-limits of agreement (observed and error-free) and Lin's concordance correlation are reported,
-but their intervals failed (exploratory): differences of noisy estimates are heavy-tailed.
+limits of agreement (observed and error-free) use moment-based SEs since Round 48 (validated,
+.884-.936). Lin's concordance correlation intervals failed (exploratory).
 
 Round 38 combining evidence (full profile tool combine_estimates; recipe
 combine_estimates): pooling uses Paule-Mandel + Hartung-Knapp (validated for up to 4
-estimates); the fixed-effect interval only if homogeneity is declared in advance;
+estimates; Round 48: 5-10 with the variance factor truncated at 1, .874-.918); the fixed-effect interval only if homogeneity is declared in advance;
 DerSimonian-Laird under-covers with heterogeneity. TOST equivalence (margin set in
 advance) and z-test power/minimum detectable effects are validated. Pooling states is a
 new analysis, never a reinterpretation of a registered study.
@@ -254,8 +266,8 @@ with strong overdispersion (.81-.87) and zero-inflated Poisson failed (explorato
 Round 40: fit_model(model="beta") (shares in 0-1; logit mean; HC0 sandwich) and
 fit_model(model="median") (median regression; kernel SE) passed validation (.885-.917; naive
 target; independent areas). Beta model-based SEs failed. Adding replicate variance
-over-covered, so it is not added. PUMS ordinal/multinomial/weighted-quantile models and GEE
-are not available yet (no survey weights in the statsmodels versions).
+over-covered, so it is not added. Survey-weighted PUMS ordinal,
+multinomial, median and probit models were added in Round 49 (`pums_regression`); GEE is not available.
 
 Round 41 causal tools (full profile tool estimate_effect; recipe causal): treatment
 effects (AIPW default) validated with precisely measured confounders; 2SLS with an
@@ -270,24 +282,34 @@ with one control need declared ACS replicates), and a pair the engine labels exp
 is not tested in a confirmatory run. fit_replicate args.model "negbin" with exposure
 (NB2-HC3, population target only; no weights, scale or spatial options; external WONDER
 counts allowed as for Poisson). fit_eiv args.spatial "clusters" (G1) or "error" (G2):
-unweighted OLS, no cluster/spatial_se/spatial_clusters; more than two error-prone
-covariates are not tested in a confirmatory run.
+unweighted OLS, no cluster/spatial_se/spatial_clusters; more than five error-prone
+covariates are not tested in a confirmatory run (Rounds 46 and 53). regression_calibration with
+model "binomial" needs args.se_method "jackknife" (Round 53); with the default bootstrap it is
+exploratory and not tested in a confirmatory run.
 
-Round 45 count repairs: interval-censored NB2 (census.missing_censored_its.fit_censored_negbin)
-uses WONDER counts hidden as 1-9 as interval information, validated (.869-.898), and never outputs a
-hidden value; fit_model(model="negbin", spatial="clusters") gives IM-8 count slopes (validated on
+Round 45 count repairs: interval-censored NB2 (fit_model(model="negbin", exposure=..., censored=
+"<true/false column>") since Round 64; census.missing_censored_its.fit_censored_negbin) uses WONDER
+counts hidden as 1-9 as interval information, validated (.869-.898), and never outputs a hidden value; fit_model(model="negbin", spatial="clusters") gives IM-8 count slopes (validated on
 the MI/NY geometry; outside it the result carries a note); NB2 with noisy ACS exposures held fixed
 covered (.888-.891). within_states=True assigns the eight clusters within each state.
 
 Round 42: fit_model(impute="w") multiply imputes one incomplete covariate (20 draws, Rubin's
-rules; validated, also when missingness depends on the outcome). Exploratory library functions:
-census.missing_censored_its.fit_censored_poisson uses WONDER counts hidden as 1-9 as interval
-information without estimating them (under-covered .84-.86, though better than dropping them);
-interrupted_series for annual series (20-point series: every Round 42 method under-covered, .47-.81;
-Round 55: method="bootstrap_t_bc" is validated for 20+ points, "bootstrap_t" for 30+; Round 63:
-"bootstrap_t_cons" for 17+ points; below 17 nothing is validated).
+rules; validated, also when missingness depends on the outcome). Round 47: impute=["w", "v"] imputes
+two by chained equations (validated .898-.916; complete case .84 when missingness depends on the outcome). Exploratory:
+census.missing_censored_its.fit_censored_poisson (library only) uses WONDER counts hidden as 1-9 as interval
+information without estimating them (under-covered .84-.86, though better than dropping them).
+Time series: the interrupted_series tool (Round 64; full profile; census.missing_censored_its.interrupted_series)
+for ANNUAL series, never overlapping ACS five-year releases (20-point series: every Round 42 method
+under-covered, .47-.81).
+Round 48: interrupted_series(method="bootstrap_t") is validated for 30+ annual points
+(.883-.896). Round 55: method="bootstrap_t_bc" (bootstrap series at a bias-corrected AR
+coefficient) is validated for 20+ points (.867-.889). Round 63: method="bootstrap_t_cons"
+(critical values at least the t(n - p - 1) quantile) is validated for 17+ points; at 15 points
+every method failed (.849-.855), and the EWC HAR test failed (.61-.72).
+"""
+# END GENERATED RULES A
 
-Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
+_INSTR_MID = """Count outcomes without explicit spatial-cluster inference: binomial trials=<name>_denominator
 and scale:"robust"; Poisson counts use exposure
 and scale:"robust". New external-count manifests refuse scale:"X2" (failed coverage validation).
 
@@ -312,8 +334,10 @@ rates are fixed. Reference person-years are fixed unless args.reference_populati
 their survey SEs (Round 55; validated). Pool band contributions before
 squaring because reference rates are shared across areas. Internal-reference covariance
 omission is conservative, noted, not refused. Negative band replicates are refused unless
-args.negative_replicates is "accept" or "clip" (both validated in Round 51).
+args.negative_replicates is "accept" or "clip" (both validated in Round 51)."""
 
+# BEGIN GENERATED RULES B (scripts/sync_rule_text.py; source: docs/agent_protocol.md <!-- mcp-rules:B --> paragraphs)
+_RULES_B = """
 Round 29 manual WONDER references: all county and national files are manual
 exports; the engine never contacts WONDER. `acs_age_sex_bands` builds the fixed
 20-band B01001 order (male youngest–oldest, then female). `smr` may replace literal
@@ -333,8 +357,10 @@ exports in the repo or releases. Keep study states only, omit national death-cou
 vectors/complementary totals, mask censored counties in every product and run
 `census.wonder_outputs.audit_outputs` before packaging. Sensitivity endpoint
 assignments stay internal and output coefficients only; they are not strict bounds.
+"""
+# END GENERATED RULES B
 
-SMR refuses negative ACS band replicates under its fixed validation domain, even with positive E.
+_INSTR_TAIL = """SMR refuses negative ACS band replicates under its fixed validation domain, even with positive E.
 Area HC3 assumes independence. R1 applies to external outcomes/counts. Reused LBW associations
 are exploratory. No new tools are needed.
 
@@ -375,6 +401,8 @@ matches CPS ASEC income reports. Never pass guessed values via cpi_table.
 Branch on error_code in failed results.
 Call get_research_protocol for the full protocol; get_recipe for short step lists.
 """
+
+INSTRUCTIONS = "\n\n".join((_INSTR_HEAD, _RULES_A.strip("\n"), _INSTR_MID, _RULES_B.strip("\n"), _INSTR_TAIL))
 
 mcp = FastMCP("US-Census-ACS-Downloader", instructions=INSTRUCTIONS)
 
@@ -1374,6 +1402,7 @@ for _fn in (
     workflows_inference.minimum_detectable_difference,
     workflows_inference.reliability_profile,
     workflows_inference.trend_test,
+    workflows_inference.interrupted_series,
     workflows_inference.make_figure,
     workflows_inference.make_table,
     workflows_inference.make_results_bundle,
@@ -1425,6 +1454,7 @@ correlation_matrix = workflows_inference.correlation_matrix
 minimum_detectable_difference = workflows_inference.minimum_detectable_difference
 reliability_profile = workflows_inference.reliability_profile
 trend_test = workflows_inference.trend_test
+interrupted_series = workflows_inference.interrupted_series
 make_figure = workflows_inference.make_figure
 make_table = workflows_inference.make_table
 make_results_bundle = workflows_inference.make_results_bundle

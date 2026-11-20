@@ -271,7 +271,7 @@ waits about a month.
 
 | Round | Theme | Covers | Status |
 | :--- | :--- | :--- | :--- |
-| 64 | Agent access (no new statistics) | N40–N43 | planned |
+| 64 | Agent access (no new statistics) | N40–N43 | merged (v0.61.0) |
 | 65 | Replication shortlist: 4–6 published findings with exact data specs, for owner approval | N44, N45 | after 64 |
 | 66+ | Registered replications, each with a matching simulation on its geography | N44, N45 | after owner approval of 65 |
 

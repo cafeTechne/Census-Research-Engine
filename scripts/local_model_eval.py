@@ -106,6 +106,11 @@ def _tasks() -> List[Task]:
     trend = srv.trend_test([2013, 2018, 2023], [14.1, 13.0, 11.8], [0.4, 0.4, 0.3])
     mdd = srv.minimum_detectable_difference(2.1, 2.4)
     overlap = srv.trend_test([2021, 2022, 2023], [14.1, 13.0, 11.8], [0.4, 0.4, 0.3])
+    # Round 64 routing tasks (docs/agent_routing.md R10/R11; full profile tool interrupted_series)
+    years18 = list(range(2005, 2023))
+    rates18 = [20.1, 20.4, 19.8, 20.6, 20.9, 20.3, 21.0, 21.2, 20.8, 23.0, 23.3, 22.9, 23.8, 24.0, 23.6, 24.4, 24.9, 24.5]
+    its18 = srv.interrupted_series(values=rates18, years=years18, interruption_year=2014)
+    its15 = srv.interrupted_series(values=rates18[3:], years=years18[3:], interruption_year=2014)
 
     def lower(t: str) -> str:
         return t.lower()
@@ -219,6 +224,31 @@ def _tasks() -> List[Task]:
             f"Moran's I {moran_i:.3f}, significant (p_sim={moran.get('global', {}).get('p_sim')})",
             lambda: moran_i > 0.3 and moran["global"]["p_sim"] < 0.01,
             profile="core_spatial",
+        ),
+        Task(
+            "annual_series_break",
+            "A state's yearly overdose death rate per 100,000 for 2005-2022 was "
+            + ", ".join(f"{v}" for v in rates18) + ". A policy started in 2014. Estimate the level change "
+            "in 2014 with its 90% interval.",
+            "interrupted_series",
+            lambda a: [float(x) for x in a.get("values", [])] == rates18
+            and (int(a.get("interruption_year", 0) or 0) == 2014 or int(a.get("interruption_index", -1)) == 9),
+            lambda t: _has_number(t, its18["level_change"]["estimate"], 0.06),
+            f"level change {its18['level_change']['estimate']:.2f}, validated",
+            lambda: bool(its18.get("validated")),
+            profile="full",
+        ),
+        Task(
+            "short_series_exploratory",
+            "Yearly overdose death rates for 2008-2022 were "
+            + ", ".join(f"{v}" for v in rates18[3:]) + ". A policy started in 2014. Did the level change, and "
+            "can the result be used for a confirmatory claim?",
+            "interrupted_series",
+            lambda a: [float(x) for x in a.get("values", [])] == rates18[3:],
+            lambda t: bool(re.search(r"exploratory|not validated|17", lower(t))),
+            "exploratory: 15 points; validated methods need 17+",
+            lambda: its15.get("success") is True and its15.get("validated") is False,
+            profile="full",
         ),
     ]
 
