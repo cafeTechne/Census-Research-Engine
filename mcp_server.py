@@ -177,6 +177,11 @@ groups); differences of proportions, odds ratios, relative risks, differences of
 and medians; Korn-Graubard intervals for one proportion. The design-blind Pearson test
 is far too liberal; Wald proportion intervals under-cover for rare outcomes in small
 domains; larger tables are exploratory. No continuity corrections: empty 2x2 cells are refused.
+Round 56: test_association(kind="inequality", var=<nonnegative income>[, by=<two groups>]) gives
+the Gini coefficient (.861-.908), log P90/P10 and log P80/P20 (.888-.923) and the Gini difference
+between two groups (.873-.899), all validated with SDR replicate variance; Theil T, Atkinson and the
+top-decile share failed (.811-.858 in the worst cells) and are exploratory. Zero incomes stay in the
+Gini; negative incomes are refused; heaped quantiles are flagged as for medians.
 
 Round 33 rank methods (recipe rank_methods): correlation_matrix returns
 validated_intervals per pair. Spearman and Kendall Fisher-type intervals passed

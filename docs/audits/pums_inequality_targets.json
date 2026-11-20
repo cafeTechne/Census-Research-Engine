@@ -1,0 +1,30 @@
+{
+  "I1|gini": 0.33543196080246984,
+  "I1|theil_t": 0.18808160916256322,
+  "I1|atkinson_0.5": 0.08973083625750411,
+  "I1|atkinson_1": 0.17136846463244282,
+  "I1|log_p90_p10": 1.570877452884071,
+  "I1|log_p80_p20": 1.0321187619335426,
+  "I1|top10_share": 0.25203471427280544,
+  "I2|gini": 0.5122878392695172,
+  "I2|theil_t": 0.4818522753791322,
+  "I2|atkinson_0.5": 0.21400388698702044,
+  "I2|atkinson_1": 0.38207709001558243,
+  "I2|log_p90_p10": 2.5134039246145137,
+  "I2|log_p80_p20": 1.6513900190936681,
+  "I2|top10_share": 0.3821539071968201,
+  "I3|gini": 0.5346681946062126,
+  "I3|top10_share": 0.3248035966521641,
+  "I1|gini_diff_A2_A0": 9.803631020699477e-05,
+  "reference": {
+    "households": 2000000,
+    "persons": 4998681,
+    "seed": [
+      20280201,
+      2000000
+    ],
+    "rho": 0.25,
+    "zero_share_I3": 0.2997338697948519,
+    "note": "person-level population values at unit weights; marginal distributions do not depend on rho, weights or m"
+  }
+}

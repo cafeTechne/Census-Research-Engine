@@ -1,7 +1,7 @@
 # Backlog roadmap: repairs and follow-ups after the statistics roadmap (Rounds 43–56)
 
 **Status: drafted 2026-11-19, after v0.39.0 (Rounds 31–42, DOI 10.5281/zenodo.24371310); Rounds 43–50
-merged 2026-11-19; Rounds 51–56 (section 5) added 2026-11-19.** The source
+merged 2026-11-19; Rounds 51–56 (section 5) added and merged 2026-11-19.** The source
 from which `PLAN_ROUND_43.md` onward are drafted; it is not itself a plan. **Implementing agents: do not
 read this file unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.** Update
 the status column in section 3 when a round merges.
@@ -137,7 +137,7 @@ Same ground rules (section 1 above). Open issues N19–N28 plus the remaining ST
 | 53 | Corrected GLM slopes, part 2 | N22, N23 (binomial repair, corrected counts under IM-8, 5–6 error-prone covariates) | merged (v0.50.0) |
 | 54 | OH/PA external validity, part 2 | N19, N24 (Rounds 45–48 re-checked; naive IM-8 repair outside MI/NY) | merged (v0.51.0) |
 | 55 | Short series and estimated reference populations | N25, N26 | merged (v0.52.0) |
-| 56 | Microdata inequality measures | N27 | planned |
+| 56 | Microdata inequality measures | N27 | merged (v0.53.0) |
 
 ### Round 51: negative replicate estimates
 

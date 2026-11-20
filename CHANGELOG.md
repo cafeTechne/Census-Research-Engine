@@ -5,6 +5,19 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.53.0 (Round 56): PUMS income inequality measures
+
+- Freeze the new `census/pums_inequality_core.py`, the targets (2,000,000 reference households), the script and
+  the criterion at `d91201b`. Round 32 generator, 8 cells; lognormal, heavier-tailed and zero-inflated incomes.
+- Passed with SDR replicate variance: Gini (.861–.908), log P90/P10 and log P80/P20 (.888–.923), Gini difference
+  between two groups (.873–.899). Failed: Theil T (.811), Atkinson .5 (.845) and 1 (.858), top-decile share (.850)
+  in their worst cells.
+- New `census.pums_inequality.pums_inequality`; MCP `test_association(kind="inequality")` (no new tool); zero
+  incomes kept for the Gini, negative incomes refused, heaped quantiles flagged. Goldens byte-identical.
+- Exploratory Michigan example (`docs/studies/r56_pums_inequality_example.md`). Closes N27; `ROADMAP_BACKLOG.md`
+  Rounds 51–56 complete.
+- Acceptance: goldens byte-identical; 2100 passed, 37 skipped; 0 failures (6 new tests).
+
 ## 0.52.0 (Round 55): short interrupted series and estimated reference populations
 
 - Freeze the new `census/its_small_core.py`, the SMR `reference_population_se` term, the script and the criterion
