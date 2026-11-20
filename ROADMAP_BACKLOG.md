@@ -65,6 +65,7 @@ implementing Rounds 31–42. The second group was never collected in one place; 
 | N43 | Nothing checks that agent-facing text routes each research question to a tool the profile actually has, or that results flag out-of-scope designs | owner, 2026-11-20 | agent usability | 64 |
 | N44 | Nearly all spatial and measurement-error validation rests on two county geometries (MI/NY, OH/PA); tracts, states with many small counties and large Western counties are untested | owner, 2026-11-20 | external validity | 65+ |
 | N45 | No registered study uses a method added after Round 30; the end-to-end chain (manifest, gates, reporting) is untested on real questions with known answers | owner, 2026-11-20 | external validity | 65+ |
+| N46 | `multilevel_model` fits two levels only; three-level variance decompositions (tract in county in state) need statsmodels directly | R68 | missing method | later |
 
 Pre-Round-31 backlog items (STATUS "Open backlog"): 1 spatial routing and GLM EIV, 2 NB2 for R29,
 3 manifest correlation intervals, 4 GLM measurement-error correction, 5 WONDER child-age reference
@@ -275,7 +276,7 @@ waits about a month.
 | 65 | Replication shortlist | N44, N45 | done: owner chose A, B, C and E (headline only) on 2026-11-20; D waits for the Part G WONDER export |
 | 66 | Numeric replications A (CHR county Black/White dissimilarity, all counties) and B (Census state Gini, B19083), plus segregation coverage on GA/TX/AZ county geometry | N44 | merged (v0.62.0): A and B replicated; D range narrowed to .75 |
 | 67 | Replication C (Mitchell et al. 2022, NC tract life expectancy and ICE), plus SCPC and spatial-error coverage on NC tract geometry | N44, N45 | merged (v0.63.0): partly replicated (5/6); tract-level SCPC exploratory |
-| 68 | Replication E (Boing et al. 2020 headline: tract/county/state shares of life-expectancy variation), plus three-level multilevel coverage | N44, N45 | after 67 |
+| 68 | Replication E (Boing et al. 2020 headline: tract/county/state shares of life-expectancy variation), (simulation deferred to N46) | N44, N45 | planned |
 | 69 | Replication D (Monnat 2018, county drug mortality) with censored NB2 and SCPC on national county geometry | N44, N45 | after the owner's Part G export |
 
 ### Round 64: agent access
