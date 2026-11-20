@@ -207,7 +207,10 @@ def test_tool_counts_in_readme_and_status():
     names = _tools()
     full, core, cs = len(names), len(p.tools_for("core", names)), len(p.tools_for("core_spatial", names))
     readme = (ROOT/"README.md").read_text(); status = (ROOT/"STATUS.md").read_text()
-    assert f"({full} tools; `--profile core` gives {core} for local models)" in readme
+    # README layout since the 2026-11-20 tool-guide rewrite: lead sentence, profile table and inventory heading.
+    assert f"**{full} MCP tools**" in readme and f"All {full} MCP tools" in readme
+    assert f"| `full` (default) | {full} |" in readme and f"| `core` | {core} |" in readme
+    assert f"| `core_spatial` | {cs} |" in readme
     assert f"MCP server ({full} tools; {core} in `core`, {cs} in `core_spatial`;" in status
     assert "32 tools" not in readme
 
