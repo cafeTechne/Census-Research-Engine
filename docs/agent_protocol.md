@@ -589,7 +589,7 @@ not causal or superpopulation inference. Validation gate (Rounds 50 and 52, real
 tract MOEs, non-negative counts, correlated groups; poverty, income and race/ethnicity
 groups, MI/NY and OH/PA): a row is validated, with at least five populated tracts, when
 the county's noise level (`noise_level`: the largest, over groups, of the median tract
-CV) is in [.15, 1.0) for bias-corrected D, finite for bias-corrected isolation, below
+CV) is in [.15, .75) for bias-corrected D (Round 66: .75-1 failed on Texas counties), finite for bias-corrected isolation, below
 1.0 for two-group and .50 for three-group bias-corrected H, and finite for four- to
 six-group bias-corrected H (six groups: Round 57); or when every tract group-count CV is <= .15 (Round 28,
 `max_count_cv`; the only range for naive D). Naive isolation/H failed race groups

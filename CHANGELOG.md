@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.62.0 (Round 66): first registered replications
+
+- Criterion `dd48bf6`; deviation 1 (`d30d7ed`) made the descriptive interval part run per county, with the rules
+  unchanged.
+- **A, replicated:** CHR 2025 "Residential Segregation – Black/White" reproduced exactly in all 2,055 comparable
+  counties. CHR's code uses B11002 population in households, with Hispanic Whites included. The engine's
+  bias-corrected index is a median 3.5 points lower in the 433 counties checked descriptively.
+- **B, replicated:** the Census state Gini (B19083) from 2019–2023 PUMS for 12 states: median |difference| .0008;
+  intervals contain it in 10 of 12 (the misses are CA and NC, from a small top-coding bias).
+- **S:** Round 52's segregation design on GA, TX and AZ. Isolation and H pass. Bias-corrected D failed the
+  [.75, 1) bin on Texas, so `REALISTIC_RANGES` for bias-corrected D is now [.15, .75). Counties in that bin
+  become exploratory for D.
+- Goldens byte-identical. Acceptance: 2158 passed, 37 skipped; 0 failures.
+
 ## 0.61.0 (Round 64): agent access
 
 - No new statistics; goldens byte-identical.

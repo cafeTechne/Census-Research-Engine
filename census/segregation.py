@@ -46,7 +46,9 @@ GROUPS_AUDIT = "docs/audits/segregation_groups_validation.md"
 INF = float("inf")
 REALISTIC_RANGES = {
     ("dissimilarity", "naive", 2): None,
-    ("dissimilarity", "bias_corrected", 2): (.15, 1.0),
+    # Round 66 (criterion dd48bf6/d30d7ed; docs/audits/r66_segregation_geometry_validation.md): on TX county
+    # geometry the [.75, 1) bin failed (16 of 18 counties >= .80, below the 90% rule), so the range ends at .75.
+    ("dissimilarity", "bias_corrected", 2): (.15, .75),
     ("isolation", "naive", 2): None,
     ("isolation", "bias_corrected", 2): (0., INF),
     ("theil_h", "naive", 2): None,
@@ -179,7 +181,7 @@ def segregation_replicate(frame, groups, replicates, within='county', level=.90,
     A row is validated when its variant passed and the county is in a validated
     range: Round 28 (two groups, every tract group-count CV <= .15,
     ``max_count_cv``) or Rounds 50/52 (``noise_level``, the largest group median tract
-    CV, inside ``REALISTIC_RANGES``: bias-corrected D [.15, 1), isolation any finite
+    CV, inside ``REALISTIC_RANGES``: bias-corrected D [.15, .75) (Round 66), isolation any finite
     level, H below 1 (two groups), .50 (three) or any finite level (four or five);
     at least five populated tracts). Otherwise it is exploratory only, and confirmatory manifest
     hypotheses on it are refused. Naive isolation/H and H with six or more groups are exploratory.
