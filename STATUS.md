@@ -3,8 +3,9 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.39.0 (Rounds 31–42, the statistics roadmap, released as one bundle; DOI
-10.5281/zenodo.24371310). Previous: v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
+**Current release:** v0.53.0 (Rounds 43–56, the backlog roadmap, released as one bundle; DOI
+10.5281/zenodo.24384786). Previous: v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
+10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
 10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
 
@@ -131,32 +132,32 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 56 (v0.53.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 56 (v0.53.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 PUMS income inequality (criterion `d91201b`): Gini, log P90/P10, log P80/P20 and Gini differences validated with
 SDR replicate variance; Theil, Atkinson and the top-decile share fail and stay exploratory. New
 `census.pums_inequality`; MCP `test_association(kind="inequality")` (no new tool). Exploratory Michigan example
 (`r56_pums_inequality_example.md`). Goldens unchanged. Acceptance: 2100 passed, 37 skipped; 0 failures.
 
-**Round 55 (v0.52.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 55 (v0.52.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 short series and estimated reference populations (criterion `dd6d6b7`): `interrupted_series(method="bootstrap_t_bc")`
 validated for 20+ points (was 30+); the EWC HAR test failed; SMR `reference_population_se` (library and manifest
 `args`) validated. Demonstration on simulated inputs (`r55_demonstration.md`; no suitable real input offline).
 Goldens unchanged. Acceptance: 2094 passed, 37 skipped; 0 failures.
 
-**Round 54 (v0.51.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 54 (v0.51.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 OH/PA external validity, part 2 (criterion `e42840d`): IM-8 count slopes and calibrated count slopes replicate on
 OH/PA; G2 replicates with up to four error-prone covariates, G1 (three to five) and G2 (five) do not; IM with 4
 or 6 within-state clusters does not repair naive IM outside MI/NY; one fresh-seed MI/NY IM-8 cell covered .849.
 Engine notes only. Exploratory example (`r54_ohpa_im_example.md`). Goldens unchanged. Acceptance: 2088 passed, 37 skipped; 0 failures.
 
-**Round 53 (v0.50.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 53 (v0.50.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 corrected GLM slopes, part 2 (criterion `8d48956`): `regression_calibration(se_method="jackknife")` validated
 for binomial, Poisson and NB2 (closes backlog 4); `fit_count_model(spatial="clusters", calibrate=[...])` for
 spatially correlated counts; spatial EIV validated with five error-prone covariates. MCP `fit_model(se_method=)`
 and calibrated IM-8 route. Exploratory example (`r53_rc_example.md`): child poverty on income and unemployment;
 jackknife SEs about 40–50% wider than the bootstrap's. Goldens unchanged. Acceptance: 2082 passed, 37 skipped; 0 failures.
 
-**Round 52 (v0.49.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 52 (v0.49.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 segregation beyond poverty and income (criterion `b19696b`): race/ethnicity groups (B03002), four and five
 groups, OH/PA and release contrasts. Bias-corrected ranges widen (D and two-group H to 1.0, isolation and
 four/five-group H any finite noise); naive isolation/H fail race groups and are no longer validated; release
@@ -164,7 +165,7 @@ contrasts need the larger noise level below .50. Exploratory example (`r52_segre
 102–126 of 145 MI/NY counties validated for race designs; clipped counties above .50 stay exploratory (N30).
 Goldens unchanged. Acceptance: 2074 passed, 37 skipped; 0 failures.
 
-**Round 51 (v0.48.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 51 (v0.48.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 negative replicate estimates (criterion `2837bfb`): clipping negative replicate group counts passes for the
 bias-corrected segregation indices and three-group H (same noise ranges); naive isolation/H fail with clipped
 cells. SMR accepts negative band replicates (accept and clip both pass). Library defaults `"clip"` and
@@ -172,50 +173,50 @@ cells. SMR accepts negative band replicates (accept and clip both pass). Library
 county-designs Round 50 refused are now validated (`r51_negative_replicates_example.md`). Goldens unchanged.
 Acceptance: 2066 passed, 37 skipped; 0 failures.
 
-**Round 50 (v0.47.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 50 (v0.47.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 segregation under realistic ACS error (criterion `686d121`): bias-corrected D, isolation and H and
 three-group H valid to county noise level .50; naive D failed, so all defaults are bias-corrected.
 `segregation_replicate` reports `noise_level` and gates on it (`REALISTIC_RANGES`). Exploratory example
 (`r50_segregation_example.md`). Goldens unchanged. Acceptance: 2058 passed, 37 skipped; 0 failures.
 
-**Round 49 (v0.46.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 49 (v0.46.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 survey-weighted PUMS models (criterion `c0dfd0a`): ordered logit/probit, multinomial logit, median
 regression and probit with the SDR replicate variance all pass. New frozen `census.pums_models_core`;
 `census.pums_models.fit_pums_model`; MCP `pums_regression(model=...)`. Exploratory example
 (`r49_pums_models_example.md`). Goldens unchanged. Acceptance: 2050 passed, 37 skipped; 0 failures.
 
-**Round 48 (v0.45.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 48 (v0.45.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 small samples and spatial dependence (criterion `3fb07d3`): effective-n correlation and α intervals,
 truncated Hartung–Knapp for 5–10 estimates, moment-based Bland–Altman limits and the ITS bootstrap-t
 (30+ points) pass. New frozen `census.small_spatial_core`, flags in `census.small_spatial`; MCP
 `correlation_matrix(spatial=True)`, `build_index(spatial=True)`. Exploratory example
 (`r48_spatial_example.md`). Goldens unchanged. Acceptance: 2035 passed, 37 skipped; 0 failures.
 
-**Round 47 (v0.44.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 47 (v0.44.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 causal and missing-data robustness (criterion `cbdc97f`): calibrated AIPW, calibrated mediation,
 Anderson–Rubin intervals and two-covariate chained MI pass; 2SLS Wald covered at every F. New frozen
 `census.causal_robustness_core`; `estimate_effect(calibrate=True)`, `impute=["w", "v"]`; plain AIPW with
 noisy confounders is now labelled exploratory. Exploratory MI/NY example (`r47_causal_example.md`).
 Goldens unchanged. Acceptance: 2027 passed, 37 skipped; 0 failures.
 
-**Round 46 (v0.43.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 46 (v0.43.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 measurement-error-corrected GLM slopes and spatial EIV with more covariates (criterion `4aceb22`):
 regression calibration passes for Poisson and NB2, fails for binomial (.851); G1/G2 pass with three and four
 error-prone covariates. `RC_VALIDATED`, `VALIDATED_MAX_ERROR_COVARIATES = 4`; exploratory Round 29 example
 with poverty's error corrected (slopes rise 4–10%). Goldens unchanged. Acceptance: 2015 passed, 37 skipped; 0 failures.
 
-**Round 45 (v0.42.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 45 (v0.42.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 count-model repairs (criterion `0c368dd`): censored NB2, IM-8 count slopes and NB2 with noisy offsets pass.
 New `census.count_repairs_core`; `fit_censored_negbin`; `fit_count_model(spatial="clusters")` and MCP
 `fit_model(model="negbin", spatial="clusters")`; `within_states` cluster assignment. Goldens unchanged. Acceptance: 2007 passed, 37 skipped; 0 failures.
 
-**Round 44 (v0.41.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 44 (v0.41.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 post hoc NB2 sensitivity of Round 29 (all three associations hold in both regions) and an OH/PA re-check of
 the spatial validations (criterion `09ecd91`): corrected-slope G1/G2 replicate; naive IM-8 C1 fails with
 spatially correlated fields. Engine notes for IM-8 outside MI/NY and for clusters crossing state borders;
 NB2 optimizer fallback. Goldens unchanged. Acceptance: 1999 passed, 37 skipped; 0 failures.
 
-**Round 43 (v0.40.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 43 (v0.40.0; released in the bundled v0.53.0; implemented by the maintainer agent):**
 manifest routing and housekeeping, no new statistics. Opt-in manifest options: validated correlation
 intervals, NB2 counts and spatial EIV. Saturated-model fix. Core-profile instructions cut from 12,480
 to under 4,000 characters (bounded by a test at 8,000); tool counts corrected and tested. Acceptance: goldens identical; 1993 passed, 37 skipped; 0 failures.
