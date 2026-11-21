@@ -19,8 +19,8 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | None queued: the replication shortlist is complete (Rounds 66–69); N39 (ACS 2021–2025 refresh) is due about 2026-12-20. Implement only the lowest-numbered plan. Merged plans are archived (below) |
-| `ROADMAP_BACKLOG.md` | Follow-up roadmap (Rounds 43–63 complete; section 8, Round 64 onward, planned; N39 ACS 2021–2025 refresh deferred to about 2026-12-20): the backlog below plus issues N1–N38 |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_70.md` (`.env` discovery, long-job progress); Rounds 71–74 queued. Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
@@ -444,49 +444,16 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 
 ## Open backlog
 
-Scheduled in `ROADMAP_BACKLOG.md` (section 2 lists issues N1–N16 found in Rounds 31–42: unbounded
-core-profile instructions, stale tool counts, untested weak-instrument cut-off and noisy-confounder
-robustness, mediator error, MI with several incomplete covariates or ACS error, censored NB2, short
-interrupted series, spatially robust correlations and α, small-k meta-analysis, survey-weighted PUMS
-models, and MI/NY-only validation geography).
+`ROADMAP_BACKLOG.md` lists the open items (rewritten 2026-11-21; finished history at tag `backlog-r43-69`):
+- N47: `.env` discovery when installed (Round 70);
+- N48: long-job progress and checkpoints (70);
+- N49: tract-level spatial inference (71);
+- N50: context data sources (CBP, ERS, CHR additional) and state-wide tract pulls (72);
+- N51: three-level models, loading-weighted indices, expected counts (73);
+- N52: replication suite (74);
+- N39: ACS 2021–2025 refresh, about 2026-12-20.
 
-1. Spatial dependence: naive-target IM-8 (Round 30 C1, OLS/binomial/Poisson) and corrected linear EIV
-   (Round 35 G1/G2, library, MCP and, since Round 43, manifests via `fit_eiv` `args.spatial`) are
-   validated. Round 44 re-checked both on OH/PA: G1/G2 replicate; naive C1 under-covers there with
-   spatially correlated fields (exploratory outside MI/NY). Pooled k-means clusters can straddle adjacent
-   states, leaving a state term partly constant (refused): the engine says so, and `within_states=True`
-   (Round 45; `fit_spatial_eiv`, `fit_count_model`) assigns clusters within each state. Count slopes under
-   IM-8 and NB2 with noisy exposures were validated in Round 45; G1/G2 with three and four error-prone covariates in Round 46, five in Round 53 (six failed); corrected Poisson/NB2 slopes under spatial dependence in Round 53. Remaining: six or more covariates; corrected binomial slopes under spatial dependence. No extra cluster counts or retuned
-   simulations were tried. Do not substitute naive C1 for registered EIV. Round 58: SCPC is the validated naive
-   interval outside MI/NY (OLS, Poisson) and the reliability gate (≥ .8) restores G1/G2 with three to five
-   covariates there. Round 54 re-checked Rounds 45, 46 and 53
-   on OH/PA (count slopes and G2 up to four covariates replicate; G1 three to five and G2 five do not) and found that
-   4 or 6 within-state clusters do not repair naive IM there; Round 48's effective-n intervals are not re-checked
-   (N31).
-2. Closed in Round 44: Poisson HC3 (used by R29) under-covered with strong overdispersion in Round 39;
-   R29's H1–H3 hold under NB2-HC3 in MI/NY and OH/PA (`r44_posthoc_r29.md`). The NB2 alpha optimizer now
-   falls back to Nelder–Mead when BFGS fails (large counts, little overdispersion).
-3. Closed in Round 43: manifests opt in to the Round 33 intervals with `correlation_matrix`
-   `args.interval: "validated"`; registered manifests keep the Fisher-z interval (their bytes are fixed).
-4. Closed in Round 53: `regression_calibration` is validated for Poisson and NB2 slopes (Round 46, bootstrap SEs) and, with `se_method="jackknife"`, for binomial, Poisson and NB2 (Round 53; the binomial bootstrap failure was an SE problem, not bias). Spatially correlated counts: calibration + IM-8 (Round 53). Corrected binomial slopes under spatial dependence remain untested.
-5. Held-out OH/PA mortality replication completed in Round 29 under the unchanged registered protocol;
-   all three associations replicate, including both H2 suppression sensitivities. All 62 manual WONDER
-   exports pass inventory. Later causes with suppressed national child-age reference cells need a
-   separately pre-registered rule before analysis; do not replace them by zero, an invented count or
-   an unregistered pooling rule. The 2013–2017 and MCD files remain inventory-only.
-6. Further validation: closed for segregation in Round 50 (realistic error, real MI/NY tract MOEs;
-   bias-corrected indices and three-group H valid to noise level .50). Remaining: race/ethnicity group
-   structures, four and five groups, release contrasts and OH/PA: closed in Round 52. Negative replicate
-   estimates: closed in Round 51 (clipped for segregation, accepted for SMR); Round 57 extended clipping above
-   .50 and added six groups, same-release county contrasts and a group-quarters exclusion (N30, N33 closed;
-   clipped six-group counties stay exploratory). Uncertain reference
-   denominators for SMRs: closed in Round 55 (`reference_population_se`). Round 27 splines/joint tests remain exploratory and require a
-   separately pre-specified finite-sample validation before confirmatory use.
-   Microdata inequality measures: closed in Round 56 (Gini, quantile ratios, Gini differences; Theil,
-   Atkinson and top shares exploratory).
-7. Closed in Round 43: a saturated `fit_replicate` (residual df 0) now reports missing model SEs,
-   intervals and p-values with a SATURATED MODEL note instead of infinite ones, and the coefficient
-   plot never draws infinite whiskers.
+Recorded limits are listed in its section 2.
 
 ## Plan format (keeps agent context small)
 
