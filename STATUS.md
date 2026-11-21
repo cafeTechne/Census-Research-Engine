@@ -147,7 +147,7 @@ replication D is replicated. The economic distress coefficient is 9.95 against t
 manual WONDER multiple-cause exports, with the Appendix Table A.1 codes verified from the author manuscript. The
 spatial error model's slope interval is validated on the national county geometry. All five shortlisted
 replication targets are now done (A, B, D, E replicated; C partly). Goldens unchanged. Acceptance:
-SUITE_PLACEHOLDER.
+goldens byte-identical; 2163 passed, 37 skipped; 0 failures.
 
 **Round 68 (v0.64.0; merged, released in the bundled v0.64.0; implemented by the maintainer agent):** replication
 E is replicated (headline only; paper not open access): 70.0% of geographic life-expectancy variation lies between
