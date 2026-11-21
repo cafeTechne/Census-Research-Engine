@@ -277,7 +277,7 @@ waits about a month.
 | 66 | Numeric replications A (CHR county Black/White dissimilarity, all counties) and B (Census state Gini, B19083), plus segregation coverage on GA/TX/AZ county geometry | N44 | merged (v0.62.0): A and B replicated; D range narrowed to .75 |
 | 67 | Replication C (Mitchell et al. 2022, NC tract life expectancy and ICE), plus SCPC and spatial-error coverage on NC tract geometry | N44, N45 | merged (v0.63.0): partly replicated (5/6); tract-level SCPC exploratory |
 | 68 | Replication E (Boing et al. 2020 headline: tract/county/state shares of life-expectancy variation), (simulation deferred to N46) | N44, N45 | merged (v0.64.0): replicated |
-| 69 | Replication D (Monnat 2018, county drug mortality): spatial error Model 4 analogue, censored NB2 secondary, spatial-error coverage on national counties | N44, N45 | planned |
+| 69 | Replication D (Monnat 2018, county drug mortality): spatial error Model 4 analogue, censored NB2 secondary, spatial-error coverage on national counties | N44, N45 | merged (v0.65.0): replicated |
 
 ### Round 64: agent access
 

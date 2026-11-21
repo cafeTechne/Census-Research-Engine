@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.65.0 (Round 69): replication D
+
+- Criterion `20a4c13`, committed after a counts-only build: 3,106 counties and 2,484 with at least 10 deaths, both
+  matching the paper.
+- **Replicated:** Monnat (2018) Appendix Table D.2 Model 4 analogue. 100 × ln(indirectly standardized drug-related
+  mortality 2006–2015) on ACS 2010–2014 covariates with state fixed effects and a spatial error term. Economic
+  distress 9.95 (90% CI 7.77–12.12) against 9.62.
+- Secondary results:
+  - the published age-adjusted rate (> 20 deaths): 12.92;
+  - censored NB2 on all counties: 14.69 (beside Model 3's 12.55).
+- **S:** spatial error ML slope coverage on 3,103 national counties is .908 (λ .3) and .881 (λ .55): passes.
+- The WONDER export guide's Part G was rewritten from the verified Appendix Table A.1: any-cause codes, no X85.
+- No engine change; goldens byte-identical. Acceptance: goldens byte-identical; 2163 passed, 37 skipped; 0 failures.
+
 ## 0.64.0 (Round 68): replication E
 
 - Criterion `110c22e`, committed after a counts-only data check. That check matched the paper exactly: 65,662
