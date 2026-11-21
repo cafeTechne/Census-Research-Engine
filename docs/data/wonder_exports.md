@@ -249,6 +249,11 @@ If the multiple-cause part looks different from this description, stop and send 
 
 ## Part G: drug-induced deaths 2006–2015, for replication D (2 files)
 
+> **ON HOLD (2026-11-20): do not export yet.** The article (`literature_pdfs/Monnat 2018.pdf`) says deaths were
+> selected on **any** listed cause (multiple cause of death, each death counted once), not on the underlying cause
+> as the steps below assume. The exact ICD-10 list is in the online Appendix A (Table A.1), which is not in that
+> PDF. These steps will be rewritten once Table A.1 is verified.
+
 **What it is for.** Replication target D (`docs/studies/replication_shortlist.md`) re-tests Monnat 2018
 (*Am J Prev Med* 54:611–619): county economic distress and drug-related mortality across 3,106 counties. The
 paper used WONDER's Multiple Cause of Death files for **2006–2015**, so we export the same ten years. Two
