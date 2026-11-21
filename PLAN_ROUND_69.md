@@ -65,9 +65,9 @@ standardized covariates. The outcome is ln(age-adjusted drug-related mortality, 
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Data and criterion | | |
-| S run | | |
-| Result | | |
-| Report, tests | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Data and criterion | done | counts match the paper (3,106; 2,484); criterion `20a4c13` |
+| S run | done | .908 / .881: passes |
+| Result | done | replicated: 9.95 vs 9.62 |
+| Report, tests | done | `r69_replication_monnat.md`; 1 test |
+| Goldens, final suite | done | identical; 2163 passed, 37 skipped |
+| Exceptions | none | first run stopped by a shell timeout; rerun unchanged |

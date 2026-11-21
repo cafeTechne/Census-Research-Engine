@@ -1,0 +1,22 @@
+{
+ "cells": [
+  {
+   "lam": 0.3,
+   "coverage": 0.908,
+   "failed": 0
+  },
+  {
+   "lam": 0.55,
+   "coverage": 0.881,
+   "failed": 0
+  }
+ ],
+ "passed": true,
+ "draws": 1000,
+ "n_counties": 3103,
+ "criterion_commit": "20a4c13",
+ "frozen_sha256": {
+  "scripts/r69_county_sem_validation.py": "760adb0d5293b345490cb9e6803841ae503d13da83c64f2c3f89ebe96663efc1",
+  "docs/audits/r69_replication_criterion.md": "7c1a8a695298661c6fc4143b1566adb31e07d845eadf53b2a8cb3bd4c4254038"
+ }
+}
