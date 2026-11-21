@@ -3,8 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.64.0 (Rounds 64–68: agent access and replications A, B, C, E; released as one bundle; DOI
-10.5281/zenodo.24405380). Previous: v0.60.0 (Rounds 61–63; DOI 10.5281/zenodo.24400452); v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
+**Current release:** v0.65.0 (Round 69: replication D; DOI 10.5281/zenodo.24411452). Previous: v0.64.0 (Rounds
+64–68; DOI 10.5281/zenodo.24405380); v0.60.0 (Rounds 61–63; DOI 10.5281/zenodo.24400452); v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
 10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
 10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
@@ -142,7 +142,7 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 69 (v0.65.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 69 (v0.65.0; merged, released as v0.65.0; implemented by the maintainer agent):**
 replication D is replicated. The economic distress coefficient is 9.95 against the paper's 9.62, using the owner's
 manual WONDER multiple-cause exports, with the Appendix Table A.1 codes verified from the author manuscript. The
 spatial error model's slope interval is validated on the national county geometry. All five shortlisted
