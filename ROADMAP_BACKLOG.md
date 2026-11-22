@@ -29,7 +29,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N54 | Annual surveillance trends lack joinpoint regression (number of joinpoints, APC/AAPC) and rate ratios of age-adjusted rates (Tiwari) | owner, 2026-11-22 | missing method | 77 (closed) |
 | N55 | Policy evaluation has two-group DiD and ITS only: staggered adoption (two-way FE is biased) and synthetic control are missing | owner, 2026-11-22 | missing method | 78 (closed) |
 | N56 | No decomposition of group gaps in microdata (Oaxaca–Blinder, Fairlie) with replicate-weight SEs | owner, 2026-11-22 | missing method | 79 (closed) |
-| N57 | Fay–Herriot is validated on the linear scale only: proportions near 0 and borrowing strength over releases (Rao–Yu) are missing | owner, 2026-11-22 | missing method | 80 |
+| N57 | Fay–Herriot is validated on the linear scale only: proportions near 0 and borrowing strength over releases (Rao–Yu) are missing | owner, 2026-11-22 | missing method | 80 (closed) |
 | N58 | No cluster detection for county counts (Kulldorff spatial scan) | owner, 2026-11-22 | missing method | 81 |
 
 ## 2. Recorded limits (not scheduled; reopen only with a new idea)
@@ -57,7 +57,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 77 | Joinpoint regression and age-adjusted rate ratios | N54 | merged (v0.73.0) |
 | 78 | Staggered-adoption DiD and synthetic control | N55 | merged (v0.74.0) |
 | 79 | Oaxaca–Blinder and Fairlie decompositions (PUMS) | N56 | merged (v0.75.0) |
-| 80 | Fay–Herriot for proportions and temporal Fay–Herriot | N57 | planned |
+| 80 | Fay–Herriot for proportions and temporal Fay–Herriot | N57 | merged (v0.76.0) |
 | 81 | Spatial scan statistic for county counts | N58 | planned |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 

@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.76.0 (Round 80): Fay–Herriot for proportions and across releases
+
+- **Arcsine Fay–Herriot** (`census/sae_extensions.py`; frozen core `census/sae_extensions_core.py`; N57): direct
+  proportions transformed with the arcsine square root, sampling variance 1/(4 n_eff), bias-corrected back-transform
+  and a 200-fit parametric-bootstrap MSE. `small_area_estimates(transform="arcsine", n_col=...)`.
+- **Rao–Yu temporal Fay–Herriot**: area plus AR(1) area-time effects across 2–3 non-overlapping releases, latest
+  release reported, bootstrap MSE. `small_area_estimates(temporal=True, release_column="Year")`; overlapping releases
+  refused.
+- **Validation** (`docs/audits/sae_extensions_validation.md`, criterion `251dc9d`; real S2701 sampling variances for
+  MI/NY counties and tracts; 500 draws): arcsine per-area coverage .898–.904 (worst decile ≥ .880; relative bias
+  ≤ .078 below p = .10); Rao–Yu .897–.898, MSE gain 3–24%.
+- **Recipe** `small_area` sections; protocol and MCP rule text. No new tool, no manifest change.
+- **Example** (`docs/audits/r80_sae_example.md`, exploratory): Michigan tract and county uninsured rates.
+
 ## 0.75.0 (Round 79): Oaxaca–Blinder and Fairlie decompositions on PUMS
 
 - **Decompositions** (`census/decomposition.py`; frozen core `census/decomposition_core.py`; N56): twofold

@@ -768,9 +768,16 @@ def small_area_estimates(
     method: str = "REML",
     output_path: Optional[str] = None,
     figure_dir: Optional[str] = None,
+    transform: Optional[str] = None,
+    n_col: Optional[str] = None,
+    temporal: bool = False,
+    release_column: str = "Year",
 ) -> Dict[str, Any]:
     """Sharpen noisy small-area estimates (tracts, small counties) with the
     Fay-Herriot model, which borrows strength from covariates.
+    Round 80: transform="arcsine" for proportions near 0 or 1 (outcome a proportion or percent; n_col optional
+    effective sample size, needed where the direct estimate is 0 or 1); temporal=True borrows strength across 2-3
+    NON-overlapping releases (release_column) and estimates the latest release (Rao-Yu).
 
     Args:
         input_path: Analysis frame with the outcome, its SE column, and covariates.
@@ -784,6 +791,24 @@ def small_area_estimates(
     """
     from census.sae import fay_herriot
 
+    if transform not in (None, "arcsine") or (transform and temporal):
+        return _fail(errors.INVALID_INPUT, "transform must be 'arcsine' (or omitted); it cannot be combined with temporal.")
+    if transform or temporal:
+        from census import sae_extensions as sx
+        try:
+            frame = _load_frame(input_path)
+            est = (sx.arcsine_small_area(frame, formula, se_col, n_col=n_col) if transform
+                   else sx.temporal_small_area(frame, formula, se_col, release_column=release_column))
+        except _INPUT_ERRORS as exc:
+            return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
+                         "check the formula, columns and releases, then retry")
+        path = _write_frame(est, output_path, "small_area_estimates.csv")
+        kind = "arcsine Fay-Herriot" if transform else f"Rao-Yu temporal Fay-Herriot (latest release {est['release'].iloc[0]})"
+        state = "validated" if est.attrs["validated"] else "exploratory (see the audit)"
+        return _ok(f"{kind} estimates for {len(est)} areas; {state}.",
+                   "report the estimates with their bootstrap-MSE intervals and the direct estimates",
+                   output_path=path, preview=_records(est, 10),
+                   **{k: v for k, v in est.attrs.items() if k in ("validated", "interval", "sigma2_u", "sigma2_v", "rho", "releases", "audit")})
     try:
         res = fay_herriot(formula, _load_frame(input_path), se_col, method=method)
     except _INPUT_ERRORS as exc:

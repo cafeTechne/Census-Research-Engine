@@ -10,6 +10,27 @@ Goal: more reliable estimates for small areas (tracts, small counties) whose dir
 5. Read `gamma` (shrinkage): near 1 keeps the direct estimate, near 0 relies on the model.
 6. Report the EBLUP with its MSE-based interval next to the direct estimate and MOE. Label model-based estimates as such.
 
+## Proportions near 0 or 1 (Round 80)
+
+Profile: full (`small_area_estimates`).
+
+For tract or small-county rates such as the uninsured or disability share, linear Fay–Herriot can give negative
+estimates and wrong MSEs. Use `small_area_estimates(input_path, "unins ~ pov", "unins_se", transform="arcsine")`:
+- the outcome is a proportion or a percentage; the effective sample size comes from the estimate and its SE, or
+  from `n_col`, which areas with a direct estimate of 0 or 1 need (without it they are refused);
+- estimates are back-transformed with a bias correction, and intervals come from a 200-fit parametric bootstrap;
+- validated on MI/NY county and tract geometries with real S2701 sampling variances (per-area coverage .898–.904,
+  worst-decile areas ≥ .872; relative bias below 8% for rates under 10%).
+
+## Several releases (Round 80)
+
+`small_area_estimates(..., temporal=True, release_column="Year")` borrows strength across 2–3 NON-overlapping
+releases (for example 2014–2018 and 2019–2023) with the Rao–Yu model and reports the latest release.
+- Every area needs every release; overlapping releases (closer than five years) are refused. Tract IDs changed in
+  2020, so tracts across 2018 and 2023 releases need a crosswalk first.
+- Validated (.897–.898 coverage); the MSE gain over single-release estimates was 3–7% on counties and 10–24% on
+  tracts.
+
 ## Three levels (tracts in counties in states)
 
 `multilevel_model(input_path, "e0 ~ 1", ["state", "county"])` fits a three-level random-intercept model (Round 73):
