@@ -9,6 +9,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RECIPE_DIR = os.path.join(ROOT, "docs", "recipes")
 
 RECIPES: Dict[str, str] = {
+    "policy_change": "Policy or event effects: difference-in-differences on non-overlapping releases, interrupted "
+                     "annual series (Round 75)",
+    "custom_geographies": "Neighborhoods and combined areas: mapping tracts to polygons, summed counts with MOEs, "
+                          "medians from brackets, 2010/2020 tracts (Round 75)",
+    "dollars": "Inflation (R-CPI-U-RS) and place price levels (BEA RPPs) for dollar estimates (Round 75)",
+    "spatial_patterns": "Global and local spatial clustering (Moran's I, LISA) and maps with reliability (Round 75)",
+    "cross_release": "Variable concordance across releases and reviewed crosswalk decisions (Round 75)",
+    "reporting": "Publication tables, maps, codebooks and exploratory results bundles (Round 75)",
     "replications": "Rerun the five published replications (Rounds 66-69) and check the engine still reproduces "
                     "them (Round 74)",
     "context_covariates": "County covariates from other sources (County Business Patterns, ERS county types and "
@@ -35,7 +43,7 @@ RECIPES: Dict[str, str] = {
 
 RecipeName = Literal[
     "compare_counties", "tract_trend", "regression_sampling_error", "small_area", "preregistered",
-    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas", "composite_index", "agreement", "combine_estimates", "causal", "context_covariates", "replications",
+    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas", "composite_index", "agreement", "combine_estimates", "causal", "context_covariates", "replications", "policy_change", "custom_geographies", "dollars", "spatial_patterns", "cross_release", "reporting",
 ]
 
 

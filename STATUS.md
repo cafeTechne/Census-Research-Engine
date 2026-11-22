@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_75.md` (manifest support for the Round 73 methods, tract coordinates, recipes, README). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | None queued (Round 75 merged). Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -145,6 +145,18 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 75 (v0.71.0; merged, release pending owner approval; implemented by the maintainer agent):** manifest
+support for the Round 73 methods, tract coordinates, recipes and README; no new statistics.
+- Manifests gain:
+  - method `multilevel`, with two levels (`"groups": "county_fips"`) or three (`["state_fips", "county_fips"]`);
+  - an `"indices"` block, whose weights are fixed in every replicate and which refuses circular use;
+  - `expected_count` `person_years`.
+- Tract frames without `Year` try both tract vintages for representative points.
+- Six new recipes (25 in all) and a refreshed README.
+
+Goldens: run golden byte-identical; schema golden differs only in the supported-method list (intended). Acceptance:
+run golden byte-identical, schema golden differs only in the method list; 2213 passed, 42 skipped; 0 failures.
 
 **Round 74 (v0.70.0; merged after Round 73, released in the bundled v0.70.0; implemented by the maintainer agent):**
 replication suite, no new statistics (N52).

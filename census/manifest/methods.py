@@ -1132,6 +1132,65 @@ METHODS: Dict[str, MethodSpec] = {
     ),
 }
 
+def _run_multilevel(a, args, frame, level, replicates, correction, ctx):
+    """Round 75: two-level (fit_multilevel, Kenward-Roger) or three-level (Round 73) random-intercept models."""
+    g = a["groups"]
+    if isinstance(g, str):
+        from ..multilevel import fit_multilevel
+        return fit_multilevel(a["formula"], frame, g, sampling_se=True if args.get("sampling_se") else None,
+                              replicates=replicates, target=args.get("target", "population"), confidence_level=level,
+                              replicate_policy=args.get("replicate_policy", "flag"))
+    from ..multilevel3 import fit_three_level, AUDIT
+    out = fit_three_level(a["formula"], frame, list(g), level=level, share_intervals=False)
+    res = _wrap_table(out, "three-level mixed model (REML)", a["formula"], "multilevel",
+                      ["ACS sampling error is not included: the three-level model was validated without it (Round 73); "
+                       "variance shares are descriptive (their intervals are exploratory)."],
+                      {"three_level": {"groups": list(g), "shares": out["shares"], "n_top": out["n_top"],
+                                       "n_middle": out["n_middle"], "validated": out["validated"], "audit": AUDIT}})
+    res.confidence_level = level
+    return res
+
+
+def _check_multilevel(stage, ctx):
+    if stage != "before_spatial":
+        return
+    a, errors, names = ctx["a"], ctx["errors"], ctx["names"]
+    g = a.get("groups")
+    args = a.get("args") or {}
+    p = f"analyses ({a.get('id')}) multilevel: "
+    if isinstance(g, str):
+        if g not in names:
+            errors.append(p+f"groups {g!r} is not a manifest variable (or state_fips/county_fips)")
+        bad = set(args)-{"target", "sampling_se"}
+        if bad:
+            errors.append(p+f"two-level models take args target and sampling_se only, not {sorted(bad)}")
+        if "sampling_se" in args and type(args["sampling_se"]) is not bool:
+            errors.append(p+"sampling_se must be boolean (true uses the outcome's SE column)")
+        if args.get("target", "population") not in ("population", "these_areas", "conservative"):
+            errors.append(p+"target must be population, these_areas or conservative")
+    elif isinstance(g, list) and len(g) == 2 and all(isinstance(x, str) for x in g) and g[0] != g[1]:
+        for x in g:
+            if x not in names:
+                errors.append(p+f"groups {x!r} is not a manifest variable (or state_fips/county_fips)")
+        if args:
+            errors.append(p+f"three-level models take no args (no replicates, sampling_se or target); got {sorted(args)}")
+    else:
+        errors.append(p+"groups must be a grouping column or [top, middle] (two distinct columns)")
+
+
+METHODS["multilevel"] = MethodSpec(
+    "multilevel", ("formula", "groups"), ("coefficient",), _run_multilevel,
+    replicate=True, external_outcome=True, check=_check_multilevel,
+    text=(
+        "Random-intercept models were fitted by REML (statsmodels MixedLM). Two-level models use Kenward-Roger "
+        "small-sample intervals, with ACS sampling error from replicate refits or the outcome's known SE where "
+        "declared; three-level models (top and middle grouping levels) use t(G_top - 1) Wald intervals for fixed "
+        "effects and exclude ACS sampling error, as validated (Round 73). Variance shares are descriptive.",
+        ["statsmodels"],
+    ),
+)
+
+
 STATISTIC_EXTRACTORS = {
     'coefficient': _stat_coefficient,
     'joint_wald': _stat_joint_wald,

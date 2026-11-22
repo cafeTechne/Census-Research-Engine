@@ -85,6 +85,7 @@ def unit_coordinates(geoids, level, acs_year):
     all_coords = pd.concat(frames, ignore_index=True).drop_duplicates("GEOID").set_index("GEOID")
     missing = sorted(set(geoids) - set(all_coords.index))
     if missing:
-        raise ValueError(f"missing boundary GEOIDs: {missing[:10]}")
+        raise ValueError(f"missing boundary GEOIDs in the {year} {level} boundaries: {missing[:10]}"
+                         + (" (tract GEOIDs changed in 2020: check the release year)" if level == "tract" else ""))
     result = all_coords.reindex(geoids).reset_index()
     return result, {"level": level, "boundary_year": year, "files": files}

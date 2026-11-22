@@ -1,5 +1,9 @@
 # Tests and intervals on PUMS microdata
 
+For a plain custom tabulation (count, mean, proportion, median or ratio by group, with replicate-weight SEs) use
+`pums_tabulate(state, year, statistic, var=..., by=..., where=...)`; it reproduces Census PUMS verification
+estimates and flags estimates from fewer than 30 records or with CV above 30%. The tests below compare groups.
+
 1. Decide the universe (`where`, e.g. `"AGEP >= 19 and AGEP <= 64"`) and the weight
    (`person` or `housing`). Use PUMS codes; check them with the PUMS data dictionary.
 2. Pick the kind:

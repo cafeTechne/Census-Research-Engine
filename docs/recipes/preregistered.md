@@ -18,6 +18,11 @@ Worked example across releases (two states, CPI- and RPP-adjusted, Census VRE re
 
 Worked example (synthetic, offline, executable): docs/reference_workflow.md runs examples/manifests/income_population_tracts.json end to end, including a rerun check and a blocked incomplete-replicates case.
 
+**Added in Round 75 (methods validated in Round 73).**
+- `"method": "multilevel"`, with `"groups": "county_fips"` (two levels, Kenward–Roger, with replicates; `args.target`, `args.sampling_se`) or `"groups": ["state_fips", "county_fips"]` (three levels, fixed-effect intervals validated, no ACS sampling error, no args). `state_fips` and `county_fips` are GEOID prefixes the run adds when named. Statistic: `coefficient`.
+- An `"indices"` block: `[{"name": "econ_index", "indicators": [...], "method": "loadings", "loadings": {...}, "standardize": true}]` (or `"pca"`/`"equal"` with three or more indicators). Indicators must be ACS variables or derivations. Full-sample means, SDs and weights stay fixed in every replicate, so the index has replicate values. An analysis may not explain one of an index's indicators with that index (circularity).
+- `expected_count` derivations may take `"person_years": "<external variable>"` (e.g. WONDER population): expected = person-years x the ACS age x sex mix x the reference rates (the Round 69 construction).
+
 **Validated options added in Round 43.** `correlation_matrix` `"interval": "validated"`,
 `fit_replicate` `"model": "negbin"` and `fit_eiv` `"spatial": "clusters" | "error"`; see the
 `rank_methods` and `regression_sampling_error` recipes.
