@@ -59,9 +59,9 @@ Version 0.73.0. Branch `phase77/joinpoint`. Validation first.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, manifest, tool | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `joinpoint_core.py`, `joinpoint_validation.py`; criterion `01ad5a4` (tag `criterion-r77`) |
+| Results | done | J1 selection passes; J2/J3/J2b/J3b APC and AAPC intervals fail (exploratory); R1, R1b pass |
+| Engine, manifest, tool | done (no manifest) | `census/joinpoint.py`; tool `joinpoint` (73 tools); `policy_change` recipe; manifests not applicable |
+| Example | skipped | no annual WONDER series among the owner's exports (plan allows skipping) |
+| Goldens, suite | done | both goldens byte-identical; 2229 passed, 42 skipped |
+| Exceptions | listed | `round77_compatibility.md` |

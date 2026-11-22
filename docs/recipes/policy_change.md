@@ -22,9 +22,17 @@ Goal: estimate the effect of a policy or event that began at a known time.
      `bootstrap_t_bc` from 20 and `bootstrap_t` from 30.
    - Every method failed at 15 points, so a shorter series is exploratory.
    - Years must be consecutive.
-4. **Several releases without a comparison group:** use `trend_test` with non-overlapping releases (recipe
+4. **An annual series with no known break date (Round 77):** `joinpoint(years=[...], counts=[...],
+   population=[...])` (full profile; or `rates` with `se`) finds where the trend changed (NCI Joinpoint style).
+   - The number of joinpoints is validated (permutation tests; false-joinpoint rate .01–.02 at α .05).
+   - The APC and AAPC intervals failed validation (they ignore uncertainty about where the joinpoints are):
+     report them as exploratory.
+   - Complete years only (suppressed years refused); not for overlapping ACS five-year releases.
+   - `joinpoint(rate_ratio={...})` gives the ratio of two directly age-adjusted rates with the Tiwari interval
+     (validated .90–.92).
+5. **Several releases without a comparison group:** use `trend_test` with non-overlapping releases (recipe
    `tract_trend`). It tests a trend, not an effect.
-5. Report:
+6. Report:
    - the effect with its 90% interval and the validation flag;
    - the pre-period check;
    - the assumption that untreated areas show what would have happened, which is not testable from these data

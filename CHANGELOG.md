@@ -5,6 +5,23 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.73.0 (Round 77): joinpoint regression and age-adjusted rate ratios
+
+- **Joinpoint regression** (`census/joinpoint.py`; frozen core `census/joinpoint_core.py`; N54): log-linear segments by
+  weighted least squares with grid-searched joinpoints (Joinpoint spacing defaults), the number of joinpoints chosen
+  by Kim et al. (2000) sequential permutation tests, per-segment APC and whole-period AAPC.
+- **Ratio of two directly age-adjusted rates** with the Tiwari et al. (2006) interval (and a log-delta comparison).
+- **Validation** (`docs/audits/joinpoint_validation.md`, criterion `01ad5a4`; 15–25 annual points, 50–5,000 events
+  per year, 0–2 true joinpoints):
+  - selection passes (false-joinpoint rate .012–.023 at α .05);
+  - APC and AAPC intervals **fail** (t given the true number .51–.91; empirical-quantile with selection .02–.88):
+    exploratory, because joinpoint locations are estimated;
+  - Tiwari (.900–.921) and log-delta (.887–.900) ratio intervals pass.
+- **Tool `joinpoint`** (full profile; 73 tools), with `rate_ratio={...}` for the age-adjusted ratio. Refuses
+  overlapping ACS five-year releases and incomplete (suppressed) years.
+- **Recipe**: `policy_change` step 4; protocol and MCP rule text.
+- No manifest method and no example (see `docs/audits/round77_compatibility.md`).
+
 ## 0.72.0 (Round 76): between-group disparity measures and Kitagawa decomposition
 
 - **Disparities between population groups** (`census/disparity.py`; frozen core `census/disparity_core.py`; N53):
