@@ -1,56 +1,68 @@
-# Round 89 plan: positivity diagnostics, stabilized and truncated weights, IPW versus g-formula
+# Round 89 plan: causal question specification (target trial and causal diagram)
 
-**Goal.** Backlog N66 (Hernán and Robins chapters 3.3, 12–13, 15).
-- Inverse probability weighting needs **positivity**: every confounder pattern must have treated and untreated
-  units.
-- Near-violations give extreme weights and unstable estimates.
-- Agreement between IP weighting and standardization (g-formula) is a model check.
+**Goal.** Backlog N65 (Hernán and Robins, *Causal Inference: What If*, chapters 3, 6–8, 18 and 22; mapping in
+`docs/literature/hernan_robins_what_if.md`). A causal estimate means something only for a stated causal question:
+- a well-defined intervention, specified as a target trial;
+- an adjustment set justified by a causal diagram, not by associational rules.
 
-`estimate_effect` (Round 41) notes "check the propensity distribution" but shows nothing. Version 0.85.0. Branch
-`phase89/positivity`. Validation first.
+Today the causal tools and the marginal measures run on any exposure, and Round 83 labels confounders with the 10%
+change rule. That rule can recommend adjusting for a collider (M-bias, the book's Figure 7.4). Version 0.85.0. Branch
+`phase89/causal-spec`. No new estimators: the checks are graph algorithms with exact answers.
 
-## 1. Methods (frozen core `census/positivity_core.py`)
+## 1. Target-trial specification
 
-- **Overlap diagnostics.**
-  - Propensity-score distributions by treatment group: quantiles, the share outside [.05, .95], and the overlap
-    coefficient.
-  - Standardized mean differences of confounders, before and after weighting.
-  - Weight summaries: maximum, effective sample size.
-- **W1: stabilized IP weights** (chapter 12.3).
-- **W2: weights truncated at the 1st and 99th percentiles.**
-- **W3: overlap weights** (Li, Morgan and Zaslavsky 2018). These change the estimand to the overlap population; the
-  result says so.
-- **G1: g-formula (standardization) estimate** beside IPW. Disagreement beyond the sum of their SEs is flagged.
+- **A `causal_question` block for manifests and causal tools** (`estimate_effect`, DiD, the marginal measures when
+  called "causal"), with these fields:
+  - `eligibility` (population and time);
+  - `intervention` and `comparator`, each with the versions that matter (Hernán's "sufficiently well-defined");
+  - `time_zero`;
+  - `outcome` and `follow_up`;
+  - `contrast` (average treatment effect or effect in the treated);
+  - `target`: super-population or these areas, explained as in chapter 10.3.
+- **Without the block,** causal tools still run but label results "associational (no causal question specified)",
+  and the methods text says so.
+- **Social exposures** (poverty rate, income, race composition, education share) get a well-defined-intervention
+  warning (chapter 3.4): the result is not the effect of an intervention unless the specification names one.
 
-## 2. Validation (`scripts/positivity_validation.py`)
+## 2. Causal diagram (DAG) checks
 
-- **Designs:** Round 41's area designs (MI/NY counties and tracts, a binary treatment from a logistic propensity),
-  with propensity strength set so that 0%, 5% and 15% of units have propensities beyond [.05, .95].
-- **Effects:** constant and heterogeneous.
-- **Draws:** 2,000 per cell.
-- **Pass:** coverage ≥ .86 in every cell for each estimator, against its own estimand (ATE for W1/W2, the
-  overlap-population effect for W3). Size of the IPW-versus-g-formula flag under correct models ≤ .10. Coverage of
-  plain IPW is reported to show what limited overlap does.
+- **A `dag` block:** directed edges among manifest variables, plus unmeasured nodes (`U_*`). The engine checks it is
+  acyclic.
+- **D-separation and the backdoor criterion** for the declared treatment and outcome (Pearl). For a formula's
+  adjustment set the engine reports, with the path:
+  - whether every backdoor path is blocked;
+  - whether a collider, a mediator, a descendant of treatment or an instrument is adjusted for.
+- **Minimal sufficient adjustment sets** are enumerated when the DAG is small (≤ 20 nodes).
+- **Confirmatory manifests with a DAG** refuse a formula whose adjustment set is not sufficient or includes a
+  collider, mediator or descendant of treatment. Exploratory manifests get warnings.
+- **Round 83's classification label** is renamed "associational label (10% rule)", with a note that the DAG decides
+  adjustment.
 
-## 3. Engine (only what passes)
+## 3. Validation (numeric, exact)
 
-- `estimate_effect` returns the diagnostics always.
-- `weights="stabilized" | "truncated" | "overlap"` options, used only where validated.
-- When more than 5% of units fall outside [.05, .95], a note recommends overlap weights or restriction (chapter 3.3).
-- Recipe `causal` section "Check positivity".
+- `tests` reproduce the book's examples:
+  - Figures 7.1–7.4 and 7.7 (confounding, M-bias), with the adjustment verdicts the book gives;
+  - Figures 18.1–18.4 (collider, its descendant, a variable affected by treatment, a mediator);
+  - a published DAGitty example with known minimal adjustment sets.
+- There is no simulation criterion; the d-separation code is also cross-checked against brute-force enumeration
+  of paths on random small DAGs.
 
-## 4. Example and acceptance
+## 4. Engine, docs and acceptance
 
-- **Example (exploratory):** the Round 41 example re-run with diagnostics.
+- `census/causal_spec.py`, used by manifest validation and by the causal tools.
+- Recipe `causal` gains "State the causal question first" and "Draw the diagram".
+- The protocol and MCP rules (chapter 3 language) are mirrored together.
 - STATUS, CHANGELOG, compatibility audit, tests, goldens, suite.
+  - Registered manifests have no `dag`, so goldens are expected byte-identical except for methods-text labels;
+    any change is documented.
 
 ## 8. Status table
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, recipe | | |
-| Example | | |
+| Target-trial block | | |
+| DAG checks | | |
+| Book-figure tests | | |
+| Engine, docs | | |
 | Goldens, suite | | |
 | Exceptions | | |

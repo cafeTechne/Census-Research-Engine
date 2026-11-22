@@ -1,62 +1,50 @@
-# Round 92 plan: GWR, geodemographic classification, regionalization and diversity with ACS uncertainty
+# Round 92 plan: data sources: Population Estimates, LEHD LODES, ACS migration flows
 
-**Goal.** Backlog N69 (Walker chapter 8).
-- **Geographically weighted regression (GWR):** explores whether relationships vary over space. Walker stresses
-  that it is exploratory: local collinearity and edge effects.
-- **Geodemographic classification** (k-means on principal components) and **regionalization** (SKATER,
-  contiguity-constrained clustering): label neighbourhood types and build regions.
-- **The entropy diversity index:** describes group mix.
+**Goal.** Backlog N68 (Walker, *Analyzing US Census Data*, chapters 4 and 11; mapping in
+`docs/literature/walker_analyzing_us_census_data.md`).
 
-None of these accounts for ACS sampling error today. Version 0.88.0. Branch `phase92/spatial-models`. Validation
-first.
+| Source | What it gives | Why we need it |
+| :--- | :--- | :--- |
+| Census Population Estimates Program (PEP) | Annual July 1 population for states and counties, by age, sex, race and Hispanic origin (Census API `pep` endpoints, or the vintage files where the API has no endpoint) | Denominators for annual rates (joinpoint, MSMs, ITS) and population pyramids |
+| LEHD Origin-Destination Employment Statistics (LODES) | Jobs by workplace (WAC) and residence (RAC) by block, and origin-destination flows (OD), with sectors, earnings and age bands | Access to jobs and commuting, aggregated to tracts and counties |
+| ACS county-to-county migration flows (Census API `acs/flows`) | In-, out- and net flows with MOEs, by characteristic | Population churn as a covariate and as an outcome |
 
-## 1. Methods (frozen core `census/spatial_models_core.py`)
+Version 0.88.0. Branch `phase92/sources`. No new statistics.
 
-- **R1: GWR.**
-  - Gaussian kernel; bandwidth by AICc.
-  - Local coefficients with replicate-refit SEs (ACS error) plus the local model SE.
-  - A Monte Carlo test of spatial non-stationarity, permuting locations (99 permutations).
-- **C1: geodemographic classification.**
-  - k-means on standardized principal components, with k chosen by the elbow and silhouette, declared before
-    looking.
-  - Stability: each replicate refits the classification; per-area assignment stability is reported (share of
-    replicates agreeing, after label matching).
-- **C2: SKATER regionalization**, with the same replicate stability.
-- **D1: entropy diversity index** (Theil's E) per area, with replicate SEs.
+## 1. Engine
 
-## 2. Validation (`scripts/spatial_models_validation.py`)
+- **Source registry entries** (`census/context_sources.py` pattern, Round 72) with cached downloads, SHA-256
+  provenance, vintage handling and a generic User-Agent.
+- **PEP:** state and county totals and age × sex detail for 2010–2024 vintages. Each vintage is labelled because
+  estimates are revised every year, so a vintage must never be mixed silently.
+- **LODES:** a block-to-tract and block-to-county aggregation, with the LODES version (LODES8) and job type (JT00
+  all jobs, …) recorded. LODES uses noise infusion, not sampling: no MOE. That is said in the output and in methods
+  text, like decennial counts.
+- **Flows:** MOEs carried; net-flow MOEs derived by the ACS approximation.
+- **Context covariates:** `build_analysis_frame(context=[...])` and the manifest `context` block (Round 72) accept
+  the new sources.
+- **Circularity:** PEP populations as denominators are not outcomes; LODES and flows are covariates or outcomes per
+  rules R1/R2.
 
-- **R1:**
-  - designs: MI/NY tract geometry, with slopes constant or varying smoothly over space, and realistic ACS error;
-  - pass: local-coefficient 90% coverage ≥ .86 on average and ≥ .80 for 90% of areas, and the non-stationarity
-    test's size ≤ .10 under constant slopes.
-  - A failure leaves GWR exploratory (Walker's own recommendation).
-- **C1 and C2:**
-  - designs: clusters planted in MI tracts with realistic error;
-  - reported (no pass rule): the adjusted Rand index against the truth and the calibration of the stability
-    measure, i.e. whether areas flagged unstable are the misclassified ones.
-- **D1:** coverage ≥ .86 (like segregation, Round 50).
-- **Draws:** 500 per cell (GWR refits are costly).
+## 2. Checks (numeric)
 
-## 3. Engine (only what passes; exploratory tools are labelled)
+- **PEP:** state totals equal the sum of county totals for each vintage. MI and NY 2023 values match published
+  numbers.
+- **LODES:** tract aggregates equal county aggregates. MI 2021 total jobs match the LODES state summary.
+- **Flows:** in minus out equals net for every county pair within rounding, and MOEs are present.
 
-- **Tools:** `spatial_model(kind="gwr" | "classify" | "regionalize")`, one full-profile tool with flat parameters.
-- **Diversity** joins the `segregation` recipe as a descriptive measure.
-- **Recipe `spatial_patterns`** sections, with Walker's caveats.
+## 3. Docs and acceptance
 
-## 4. Example and acceptance
-
-- **Examples (exploratory):** a GWR of tract poverty on unemployment and education in Wayne County; a
-  geodemographic classification of MI tracts with stability; SKATER regions in Detroit.
-- STATUS, CHANGELOG, compatibility audit, tests, goldens, suite.
+- Recipe `context_covariates` sections; `README` data-sources table; protocol rules.
+- STATUS, CHANGELOG, compatibility audit, tests (offline fixtures), goldens, suite.
 
 ## 8. Status table
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, tool, recipes | | |
-| Examples | | |
+| PEP | | |
+| LODES | | |
+| Flows | | |
+| Checks | | |
 | Goldens, suite | | |
 | Exceptions | | |

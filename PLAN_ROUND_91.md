@@ -1,50 +1,55 @@
-# Round 91 plan: data sources: Population Estimates, LEHD LODES, ACS migration flows
+# Round 91 plan: IP-weighted marginal structural models for annual policy panels
 
-**Goal.** Backlog N68 (Walker, *Analyzing US Census Data*, chapters 4 and 11; mapping in
-`docs/literature/walker_analyzing_us_census_data.md`).
+**Goal.** Backlog N67 (Hernán and Robins chapters 19–21).
+- In annual state panels, policies (treatments) and confounders vary over time.
+- Confounders such as unemployment can be affected by past policy (**treatment-confounder feedback**). Adjusting
+  for them by regression is then biased, and not adjusting is confounded.
+- IP-weighted marginal structural models (MSMs) are the standard g-method.
 
-| Source | What it gives | Why we need it |
-| :--- | :--- | :--- |
-| Census Population Estimates Program (PEP) | Annual July 1 population for states and counties, by age, sex, race and Hispanic origin (Census API `pep` endpoints, or the vintage files where the API has no endpoint) | Denominators for annual rates (joinpoint, MSMs, ITS) and population pyramids |
-| LEHD Origin-Destination Employment Statistics (LODES) | Jobs by workplace (WAC) and residence (RAC) by block, and origin-destination flows (OD), with sectors, earnings and age bands | Access to jobs and commuting, aggregated to tracts and counties |
-| ACS county-to-county migration flows (Census API `acs/flows`) | In-, out- and net flows with MOEs, by characteristic | Population churn as a covariate and as an outcome |
+Round 78's staggered DiD adjusts for nothing time-varying. Version 0.87.0. Branch `phase91/msm`. Validation first.
 
-Version 0.87.0. Branch `phase91/sources`. No new statistics.
+## 1. Methods (frozen core `census/msm_core.py`)
 
-## 1. Engine
+- **M1: MSM for the effect of cumulative or current treatment** on an annual outcome.
+  - Stabilized time-varying IP weights: the product over years of P(A_t | past A) / P(A_t | past A, past L).
+  - Weights are fitted with pooled logistic models; the outcome model is weighted least squares.
+  - Interval: a state-cluster bootstrap (states resampled).
+- **M2: the same with weights truncated at the 1st and 99th percentiles.**
+- **Comparison (reported only):** naive regression adjusting for current L (biased under feedback), and no
+  adjustment.
+- **Time zero and eligibility** follow Round 89's target-trial block. Treatment "start and stay on" strategies only
+  (no dynamic regimes).
 
-- **Source registry entries** (`census/context_sources.py` pattern, Round 72) with cached downloads, SHA-256
-  provenance, vintage handling and a generic User-Agent.
-- **PEP:** state and county totals and age × sex detail for 2010–2024 vintages. Each vintage is labelled because
-  estimates are revised every year, so a vintage must never be mixed silently.
-- **LODES:** a block-to-tract and block-to-county aggregation, with the LODES version (LODES8) and job type (JT00
-  all jobs, …) recorded. LODES uses noise infusion, not sampling: no MOE. That is said in the output and in methods
-  text, like decennial counts.
-- **Flows:** MOEs carried; net-flow MOEs derived by the ACS approximation.
-- **Context covariates:** `build_analysis_frame(context=[...])` and the manifest `context` block (Round 72) accept
-  the new sources.
-- **Circularity:** PEP populations as denominators are not outcomes; LODES and flows are covariates or outcomes per
-  rules R1/R2.
+## 2. Validation (`scripts/msm_validation.py`)
 
-## 2. Checks (numeric)
+- **Panels:** 51 units, 12 or 18 years; AR(1) state-year errors; a time-varying confounder L_t affected by past
+  treatment and affecting future treatment and the outcome (the book's Figure 20.3 structure).
+- **Effects:** treatment effect 0 or −2; feedback strength 0, .5 and 1.
+- **ACS-like error:** as in Round 78.
+- **Draws:** 1,000 per cell.
+- **Pass:** M1 (and M2) coverage ≥ .86 in every cell. Naive-regression bias and coverage are reported as the
+  motivating contrast.
 
-- **PEP:** state totals equal the sum of county totals for each vintage. MI and NY 2023 values match published
-  numbers.
-- **LODES:** tract aggregates equal county aggregates. MI 2021 total jobs match the LODES state summary.
-- **Flows:** in minus out equals net for every county pair within rounding, and MOEs are present.
+## 3. Engine (only what passes)
 
-## 3. Docs and acceptance
+- Option `difference_in_differences(design="msm", time_varying_confounders=[...])` for annual panels (refusals as
+  in Round 78), or a separate function if the parameters do not fit.
+- Recipe `policy_change` step for time-varying confounding.
 
-- Recipe `context_covariates` sections; `README` data-sources table; protocol rules.
-- STATUS, CHANGELOG, compatibility audit, tests (offline fixtures), goldens, suite.
+## 4. Example and acceptance
+
+- **Example (exploratory):** Medicaid expansion and the state uninsured rate (Round 78's panel) with state
+  unemployment as a time-varying confounder (BLS LAUS annual averages; the source is added if not present, after
+  checking access terms).
+- STATUS, CHANGELOG, compatibility audit, tests, goldens, suite.
 
 ## 8. Status table
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| PEP | | |
-| LODES | | |
-| Flows | | |
-| Checks | | |
+| Core, script, criterion | | |
+| Results | | |
+| Engine, recipe | | |
+| Example | | |
 | Goldens, suite | | |
 | Exceptions | | |

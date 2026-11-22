@@ -1,46 +1,47 @@
-# Round 90 plan: IP-weighted marginal structural models for annual policy panels
+# Round 90 plan: positivity diagnostics, stabilized and truncated weights, IPW versus g-formula
 
-**Goal.** Backlog N67 (Hernán and Robins chapters 19–21).
-- In annual state panels, policies (treatments) and confounders vary over time.
-- Confounders such as unemployment can be affected by past policy (**treatment-confounder feedback**). Adjusting
-  for them by regression is then biased, and not adjusting is confounded.
-- IP-weighted marginal structural models (MSMs) are the standard g-method.
+**Goal.** Backlog N66 (Hernán and Robins chapters 3.3, 12–13, 15).
+- Inverse probability weighting needs **positivity**: every confounder pattern must have treated and untreated
+  units.
+- Near-violations give extreme weights and unstable estimates.
+- Agreement between IP weighting and standardization (g-formula) is a model check.
 
-Round 78's staggered DiD adjusts for nothing time-varying. Version 0.86.0. Branch `phase90/msm`. Validation first.
+`estimate_effect` (Round 41) notes "check the propensity distribution" but shows nothing. Version 0.86.0. Branch
+`phase90/positivity`. Validation first.
 
-## 1. Methods (frozen core `census/msm_core.py`)
+## 1. Methods (frozen core `census/positivity_core.py`)
 
-- **M1: MSM for the effect of cumulative or current treatment** on an annual outcome.
-  - Stabilized time-varying IP weights: the product over years of P(A_t | past A) / P(A_t | past A, past L).
-  - Weights are fitted with pooled logistic models; the outcome model is weighted least squares.
-  - Interval: a state-cluster bootstrap (states resampled).
-- **M2: the same with weights truncated at the 1st and 99th percentiles.**
-- **Comparison (reported only):** naive regression adjusting for current L (biased under feedback), and no
-  adjustment.
-- **Time zero and eligibility** follow Round 88's target-trial block. Treatment "start and stay on" strategies only
-  (no dynamic regimes).
+- **Overlap diagnostics.**
+  - Propensity-score distributions by treatment group: quantiles, the share outside [.05, .95], and the overlap
+    coefficient.
+  - Standardized mean differences of confounders, before and after weighting.
+  - Weight summaries: maximum, effective sample size.
+- **W1: stabilized IP weights** (chapter 12.3).
+- **W2: weights truncated at the 1st and 99th percentiles.**
+- **W3: overlap weights** (Li, Morgan and Zaslavsky 2018). These change the estimand to the overlap population; the
+  result says so.
+- **G1: g-formula (standardization) estimate** beside IPW. Disagreement beyond the sum of their SEs is flagged.
 
-## 2. Validation (`scripts/msm_validation.py`)
+## 2. Validation (`scripts/positivity_validation.py`)
 
-- **Panels:** 51 units, 12 or 18 years; AR(1) state-year errors; a time-varying confounder L_t affected by past
-  treatment and affecting future treatment and the outcome (the book's Figure 20.3 structure).
-- **Effects:** treatment effect 0 or −2; feedback strength 0, .5 and 1.
-- **ACS-like error:** as in Round 78.
-- **Draws:** 1,000 per cell.
-- **Pass:** M1 (and M2) coverage ≥ .86 in every cell. Naive-regression bias and coverage are reported as the
-  motivating contrast.
+- **Designs:** Round 41's area designs (MI/NY counties and tracts, a binary treatment from a logistic propensity),
+  with propensity strength set so that 0%, 5% and 15% of units have propensities beyond [.05, .95].
+- **Effects:** constant and heterogeneous.
+- **Draws:** 2,000 per cell.
+- **Pass:** coverage ≥ .86 in every cell for each estimator, against its own estimand (ATE for W1/W2, the
+  overlap-population effect for W3). Size of the IPW-versus-g-formula flag under correct models ≤ .10. Coverage of
+  plain IPW is reported to show what limited overlap does.
 
 ## 3. Engine (only what passes)
 
-- Option `difference_in_differences(design="msm", time_varying_confounders=[...])` for annual panels (refusals as
-  in Round 78), or a separate function if the parameters do not fit.
-- Recipe `policy_change` step for time-varying confounding.
+- `estimate_effect` returns the diagnostics always.
+- `weights="stabilized" | "truncated" | "overlap"` options, used only where validated.
+- When more than 5% of units fall outside [.05, .95], a note recommends overlap weights or restriction (chapter 3.3).
+- Recipe `causal` section "Check positivity".
 
 ## 4. Example and acceptance
 
-- **Example (exploratory):** Medicaid expansion and the state uninsured rate (Round 78's panel) with state
-  unemployment as a time-varying confounder (BLS LAUS annual averages; the source is added if not present, after
-  checking access terms).
+- **Example (exploratory):** the Round 41 example re-run with diagnostics.
 - STATUS, CHANGELOG, compatibility audit, tests, goldens, suite.
 
 ## 8. Status table
