@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.79.0 (Round 83): stratified analysis, Mantel–Haenszel and effect modification
+
+- **Stratified analysis** (`census/stratified.py`; frozen core `census/stratified_core.py`; N60; *Foundations of
+  Epidemiology* chapters 7–8): crude, stratum-specific and Mantel–Haenszel pooled RR, OR, RD (Greenland–Robins,
+  RBG variances) and the MH rate ratio for counts; the same on PUMS with SDR replicate weights; Breslow–Day–Tarone
+  and Woolf-type homogeneity; RERI, AP and S for additive interaction; a descriptive confounder / effect-modifier
+  label (book Table 8-5, 10% rule).
+- **Validation** (`docs/audits/stratified_validation.md`, criterion `b358799`): MH measures pass for counts
+  (.877–.906) and PUMS (.881–.909); RERI passes (delta, bootstrap, SDR); Breslow–Day passes (size .102–.114); Woolf
+  (size .032–.113) and the PUMS replicate Wald test (.099–.151) fail and are exploratory.
+- **Tool `stratified_analysis`** (full profile; 76 tools); **recipe `confounding`** (26 recipes); **manifest
+  `covariables`** roles: mediators are refused in formulas and effect modifiers must enter through interactions.
+- **Example** (`docs/audits/r83_stratified_example.md`, exploratory): Michigan PUMS disability and uninsurance by age.
+
 ## 0.78.0 (Round 82): epidemiologic reporting conventions
 
 Drawn from *Foundations of Epidemiology* (Bovbjerg 2020; `docs/literature/foundations_of_epidemiology.md`); no new

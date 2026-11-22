@@ -339,6 +339,13 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+Round 83: stratified_analysis (full profile) gives crude, stratum-specific and Mantel-Haenszel pooled RR/OR/RD
+(validated for counts from 5 expected cases per stratum-arm and for PUMS with replicate weights from 300 records per
+stratum), the Breslow-Day OR homogeneity test (validated; the RR and PUMS homogeneity tests are exploratory), RERI
+for additive interaction (validated) and a descriptive confounder/effect_modifier label (10% rule). Declare
+covariable roles before analysis (manifest "covariables"): never adjust for a mediator; report effect modifiers by
+stratum. get_recipe("confounding").
+
 Round 82 (Foundations of Epidemiology): area analyses are ECOLOGIC (they describe areas, not individuals) and
 CROSS-SECTIONAL (no temporal order): write "is associated with" / "times as high in ... compared with ...", never
 "causes", "leads to" or "effect of" (except estimate_effect and DiD, which state their assumptions). Say whether
@@ -1474,6 +1481,7 @@ for _fn in (
     workflows_inference.disparity_measures,
     workflows_inference.joinpoint,
     workflows_microdata.decompose_gap,
+    workflows_microdata.stratified_analysis,
     workflows_inference.make_figure,
     workflows_inference.make_table,
     workflows_inference.make_results_bundle,
@@ -1530,6 +1538,7 @@ spatial_scan = workflows_inference.spatial_scan
 disparity_measures = workflows_inference.disparity_measures
 joinpoint = workflows_inference.joinpoint
 decompose_gap = workflows_microdata.decompose_gap
+stratified_analysis = workflows_microdata.stratified_analysis
 make_figure = workflows_inference.make_figure
 make_table = workflows_inference.make_table
 make_results_bundle = workflows_inference.make_results_bundle
