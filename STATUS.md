@@ -613,6 +613,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N56: Oaxaca–Blinder and Fairlie decompositions (79; closed);
 - N57: small-area proportions and several releases (80; closed);
 - N58: spatial scan (81; closed);
+- N59–N64: epidemiologic reporting, stratified analysis, marginal measures, designation accuracy, bias analysis, ecologic vs individual (Rounds 82–87, planned 2026-11-22 from *Foundations of Epidemiology*);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.
