@@ -190,9 +190,13 @@ def pums_regression(
     where: Optional[str] = None,
     product: str = "5-year",
     target: str = "these_areas",
+    ecologic_check: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Survey-weighted regression on PUMS microdata with replicate-weight SEs
     (the design-based inference Census recommends for PUMS).
+    Round 87: ecologic_check="<exposure column>" adds the within-PUMA (individual), between-PUMA, contextual and
+    ecologic (area-level) associations of that exposure with the formula's outcome, and the ecologic gap: how far an
+    area-level analysis would be from the individual-level association (the ecologic fallacy, measured).
 
     Args:
         formula: e.g. "np.log(WAGP) ~ AGEP + C(SCHL)" (PUMS codes).
@@ -218,9 +222,24 @@ def pums_regression(
                        + ("validated (Round 49)." if out["validated"] else "exploratory: see notes."),
                        "report coefficients with their replicate-weight intervals", **_jsonable(out))
         res = pums.pums_regression(formula, df, weight=weight, model=model, where=where, target=target)
+        eco = None
+        if ecologic_check:
+            from census.ecologic import ecologic_check as _eco
+            if "PUMA" not in df.columns:
+                df = pums.fetch_pums(state, year, product=product, record=record,
+                                     columns=list(dict.fromkeys(_pums_columns(formula, where)+["PUMA"])))
+            sub = df.loc[pums._mask(df, where)]
+            outcome = formula.split("~")[0].strip()
+            y = np.asarray(pums._values(sub, outcome), float); x = np.asarray(pums._values(sub, ecologic_check), float)
+            okr = np.isfinite(y) & np.isfinite(x) & sub["PUMA"].notna().to_numpy()
+            _, W = pums._weight_matrix(sub, weight)
+            eco = _eco(y[okr], x[okr], sub["PUMA"].to_numpy()[okr], W[okr], binary=set(np.unique(y[okr])) <= {0.0, 1.0})
     except _ERRORS as exc:
         return _fail(errors.INVALID_INPUT, str(exc))
     out = res.to_dict()
+    if eco is not None:
+        from census.results import _jsonable
+        out["ecologic"] = _jsonable(eco)
     warns = _memory_warnings(df)
     return _ok(result_summary(res) + _warning_suffix(warns),
                "report coefficients with the SE named in uncertainty_sources",
