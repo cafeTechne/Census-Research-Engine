@@ -53,5 +53,5 @@ sources as they are built.
 | Tool sources and coverage test | done | 78 tools; `tests/test_round88.py` |
 | Results, bundles, CLI | done | 49 method tools; Sources section, `references.md`, `references.bib`; `cite` |
 | Docs, CITATION.cff | done | `docs/citing.md`, README, CHANGELOG, STATUS, protocol rule |
-| Goldens, suite | see audit | `round88_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2291 passed, 42 skipped |
 | Exceptions | 4 | no manifest `.bib`; discovery tools omitted; one unverified entry; audits by path |

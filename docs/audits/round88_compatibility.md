@@ -26,3 +26,8 @@ No statistics changed and no validation run (the plan has no simulation criterio
    title and outlet were recorded from memory, so it is marked "[details to verify]". A Casas-Cordero et al. entry
    was dropped because the engine does not rely on it.
 4. **Validation audits are cited by path.** They are evidence about the engine, not publications.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 87.
+- Full suite: 2291 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.
