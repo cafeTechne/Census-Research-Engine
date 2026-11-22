@@ -50,9 +50,9 @@ Branch `phase81/scan`. Validation first.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, tool, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `scan_core.py`, `scan_validation.py`; criterion `b6b69d0` (tag `criterion-r81`) |
+| Results | done | K1 size .099-.116 passes; noisy denominators inflate size (.15-.53, reported) |
+| Engine, tool, recipe | done | `census/scan.py`; tool `spatial_scan` (75 tools); `spatial_patterns` section |
+| Example | done | `r81_scan_example.md`: Wayne County LBW cluster, RR 1.37 (no map) |
+| Goldens, suite | done | both goldens byte-identical; 2249 passed, 42 skipped |
+| Exceptions | listed | `round81_compatibility.md` |

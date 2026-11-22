@@ -162,6 +162,8 @@ Kulldorff Poisson spatial scan for county counts (N58).
 - Example (`r81_scan_example.md`, exploratory): MI/NY low-birth-weight births (CHR&R), primary cluster Wayne County
   (RR 1.37, p .001).
 
+Goldens: both byte-identical. Acceptance: 2249 passed, 42 skipped; 0 failures.
+
 **Round 80 (v0.76.0; merged, release pending owner approval; implemented by the maintainer agent):**
 Fay–Herriot for proportions and across releases (N57).
 - `census/sae_extensions.py` (frozen core `sae_extensions_core.py`): arcsine Fay–Herriot (bias-corrected
