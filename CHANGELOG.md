@@ -5,6 +5,29 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.68.0 (Round 71): tract-level spatial intervals
+
+- **Validation** (`docs/audits/tract_spatial_validation.md`, criterion `f947f64`; NC 2018 and MI 2020 tracts,
+  Round 22's linear generator, fields correlated over 0–100 km, 1,000 draws per cell):
+  - **passed in every cell:** SCPC with rho_bar .20 (.885–.972), .30 (.932–.988) and a distance-set benchmark
+    (.935–.989);
+  - **failed:** the spatial error ML slope interval (.63–.89; .63–.76 once fields correlate over 20 km) and HC3
+    (.10–.89).
+- **Engine:**
+  - `fit_scpc` and `fit_model(spatial="scpc")` default to rho_bar .20 for tract OLS slopes and mark .20/.30
+    validated there. This follows the pre-set rule: the shortest median interval among the passing procedures.
+  - Tract Poisson and binomial SCPC stay exploratory.
+  - Manifest `spatial_scpc` checks the tract benchmarks when the geography level is tract.
+  - `spatial_regression(model="error")` on tract GEOIDs adds an exploratory note.
+- **Residual-dependence warning** (`census/residual_dependence.py`; a diagnostic, intervals unchanged):
+  - `fit_model(method="replicate")` without a spatial interval tests the OLS residuals with Moran's I on six
+    nearest neighbours (999 permutations, at most 5,000 rows);
+  - at p < .01 it adds `spatial_dependence` and a note naming the validated route;
+  - `spatial_check="auto"` uses cached boundary files only, `"on"` may download them, and `"off"` skips the test.
+- **Example** (`docs/audits/r71_tract_example.md`): replication C's OLS slopes with tract SCPC intervals, which are
+  3–6 times wider than HC3. All three slopes stay positive.
+- Goldens byte-identical.
+
 ## 0.67.0 (Round 72): context covariate sources
 
 - New `census/context_sources.py`:
