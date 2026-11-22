@@ -212,8 +212,15 @@ def fit_model(
     se_method: Optional[str] = None,
     censored: Optional[str] = None,
     spatial_check: str = "auto",
+    marginal: Optional[str] = None,
+    marginal_values: Optional[List[float]] = None,
+    dose_levels: int = 0,
 ) -> Dict[str, Any]:
     """Fit a regression whose standard errors account for ACS sampling error.
+    Round 84 (model="binomial" with trials): marginal="<exposure term>" adds the standardized risk ratio and risk
+    difference between marginal_values [low, high] (default the exposure's quartiles) and the attributable fraction
+    (validated); dose_levels=5 adds a dose-response trend test over exposure quintiles. Odds ratios overstate risk
+    ratios for common outcomes: report the marginal RR.
 
     Args:
         input_path: Analysis frame from build_analysis_frame.
@@ -407,6 +414,15 @@ def fit_model(
         out["notes"] = list(out.get("notes") or []) + [
             "No replicates supplied: standard errors include model error only, not ACS sampling error."
         ]
+    if marginal:
+        if model != "binomial" or not trials:
+            return _fail(errors.INVALID_INPUT, "marginal measures need model='binomial' with trials.")
+        from census.epi_measures import area_marginal_measures
+        try:
+            out["marginal"] = area_marginal_measures(frame, formula, trials, marginal, marginal_values,
+                                                     confidence_level, dose_levels)
+        except (ValueError, KeyError, np.linalg.LinAlgError) as exc:
+            return _fail(errors.INVALID_INPUT, f"marginal measures: {exc}")
     if method == "replicate" and spatial is None and spatial_check in ("auto", "on"):
         from census import residual_dependence as rd
         chk = rd.check(frame, formula, mode=spatial_check)
@@ -1667,6 +1683,37 @@ def spatial_scan(
                "report the cluster counties, RR and p-value; describe it as exploratory unless pre-specified", **r)
 
 
+def designation_accuracy(
+    input_path: str,
+    column: str,
+    threshold: float,
+    se_col: Optional[str] = None,
+    n_col: Optional[str] = None,
+    covariates: Optional[List[str]] = None,
+    output_path: Optional[str] = None,
+) -> Dict[str, Any]:
+    """How accurate is designating areas by a threshold on a noisy ACS rate (Round 85)? E.g. "tracts with poverty
+    at least 20%".
+
+    Returns each area's probability of truly exceeding the threshold (Fay-Herriot posterior with optional
+    covariates; validated) and, for the rules point (estimate >= threshold), lower (lower 90% bound >= threshold),
+    prob50 and prob80 (probability >= .5 / .8), the number designated and the expected sensitivity, specificity, PPV
+    and NPV (exploratory). column: a proportion or percent; se_col its SE (or n_col effective sample sizes).
+    Example: designation_accuracy("tracts.csv", "poverty", 20, se_col="poverty_se", covariates=["unemployment"])
+    """
+    from census.designation import designation_accuracy as _da
+    try:
+        r = _da(_load_frame(input_path), column, threshold, se_col=se_col, n_col=n_col, covariates=covariates or [])
+    except (ValueError, KeyError, TypeError, FileNotFoundError, np.linalg.LinAlgError) as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))
+    path = _write_frame(r["areas"], output_path, "designation_accuracy.csv")
+    rules = r["rules"]
+    txt = "; ".join(f"{x.rule}: {x.designated} areas, PPV {x.ppv:.2f}, sensitivity {x.sensitivity:.2f}"
+                    for x in rules.itertuples())
+    return _ok(f"Expected {r['expected_qualifying']:.0f} areas truly above {threshold}; {txt} (expected accuracy "
+               "exploratory).", "report the designated list with the rule's expected PPV and sensitivity",
+               output_path=path, rules=_records(rules), threshold=r["threshold"], validated=r["validated"],
+               notes=r["notes"], audit=r["audit"], preview=_records(r["areas"], 10))
 def bias_analysis(
     kind: str,
     estimate: Optional[float] = None,

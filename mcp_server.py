@@ -339,6 +339,23 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+Round 85: a threshold designation on noisy ACS rates is a screening test. designation_accuracy (full profile) gives
+each area's probability of truly exceeding the threshold (Fay-Herriot posterior; validated) and the expected
+sensitivity, specificity, PPV and NPV of the point, lower-bound, probability-.5 and probability-.8 rules
+(exploratory). Report any designated list with its rule's expected PPV and sensitivity.
+
+Round 84: for common binary outcomes (above about 10%) odds ratios overstate risk ratios. Area binomial models:
+fit_model(model="binomial", trials=..., marginal="<exposure>") adds the standardized risk ratio, risk difference and
+attributable fraction (and dose_levels=5 a dose-response test). PUMS: pums_regression(model="logit",
+marginal="<0/1 exposure>") adds the same plus the modified-Poisson prevalence ratio. All validated (.862-.898).
+
+Round 83: stratified_analysis (full profile) gives crude, stratum-specific and Mantel-Haenszel pooled RR/OR/RD
+(validated for counts from 5 expected cases per stratum-arm and for PUMS with replicate weights from 300 records per
+stratum), the Breslow-Day OR homogeneity test (validated; the RR and PUMS homogeneity tests are exploratory), RERI
+for additive interaction (validated) and a descriptive confounder/effect_modifier label (10% rule). Declare
+covariable roles before analysis (manifest "covariables"): never adjust for a mediator; report effect modifiers by
+stratum. get_recipe("confounding").
+
 Round 82 (Foundations of Epidemiology): area analyses are ECOLOGIC (they describe areas, not individuals) and
 CROSS-SECTIONAL (no temporal order): write "is associated with" / "times as high in ... compared with ...", never
 "causes", "leads to" or "effect of" (except estimate_effect and DiD, which state their assumptions). Say whether
@@ -1470,11 +1487,13 @@ for _fn in (
     workflows_inference.reliability_profile,
     workflows_inference.trend_test,
     workflows_inference.interrupted_series,
+    workflows_inference.designation_accuracy,
     workflows_inference.bias_analysis,
     workflows_inference.spatial_scan,
     workflows_inference.disparity_measures,
     workflows_inference.joinpoint,
     workflows_microdata.decompose_gap,
+    workflows_microdata.stratified_analysis,
     workflows_inference.make_figure,
     workflows_inference.make_table,
     workflows_inference.make_results_bundle,
@@ -1527,11 +1546,13 @@ minimum_detectable_difference = workflows_inference.minimum_detectable_differenc
 reliability_profile = workflows_inference.reliability_profile
 trend_test = workflows_inference.trend_test
 interrupted_series = workflows_inference.interrupted_series
+designation_accuracy = workflows_inference.designation_accuracy
 bias_analysis = workflows_inference.bias_analysis
 spatial_scan = workflows_inference.spatial_scan
 disparity_measures = workflows_inference.disparity_measures
 joinpoint = workflows_inference.joinpoint
 decompose_gap = workflows_microdata.decompose_gap
+stratified_analysis = workflows_microdata.stratified_analysis
 make_figure = workflows_inference.make_figure
 make_table = workflows_inference.make_table
 make_results_bundle = workflows_inference.make_results_bundle

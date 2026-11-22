@@ -546,6 +546,32 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+## Designating areas by a threshold (Round 85)
+
+<!-- mcp-rules:A -->
+Round 85: a threshold designation on noisy ACS rates is a screening test. designation_accuracy (full profile) gives
+each area's probability of truly exceeding the threshold (Fay-Herriot posterior; validated) and the expected
+sensitivity, specificity, PPV and NPV of the point, lower-bound, probability-.5 and probability-.8 rules
+(exploratory). Report any designated list with its rule's expected PPV and sensitivity.
+
+## Risk ratios instead of odds ratios (Round 84)
+
+<!-- mcp-rules:A -->
+Round 84: for common binary outcomes (above about 10%) odds ratios overstate risk ratios. Area binomial models:
+fit_model(model="binomial", trials=..., marginal="<exposure>") adds the standardized risk ratio, risk difference and
+attributable fraction (and dose_levels=5 a dose-response test). PUMS: pums_regression(model="logit",
+marginal="<0/1 exposure>") adds the same plus the modified-Poisson prevalence ratio. All validated (.862-.898).
+
+## Confounding and effect modification (Round 83)
+
+<!-- mcp-rules:A -->
+Round 83: stratified_analysis (full profile) gives crude, stratum-specific and Mantel-Haenszel pooled RR/OR/RD
+(validated for counts from 5 expected cases per stratum-arm and for PUMS with replicate weights from 300 records per
+stratum), the Breslow-Day OR homogeneity test (validated; the RR and PUMS homogeneity tests are exploratory), RERI
+for additive interaction (validated) and a descriptive confounder/effect_modifier label (10% rule). Declare
+covariable roles before analysis (manifest "covariables"): never adjust for a mediator; report effect modifiers by
+stratum. get_recipe("confounding").
+
 ## Epidemiologic reporting conventions (Round 82)
 
 <!-- mcp-rules:A -->

@@ -29,6 +29,7 @@ RECIPES: Dict[str, str] = {
     "rank_methods": "Rank and partial correlations and rank comparisons of groups with ACS error (Round 33)",
     "pums_tests": "Survey-correct tests and intervals on PUMS microdata: tables, odds ratios, means, medians (Round 32)",
     "group_comparison": "Compare an area outcome across groups of areas: t-test, ANOVA, ANCOVA, interactions (Round 31)",
+    "confounding": "Confounders and effect modifiers: stratified analysis, Mantel-Haenszel, homogeneity, additive interaction (Round 83)",
     "segregation": "County residential segregation from tract counts with strict ACS replicate uncertainty",
     "health_inequality": "Area health inequality indices, indirectly standardized ratios, and disparities between population groups (Kitagawa too) with ACS uncertainty",
     "compare_counties": "Compare a rate between two counties in one release",
@@ -43,7 +44,7 @@ RECIPES: Dict[str, str] = {
 
 RecipeName = Literal[
     "compare_counties", "tract_trend", "regression_sampling_error", "small_area", "preregistered",
-    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas", "composite_index", "agreement", "combine_estimates", "causal", "context_covariates", "replications", "policy_change", "custom_geographies", "dollars", "spatial_patterns", "cross_release", "reporting",
+    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas", "composite_index", "agreement", "combine_estimates", "causal", "context_covariates", "replications", "policy_change", "custom_geographies", "dollars", "spatial_patterns", "cross_release", "reporting", "confounding",
 ]
 
 

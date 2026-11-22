@@ -74,3 +74,12 @@ multiply imputes it (validated); `impute=["w", "v"]` imputes two by chained equa
 `fit_replicate` `"args": {"spatial_scpc": {}}` (OLS; Poisson with `exposure`; optional `rho_bar`); corrected count or
 binomial slopes with IM-8, `regression_calibration` `"args": {"spatial": "clusters", "model": ..., "exposure"|"trials": ...}`.
 `validate_manifest` refuses the options outside their validated range.
+
+## Risk ratios, risk differences and attributable fractions from binomial models (Round 84)
+
+Odds ratios overstate risk ratios when an outcome is common (above about 10%, as most ACS shares are).
+`fit_model(input_path, "dis ~ poverty + NY", model="binomial", trials="dis_trials", marginal="poverty",
+marginal_values=[10, 16], dose_levels=5)` adds the standardized (marginal) risk ratio and risk difference between the
+two exposure values, the attributable fraction (every area at the low value) and a dose-response test over exposure
+quintiles, all validated (`docs/audits/epi_measures_validation.md`; HC3 delta SEs, population target). Report the risk
+ratio and the risk difference together, and say that the result describes areas.
