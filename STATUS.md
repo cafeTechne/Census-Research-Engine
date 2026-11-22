@@ -164,6 +164,7 @@ quantitative bias analysis (N63).
   (exploratory).
 - Example (`r86_bias_example.md`, exploratory): MI uninsured Black/White crude RR 1.53 (1.46–1.60), E-value 2.43;
   illustrative misclassification moves it to 1.97.
+- Goldens byte-identical. Acceptance: 2276 passed, 42 skipped; 0 failures.
 
 **Round 85 (v0.81.0; merged, release pending owner approval; implemented by the maintainer agent):**
 area designations as screening tests (N62).

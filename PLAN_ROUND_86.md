@@ -57,9 +57,9 @@ where an interval is produced.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, tool, manifest, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `bias_analysis_core.py`; tag `criterion-r86` |
+| Results | done | E-values exact; probabilistic misclassification interval fails (exploratory) |
+| Engine, tool, manifest, recipe | done (no manifest block) | `bias_analysis` (78 tools); E-values in outputs; `reporting` section |
+| Example | done | `r86_bias_example.md` (illustrative priors) |
+| Goldens, suite | done | both byte-identical; 2276 passed, 42 skipped |
+| Exceptions | listed | `round86_compatibility.md` |
