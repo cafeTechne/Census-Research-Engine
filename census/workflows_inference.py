@@ -1521,3 +1521,38 @@ def disparity_measures(
                "report absolute (rd, bgv) and relative (log_rr, idisp, theil, mld) measures together, with intervals; "
                "label rows with validated=False exploratory",
                audit=out.attrs["audit"], rows=_records(out))
+
+
+def spatial_scan(
+    input_path: str,
+    cases: str,
+    population: Optional[str] = None,
+    expected: Optional[str] = None,
+    year: Optional[int] = None,
+    max_share: float = 0.5,
+    exclude: Optional[List[str]] = None,
+    exclude_rule: Optional[str] = None,
+    prespecified: bool = False,
+) -> Dict[str, Any]:
+    """Find clusters of COUNTIES with unusually high counts (Kulldorff Poisson spatial scan, Round 81).
+
+    input_path: county frame (GEOID) with a count column (cases) and population, or expected counts (e.g. from
+    indirect standardisation). Circular windows up to max_share of the expected total (0.5 is validated); Monte
+    Carlo p-values (999 data sets). Missing (suppressed) counts are refused: list those counties in exclude with an
+    exclude_rule. Exploratory unless prespecified=True (window and alpha declared in advance). For a map of local
+    autocorrelation use spatial_autocorrelation instead.
+    Example: spatial_scan("counties.csv", cases="lbw_births", population="births")
+    """
+    from census.scan import spatial_scan as _scan
+    try:
+        r = _scan(_load_frame(input_path), cases, population=population, expected=expected, year=year,
+                  max_share=max_share, exclude=exclude, exclude_rule=exclude_rule, prespecified=prespecified)
+    except (ValueError, KeyError, TypeError, FileNotFoundError) as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))
+    p = r["primary"]
+    if p is None:
+        return _ok("No window has more cases than expected.", "report that no high-rate cluster was found", **r)
+    return _ok(f"Primary cluster: {len(p['counties'])} counties around {p['center']}, RR {p['relative_risk']:.2f}, "
+               f"p = {p['p_value']:.3g}; {len(r['secondary'])} secondary cluster(s). "
+               + ("Confirmatory (pre-specified)." if r["confirmatory"] else "Exploratory."),
+               "report the cluster counties, RR and p-value; describe it as exploratory unless pre-specified", **r)
