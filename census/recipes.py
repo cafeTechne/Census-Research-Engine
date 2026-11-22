@@ -9,6 +9,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RECIPE_DIR = os.path.join(ROOT, "docs", "recipes")
 
 RECIPES: Dict[str, str] = {
+    "context_covariates": "County covariates from other sources (County Business Patterns, ERS county types and "
+                          "rural-urban codes, CHR additional measures), joined to an ACS frame (Round 72)",
     "causal": "Treatment effects, instrumental variables and mediation with ACS data, and their assumptions (Round 41)",
     "combine_estimates": "Pool replications (meta-analysis), test equivalence, plan power (Round 38)",
     "agreement": "Agreement between two sources of the same quantity: bias, kappa, limits, concordance (Round 37)",
@@ -31,7 +33,7 @@ RECIPES: Dict[str, str] = {
 
 RecipeName = Literal[
     "compare_counties", "tract_trend", "regression_sampling_error", "small_area", "preregistered",
-    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas", "composite_index", "agreement", "combine_estimates", "causal",
+    "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas", "composite_index", "agreement", "combine_estimates", "causal", "context_covariates",
 ]
 
 

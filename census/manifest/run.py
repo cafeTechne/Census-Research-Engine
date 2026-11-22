@@ -294,6 +294,7 @@ class RunState:
     derived_on_replicates: Dict[str, Dict[str, int]] = field(default_factory=dict)
     external_info: Optional[Dict[str, Any]] = None
     joined_external: List[str] = field(default_factory=list)
+    joined_context: List[str] = field(default_factory=list)
     exclusion_log: List[Dict[str, Any]] = field(default_factory=list)
     adjustment_log: List[Dict[str, Any]] = field(default_factory=list)
     coords: Optional[pd.DataFrame] = None
@@ -546,6 +547,20 @@ def _join_external(state: RunState) -> None:
             state.external_info = {"variables": state.m["external"], "error": f"{type(exc).__name__}: {exc}"}
 
 
+def _join_context(state: RunState) -> None:
+    # 3d. context covariates (Round 72), county values joined on GEOID (tracts take their county's value)
+    state.context_info = None
+    if state.frame is not None and state.m.get("context"):
+        from ..context_sources import context_frame, join_context
+        try:
+            ctx, prov = context_frame(state.m["context"], state.frame, client=state.client)
+            state.frame, join = join_context(state.frame, ctx)
+            state.joined_context = list(ctx.columns)
+            state.context_info = {"entries": state.m["context"], "provenance": prov, "join": join}
+        except Exception as exc:  # noqa: BLE001 - recorded, analyses that need it do not run
+            state.deviations.append({"kind": "context_join_failed", "detail": f"{type(exc).__name__}: {exc}"})
+
+
 def _apply_exclusions(state: RunState) -> None:
     # 4. exclusions (before adjustments: a pre-registered exclusion can remove a unit without an
     # RPP area; the CV screen gives the same rows either way, since the RPP factor leaves CVs unchanged)
@@ -602,6 +617,7 @@ def _run_analyses(state: RunState) -> None:
     # 5. analyses
     available = set(state.columns) | {str(d["name"]) for d in state.m.get("derivations") or []} | set(state.joined_external)
     available |= {n + "_numerator" for n in state.joined_external}
+    available |= set(state.joined_context)
     state.results: Dict[str, Any] = {}
     # caller-supplied replicates of overlapping releases: refused (census_vre is refused at validation)
     rep_overlap = _replicate_overlap(state.replicates) if state.replicates is not None and not census_vre_source(state.m) else None
@@ -823,6 +839,8 @@ def _bundle(state: RunState) -> Dict[str, Any]:
         run_info["harmonization"] = state.harmonization
     if state.external_info is not None:
         run_info["external"] = state.external_info
+    if getattr(state, "context_info", None) is not None:
+        run_info["context"] = state.context_info
     if state.analysed_data:
         run_info["analysed_data"] = state.analysed_data
     if not complete:
@@ -856,6 +874,7 @@ _STAGES = (
     _fetch_vre,
     _derive_replicates,
     _join_external,
+    _join_context,
     _apply_exclusions,
     _apply_adjustments,
     _run_analyses,

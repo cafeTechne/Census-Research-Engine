@@ -59,9 +59,9 @@ circularity rule does not apply, but each source states what it is derived from.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Registry and fetchers | | |
-| Frame and manifest joins | | |
-| State-wide tracts | | |
-| Checks | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Registry and fetchers | done | `census/context_sources.py` (cbp, ers_typology, ers_rucc, chr_additional) |
+| Frame and manifest joins | done | `build_analysis_frame(context=…)`, manifest `context` block, `list_health_sources(kind="context")` |
+| State-wide tracts | no change | already one request per state |
+| Checks | done | live: CHR hash = Round 66's, CBP 01001 = 51, ERS complete; OMB metro cross-check not run (no .xls reader) |
+| Goldens, final suite | done | identical; 2179 passed, 1 rule failure fixed |
+| Exceptions | two | state-wide tracts already existed; OMB cross-check not run |

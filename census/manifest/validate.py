@@ -266,6 +266,10 @@ def _check_manifest_measures(manifest, errors, releases):
                                         else [], names))
         if agg is not None:
             errors.append("external variables cannot be combined with aggregation (external values are per unit)")
+    if manifest.get("context") is not None:
+        from ..context_sources import validate_context
+        errors.extend(validate_context(manifest.get("context"), list(names)+list(ext_names)))
+        names = list(names)+[c.get("name") for c in manifest.get("context") or [] if isinstance(c, Mapping)]
     _check_adjustments(manifest, names, errors)
     _check_replicates(manifest, errors)
 

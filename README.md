@@ -342,6 +342,15 @@ PUMS supports custom person/household universes with the appropriate survey weig
 
 Descriptive Poisson–Gamma event-rate smoothing is Python-only (`census.rate_smoothing.eb_poisson_gamma`); it serves a different purpose from Fay–Herriot smoothing of ACS estimates. Interval-censored NB2 for counts suppressed as 1–9 is `fit_model(model="negbin", exposure=..., censored="<true/false column>")` (validated; hidden counts are never estimated). The `interrupted_series` tool (full profile) estimates level and slope changes in an annual series with AR(1) errors and a linear trend on each side: `method="bootstrap_t_cons"` (the default) is validated from 17 points, `"bootstrap_t_bb"` from 19, `"bootstrap_t_bc"` from 20 and `"bootstrap_t"` from 30; every method failed at 15 points, so shorter series are exploratory. It refuses non-consecutive years: overlapping ACS five-year releases are not annual observations (use `trend_test`). The [method status table](STATUS.md#methods-validation-status) and recipes give the gates and alternatives. [docs/agent_routing.md](docs/agent_routing.md) lists common research questions with the tool, profile and validation flag the engine returns for each; a test runs every row.
 
+## Context covariates
+
+County characteristics the ACS does not measure can be joined as **covariates** (Round 72): County Business
+Patterns establishment counts by NAICS, ERS 2015 county economic types, ERS rural–urban continuum codes and 2013
+metro status, and County Health Rankings additional measures from CHR's calculation repository (pinned commit).
+List them with `list_health_sources(kind="context")`. Add them with `build_analysis_frame(context=[...])` or a
+manifest `"context"` block. Tract frames get their county's value. Every file is cached with its SHA-256. These are
+never outcomes; see the [context recipe](docs/recipes/context_covariates.md).
+
 ## External health data
 
 Health outcomes the ACS lacks come from registered external sources (`list_health_sources`, recipe `external_health_outcome`, `docs/agent_protocol.md` section 16), joined to a manifest's ACS frame as outcomes only:

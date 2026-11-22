@@ -142,6 +142,16 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
+**Round 72 (v0.67.0; merged before Round 71, release pending owner approval; implemented by the maintainer
+agent):** context covariate sources, no new statistics (N50).
+- `census/context_sources.py`: CBP, ERS typology, ERS rural–urban codes and CHR additional measures, with cached
+  files pinned by SHA-256.
+- Reached through `build_analysis_frame(context=[...])`, the manifest `"context"` block and
+  `list_health_sources(kind="context")`.
+- Tract requests were already one per state (no change needed).
+
+Goldens unchanged. Acceptance: goldens byte-identical; 2179 passed, 38 skipped, 1 core-profile rule failure fixed (affected tests rerun).
+
 **Round 70 (v0.66.0; merged, release pending owner approval; implemented by the maintainer agent):**
 housekeeping, no new statistics (N47, N48).
 - `census/env.py` loads `.env` from `CENSUS_DOTENV`, then upward from the working directory, then from the package
