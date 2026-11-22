@@ -1,0 +1,750 @@
+{
+ "rows": [
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    5,
+    "hom_rr"
+   ],
+   "rr": 0.9065,
+   "bd_reject": 0.122,
+   "woolf_reject": 0.106
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    5,
+    "hom_or"
+   ],
+   "or": 0.908,
+   "bd_reject": 0.1125,
+   "woolf_reject": 0.113
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    5,
+    "hom_rd"
+   ],
+   "rd": 0.8845,
+   "bd_reject": 0.144,
+   "woolf_reject": 0.1555
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    5,
+    "hom_irr"
+   ],
+   "irr": 0.9005
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    5,
+    "het"
+   ],
+   "bd_reject": 0.629,
+   "woolf_reject": 0.5445
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    20,
+    "hom_rr"
+   ],
+   "rr": 0.8985,
+   "bd_reject": 0.126,
+   "woolf_reject": 0.1035
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    20,
+    "hom_or"
+   ],
+   "or": 0.8995,
+   "bd_reject": 0.1015,
+   "woolf_reject": 0.143
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    20,
+    "hom_rd"
+   ],
+   "rd": 0.893,
+   "bd_reject": 0.272,
+   "woolf_reject": 0.381
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    20,
+    "hom_irr"
+   ],
+   "irr": 0.9015
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    20,
+    "het"
+   ],
+   "bd_reject": 0.9905,
+   "woolf_reject": 0.962
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    100,
+    "hom_rr"
+   ],
+   "rr": 0.91,
+   "bd_reject": 0.2315,
+   "woolf_reject": 0.1125
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    100,
+    "hom_or"
+   ],
+   "or": 0.9025,
+   "bd_reject": 0.102,
+   "woolf_reject": 0.271
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    100,
+    "hom_rd"
+   ],
+   "rd": 0.9075,
+   "bd_reject": 0.736,
+   "woolf_reject": 0.9145
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    100,
+    "hom_irr"
+   ],
+   "irr": 0.9005
+  },
+  {
+   "kind": "c",
+   "cell": [
+    2,
+    100,
+    "het"
+   ],
+   "bd_reject": 1.0,
+   "woolf_reject": 1.0
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    5,
+    "hom_rr"
+   ],
+   "rr": 0.9025,
+   "bd_reject": 0.116,
+   "woolf_reject": 0.0545
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    5,
+    "hom_or"
+   ],
+   "or": 0.909,
+   "bd_reject": 0.1105,
+   "woolf_reject": 0.061
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    5,
+    "hom_rd"
+   ],
+   "rd": 0.877,
+   "bd_reject": 0.139,
+   "woolf_reject": 0.1035
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    5,
+    "hom_irr"
+   ],
+   "irr": 0.908
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    5,
+    "het"
+   ],
+   "bd_reject": 0.559,
+   "woolf_reject": 0.392
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    20,
+    "hom_rr"
+   ],
+   "rr": 0.896,
+   "bd_reject": 0.1135,
+   "woolf_reject": 0.0845
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    20,
+    "hom_or"
+   ],
+   "or": 0.891,
+   "bd_reject": 0.112,
+   "woolf_reject": 0.1215
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    20,
+    "hom_rd"
+   ],
+   "rd": 0.8965,
+   "bd_reject": 0.2465,
+   "woolf_reject": 0.2965
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    20,
+    "hom_irr"
+   ],
+   "irr": 0.8955
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    20,
+    "het"
+   ],
+   "bd_reject": 0.976,
+   "woolf_reject": 0.9125
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    100,
+    "hom_rr"
+   ],
+   "rr": 0.8935,
+   "bd_reject": 0.1985,
+   "woolf_reject": 0.1085
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    100,
+    "hom_or"
+   ],
+   "or": 0.892,
+   "bd_reject": 0.1075,
+   "woolf_reject": 0.2145
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    100,
+    "hom_rd"
+   ],
+   "rd": 0.8965,
+   "bd_reject": 0.709,
+   "woolf_reject": 0.8635
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    100,
+    "hom_irr"
+   ],
+   "irr": 0.9015
+  },
+  {
+   "kind": "c",
+   "cell": [
+    4,
+    100,
+    "het"
+   ],
+   "bd_reject": 1.0,
+   "woolf_reject": 1.0
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    5,
+    "hom_rr"
+   ],
+   "rr": 0.895,
+   "bd_reject": 0.116,
+   "woolf_reject": 0.0315
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    5,
+    "hom_or"
+   ],
+   "or": 0.8985,
+   "bd_reject": 0.1095,
+   "woolf_reject": 0.037
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    5,
+    "hom_rd"
+   ],
+   "rd": 0.897,
+   "bd_reject": 0.1275,
+   "woolf_reject": 0.054
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    5,
+    "hom_irr"
+   ],
+   "irr": 0.8955
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    5,
+    "het"
+   ],
+   "bd_reject": 0.5765,
+   "woolf_reject": 0.343
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    20,
+    "hom_rr"
+   ],
+   "rr": 0.8975,
+   "bd_reject": 0.108,
+   "woolf_reject": 0.0745
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    20,
+    "hom_or"
+   ],
+   "or": 0.8985,
+   "bd_reject": 0.11,
+   "woolf_reject": 0.115
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    20,
+    "hom_rd"
+   ],
+   "rd": 0.9,
+   "bd_reject": 0.221,
+   "woolf_reject": 0.2665
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    20,
+    "hom_irr"
+   ],
+   "irr": 0.9025
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    20,
+    "het"
+   ],
+   "bd_reject": 0.9915,
+   "woolf_reject": 0.9435
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    100,
+    "hom_rr"
+   ],
+   "rr": 0.899,
+   "bd_reject": 0.1935,
+   "woolf_reject": 0.105
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    100,
+    "hom_or"
+   ],
+   "or": 0.894,
+   "bd_reject": 0.114,
+   "woolf_reject": 0.209
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    100,
+    "hom_rd"
+   ],
+   "rd": 0.897,
+   "bd_reject": 0.689,
+   "woolf_reject": 0.85
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    100,
+    "hom_irr"
+   ],
+   "irr": 0.8995
+  },
+  {
+   "kind": "c",
+   "cell": [
+    8,
+    100,
+    "het"
+   ],
+   "bd_reject": 1.0,
+   "woolf_reject": 1.0
+  },
+  {
+   "kind": "p",
+   "cell": [
+    2,
+    300,
+    "hom_rr"
+   ],
+   "rr": 0.895,
+   "wald_reject": 0.128
+  },
+  {
+   "kind": "p",
+   "cell": [
+    2,
+    300,
+    "hom_or"
+   ],
+   "or": 0.891,
+   "wald_reject": 0.1245
+  },
+  {
+   "kind": "p",
+   "cell": [
+    2,
+    300,
+    "hom_rd"
+   ],
+   "rd": 0.8995,
+   "wald_reject": 0.1085
+  },
+  {
+   "kind": "p",
+   "cell": [
+    2,
+    3000,
+    "hom_rr"
+   ],
+   "rr": 0.893,
+   "wald_reject": 0.1035
+  },
+  {
+   "kind": "p",
+   "cell": [
+    2,
+    3000,
+    "hom_or"
+   ],
+   "or": 0.898,
+   "wald_reject": 0.099
+  },
+  {
+   "kind": "p",
+   "cell": [
+    2,
+    3000,
+    "hom_rd"
+   ],
+   "rd": 0.8965,
+   "wald_reject": 0.105
+  },
+  {
+   "kind": "p",
+   "cell": [
+    4,
+    300,
+    "hom_rr"
+   ],
+   "rr": 0.8915,
+   "wald_reject": 0.151
+  },
+  {
+   "kind": "p",
+   "cell": [
+    4,
+    300,
+    "hom_or"
+   ],
+   "or": 0.8905,
+   "wald_reject": 0.1425
+  },
+  {
+   "kind": "p",
+   "cell": [
+    4,
+    300,
+    "hom_rd"
+   ],
+   "rd": 0.883,
+   "wald_reject": 0.1415
+  },
+  {
+   "kind": "p",
+   "cell": [
+    4,
+    3000,
+    "hom_rr"
+   ],
+   "rr": 0.881,
+   "wald_reject": 0.12
+  },
+  {
+   "kind": "p",
+   "cell": [
+    4,
+    3000,
+    "hom_or"
+   ],
+   "or": 0.888,
+   "wald_reject": 0.1295
+  },
+  {
+   "kind": "p",
+   "cell": [
+    4,
+    3000,
+    "hom_rd"
+   ],
+   "rd": 0.909,
+   "wald_reject": 0.1355
+  },
+  {
+   "kind": "pr",
+   "cell": [
+    0.0,
+    3000
+   ],
+   "reri": 0.9085
+  },
+  {
+   "kind": "pr",
+   "cell": [
+    0.0,
+    10000
+   ],
+   "reri": 0.8975
+  },
+  {
+   "kind": "pr",
+   "cell": [
+    0.5,
+    3000
+   ],
+   "reri": 0.8915
+  },
+  {
+   "kind": "pr",
+   "cell": [
+    0.5,
+    10000
+   ],
+   "reri": 0.903
+  },
+  {
+   "kind": "r",
+   "cell": [
+    0.0,
+    0.05
+   ],
+   "delta": 0.895,
+   "boot": 0.8895
+  },
+  {
+   "kind": "r",
+   "cell": [
+    0.0,
+    0.2
+   ],
+   "delta": 0.896,
+   "boot": 0.8945
+  },
+  {
+   "kind": "r",
+   "cell": [
+    0.5,
+    0.05
+   ],
+   "delta": 0.896,
+   "boot": 0.8875
+  },
+  {
+   "kind": "r",
+   "cell": [
+    0.5,
+    0.2
+   ],
+   "delta": 0.898,
+   "boot": 0.898
+  }
+ ],
+ "outcome": {
+  "MH_rr": {
+   "passed": true,
+   "range_gated": false,
+   "min": 0.8935,
+   "cells": 9
+  },
+  "MH_or": {
+   "passed": true,
+   "range_gated": false,
+   "min": 0.891,
+   "cells": 9
+  },
+  "MH_rd": {
+   "passed": true,
+   "range_gated": false,
+   "min": 0.877,
+   "cells": 9
+  },
+  "MH_irr": {
+   "passed": true,
+   "range_gated": false,
+   "min": 0.8955,
+   "cells": 9
+  },
+  "H1_woolf": {
+   "passed": false,
+   "min": 0.0315,
+   "max": 0.1125,
+   "cells": 9
+  },
+  "H1_breslow_day": {
+   "passed": true,
+   "min": 0.1015,
+   "max": 0.114,
+   "cells": 9
+  },
+  "RERI_delta": {
+   "passed": true,
+   "range_gated": false,
+   "min": 0.895,
+   "cells": 4
+  },
+  "RERI_boot": {
+   "passed": true,
+   "range_gated": false,
+   "min": 0.8875,
+   "cells": 4
+  },
+  "MH2_rr": {
+   "passed": true,
+   "range_gated": false,
+   "min": 0.881,
+   "cells": 4
+  },
+  "MH2_or": {
+   "passed": true,
+   "range_gated": false,
+   "min": 0.888,
+   "cells": 4
+  },
+  "MH2_rd": {
+   "passed": true,
+   "range_gated": false,
+   "min": 0.883,
+   "cells": 4
+  },
+  "H1_pums_wald": {
+   "passed": false,
+   "min": 0.099,
+   "max": 0.151,
+   "cells": 12
+  },
+  "RERI_pums": {
+   "passed": true,
+   "range_gated": false,
+   "min": 0.8915,
+   "cells": 4
+  }
+ },
+ "draws": 2000,
+ "criterion_commit": "b35879913f46cdaa511929e88bae6c56dfebbd08",
+ "seconds": 168,
+ "frozen_sha256": {
+  "scripts/stratified_validation.py": "f3f516bf61d024816248f888f20b4fdac7fde1a8054b73a3379877ae37fb6b0b",
+  "census/stratified_core.py": "f5d87d236b2467293e5a6fa50eb992abb4513aa9bdadb65bd93dea2cd25349ac",
+  "scripts/pums_tests_validation.py": "e9a2782447d1271dc794a2dfffd85563565b996846886fa63111629444300643",
+  "census/pums_tests.py": "bbd88b8263fff87216b79af19e9cd0fcb549ab82ea7aa42d6c65e0e66f630040",
+  "docs/audits/stratified_validation_criterion.md": "c9a3c2778b749fb604f8ab5980c38e25fdb94c10b95b45e55c5b0e371ddd9d85"
+ }
+}

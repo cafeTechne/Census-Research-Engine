@@ -461,4 +461,6 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
         errors.extend(circularity_errors(manifest))
     from .round75 import index_circularity_errors
     errors.extend(index_circularity_errors(manifest))
+    from .covariables import covariable_errors  # Round 83
+    errors.extend(covariable_errors(manifest))
     return errors
