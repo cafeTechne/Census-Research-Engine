@@ -71,9 +71,37 @@ Several models can be compared in one report: `--model qwen3:8b llama3.1:8b`.
 
 The harness runs scripted tasks with known answers (a rate with its MOE, a two-county significance test, a trend across non-overlapping releases, a refused overlapping trend, a minimum detectable difference, a recipe lookup, a reliability-aware tract map with `make_map`, and Moran's I with `spatial_autocorrelation` on the `core_spatial` profile), scores tool choice, arguments, and the final answer, and writes `docs/audits/local_model_eval.md`. The map and spatial tasks need no network: the server gets `CENSUS_GEO_DIR=tests/fixtures/geo` (the DC tract cartographic file) and a synthetic DC tract frame is written to `.cache/local_model_eval/`. For Qwen3 models it appends `/no_think` to skip the reasoning phase (pass `--think` to allow it). It is not part of CI.
 
+## Evaluation, 2026-11-22 (Gemma 4 and Qwen 3.5, CPU only)
+
+`gemma4:e4b` and `qwen3.5:9b` were run through Ollama 0.40.15 with temperature 0, on 16 CPUs and no GPU.
+- **Main run** (`docs/audits/local_model_eval.md`): 12 tasks, with `num_ctx` 8192.
+- **Follow-ups:** `docs/audits/local_model_eval_recipes_fix.md` and `docs/audits/local_model_eval_full40k.md`.
+
+| Task group | gemma4:e4b | qwen3.5:9b |
+| :--- | :--- | :--- |
+| Core arithmetic, significance, trend, refusal, MDD, map (6 tasks) | 6/6 | 6/6 |
+| Recipe routing (`tract_trend`) | pass | pass |
+| Recipe routing (`custom_geographies`), after the core `get_recipe` description was changed to list every recipe | pass (failed before) | pass (failed before) |
+| Recipe routing (`dollars`) | fail: answered without calling `get_recipe` | fail: same |
+| `spatial_autocorrelation` (`core_spatial`) | pass | fail: empty final answer after a correct call |
+| `interrupted_series` (full profile), 8k context | 0/2 | 0/2 |
+| `interrupted_series` (full profile), 40k context | 2/2 | 1/2: miscopied the 15-value series |
+
+What this shows:
+- **The full profile needs a large context.** Its 71 tool definitions are about 28,500 tokens, more than three
+  times an 8k window. With 8k both models saw truncated tool lists and said no tool could do the task. With
+  `num_ctx` 40960 they called the right tool. Use the core profiles with small windows, or set `num_ctx` ≥ 32768
+  (preferably 40960) for `full`.
+- **Recipe names must be visible.** The core `get_recipe` description now lists all 25 recipes. Before the change
+  neither model found `custom_geographies`; after it both did.
+- **Some tasks need full-profile tools.** Dollar adjustment, custom geographies, interrupted series and
+  difference-in-differences are full-profile tools. A core-profile model can read the recipe but cannot run them.
+  The recipes now say which profile they need.
+- **Speed.** The models took 33–192 s per task at 8k and 170–870 s at 40k on CPU.
+
 ## Tips for small models
 
-- **Context length.** The `core` tool list alone is close to 4,096 tokens, Ollama's default context. Start the server with a larger context, for example `OLLAMA_CONTEXT_LENGTH=8192 ollama serve` (or set `num_ctx` in the model's options), or the model may lose the tool definitions mid-conversation.
+- **Context length.** The `core` tool list alone is close to 4,096 tokens, Ollama's default context, and the `full` list is about 28,500 tokens. Start the server with a larger context, for example `OLLAMA_CONTEXT_LENGTH=8192 ollama serve` (or set `num_ctx` in the model's options), or the model may lose the tool definitions mid-conversation.
 - **CPU-only machines.** If Ollama offloads part of the model to a weak or integrated GPU, generation can be limited by that GPU. Compare against CPU-only by passing `"options": {"num_gpu": 0}`.
 - **Recipes first.** In evaluation (docs/audits/local_model_eval.md) the one failed task was a multi-step question the model answered from tool descriptions without calling `get_recipe`. The core instructions now tell models to call `get_recipe` first.
 

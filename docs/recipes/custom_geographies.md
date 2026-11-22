@@ -1,5 +1,7 @@
 # Custom geographies: neighborhoods, catchments and combined areas
 
+Profile: these tools are in the **full** MCP profile (`aggregate_geographies`, `custom_area_mapping`, `median_from_distribution`, `apportion_tracts`); the core profile has only `derive_estimate` for a single combined ratio.
+
 Goal: estimates for areas the Census does not publish, built from tracts or block groups, with honest MOEs.
 
 1. **Map units to your areas.**

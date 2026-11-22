@@ -1,5 +1,7 @@
 # Reporting: tables, maps, codebooks and results bundles
 
+Profile: `make_map` and `make_figure` are in core; `make_table`, `generate_codebook` and `make_results_bundle` are full only.
+
 Goal: turn results into publication outputs with their provenance.
 
 1. **Tables:** `make_table(kind="descriptive", input_path=<frame>, variables=[...])` writes LaTeX (booktabs),
