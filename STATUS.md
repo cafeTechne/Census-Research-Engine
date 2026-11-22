@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | None queued. Rounds 88–93 merged (method attribution; from Hernán and Robins: causal specification, positivity, marginal structural models; from Walker: PEP/LODES/flows, spatial models); mappings in `docs/literature/`. Next sources named by the owner (2026-11-23): Moraga, *Spatial Statistics for Data Science* (online), `literature_pdfs/cdc_6914_DS1.pdf`, `literature_pdfs/handbook-on-health-inequality-monitoring.pdf`. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_94.md` (WHO inequality monitoring); Rounds 95–97 queued (YPLL and aberration detection from CDC SS1000; BYM2 disease mapping and spatial cross-validation/MAUP from Moraga); mappings in `docs/literature/`. Earlier: Rounds 88–93 merged (method attribution; Hernán and Robins; Walker). Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -741,6 +741,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N67: marginal structural models (91; closed, exploratory);
 - N68: Population Estimates, LODES, migration flows (92; closed);
 - N69: GWR, classification, regionalization, diversity (93; closed, exploratory);
+- N71–N74: WHO inequality monitoring, YPLL and aberration detection, BYM2 disease mapping, spatial CV and MAUP (Rounds 94–97, planned 2026-11-23 from the WHO handbook, CDC SS1000 and Moraga);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

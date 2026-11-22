@@ -43,6 +43,10 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N68 | Data sources from Walker chapters 4 and 11 are missing: Population Estimates (annual population by age and sex, the denominators for annual rates), LEHD LODES jobs and commuting, ACS county-to-county migration flows | owner, 2026-11-23 (book) | data source | 92 |
 | N70 | Results do not attribute their methods: tool outputs, bundles and the CLI carry no list of the papers and textbooks a method rests on (owner request) | owner, 2026-11-23 | reporting | 89 |
 | N69 | No geographically weighted regression, geodemographic classification, regionalization or diversity index with ACS uncertainty (Walker chapter 8) | owner, 2026-11-23 (book) | missing method | 93 |
+| N71 | Health inequality monitoring per WHO (2013) is incomplete: no mean difference from the overall mean or best subgroup, no population attributable risk against the best subgroup, no change in inequality over time, no double disaggregation or level-by-inequality priority view | owner, 2026-11-23 (book) | missing method | 94 |
+| N72 | No YPLL from mortality exports and no aberration detection (historical limits, EARS) for the latest period of an annual series (CDC SS1000 lessons 3–5) | owner, 2026-11-23 (book) | missing method | 95 |
+| N73 | No count-scale spatial disease mapping (Besag/BYM2 Poisson) and no exceedance probabilities (Moraga chapters 9–10) | owner, 2026-11-23 (book) | missing method | 96 |
+| N74 | Model checks are in-sample: no spatial block cross-validation (MAE, RMSE, coverage, CRPS) and no MAUP scale/zoning sensitivity (Moraga chapters 11, 16) | owner, 2026-11-23 (book) | validation gap | 97 |
 
 ## 2. Recorded limits (not scheduled; reopen only with a new idea)
 
@@ -83,9 +87,16 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 91 | IP-weighted marginal structural models for annual policy panels | N67 | done (v0.87.0; exploratory) |
 | 92 | Data sources: Population Estimates, LEHD LODES, ACS migration flows | N68 | done (v0.88.0) |
 | 93 | Geographically weighted regression, geodemographic classification, regionalization, diversity index | N69 | done (v0.89.0; exploratory) |
+| 94 | Inequality monitoring (WHO): mean differences, PAR vs best subgroup, trends in inequality, double disaggregation, priority quadrants | N71 | planned |
+| 95 | YPLL and surveillance aberration detection (CDC SS1000) | N72 | planned |
+| 96 | Spatial disease mapping: BYM2 Poisson with exceedance probabilities (Moraga) | N73 | planned |
+| 97 | Spatial block cross-validation and MAUP sensitivity (Moraga) | N74 | planned |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 
 Order rationale:
+- **Rounds 94–97** (added 2026-11-23 from the WHO inequality-monitoring handbook, CDC SS1000 and Moraga; mappings in
+  `docs/literature/`): 94 extends the existing inequality tools; 95 adds mortality measures and surveillance; 96 adds
+  count-scale spatial models; 97 assesses models out of sample, including 96's.
 - **Rounds 88–93** (added 2026-11-23): 88 (method attribution, owner request) first so every later round registers
   its sources; then, from Hernán and Robins and from Walker (mappings in `docs/literature/`), 89 before 90–91, which
   rely on its causal specification; 92 adds the annual denominators 91 needs; 93 is exploratory spatial modelling.
