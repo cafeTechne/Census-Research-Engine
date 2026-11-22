@@ -83,3 +83,18 @@ For a common 0/1 outcome, `pums_regression(state, year, "I(HICOV == 2) ~ dis + A
 marginal="dis")` adds the standardized risk ratio and risk difference for the binary exposure, the attributable
 fraction and the modified-Poisson prevalence ratio, all with replicate-weight intervals (validated). Odds ratios from
 the logit overstate the risk ratio for outcomes above about 10%.
+
+## Area versus individual associations (Round 87)
+
+Area-level (ACS) associations describe areas, not people (the ecologic fallacy; *Foundations of Epidemiology*
+chapter 9). PUMS can measure the difference for a given question:
+`pums_regression(state, year, "I(DIS == 1) ~ POVPIP", model="logit", ecologic_check="POVPIP",
+where="AGEP >= 19 and AGEP <= 64")` adds
+- **within**: the person-level association inside PUMAs (what applies to individuals);
+- **between**: the association of PUMA means; **contextual** = between - within;
+- **ecologic** (identity scale): what an area-level analysis estimates, and the **ecologic gap** (ecologic - within).
+The logit decomposition is validated from 5,000 records. The identity-scale (risk-difference) decomposition and the
+ecologic gap are **exploratory**: with many small areas (about 30 records each) noisy area means biased the
+between-area slope. A contextual effect is an area-level association, not proof that the area causes anything.
+In MI and OH (2019–2023), the area-level slope of disability on income-to-poverty was about 1.7 times the
+individual-level slope (`docs/audits/r87_ecologic_example.md`).

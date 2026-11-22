@@ -339,6 +339,11 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+Round 87: never apply an area-level result to individuals (ecologic fallacy). When a question is about people, run
+pums_regression(..., ecologic_check="<exposure>") to compare the within-PUMA (individual) association with the
+between-PUMA and area-level (ecologic) ones. The logit decomposition is validated from 5,000 records; the
+risk-difference decomposition and the ecologic gap are exploratory. A contextual effect is not proof of an area cause.
+
 Round 86: report an E-value with ratio estimates (bias_analysis kind="e_value"; also in stratified_analysis and the
 marginal measures): the minimum unmeasured-confounder strength that would explain the estimate away. A 2 x 2 table
 can be corrected for misclassification (kind="misclassification"); its probabilistic interval failed validation

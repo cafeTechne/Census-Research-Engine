@@ -36,7 +36,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N61 | Binomial/logit results give odds ratios only, which overstate risk ratios for common ACS outcomes; no marginal RR/RD, prevalence ratio, attributable fraction or dose-response trend (ch. 4, 10) | owner, 2026-11-22 (book) | missing method | 84 (closed) |
 | N62 | Area designations by thresholds on noisy ACS estimates have no accuracy statement (probability above threshold, sensitivity, PPV) (ch. 11) | owner, 2026-11-22 (book) | missing method | 85 (closed) |
 | N63 | No quantitative bias analysis: E-values, misclassification correction, both-directions covariable sensitivity (ch. 6–7) | owner, 2026-11-22 (book) | missing method | 86 (closed) |
-| N64 | No way to measure ecologic bias: within-area versus between-area (contextual) associations on PUMS (ch. 9) | owner, 2026-11-22 (book) | missing method | 87 |
+| N64 | No way to measure ecologic bias: within-area versus between-area (contextual) associations on PUMS (ch. 9) | owner, 2026-11-22 (book) | missing method | 87 (closed) |
 
 ## 2. Recorded limits (not scheduled; reopen only with a new idea)
 
@@ -70,7 +70,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 84 | Marginal risk ratios/differences, prevalence ratios, attributable fractions, dose-response | N61 | merged (v0.80.0) |
 | 85 | Area designations as screening tests (probability above threshold, Sn/Sp/PPV/NPV) | N62 | merged (v0.81.0) |
 | 86 | Quantitative bias analysis: E-values, misclassification, both-directions sensitivity | N63 | merged (v0.82.0) |
-| 87 | Ecologic versus individual-level associations on PUMS (within, between, contextual) | N64 | planned |
+| 87 | Ecologic versus individual-level associations on PUMS (within, between, contextual) | N64 | merged (v0.83.0) |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 
 Order rationale:
