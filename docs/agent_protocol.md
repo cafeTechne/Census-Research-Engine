@@ -546,6 +546,13 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+## Small-area proportions and several releases (Round 80)
+
+<!-- mcp-rules:A -->
+Round 80: small_area_estimates(transform="arcsine") for proportions near 0 or 1 (bias-corrected back-transform,
+bootstrap MSE; validated .898-.904 per area on MI/NY counties and tracts) and small_area_estimates(temporal=True,
+release_column="Year") for 2-3 non-overlapping releases (Rao-Yu; validated .897-.898; overlapping releases refused).
+
 ## Decomposing a PUMS gap (Round 79)
 
 <!-- mcp-rules:A -->
