@@ -40,6 +40,14 @@ No new statistics: every method wired here was validated earlier.
 - **Goldens:** the run golden is byte-identical. The schema golden differs only in the "supported methods" list of
   one error message, which now includes `multilevel` (intended).
 - Acceptance: 2213 passed, 42 skipped; 0 failures.
+- **Local-model evaluation, 2026-11-22** (Gemma 4 e4b and Qwen 3.5 9B, CPU only; `docs/local_models.md`):
+  - core tasks 6/6 for both models;
+  - the core `get_recipe` description now lists all 25 recipes, which fixed recipe routing for
+    `custom_geographies`;
+  - the full profile's tool list (~28,500 tokens) needs `num_ctx` ≥ 32768. At 40k, `interrupted_series` passed 2/2
+    (Gemma) and 1/2 (Qwen);
+  - the new recipes state which MCP profile their tools need;
+  - the harness gains two routing tasks (`recipe_custom_geographies`, `recipe_dollars`).
 
 ## 0.70.0 (Round 74): replication suite
 

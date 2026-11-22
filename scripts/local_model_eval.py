@@ -201,6 +201,24 @@ def _tasks() -> List[Task]:
             lambda t: "overlap" in lower(t) and "trend_test" in lower(t),
             "tract_trend recipe (non-overlapping releases, trend_test)",
         ),
+        Task(   # Round 76: routing to the Round 75 recipes
+            "recipe_custom_geographies",
+            "I need the poverty rate and its margin of error for a neighborhood made of three census tracts. "
+            "Which tool workflow should I follow? List the steps.",
+            "get_recipe",
+            lambda a: a.get("name") in ("custom_geographies", None),
+            lambda t: "aggregate_geographies" in lower(t),
+            "custom_geographies recipe (aggregate_geographies: sum counts, then derive the rate)",
+        ),
+        Task(
+            "recipe_dollars",
+            "How should I compare median household income from the 2013 and 2023 ACS releases in constant "
+            "dollars, and between two metro areas with different costs of living? List the tools.",
+            "get_recipe",
+            lambda a: a.get("name") in ("dollars", None),
+            lambda t: "adjust_inflation" in lower(t) and ("adjust_for_place" in lower(t) or "place_adjust_frame" in lower(t)),
+            "dollars recipe (adjust_inflation, adjust_for_place / place_adjust_frame)",
+        ),
         Task(
             "map_with_reliability",
             f"Make a map of poverty_rate for Washington DC census tracts (ACS 2023) from the file {geo}. "

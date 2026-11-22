@@ -1,5 +1,7 @@
 # Cross-release comparisons: variable concordance and crosswalk decisions
 
+Profile: these tools are in the **review** and **full** MCP profiles.
+
 Goal: compare a table across ACS releases only where its variables mean the same thing.
 
 1. Call `check_variable_concordance(table_code, start_year, end_year)`.

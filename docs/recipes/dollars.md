@@ -1,5 +1,7 @@
 # Dollars: inflation and place price levels
 
+Profile: `adjust_inflation`, `adjust_for_place` and `place_adjust_frame` are in the **full** MCP profile; the core profile has no dollar-adjustment tool (`batch_download(inflation_base_year=...)`, also full profile, converts at download).
+
 Goal: compare dollar estimates (income, rent, home value) across years or across places fairly.
 
 1. **Across years:** `adjust_inflation(value, from_year, to_year)`.

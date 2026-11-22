@@ -80,10 +80,13 @@ DESCRIPTION_BUDGET = 700  # characters, enforced by tests/test_mcp_profiles.py
 DESCRIPTION_OVERRIDES: Dict[str, str] = {
     "get_recipe": (
         "Return numbered steps for a standard analysis. Call this first when unsure what to do.\n"
-        "name: compare_counties | tract_trend | regression_sampling_error | small_area | preregistered | "
-        "decennial_counts | external_health_outcome | health_inequality | segregation; "
-        "omit to list recipes.\n"
-        "Example: get_recipe(name=\"compare_counties\")"
+        "name: compare_counties | tract_trend | policy_change | regression_sampling_error | group_comparison | "
+        "rank_methods | rank_areas | composite_index | agreement | combine_estimates | causal | pums_tests | "
+        "small_area | health_inequality | external_health_outcome | segregation | context_covariates | "
+        "custom_geographies (neighborhoods, combined tracts) | dollars (inflation, cost of living) | "
+        "spatial_patterns | cross_release | decennial_counts | reporting | preregistered | replications. "
+        "Some recipes use full profile tools.\n"
+        "Example: get_recipe(name=\"custom_geographies\")"
     ),
     "search_tables": (
         "Find ACS 5-year tables by code or keyword.\n"

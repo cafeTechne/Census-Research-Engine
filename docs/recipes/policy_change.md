@@ -1,5 +1,7 @@
 # Policy change: difference-in-differences and interrupted series
 
+Profile: `difference_in_differences` and `interrupted_series` are in the **full** MCP profile; `trend_test` is in core.
+
 Goal: estimate the effect of a policy or event that began at a known time.
 
 1. Check the data. ACS five-year releases overlap: consecutive releases share four of their five years.

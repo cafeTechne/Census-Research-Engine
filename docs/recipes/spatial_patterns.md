@@ -1,5 +1,7 @@
 # Spatial patterns: clustering, hot spots and maps
 
+Profile: `spatial_autocorrelation` is in `core_spatial` and `full`; `make_map` is in core; `make_web_map` is full only.
+
 Goal: describe whether and where a variable clusters in space, and map it with its reliability.
 
 1. **Global clustering:** `spatial_autocorrelation(input_path, column, level, year)` gives Moran's I with queen
