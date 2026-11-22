@@ -52,5 +52,5 @@
 | Results | done | W2, W3, G1, flag pass; W1 (stabilized IPW) fails with 5%+ extreme propensities |
 | Engine, recipe | done | `estimate_effect` positivity + `weights=`; recipe, protocol rule |
 | Example | done | `r90_positivity_example.md` |
-| Goldens, suite | see audit | `round90_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2324 passed, 42 skipped |
 | Exceptions | 3 | see audit |
