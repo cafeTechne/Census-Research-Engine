@@ -57,9 +57,9 @@ non-overlapping; 2020 has no standard release) and the owner's WONDER state expo
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, manifest, tools | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `policy_core.py`, `policy_validation.py`; criterion `baf934b` (tag `criterion-r78`) |
+| Results | done | Sun-Abraham and CS + ACS variance pass; CS bootstrap alone, uniform bands, synthetic control (C1, C2) fail |
+| Engine, manifest, tools | done (no manifest, no new tool) | `census/staggered.py`; `difference_in_differences(design="staggered")`; synthetic control library-only |
+| Example | done | `r78_medicaid_example.md`: overall ATT -1.23 points (-2.18 to -0.27) |
+| Goldens, suite | done | both goldens byte-identical; 2235 passed, 42 skipped |
+| Exceptions | listed | `round78_compatibility.md` |

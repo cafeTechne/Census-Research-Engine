@@ -546,6 +546,16 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+## Staggered adoption and synthetic control (Round 78)
+
+<!-- mcp-rules:A -->
+Round 78: policies adopted in different years (staggered adoption) in an ANNUAL panel (ACS 1-year with
+product="1-year", 2020 refused, or another annual source): difference_in_differences(design="staggered",
+first_treated="<column>"). Sun-Abraham (default) is validated (.881-.899, 51 units); method="callaway_santanna" is
+validated only with the se column (ACS variance added, .882-.906; without it .848-.868, exploratory). Uniform bands
+are descriptive. Synthetic control for one treated unit failed (placebo size .12-.19 at .10): library only,
+exploratory. Five-year releases are refused for staggered designs.
+
 ## Joinpoint and age-adjusted rate ratios (Round 77)
 
 <!-- mcp-rules:A -->
