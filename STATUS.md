@@ -3,8 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.71.0 (Round 75: manifest support for the Round 73 methods, recipes, README; local-model
-evaluation; DOI 10.5281/zenodo.24434858). Previous: v0.70.0 (Rounds 70–74; DOI 10.5281/zenodo.24433164); v0.65.0 (Round 69;
+**Current release:** v0.77.0 (Rounds 76–81: disparities, joinpoint, staggered DiD, decompositions, small-area
+proportions, spatial scan; DOI 10.5281/zenodo.24444186). Previous: v0.71.0 (Round 75 and the local-model evaluation; DOI 10.5281/zenodo.24434858); v0.70.0 (Rounds 70–74; DOI 10.5281/zenodo.24433164); v0.65.0 (Round 69;
 DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.24405380); v0.60.0 (Rounds 61–63; DOI 10.5281/zenodo.24400452); v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
 10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
 10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record
@@ -152,7 +152,7 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 81 (v0.77.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 81 (v0.77.0; merged, released in the bundled v0.77.0; implemented by the maintainer agent):**
 Kulldorff Poisson spatial scan for county counts (N58).
 - `census/scan.py` (frozen core `scan_core.py`): circular windows, LLR, Monte Carlo and Gumbel p-values, secondary
   clusters; WONDER suppression and noisy-denominator rules.
@@ -164,7 +164,7 @@ Kulldorff Poisson spatial scan for county counts (N58).
 
 Goldens: both byte-identical. Acceptance: 2249 passed, 42 skipped; 0 failures.
 
-**Round 80 (v0.76.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 80 (v0.76.0; merged, released in the bundled v0.77.0; implemented by the maintainer agent):**
 Fay–Herriot for proportions and across releases (N57).
 - `census/sae_extensions.py` (frozen core `sae_extensions_core.py`): arcsine Fay–Herriot (bias-corrected
   back-transform, bootstrap MSE) and Rao–Yu temporal Fay–Herriot (bootstrap MSE).
@@ -176,7 +176,7 @@ Fay–Herriot for proportions and across releases (N57).
 
 Goldens: both byte-identical. Acceptance: 2245 passed, 42 skipped; 0 failures.
 
-**Round 79 (v0.75.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 79 (v0.75.0; merged, released in the bundled v0.77.0; implemented by the maintainer agent):**
 Oaxaca–Blinder and Fairlie decompositions on PUMS (N56).
 - `census/decomposition.py` (frozen core `decomposition_core.py`): twofold Oaxaca–Blinder with the pooled reference
   and Yun normalisation, threefold reported; Fairlie with rank-matched orderings; SDR replicate-weight intervals.
@@ -188,7 +188,7 @@ Oaxaca–Blinder and Fairlie decompositions on PUMS (N56).
 
 Goldens: both byte-identical. Acceptance: 2239 passed, 42 skipped; 0 failures.
 
-**Round 78 (v0.74.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 78 (v0.74.0; merged, released in the bundled v0.77.0; implemented by the maintainer agent):**
 staggered-adoption DiD and synthetic control (N55).
 - `census/staggered.py` (frozen core `policy_core.py`): Sun–Abraham (default) and Callaway–Sant'Anna event studies
   and overall ATT; synthetic control with placebo and conformal inference (library only, exploratory).
@@ -201,7 +201,7 @@ staggered-adoption DiD and synthetic control (N55).
 
 Goldens: both byte-identical. Acceptance: 2235 passed, 42 skipped; 0 failures.
 
-**Round 77 (v0.73.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 77 (v0.73.0; merged, released in the bundled v0.77.0; implemented by the maintainer agent):**
 joinpoint regression and age-adjusted rate ratios (N54).
 - `census/joinpoint.py` (frozen core `joinpoint_core.py`): log-linear joinpoint model (WLS, grid search, Kim et al.
   permutation selection), APC/AAPC; Tiwari ratio of age-adjusted rates.
@@ -214,7 +214,7 @@ joinpoint regression and age-adjusted rate ratios (N54).
 
 Goldens: both byte-identical. Acceptance: 2229 passed, 42 skipped; 0 failures.
 
-**Round 76 (v0.72.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 76 (v0.72.0; merged, released in the bundled v0.77.0; implemented by the maintainer agent):**
 between-group disparity measures and Kitagawa decomposition (N53).
 - `census/disparity.py` (frozen core `disparity_core.py`): rate difference and log ratio against a declared
   reference group, Index of Disparity, between-group variance, Theil and MLD over groups, with replicate (ACS) or

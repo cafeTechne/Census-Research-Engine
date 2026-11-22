@@ -19,12 +19,13 @@ Extraction uses the shared pipeline. Advanced analyses are exposed through the M
 
 Start with [choosing an analysis](#inference), [MCP setup and tool inventory](#mcp-server), or the [research workflow](#a-reproducible-research-workflow).
 
-**Latest release: v0.71.0** ([DOI 10.5281/zenodo.24434858](https://doi.org/10.5281/zenodo.24434858)):
-- validated spatial intervals for tract-level slopes;
-- county context covariates;
-- three-level models and indices from published loadings, now usable in pre-registered manifests;
-- 25 recipes;
-- a [replication suite](#replications) that reruns five published findings.
+**Latest release: v0.77.0** ([DOI 10.5281/zenodo.24444186](https://doi.org/10.5281/zenodo.24444186)):
+- disparities between population groups and the Kitagawa decomposition;
+- joinpoint trends and ratios of age-adjusted rates;
+- difference-in-differences for policies adopted in different years;
+- Oaxaca–Blinder and Fairlie decompositions on PUMS;
+- small-area estimates for proportions near 0 or 1 and across releases;
+- a spatial scan for clusters of high county counts.
 
 [CHANGELOG.md](CHANGELOG.md) lists every round.
 
