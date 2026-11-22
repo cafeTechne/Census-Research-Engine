@@ -62,7 +62,7 @@ def spatial_scan(frame: pd.DataFrame, cases: str, population: Optional[str] = No
         if noisy:
             notes.append(f"Median denominator CV {cv:.3f}. "+NOISY_DENOMINATOR_NOTE)
     coords = _coords(f, year)
-    f = f.merge(coords, on="GEOID", how="left")
+    f = f.drop(columns=[c for c in ("lon", "lat") if c in f.columns]).merge(coords, on="GEOID", how="left")
     if f[["lon", "lat"]].isna().any().any():
         raise ValueError("representative points missing for some counties")
     res = sc.scan(c, mu, f.lon.to_numpy(), f.lat.to_numpy(), max_share=max_share, R=replicates,

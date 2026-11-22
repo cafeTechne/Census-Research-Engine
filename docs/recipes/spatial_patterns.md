@@ -21,3 +21,21 @@ Goal: describe whether and where a variable clusters in space, and map it with i
 4. **Regression with spatially dependent residuals:** `fit_model` warns about them (Round 71). Use
    `fit_model(spatial="scpc")`, validated for county and tract OLS slopes, as in recipe `regression_sampling_error`.
 5. Report I with its interval, which local clusters survive the correction, and their caveats.
+
+## Clusters of high counts: spatial scan (Round 81)
+
+Profile: full (`spatial_scan`).
+
+Use a scan, rather than LISA, for **event counts** (births, deaths, cases) when the question is "is there a group of
+neighbouring counties with an unusually high rate?"
+1. Call `spatial_scan(input_path, cases="<count column>", population="<denominator>")`, or `expected=` with expected
+   counts from indirect standardisation. County GEOIDs only.
+2. The primary cluster's p-value (999 Monte Carlo data sets, windows up to 50% of the expected total) is validated:
+   false-cluster rate .099–.116 at α .10 on MI/NY and OH/PA. Other maximum windows are exploratory.
+3. **Denominators must be exact** (vital records, decennial counts). ACS-estimated denominators with sampling error
+   inflate false clusters (.15–.53 at α .10 with 5% error); a `<denominator>_se` column with a median CV above .01
+   makes the result exploratory.
+4. Many windows are scanned, so report the cluster as descriptive unless the window and α were declared in advance
+   (`prespecified=True`). Secondary clusters use the same Monte Carlo p-value (conservative).
+5. **WONDER rule:** suppressed counties (counts 1–9 hidden) make the scan refuse; exclude them with
+   `exclude=[...]` and a stated `exclude_rule`. No count is imputed or output.

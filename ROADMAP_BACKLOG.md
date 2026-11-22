@@ -1,6 +1,6 @@
 # Backlog roadmap (open items only)
 
-**Status: rewritten 2026-11-21, after v0.65.0 (DOI 10.5281/zenodo.24411452); Rounds 70–74 released as v0.70.0 (DOI 10.5281/zenodo.24433164); Round 75 as v0.71.0 (DOI 10.5281/zenodo.24434858).** Finished work (Rounds 43–69,
+**Status: rewritten 2026-11-21, after v0.65.0 (DOI 10.5281/zenodo.24411452); Rounds 70–74 released as v0.70.0 (DOI 10.5281/zenodo.24433164); Round 75 as v0.71.0 (DOI 10.5281/zenodo.24434858); Rounds 76–81 merged 2026-11-22 (v0.72.0–v0.77.0, release pending).** Finished work (Rounds 43–69,
 issues N1–N46, the replication shortlist) was removed from this file. It stays in git at tag `backlog-r43-69`,
 in `CHANGELOG.md` and in the plan tags `plan-r<n>`. This file is the owner's backlog, from which
 `PLAN_ROUND_<n>.md` files are drafted; it is not itself a plan. **Implementing agents: do not read this file
@@ -30,7 +30,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N55 | Policy evaluation has two-group DiD and ITS only: staggered adoption (two-way FE is biased) and synthetic control are missing | owner, 2026-11-22 | missing method | 78 (closed) |
 | N56 | No decomposition of group gaps in microdata (Oaxaca–Blinder, Fairlie) with replicate-weight SEs | owner, 2026-11-22 | missing method | 79 (closed) |
 | N57 | Fay–Herriot is validated on the linear scale only: proportions near 0 and borrowing strength over releases (Rao–Yu) are missing | owner, 2026-11-22 | missing method | 80 (closed) |
-| N58 | No cluster detection for county counts (Kulldorff spatial scan) | owner, 2026-11-22 | missing method | 81 |
+| N58 | No cluster detection for county counts (Kulldorff spatial scan) | owner, 2026-11-22 | missing method | 81 (closed) |
 
 ## 2. Recorded limits (not scheduled; reopen only with a new idea)
 
@@ -58,7 +58,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 78 | Staggered-adoption DiD and synthetic control | N55 | merged (v0.74.0) |
 | 79 | Oaxaca–Blinder and Fairlie decompositions (PUMS) | N56 | merged (v0.75.0) |
 | 80 | Fay–Herriot for proportions and temporal Fay–Herriot | N57 | merged (v0.76.0) |
-| 81 | Spatial scan statistic for county counts | N58 | planned |
+| 81 | Spatial scan statistic for county counts | N58 | merged (v0.77.0) |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 
 Order rationale:
