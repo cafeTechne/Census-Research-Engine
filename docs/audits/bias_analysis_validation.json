@@ -1,0 +1,124 @@
+{
+ "rows": [
+  {
+   "kind": "outcome_nd",
+   "rr": 1.0,
+   "prior": "correct",
+   "rr_cov": 0.757,
+   "or_cov": 0.756,
+   "naive_rr_cov": 0.891,
+   "discarded": 0.0022600000000000033
+  },
+  {
+   "kind": "outcome_nd",
+   "rr": 1.0,
+   "prior": "offset",
+   "rr_cov": 0.68,
+   "or_cov": 0.679,
+   "naive_rr_cov": 0.906,
+   "discarded": 0.009683600000000004
+  },
+  {
+   "kind": "outcome_nd",
+   "rr": 2.0,
+   "prior": "correct",
+   "rr_cov": 0.967,
+   "or_cov": 0.956,
+   "naive_rr_cov": 0.103,
+   "discarded": 0.001689000000000002
+  },
+  {
+   "kind": "outcome_nd",
+   "rr": 2.0,
+   "prior": "offset",
+   "rr_cov": 0.824,
+   "or_cov": 0.779,
+   "naive_rr_cov": 0.111,
+   "discarded": 0.007232800000000003
+  },
+  {
+   "kind": "outcome_diff",
+   "rr": 1.0,
+   "prior": "correct",
+   "rr_cov": 1.0,
+   "or_cov": 1.0,
+   "naive_rr_cov": 0.219,
+   "discarded": 0.004337000000000002
+  },
+  {
+   "kind": "outcome_diff",
+   "rr": 1.0,
+   "prior": "offset",
+   "rr_cov": 1.0,
+   "or_cov": 1.0,
+   "naive_rr_cov": 0.19,
+   "discarded": 0.017066799999999997
+  },
+  {
+   "kind": "outcome_diff",
+   "rr": 2.0,
+   "prior": "correct",
+   "rr_cov": 1.0,
+   "or_cov": 1.0,
+   "naive_rr_cov": 0.0,
+   "discarded": 0.002056600000000001
+  },
+  {
+   "kind": "outcome_diff",
+   "rr": 2.0,
+   "prior": "offset",
+   "rr_cov": 0.995,
+   "or_cov": 0.995,
+   "naive_rr_cov": 0.002,
+   "discarded": 0.011725600000000006
+  },
+  {
+   "kind": "exposure_nd",
+   "rr": 1.0,
+   "prior": "correct",
+   "rr_cov": 0.798,
+   "or_cov": 0.798,
+   "naive_rr_cov": 0.891,
+   "discarded": 0.0
+  },
+  {
+   "kind": "exposure_nd",
+   "rr": 1.0,
+   "prior": "offset",
+   "rr_cov": 0.778,
+   "or_cov": 0.778,
+   "naive_rr_cov": 0.9,
+   "discarded": 0.0
+  },
+  {
+   "kind": "exposure_nd",
+   "rr": 2.0,
+   "prior": "correct",
+   "rr_cov": 0.829,
+   "or_cov": 0.826,
+   "naive_rr_cov": 0.347,
+   "discarded": 0.0
+  },
+  {
+   "kind": "exposure_nd",
+   "rr": 2.0,
+   "prior": "offset",
+   "rr_cov": 0.681,
+   "or_cov": 0.675,
+   "naive_rr_cov": 0.345,
+   "discarded": 0.0
+  }
+ ],
+ "passed": {
+  "P1": false
+ },
+ "draws": 1000,
+ "simulations": 5000,
+ "criterion_commit": "734cce55b6144649654d2fcbfe3aaf73d7352e81",
+ "seconds": 3,
+ "frozen_sha256": {
+  "scripts/bias_analysis_validation.py": "3576719d78c8bcc6c3515848b1848a4a167e446967c977b7d9cad2ecf56db994",
+  "census/bias_analysis_core.py": "b00549d1259912c8b1b1898098f10a898f23424c3e94243a838d6b6fc2205517",
+  "docs/audits/bias_analysis_validation_criterion.md": "8305886d46bf22ca6225e6215efa0c91dac970e9fb4df3539c253bdff75a67e4"
+ }
+}

@@ -5,6 +5,44 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.82.0 (Round 86): quantitative bias analysis
+
+- **E-values** (VanderWeele and Ding 2017; `census/bias_analysis.py`, frozen core `census/bias_analysis_core.py`; N63;
+  *Foundations of Epidemiology* chapters 6–7) for risk, rate, prevalence and odds ratios and standardized
+  differences; added to `stratified_analysis` and the marginal measures.
+- **Misclassification bias analysis** of 2 x 2 tables: simple correction (outcome or exposure, differential or not)
+  and a probabilistic analysis with beta priors. Validation (`docs/audits/bias_analysis_validation.md`): the simple
+  correction is unbiased; the probabilistic interval **fails** (.76–.83 to about 1.00) and is exploratory.
+- **Tool `bias_analysis`** (full profile; 78 tools); `reporting` recipe section; both-directions helper for
+  covariables of uncertain causal direction.
+- **Example** (`docs/audits/r86_bias_example.md`, exploratory).
+
+## 0.81.0 (Round 85): area designations as screening tests
+
+- **Designation accuracy** (`census/designation.py`; frozen core `census/designation_core.py`; N62; *Foundations of
+  Epidemiology* chapter 11): each area's probability of truly exceeding a threshold (Fay–Herriot posterior on the
+  arcsine scale, or the direct flat-prior probability) and the expected sensitivity, specificity, PPV and NPV of
+  four designation rules.
+- **Validation** (`docs/audits/designation_validation.md`, criterion `61fa47a`; MI/NY tracts and counties, 10–50%
+  truly qualifying): the Fay–Herriot probability is calibrated (within .031); the direct probability (up to .17
+  off) and the rule-accuracy criterion (PPV predictive interval .54–.85 on tracts; expected values within about .01)
+  fail and are exploratory.
+- **Tool `designation_accuracy`** (full profile; 77 tools); `small_area` recipe section "Designating areas".
+- **Example** (`docs/audits/r85_designation_example.md`, exploratory): Michigan tracts at 20% poverty.
+
+## 0.80.0 (Round 84): marginal risk ratios, prevalence ratios, attributable fractions, dose-response
+
+- **Marginal (standardized) measures** (`census/epi_measures.py`; frozen core `census/epi_measures_core.py`; N61;
+  *Foundations of Epidemiology* chapters 4 and 10): g-computation risk ratios and differences and attributable
+  fractions for area binomial models (HC3 delta SEs) and PUMS logit models (SDR SEs); modified-Poisson prevalence
+  ratios; dose-response trend tests over ordered exposure levels.
+- **Validation** (`docs/audits/epi_measures_validation.md`, criterion `c5f6266`): every candidate passes
+  (coverage .862–.898; trend size .083–.129).
+- **Options**: `fit_model(model="binomial", marginal=..., marginal_values=..., dose_levels=...)` and
+  `pums_regression(model="logit", marginal=...)`; a note pairs ORs with marginal RRs when the outcome is common.
+  No new tool.
+- **Example** (`docs/audits/r84_marginal_example.md`, exploratory): MI/NY county disability and poverty.
+
 ## 0.79.0 (Round 83): stratified analysis, Mantel–Haenszel and effect modification
 
 - **Stratified analysis** (`census/stratified.py`; frozen core `census/stratified_core.py`; N60; *Foundations of

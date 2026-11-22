@@ -46,3 +46,18 @@ Drawn from *Foundations of Epidemiology* (Bovbjerg 2020; `docs/literature/founda
    by exposure tertile.
 7. **Limitations.** Manifest methods text and results bundles now end with generated design limitations
    (`make_results_bundle(design="area" | "individual" | "none")`); add study-specific ones in `notes`.
+
+## Bias and sensitivity analyses (Round 86)
+
+Bias is systematic and statistics cannot remove it (*Foundations of Epidemiology* chapter 6); a bias analysis shows how
+far plausible biases could move an estimate.
+1. **Unmeasured confounding:** report the E-value with every ratio: `bias_analysis("e_value", estimate=1.5,
+   lower=1.2, upper=1.9)`. `stratified_analysis` and the marginal measures (`fit_model(marginal=...)`,
+   `pums_regression(marginal=...)`) include it. It is the minimum confounder strength (risk-ratio scale, with both the
+   exposure and the outcome) that would explain the estimate away; it is not a test.
+2. **Misclassification:** `bias_analysis("misclassification", table=[a, b, c, d], sensitivity=..., specificity=...,
+   misclassified="outcome")` corrects a 2 x 2 table (one value each, or two for differential misclassification).
+   `prior_sd` adds a probabilistic analysis whose interval **failed validation** (exploratory). Take sensitivity and
+   specificity from a validation study, and say where they came from.
+3. **Uncertain causal direction:** for a covariable declared `direction_uncertain` (manifest `covariables`), report
+   the estimate with and without adjusting for it (chapter 7 practice).
