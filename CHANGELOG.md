@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.77.0 (Round 81): spatial scan statistic for county counts
+
+- **Kulldorff Poisson spatial scan** (`census/scan.py`; frozen core `census/scan_core.py`; N58): circular windows
+  of nearest counties up to a share of the expected total, high-rate LLR, Monte Carlo p-values (999 multinomial data
+  sets conditional on the total), non-overlapping secondary clusters and a Gumbel comparison.
+- **Validation** (`docs/audits/scan_validation.md`, criterion `b6b69d0`; MI+NY and OH+PA counties, 5–100 expected per
+  county): size .099–.116 at α .10 in every null cell. Reported: power, sensitivity and PPV of planted clusters; with
+  5% ACS-like denominator error the size inflated to .15–.53, so noisy denominators are exploratory.
+- **Tool `spatial_scan`** (full profile; 75 tools). Refuses missing (suppressed) counts unless excluded by a stated
+  rule; never imputes counts. Descriptive unless the window and α are pre-specified.
+- **Recipe** `spatial_patterns` section; protocol and MCP rule text.
+- **Example** (`docs/audits/r81_scan_example.md`, exploratory): MI/NY low-birth-weight births (CHR&R 2025), primary
+  cluster Wayne County (RR 1.37, p .001).
+
 ## 0.76.0 (Round 80): Fay–Herriot for proportions and across releases
 
 - **Arcsine Fay–Herriot** (`census/sae_extensions.py`; frozen core `census/sae_extensions_core.py`; N57): direct

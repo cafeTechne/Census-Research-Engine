@@ -546,6 +546,15 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+## Spatial scan (Round 81)
+
+<!-- mcp-rules:A -->
+Round 81: spatial_scan (full profile) finds clusters of counties with high event counts (Kulldorff Poisson scan).
+The primary-cluster p-value is validated with windows up to 50% of the expected total and 999 replicates (size
+.099-.116 at .10). Denominators must be exact: ACS-estimated denominators inflate false clusters (.15-.53), and a
+denominator _se column (median CV > .01) makes it exploratory. Descriptive unless prespecified=True. Suppressed
+WONDER counties must be excluded with a stated rule; counts are never imputed.
+
 ## Small-area proportions and several releases (Round 80)
 
 <!-- mcp-rules:A -->

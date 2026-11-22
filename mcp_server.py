@@ -339,6 +339,12 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+Round 81: spatial_scan (full profile) finds clusters of counties with high event counts (Kulldorff Poisson scan).
+The primary-cluster p-value is validated with windows up to 50% of the expected total and 999 replicates (size
+.099-.116 at .10). Denominators must be exact: ACS-estimated denominators inflate false clusters (.15-.53), and a
+denominator _se column (median CV > .01) makes it exploratory. Descriptive unless prespecified=True. Suppressed
+WONDER counties must be excluded with a stated rule; counts are never imputed.
+
 Round 80: small_area_estimates(transform="arcsine") for proportions near 0 or 1 (bias-corrected back-transform,
 bootstrap MSE; validated .898-.904 per area on MI/NY counties and tracts) and small_area_estimates(temporal=True,
 release_column="Year") for 2-3 non-overlapping releases (Rao-Yu; validated .897-.898; overlapping releases refused).
@@ -1457,6 +1463,7 @@ for _fn in (
     workflows_inference.reliability_profile,
     workflows_inference.trend_test,
     workflows_inference.interrupted_series,
+    workflows_inference.spatial_scan,
     workflows_inference.disparity_measures,
     workflows_inference.joinpoint,
     workflows_microdata.decompose_gap,
@@ -1512,6 +1519,7 @@ minimum_detectable_difference = workflows_inference.minimum_detectable_differenc
 reliability_profile = workflows_inference.reliability_profile
 trend_test = workflows_inference.trend_test
 interrupted_series = workflows_inference.interrupted_series
+spatial_scan = workflows_inference.spatial_scan
 disparity_measures = workflows_inference.disparity_measures
 joinpoint = workflows_inference.joinpoint
 decompose_gap = workflows_microdata.decompose_gap
