@@ -156,7 +156,7 @@ support for the Round 73 methods, tract coordinates, recipes and README; no new 
 - Six new recipes (25 in all) and a refreshed README.
 
 Goldens: run golden byte-identical; schema golden differs only in the supported-method list (intended). Acceptance:
-SUITE_LINE_75.
+run golden byte-identical, schema golden differs only in the method list; 2213 passed, 42 skipped; 0 failures.
 
 **Round 74 (v0.70.0; merged after Round 73, released in the bundled v0.70.0; implemented by the maintainer agent):**
 replication suite, no new statistics (N52).

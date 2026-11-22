@@ -39,6 +39,7 @@ No new statistics: every method wired here was validated earlier.
   - the tract-ID advisory.
 - **Goldens:** the run golden is byte-identical. The schema golden differs only in the "supported methods" list of
   one error message, which now includes `multilevel` (intended).
+- Acceptance: 2213 passed, 42 skipped; 0 failures.
 
 ## 0.70.0 (Round 74): replication suite
 

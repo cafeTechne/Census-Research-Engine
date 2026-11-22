@@ -42,4 +42,4 @@ defaultBranch after the v0.70.0 release. No new statistics. Version 0.71.0.
 
 - Goldens: run byte-identical; schema differs only in the method list.
 - New tests: `tests/test_round75.py` (10).
-- Full suite: SUITE_LINE_75.
+- Full suite: run golden byte-identical, schema golden differs only in the method list; 2213 passed, 42 skipped; 0 failures.

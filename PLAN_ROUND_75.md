@@ -94,11 +94,11 @@ Refresh:
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| `multilevel` method | | |
-| `indices` block | | |
-| person-years expected counts | | |
-| tract coordinates | | |
-| recipes | | |
-| README | | |
-| goldens, suite | | |
-| exceptions | | |
+| `multilevel` method | done | two- and three-level; `state_fips`/`county_fips` |
+| `indices` block | done | stage `_build_indices`; matches `build_index` to 1e-10; circularity refusal |
+| person-years expected counts | done | stage `_apply_person_years`; equals `expected_counts(person_years=)` |
+| tract coordinates | done | 2022 then 2019 retry; clear error |
+| recipes | done | six new (25 total); small_area, pums_tests, preregistered updated |
+| README | done | release paragraph, recipe table, routing rows, manifest options, tract advisory |
+| goldens, suite | done | run golden identical; schema golden: method list only; 2213 passed, 42 skipped |
+| exceptions | recorded | see round75_compatibility.md |
