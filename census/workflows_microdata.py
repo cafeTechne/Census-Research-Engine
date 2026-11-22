@@ -7,7 +7,7 @@ census.workflows_inference: plain arguments in, JSON-safe dicts out, with
 
 import os
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from census import errors
 from census.data_integrity import BundledDataIntegrityError, integrity_error_result
@@ -228,24 +228,43 @@ def pums_regression(
 def multilevel_model(
     input_path: str,
     formula: str,
-    groups: str,
+    groups: Union[str, List[str]],
     re_formula: Optional[str] = None,
     sampling_se: Optional[str] = None,
     replicates_path: Optional[str] = None,
     target: str = "population",
+    share_intervals: bool = True,
 ) -> Dict[str, Any]:
     """Multilevel (mixed) model, e.g. tracts within counties, with Kenward-Roger
     small-sample intervals; ACS sampling error enters through a known level-1
     variance (sampling_se) or replicate refits.
 
     Args:
-        groups: grouping column, e.g. "county". re_formula: random slopes, e.g. "~x".
+        groups: grouping column, e.g. "county"; or [top, middle], e.g. ["state", "county"], for a three-level
+            model (Round 73: fixed-effect intervals and variance shares; no sampling_se/replicates/re_formula).
+            re_formula: random slopes, e.g. "~x".
+        share_intervals: three-level only; False skips the jackknife share intervals (one refit per top unit).
         sampling_se: outcome SE column (known level-1 variance).
     Validated: 90% intervals cover 0.89 in simulation.
     Example: multilevel_model("frame.parquet", "poverty_rate ~ unemployment_rate", "county", sampling_se="poverty_rate_se")
     """
     from census.multilevel import fit_multilevel
 
+    if isinstance(groups, (list, tuple)):
+        if re_formula or sampling_se or replicates_path or target != "population":
+            return _fail(errors.INVALID_INPUT, "a three-level model takes no re_formula, sampling_se, replicates_path "
+                         "or target")
+        from census.multilevel3 import fit_three_level
+        from census.results import _jsonable
+        try:
+            res = fit_three_level(formula, _load_frame(input_path), groups, share_intervals=share_intervals)
+        except _ERRORS as exc:
+            return _fail(errors.INVALID_INPUT, str(exc))
+        res["table"] = res["table"].to_dict("records")
+        s = res["shares"]
+        return _ok(f"Three-level model: variance shares bottom {s['bottom']:.1%}, middle {s['middle']:.1%}, "
+                   f"top {s['top']:.1%}; fixed effects {'validated' if res['validated'] else 'exploratory'}.",
+                   "report fixed effects with intervals; share intervals are exploratory", **_jsonable(res))
     try:
         frame = _load_frame(input_path)
         res = fit_multilevel(formula, frame, groups, re_formula=re_formula, sampling_se=sampling_se,
