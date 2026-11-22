@@ -1470,6 +1470,7 @@ for _fn in (
     workflows_inference.reliability_profile,
     workflows_inference.trend_test,
     workflows_inference.interrupted_series,
+    workflows_inference.designation_accuracy,
     workflows_inference.spatial_scan,
     workflows_inference.disparity_measures,
     workflows_inference.joinpoint,
@@ -1526,6 +1527,7 @@ minimum_detectable_difference = workflows_inference.minimum_detectable_differenc
 reliability_profile = workflows_inference.reliability_profile
 trend_test = workflows_inference.trend_test
 interrupted_series = workflows_inference.interrupted_series
+designation_accuracy = workflows_inference.designation_accuracy
 spatial_scan = workflows_inference.spatial_scan
 disparity_measures = workflows_inference.disparity_measures
 joinpoint = workflows_inference.joinpoint
