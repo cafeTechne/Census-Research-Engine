@@ -28,7 +28,7 @@ def test_tract_level_scpc_is_exploratory():
         ids = [f"{37000+i:05d}" if width == 5 else f"37001{i:06d}" for i in range(n)]
         f = pd.DataFrame(dict(GEOID=ids, x=rng.normal(size=n))); f["y"] = .5*f.x+rng.normal(size=n)
         c = pd.DataFrame(dict(GEOID=ids, lon=rng.uniform(-84, -76, n), lat=rng.uniform(34, 36.5, n)))
-        out = scpc.fit_scpc("y ~ x", f, coords=c)
+        out = scpc.fit_scpc("y ~ x", f, coords=c, rho_bar=.05)   # Round 71: the tract default is now .20
         assert out["validated"] is (width == 5)
         assert any("Round 67" in s for s in out["notes"]) is (width == 11)
 

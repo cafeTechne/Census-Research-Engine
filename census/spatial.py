@@ -979,6 +979,12 @@ def _corrected_error_regression(formula: str, d: pd.DataFrame, weights, *, outco
     )
 
 
+TRACT_ERROR_NOTE = ("EXPLORATORY on tracts: the spatial error ML slope interval under-covered on NC and MI tract "
+                    "geometries when fields correlate over 20-100 km (.63-.76; Round 71, "
+                    "docs/audits/tract_spatial_validation.md). For tract slopes use fit_model(spatial=\"scpc\") (OLS, "
+                    "validated with rho_bar .20/.30).")
+
+
 def spatial_regression(
     formula: str,
     data: pd.DataFrame,
@@ -1201,6 +1207,8 @@ def spatial_regression(
     notes.append(f"intervals and p-values use the '{target}' target")
     notes.append(SPATIAL_PARAMETER_TEST_NOTE.format(sp=sp_name))
     notes.append(ERROR_CAVEAT if model == "error" else LAG_ML_CAVEAT if method == "ml" else LAG_GM_NOTE)
+    if model == "error" and geoid_col in data and data[geoid_col].astype(str).str.len().ge(11).all():
+        notes.append(TRACT_ERROR_NOTE)
     notes.append(NOISY_COVARIATE_CAVEAT)
     return ModelResult(
         model_type=f"spatial_{model}", formula=formula, n_obs=int(len(y)), coefficients=table,
