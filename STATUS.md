@@ -72,6 +72,7 @@ manifests refuse them in confirmatory analyses.
 | Small-area proportions and several releases (Round 80) | **Passed** (real 2019–2023 S2701 sampling variances, MI/NY counties and tracts): arcsine Fay–Herriot with bias-corrected back-transform and bootstrap MSE, per-area coverage .898–.904, worst decile ≥ .880, relative bias ≤ .078 for p < .10 (quantile interval .892–.895 also passes); Rao–Yu temporal Fay–Herriot for 2–3 releases .897–.898 (MSE gain 3–7% counties, 10–24% tracts) | `sae_extensions_validation.md`, criterion `251dc9d` |
 | PUMS gap decompositions (Round 79) | **Passed with size gates** (Round 32 design, weight CV 1, SDR intervals): Oaxaca–Blinder explained/unexplained totals from 300 records in the smaller group (.862–.894); Oaxaca–Blinder detailed contributions (Yun-normalised) and Fairlie totals and detailed contributions from 1,000 records (.863–.894); at 300 they under-covered (.802–.853) | `decomposition_validation.md`, criterion `9e52bb4` |
 | Staggered adoption and synthetic control (Round 78) | **Passed selected** (51 units, 12/18 annual periods, AR(1) .3/.7, ACS-like error): Sun–Abraham event study and overall ATT (.881–.899); Callaway–Sant'Anna with the ACS variance added (.882–.906). **Failed**: Callaway–Sant'Anna multiplier bootstrap alone (.848–.868), uniform bands (.76–.81), synthetic-control placebo test (size .12–.19 at .10) and conformal intervals (.73–.86 with 9 pre-periods; .87–.95 with 15, not a pre-set gate): exploratory, library only | `policy_validation.md`, criterion `baf934b` |
+| Marginal structural models (Round 91) | **Failed** (exploratory): IP-weighted MSM for annual panels with treatment-confounder feedback, .805–.881 (stabilized) and .799–.885 (truncated), 51 units; regression on the current confounder .00–.11 | `msm_validation.md`, tag `criterion-r91` |
 | Positivity and weighting (Round 90) | **Passed**: truncated weights (.864–), overlap weights for the overlap-population effect (.877–), g-formula (.881–), IPW vs g-formula flag (size ≤ .061). **Failed**: stabilized/plain IPW with 5%+ extreme propensities (.807–.863): exploratory there | `positivity_validation.md`, tag `criterion-r90` |
 | Ecologic vs individual (Round 87) | **Passed**: logit within/between/contextual decomposition on PUMS with SDR SEs (.871–, 30 or 150 PUMA-like areas, 5,000+ records). **Failed**: the identity-scale (risk-difference) decomposition and the ecologic slope and gap with 150 small areas (.62–.86; noisy area means bias the between slope): exploratory | `ecologic_validation.md`, tag `criterion-r87` |
 | Bias analysis (Round 86) | E-values reproduce VanderWeele and Ding's published example (deterministic; available everywhere). **Failed**: the probabilistic misclassification interval (.76–.83 under correct priors with a null effect or exposure misclassification; about 1.00 with differential outcome misclassification): exploratory. The simple correction is unbiased (point correction, no interval) | `bias_analysis_validation.md`, criterion `734cce5` |
@@ -157,6 +158,12 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 91 (v0.87.0; merged, release pending owner approval; implemented by the maintainer agent):**
+marginal structural models for annual policy panels (N67; Hernán and Robins).
+- `census/msm.py` (frozen core `msm_core.py`); `difference_in_differences(design="msm", time_varying_confounders=...)`.
+- Validation failed (.80–.88): exploratory. Regression on a feedback confounder fails far worse (.00–.11).
+- Example (`r91_msm_example.md`, exploratory): Medicaid expansion, uninsured rate, unemployment.
 
 **Round 90 (v0.86.0; merged, release pending owner approval; implemented by the maintainer agent):**
 positivity diagnostics and weighting options (N66; Hernán and Robins).
@@ -712,7 +719,8 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N70: method attribution (88; closed);
 - N65: causal question specification (89; closed);
 - N66: positivity diagnostics and weighting (90; closed);
-- N67–N69: marginal structural models, PEP/LODES/flows, GWR/classification (Rounds 91–93, planned 2026-11-23 from Hernán and Robins and Walker);
+- N67: marginal structural models (91; closed, exploratory);
+- N68–N69: PEP/LODES/flows, GWR/classification (Rounds 91–93, planned 2026-11-23 from Hernán and Robins and Walker);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

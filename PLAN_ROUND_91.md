@@ -47,9 +47,9 @@ Round 78's staggered DiD adjusts for nothing time-varying. Version 0.87.0. Branc
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r91` |
+| Results | fail | M1 .805–.881, M2 .799–.885; exploratory |
+| Engine, recipe | done | `difference_in_differences(design="msm")`; recipe, protocol |
+| Example | done | `r91_msm_example.md` |
+| Goldens, suite | see audit | `round91_compatibility.md` |
+| Exceptions | 3 | see audit |

@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.87.0 (Round 91): marginal structural models for annual policy panels
+
+- **IP-weighted marginal structural models** (`census/msm.py`; frozen core `census/msm_core.py`; N67; Hernán and
+  Robins chapters 19–21): `difference_in_differences(design="msm", first_treated=..., time_varying_confounders=[...])`.
+  - Stabilized or truncated time-varying weights; effects of the 1st, 2nd and 3rd treated year versus never; cluster
+    bootstrap over units.
+  - Time zero is the first period; "start and stay on" strategies only.
+- **Validation** (`docs/audits/msm_validation.md`, criterion tag `criterion-r91`): **failed**. Coverage was .805–.881
+  (stabilized) and .799–.885 (truncated) with 51 units, and the method is exploratory. Under feedback, regression on
+  the current confounder covered .00–.11 (bias up to −1.6), and no adjustment .05–.68.
+- **Example** (`docs/audits/r91_msm_example.md`, exploratory): Medicaid expansion and the state uninsured rate with
+  time-varying unemployment: −2.7, −3.2 and −3.6 points in expansion years 1–3.
+- **Recipe** `policy_change` step; protocol rule; sources Robins, Hernán and Brumback 2000 and Cole and Hernán 2008.
+
 ## 0.86.0 (Round 90): positivity diagnostics and weighting options
 
 - **Positivity** (`census/positivity.py`; frozen core `census/positivity_core.py`; N66; Hernán and Robins chapters
