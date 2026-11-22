@@ -163,6 +163,7 @@ area designations as screening tests (N62).
   probability and the rule-accuracy criterion fail (exploratory).
 - Example (`r85_designation_example.md`, exploratory): MI tracts at 20% poverty: the point rule designates 682 tracts
   (expected PPV .78), probability ≥ .8 designates 373 (PPV .94); 309 tracts change status.
+- Goldens byte-identical. Acceptance: 2272 passed, 42 skipped; 0 failures.
 
 **Round 84 (v0.80.0; merged, release pending owner approval; implemented by the maintainer agent):**
 marginal risk ratios and differences, prevalence ratios, attributable fractions and dose-response (N61).

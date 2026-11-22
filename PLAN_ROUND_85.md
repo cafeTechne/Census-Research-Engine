@@ -55,9 +55,9 @@ Validation first.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, tool, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `designation_core.py`; criterion `61fa47a` (tag `criterion-r85`) |
+| Results | done | FH probability passes; direct probability and rule accuracy fail (exploratory) |
+| Engine, tool, recipe | done | `designation_accuracy` (77 tools); `small_area` section |
+| Example | done | `r85_designation_example.md` |
+| Goldens, suite | done | both byte-identical; 2272 passed, 42 skipped |
+| Exceptions | listed | `round85_compatibility.md` |
