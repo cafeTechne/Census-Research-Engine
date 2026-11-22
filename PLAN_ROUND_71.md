@@ -61,10 +61,10 @@ replication result does not change). Archive `/tmp/r71_example_outputs.tar.gz`.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion commit | | |
-| Results | | |
-| Warning | | |
-| Engine, tests | | |
-| Example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Core, script, criterion commit | done | criterion `f947f64` (verified in git); deviation: no binomial cell |
+| Results | done | SCPC .20/.30/distance pass every cell; SEM .63–.89 and HC3 fail |
+| Warning | done | `census/residual_dependence.py`; `fit_model(spatial_check=)` |
+| Engine, tests | done | tract default rho_bar .20; manifest tract benchmarks; SEM tract note; `tests/test_round71.py` (9) |
+| Example | done | `docs/audits/r71_tract_example.md` (SCPC 3–6x wider than HC3, all slopes positive) |
+| Goldens, final suite | done | goldens byte-identical; 2185 passed, 38 skipped; 2 Round 61 tests updated (rerun clean) |
+| Exceptions | recorded | no sem/scpc_distance routes; spatial_scpc reused instead of spatial_tract; see round71_compatibility.md |

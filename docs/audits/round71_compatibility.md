@@ -19,7 +19,7 @@ Author self-review, not independent. Worktree `/tmp/census-round71`, branch `pha
   - county defaults and flags are unchanged.
 - `tests/test_round67.py::test_tract_level_scpc_is_exploratory` now passes rho_bar .05 explicitly. The test still
   checks Round 67's finding, and the tract default changed by design.
-- Manifest `spatial_scpc` on a tract-level manifest accepts .20/.30 as confirmatory. Before this round every tract
+- Manifest `spatial_scpc` on a tract-level manifest accepts .20/.30 as confirmatory and now refuses .05/.10, Poisson and binomial at validation time (before, they were refused only at run time, when fit_scpc flagged tract results exploratory). Before this round every tract
   SCPC was exploratory, so no registered manifest is affected (none uses tract SCPC).
 - `fit_model(method="replicate")` without `spatial` runs the residual check (`spatial_check="auto"`; cached boundary
   files only, never a download) and may add a note and `spatial_dependence`. Intervals are unchanged.
@@ -41,4 +41,4 @@ Author self-review, not independent. Worktree `/tmp/census-round71`, branch `pha
 - Goldens: byte-identical.
 - New tests: `tests/test_round71.py` (9). `test_round58`, `test_round62` and `test_round67` were rerun: 23 passed.
 - Example: `r71_tract_example.md`.
-- Full suite: SUITE_LINE_71.
+- Full suite: 2185 passed, 38 skipped, 2 failed. The two failures were `tests/test_round61.py` manifest-gate tests, which built tract-level manifests but asserted county SCPC rules (rho_bar .10, Poisson and binomial defaults); Round 71 deliberately applies the tract benchmarks there. Each now checks county rules on a county-level manifest and adds tract assertions; the file reruns clean (6 passed). No registered manifest uses `spatial_scpc`.

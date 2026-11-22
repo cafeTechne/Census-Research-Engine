@@ -26,7 +26,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
   - `spatial_check="auto"` uses cached boundary files only, `"on"` may download them, and `"off"` skips the test.
 - **Example** (`docs/audits/r71_tract_example.md`): replication C's OLS slopes with tract SCPC intervals, which are
   3–6 times wider than HC3. All three slopes stay positive.
-- Goldens byte-identical.
+- Goldens byte-identical. Acceptance: 2185 passed, 38 skipped; 2 Round 61 tests updated for the tract rules (rerun clean).
 
 ## 0.67.0 (Round 72): context covariate sources
 

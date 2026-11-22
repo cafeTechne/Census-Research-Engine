@@ -151,7 +151,7 @@ tract-level spatial intervals (N49; criterion `f947f64`).
 - `fit_model` now warns when OLS residuals are spatially dependent (Moran's I, permutation p < .01) and names the
   validated route.
 
-Goldens unchanged. Acceptance: SUITE_LINE_71.
+Goldens unchanged. Acceptance: goldens byte-identical; 2185 passed, 38 skipped, 2 Round 61 tests updated for the tract rules (rerun: 6 passed).
 
 **Round 72 (v0.67.0; merged before Round 71, release pending owner approval; implemented by the maintainer
 agent):** context covariate sources, no new statistics (N50).
