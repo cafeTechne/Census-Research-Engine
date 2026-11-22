@@ -172,6 +172,80 @@ def make_map(
                figure_paths=_paths(fig), caption=getattr(fig, "caption", ""))
 
 
+def spatial_model(
+    input_path: str,
+    kind: str,
+    level: str,
+    year: int,
+    outcome: Optional[str] = None,
+    predictors: Optional[List[str]] = None,
+    features: Optional[List[str]] = None,
+    k: Optional[int] = None,
+    permutations: int = 99,
+    output_path: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Exploratory spatial models (Round 93; Walker 2023 ch. 8): kind="gwr" (geographically weighted regression of
+    outcome on predictors; local slopes + non-stationarity test), "classify" (k-means neighbourhood types on
+    features) or "regionalize" (SKATER contiguous regions on features). classify/regionalize need <feature>_se or
+    _moe columns and k set in advance; each area gets a stability score (share of 20 sampling-error replicates in
+    the same group). GWR local intervals failed validation (.71 with varying slopes): exploratory, report beside a
+    global model. Example: spatial_model("frame.parquet", "classify", "tract", 2023, features=["pov", "unemp"], k=4)
+    """
+    from census import spatial_models as smod
+
+    if kind not in ("gwr", "classify", "regionalize"):
+        return _fail(errors.INVALID_INPUT, "kind must be 'gwr', 'classify' or 'regionalize'.")
+    try:
+        gdf = _with_boundaries(_load_frame(input_path), level, year)
+        if kind == "gwr":
+            if not outcome or not predictors:
+                return _fail(errors.INVALID_INPUT, "kind='gwr' needs outcome and predictors.")
+            r = smod.gwr_model(gdf, outcome, predictors, permutations=permutations)
+            table = r.pop("local")
+            ns = r["nonstationarity"]
+            summary = (f"GWR of {outcome} on {', '.join(predictors)} ({r['n']} areas, bandwidth {r['bandwidth_km']:.1f} km): "
+                       f"local {ns['predictor']} slopes {r['coefficients'][ns['predictor']]['min']:.3g} to "
+                       f"{r['coefficients'][ns['predictor']]['max']:.3g}; non-stationarity p = {ns['p_value']:.3f}. "
+                       "Exploratory.")
+        else:
+            if not features or not k:
+                return _fail(errors.INVALID_INPUT, f"kind='{kind}' needs features and k.")
+            d = gdf.dropna(subset=list(features)).reset_index(drop=True)
+            edges = None
+            dropped = []
+            if kind == "regionalize":
+                _, w = _weights_for(d, "queen")
+                if w.islands:
+                    pos = {g: k_ for k_, g in enumerate(w.id_order)}
+                    isl = sorted(pos[g] for g in w.islands)
+                    dropped = d.GEOID.astype(str).iloc[isl].tolist()
+                    d = d.drop(index=isl).reset_index(drop=True)
+                    _, w = _weights_for(d, "queen")
+                pos = {g: k_ for k_, g in enumerate(w.id_order)}
+                edges = sorted({tuple(sorted((pos[a], pos[b]))) for a, nb in w.neighbors.items() for b in nb})
+                from scipy.sparse import csr_matrix
+                from scipy.sparse.csgraph import connected_components
+                ij = list(zip(*edges)) if edges else ([], [])
+                ncomp = connected_components(csr_matrix(([1]*len(edges), ij), shape=(len(d), len(d))),
+                                             directed=False)[0]
+                if ncomp > 1:
+                    return _fail(errors.INVALID_INPUT, f"the contiguity graph has {ncomp} separate parts; regionalize "
+                                 "a connected set of areas (e.g. one county or metro without water-separated areas).")
+            r = smod.classify(d, features, int(k), "skater" if kind == "regionalize" else "kmeans", edges=edges)
+            if dropped:
+                r["notes"].append(f"Islands (no contiguous neighbour) left out: {dropped}.")
+            table = r.pop("assignments")
+            r["profiles"] = r["profiles"].to_dict("records")
+            summary = (f"{'Regions' if kind == 'regionalize' else 'Neighbourhood types'}: {k} groups over {len(table)} "
+                       f"areas; mean stability {r['mean_stability']:.2f}, {r['share_unstable']:.0%} of areas unstable "
+                       "(< .8). Descriptive.")
+        path = _write_frame(table, output_path, f"spatial_model_{kind}_{level}_{year}.csv")
+    except (ValueError, KeyError, OSError, ImportError) as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}")
+    return _ok(summary, "map the local results or groups with make_map; report stability (classify/regionalize) or "
+               "the global model beside GWR", output_path=str(path), **_jsonable(r))
+
+
 def spatial_autocorrelation(
     input_path: str,
     column: str,

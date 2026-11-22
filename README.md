@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23925301.svg)](https://doi.org/10.5281/zenodo.23925301)
 
-A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **78 MCP tools**, a Python library and a command-line interface.
+A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **79 MCP tools**, a Python library and a command-line interface.
 
 Use it to compare counties or neighborhoods, study associations while accounting for noisy ACS predictors and spatial dependence, construct custom population tabulations, measure segregation or income inequality, and evaluate agreement between sources. Statistical methods have different validated ranges; an available method is not automatically suitable for every research design. Each inference method was checked by a simulation whose pass criterion was fixed in advance (90% intervals must cover at least 86% of the time); methods or settings that failed are still available but are marked exploratory in their results (`validated: false` and a note). [STATUS.md](STATUS.md) records the current release, validation evidence and remaining limitations.
 
@@ -121,7 +121,7 @@ Call `get_recipe()` to list the 25 task guides, then `get_recipe(name="regressio
 
 | Profile | Tools | Use |
 | :--- | ---: | :--- |
-| `full` (default) | 78 | All registered tools; use this for the complete research workflow |
+| `full` (default) | 79 | All registered tools; use this for the complete research workflow |
 | `core` | 16 | A smaller set for discovery, extraction, basic models, group/PUMS tests and outputs; guided results include `summary` and `next_step` |
 | `core_spatial` | 17 | Core plus `spatial_autocorrelation`; advanced tools such as `rank_areas` still require `full` |
 | `review` | 10 | Variable concordance and independent review of overrides |
@@ -170,7 +170,7 @@ python -m census tool minimum_detectable_difference --arg moe1=2.1 --arg moe2=2.
 </details>
 
 <details>
-<summary>All 78 MCP tools, grouped by purpose</summary>
+<summary>All 79 MCP tools, grouped by purpose</summary>
 
 The analysis tables below explain which to choose. This inventory also includes discovery, maintenance and review tools.
 
@@ -184,7 +184,7 @@ The analysis tables below explain which to choose. This inventory also includes 
 | Assess precision and compare estimates | `calculate_cv`, `calculate_significance`, `batch_significance`, `trend_test`, `minimum_detectable_difference`, `reliability_profile` |
 | Analyze area-level relationships | `build_analysis_frame`, `fit_model`, `compare_groups`, `correlation_matrix`, `rank_areas`, `build_index`, `disparity_measures`, `bias_analysis` |
 | Agreement, evidence and causal designs | `check_agreement`, `combine_estimates`, `estimate_effect` |
-| Geographic analysis and maps | `get_boundaries`, `custom_area_mapping`, `make_map`, `make_web_map`, `spatial_autocorrelation`, `spatial_regression`, `spatial_scan` |
+| Geographic analysis and maps | `get_boundaries`, `custom_area_mapping`, `make_map`, `make_web_map`, `spatial_autocorrelation`, `spatial_regression`, `spatial_scan`, `spatial_model` |
 | Small-area and hierarchical models | `small_area_estimates`, `spatial_small_area_estimates`, `multilevel_model`, `designation_accuracy` |
 | Survey microdata | `pums_tabulate`, `test_association`, `pums_regression`, `decompose_gap`, `stratified_analysis` |
 | Time and purchasing power | `interrupted_series`, `joinpoint`, `difference_in_differences`, `adjust_inflation`, `adjust_for_place`, `place_adjust_frame` |
@@ -337,6 +337,7 @@ Choose the observation unit first. **Area analyses** use one row per county, tra
 | Can information be shared across noisy small areas? | `small_area_estimates`, `spatial_small_area_estimates`, `multilevel_model` | Fay–Herriot for direct estimates with known sampling SEs (`transform="arcsine"` for proportions near 0 or 1, `temporal=True` across non-overlapping releases, Round 80); spatial Fay–Herriot for neighboring areas; mixed models for nested observations such as tracts within counties, and three levels such as tracts in counties in states (`groups=["state", "county"]`). [Small-area recipe](docs/recipes/small_area.md) |
 | Do I need areas the Census does not publish? | `custom_area_mapping` → `aggregate_geographies`; `median_from_distribution` | Sum counts with combined MOEs, then derive rates; never average rates or medians. [Custom geographies](docs/recipes/custom_geographies.md) |
 | Are dollar amounts comparable across years or places? | `adjust_inflation`, `adjust_for_place`, `place_adjust_frame` | R-CPI-U-RS for years; BEA Regional Price Parities for places (their error is not in ACS MOEs). [Dollars](docs/recipes/dollars.md) |
+| Does a relationship vary over space, or which tracts are alike? | `spatial_model` (full profile) | Geographically weighted regression (exploratory: local intervals under-cover when slopes vary), k-means neighbourhood types or SKATER regions with per-area stability under sampling error (Round 93). [Local relationships and regions](docs/recipes/spatial_patterns.md#local-relationships-neighbourhood-types-and-regions-round-93-walker-2023-chapter-8) |
 | Is there a cluster of counties with high event counts? | `spatial_scan` (full profile) | Kulldorff Poisson scan of county counts with Monte Carlo p-values (Round 81; validated size with 50% windows). Denominators must be exact; descriptive unless the window was pre-specified. [Spatial scan](docs/recipes/spatial_patterns.md#clusters-of-high-counts-spatial-scan-round-81) |
 | Where does a variable cluster? | `spatial_autocorrelation` (`local=True` for LISA), `make_map` | Moran's I with a conservative replicate SE; local clusters are descriptive under sampling error. [Spatial patterns](docs/recipes/spatial_patterns.md) |
 | Does a variable mean the same thing in every release? | `check_variable_concordance`, crosswalk draft/review tools | Split when unsure; merges need a census.gov source and an independent reviewer. [Cross-release](docs/recipes/cross_release.md) |

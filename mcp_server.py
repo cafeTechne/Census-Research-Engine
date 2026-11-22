@@ -388,6 +388,11 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+Round 93: spatial_model (full profile) kind="gwr" is exploratory (local intervals .71 when slopes vary; report beside
+a global model). kind="classify" (k-means) and "regionalize" (SKATER) are descriptive: fix k in advance, give each
+feature an _se or _moe column, and report per-area stability; do not interpret groups of areas with stability
+below .8 (misclassified 39-50% in validation).
+
 Round 92 context sources: pep (Population Estimates, July 1 county population; vintage 2019 or 2024; no MOE;
 never mix vintages; a denominator or covariate, never an outcome), lodes (LEHD jobs by workplace or residence;
 noise-infused, no MOE) and acs_flows (ACS county-to-county migration 2010-2020 with <name>_moe; later releases give
@@ -1542,6 +1547,7 @@ for _fn in (
     workflows_geo.spatial_autocorrelation,
     workflows_geo.spatial_regression,
     workflows_geo.spatial_small_area_estimates,
+    workflows_geo.spatial_model,
     workflows_geo.custom_area_mapping,
     workflows_microdata.pums_tabulate,
     workflows_microdata.test_association,
@@ -1584,6 +1590,7 @@ interrupted_series = workflows_inference.interrupted_series
 designation_accuracy = workflows_inference.designation_accuracy
 bias_analysis = workflows_inference.bias_analysis
 spatial_scan = workflows_inference.spatial_scan
+spatial_model = workflows_geo.spatial_model
 disparity_measures = workflows_inference.disparity_measures
 joinpoint = workflows_inference.joinpoint
 decompose_gap = workflows_microdata.decompose_gap

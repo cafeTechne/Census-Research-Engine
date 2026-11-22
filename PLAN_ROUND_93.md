@@ -54,9 +54,9 @@ first.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, tool, recipes | | |
-| Examples | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r93` |
+| Results | fail (R1, D1, D1bc); C1/C2 reported | GWR .71 with varying slopes; diversity .847 at n_eff 50; stability informative |
+| Engine, tool, recipes | done | tool `spatial_model` (79 tools); `spatial_patterns` recipe; protocol |
+| Examples | done | `r93_spatial_models_example.md` (Wayne County) |
+| Goldens, suite | see audit | `round93_compatibility.md` |
+| Exceptions | 4 | see audit |
