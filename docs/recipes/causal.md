@@ -16,6 +16,13 @@ descendant of treatment, or a collider (M-bias). An instrument-like variable add
 10% change-in-estimate label from `stratified_analysis` is associational: the diagram decides. Manifests take the same
 `causal_question` and `dag` blocks, and a formula that fails the check is refused.
 
+**Check positivity (Round 90; chapters 3.3, 12-15).** `kind="treatment"` always returns `positivity`: propensity
+quantiles by group, the share outside [.05, .95], the overlap coefficient, standardized mean differences and the
+effective n. When 5% or more of propensities are extreme, IP weighting under-covered in validation (.807-.863):
+use `weights="overlap"` (estimates the effect in the overlap population; say so), `weights="truncated"` or
+`method="ra"` (g-formula), all validated, or restrict to areas with overlap. Weighted results add the g-formula and
+flag disagreement (a sign of model misspecification).
+
 1. **Treatment effect** of a binary area exposure (e.g. a state policy, coded 0/1):
    `estimate_effect(input_path, "treatment", outcome, treatment=..., confounders=[...])` (AIPW, doubly
    robust). Assumes no unmeasured confounding and overlap. Validated with precisely measured

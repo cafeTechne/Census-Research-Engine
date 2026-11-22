@@ -726,6 +726,7 @@ def estimate_effect(
     calibrate: bool = False,
     causal_question: Optional[Dict[str, Any]] = None,
     dag: Optional[Dict[str, Any]] = None,
+    weights: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Causal-style estimates for areas (state the assumptions; register designs for confirmatory claims).
 
@@ -740,6 +741,9 @@ def estimate_effect(
     measurement; mediation with an exactly measured mediator. Round 47: calibrate=True for noisy
     confounders or mediators; iv also reports an Anderson-Rubin interval (valid for weak instruments;
     use it when first-stage F < 10).
+    Round 90: kind="treatment" reports propensity diagnostics ('positivity'); weights="overlap" (overlap-population
+    effect) or "truncated" (validated), "stabilized" (exploratory under limited overlap) adds the g-formula and an
+    agreement flag. With >=5% of propensities outside [.05, .95] prefer weights="overlap" or method="ra".
     Round 89: causal_question (target trial: eligibility, intervention, comparator, time_zero, outcome, follow_up,
     contrast, target) and dag ({edges: ["L -> A", ...], outcome[, treatment]}) are checked (backdoor criterion);
     without causal_question the result is labelled associational. See get_recipe("causal").
@@ -759,8 +763,12 @@ def estimate_effect(
         frame = _load_frame(input_path)
         if kind == "treatment":
             out = causal.estimate_effect(frame, outcome, treatment, confounders or [], method or "aipw", reps,
-                                         calibrate=calibrate)
-            e = out["ate"]; summary = f"Average treatment effect {e['estimate']:.4g} (90% CI {e['lower']:.4g} to {e['upper']:.4g})."
+                                         calibrate=calibrate, weights=weights)
+            e = out["ate"]
+            label = "Overlap-population effect" if e.get("estimand") == "overlap-population effect" else "Average treatment effect"
+            summary = f"{label} {e['estimate']:.4g} (90% CI {e['lower']:.4g} to {e['upper']:.4g})."
+            if out.get("positivity", {}).get("limited_overlap"):
+                summary += f" Limited overlap ({out['positivity']['share_outside']:.0%} of propensities outside [.05, .95])."
         elif kind == "iv":
             out = causal.iv_slope(frame, outcome, x, instrument, controls or [])
             e, ar = out["iv"], out["ar_interval"]

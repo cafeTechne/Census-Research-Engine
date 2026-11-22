@@ -5,6 +5,26 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.86.0 (Round 90): positivity diagnostics and weighting options
+
+- **Positivity** (`census/positivity.py`; frozen core `census/positivity_core.py`; N66; Hernán and Robins chapters
+  3.3, 12–15). `estimate_effect(kind="treatment")` always returns `positivity`:
+  - propensity quantiles by group and the share outside [.05, .95];
+  - the overlap coefficient;
+  - standardized mean differences before and after weighting;
+  - the maximum weight and the effective n.
+- **`weights=`**: `"stabilized"`, `"truncated"` or `"overlap"`. Weighted results also give the g-formula and an
+  IPW-versus-g-formula agreement flag.
+- **Validation** (`docs/audits/positivity_validation.md`, criterion tag `criterion-r90`):
+  - passed: truncated weights (.864–.905), overlap weights for the overlap-population effect (.877–.906), the
+    g-formula (.881–.907) and the flag (size ≤ .061);
+  - **failed**: stabilized and plain IPW once 5% or more of propensities are extreme (.807–.863). With limited
+    overlap, `method="ipw"` is now exploratory, and a note recommends overlap weights or `method="ra"`.
+- **Example** (`docs/audits/r90_positivity_example.md`, exploratory): metro status and county uninsured rates in
+  MI/NY/OH/PA. 7.3% of propensities are extreme. IPW and AIPW give −2.7 points with wide intervals; the g-formula,
+  truncated and overlap weights give −1.5 to −1.7.
+- **Recipe** `causal` section; protocol rule; sources Li, Morgan and Zaslavsky 2018 and Lunceford and Davidian 2004.
+
 ## 0.85.0 (Round 89): causal question specification
 
 - **Target trial and causal diagram** (`census/causal_spec.py`; N65; Hernán and Robins, *What If*, chapters 3, 6–8,
