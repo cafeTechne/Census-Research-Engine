@@ -52,4 +52,4 @@ There were no disagreements, so section 3 of the plan (reporting a cause, fixing
 - Goldens: byte-identical.
 - New tests: `tests/test_round74.py`. Offline: 21 passed with `test_mcp_profiles`. Live (`CENSUS_LIVE_TESTS=1`): 4
   parametrized reruns.
-- Full suite: SUITE_LINE_74.
+- Full suite: goldens byte-identical; 2203 passed, 42 skipped; 0 failures; live reruns 4 passed.

@@ -31,7 +31,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
   | E | 1e-10 |
 
 - Recipe `replications`; README "Replications" section.
-- Goldens byte-identical.
+- Goldens byte-identical. Acceptance: 2203 passed, 42 skipped; 0 failures; live reruns 4 passed.
 
 ## 0.69.0 (Round 73): three-level models, published-loading indices, expected counts
 

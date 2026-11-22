@@ -19,7 +19,7 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | None queued (Rounds 70–74 merged). Merged plans are archived (below). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | None queued (Rounds 70–74 merged). Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -156,7 +156,7 @@ replication suite, no new statistics (N52).
   rounding.
 - Recipe `replications`.
 
-Goldens unchanged. Acceptance: SUITE_LINE_74.
+Goldens unchanged. Acceptance: goldens byte-identical; 2203 passed, 42 skipped; 0 failures; live reruns 4 passed.
 
 **Round 73 (v0.69.0; merged after Round 71, release pending owner approval; implemented by the maintainer agent):**
 methods the replications needed (N51; criterion `e97e9fc`, kept at tag `criterion-r73`).

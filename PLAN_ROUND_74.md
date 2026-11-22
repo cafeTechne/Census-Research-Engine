@@ -57,9 +57,9 @@ If a rerun differs from its original audit beyond tolerance, the round does **no
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Manifests | | |
-| Runner and tolerances | | |
-| Live run report | | |
-| Docs, tests | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Manifests | done (as specs) | `docs/replications/*.json`; not study manifests (deviation 1, round74_compatibility.md) |
+| Runner and tolerances | done | `census/replications.py`, `scripts/run_replications.py`; plan tolerances |
+| Live run report | done | `docs/audits/replication_suite.md`: all five agree |
+| Docs, tests | done | README Replications, STATUS, CHANGELOG, recipe `replications`; `tests/test_round74.py` |
+| Goldens, final suite | done | goldens byte-identical; 2203 passed, 42 skipped; live 4 passed |
+| Exceptions | recorded | specs instead of manifests; D rerun local only (owner WONDER data) |
