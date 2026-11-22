@@ -1461,3 +1461,110 @@ def interrupted_series(
                "report both changes with their intervals and the AR(1) and linear-trend assumptions"
                if res["validated"] else "label the result exploratory; validated methods need 17+ annual points",
                **res)
+
+
+def disparity_measures(
+    input_path: str,
+    groups: List[str],
+    populations: List[str],
+    reference: Optional[str] = None,
+    replicates_path: Optional[str] = None,
+    counts: bool = False,
+    omitted_groups: Optional[List[str]] = None,
+    decompose_areas: Optional[List[str]] = None,
+    confidence_level: float = 0.90,
+) -> Dict[str, Any]:
+    """Disparities BETWEEN POPULATION GROUPS within each area (race/ethnicity, sex, income groups), Round 76.
+
+    Gives the rate difference and log rate ratio of each group against a reference group, the Index of
+    Disparity, the between-group variance, and Theil and mean log deviation over the groups.
+    groups: one rate column per mutually exclusive group (with replicates_path), or one event-count column per group
+    with counts=True (Poisson; populations are the denominators). populations: the matching group population
+    columns. reference: the comparison group, chosen before looking at the data. omitted_groups: names of
+    groups left out of the universe (reported).
+    Validated: ACS differences and Index of Disparity up to group-rate CV .50; ratios and indices up to .30;
+    counts: difference and ratio with 20+ events per group (count indices are exploratory); 2-6 groups.
+    decompose_areas=[area, comparison]: instead runs a Kitagawa decomposition of the crude-rate difference into
+    rate and composition effects; then groups are stratum (e.g. age band) rates or counts and populations the
+    stratum populations.
+    For differences ACROSS AREAS along a deprivation gradient use the health_inequality recipe instead.
+    Example: disparity_measures("frame.csv", ["pov_white", "pov_black", "pov_hisp"], ["pop_white", "pop_black",
+    "pop_hisp"], reference="pov_white", replicates_path="reps.parquet")
+    """
+    from census.disparity import disparity_measures as _dm, kitagawa_decomposition as _kd
+    try:
+        frame = _load_frames(input_path)
+        reps = _read_replicates(replicates_path)
+        if decompose_areas is not None:
+            if len(decompose_areas) != 2:
+                return _fail(errors.INVALID_INPUT, "decompose_areas must be [area, comparison area].")
+            out = _kd(frame, decompose_areas[0], decompose_areas[1], groups, populations, replicates=reps,
+                      counts=counts, level=confidence_level)
+            rows = out.set_index("component")
+            ok = bool(out["validated"].all())
+            return _ok(f"Kitagawa {decompose_areas[0]} minus {decompose_areas[1]}: crude difference "
+                       f"{rows.loc['crude_difference', 'estimate']:.4g} = rate effect "
+                       f"{rows.loc['rate_effect', 'estimate']:.4g} + composition effect "
+                       f"{rows.loc['composition_effect', 'estimate']:.4g}; "
+                       + ("validated." if ok else "exploratory (outside the validated range; see notes)."),
+                       "report both components with their intervals" if ok else "label the result exploratory",
+                       rows=_records(out))
+        if reference is None:
+            return _fail(errors.INVALID_INPUT, "reference is required: the comparison group, declared in advance.")
+        out = _dm(frame, groups, reference, populations, replicates=reps, counts=counts, level=confidence_level,
+                  omitted_groups=omitted_groups)
+    except (ValueError, KeyError, TypeError, FileNotFoundError) as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))
+    n_val = int(out["validated"].sum())
+    return _ok(f"{out['GEOID'].nunique()} area(s), {len(groups)} groups vs {reference}: {len(out)} measure rows, "
+               f"{n_val} validated, {len(out) - n_val} exploratory.",
+               "report absolute (rd, bgv) and relative (log_rr, idisp, theil, mld) measures together, with intervals; "
+               "label rows with validated=False exploratory",
+               audit=out.attrs["audit"], rows=_records(out))
+def joinpoint(
+    years: Optional[List[int]] = None,
+    counts: Optional[List[float]] = None,
+    population: Optional[List[float]] = None,
+    rates: Optional[List[float]] = None,
+    se: Optional[List[float]] = None,
+    input_path: Optional[str] = None,
+    year_column: str = "year",
+    max_joinpoints: int = 3,
+    product: str = "annual",
+    rate_ratio: Optional[Dict[str, List[float]]] = None,
+) -> Dict[str, Any]:
+    """Joinpoint regression of an ANNUAL rate series (Round 77): where did the trend change, and the annual percent
+    change (APC) of each segment plus the average APC (AAPC), as NCI Joinpoint reports them.
+
+    Give years with counts + population (e.g. deaths and population per year), or rates + se; or input_path with
+    those column names. Complete years only (suppressed years are refused). Not for overlapping ACS five-year
+    releases. For a known policy date use interrupted_series instead.
+    rate_ratio={"cases1": [...], "population1": [...], "cases2": [...], "population2": [...], "standard": [...]}
+    instead returns the ratio of two directly age-adjusted rates with the Tiwari interval.
+    Example: joinpoint(years=[1999, ..., 2022], counts=[...], population=[...])
+    """
+    from census import joinpoint as jp
+    try:
+        if rate_ratio is not None:
+            r = jp.age_adjusted_rate_ratio(**rate_ratio)
+            return _ok(f"Age-adjusted rate ratio {r['ratio']:.4g} ({r['ci_lower']:.4g} to {r['ci_upper']:.4g}; "
+                       f"{r['method']}); {'validated' if r['validated'] else 'exploratory'}.",
+                       "report the ratio with its interval and both age-adjusted rates", **r)
+        if input_path is not None:
+            f = _load_frame(input_path).sort_values(year_column)
+            years = [int(v) for v in f[year_column]]
+            pick = lambda c: [float(v) for v in f[c]] if c in f else None  # noqa: E731
+            counts, population, rates, se = pick("counts"), pick("population"), pick("rates"), pick("se")
+        if not years:
+            return _fail(errors.INVALID_INPUT, "years (or input_path with a year column) are required.")
+        r = jp.joinpoint(years, counts=counts, population=population, rates=rates, se=se,
+                         max_joinpoints=max_joinpoints, product=product)
+    except (ValueError, KeyError, TypeError, FileNotFoundError) as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))
+    seg = r["segments"]
+    parts = "; ".join(f"{s.start}-{s.end}: APC {s.apc:.2f}% ({s.ci_lower:.2f} to {s.ci_upper:.2f})" for s in seg.itertuples())
+    ok = all(r["validated"].values())
+    return _ok(f"{r['n_joinpoints']} joinpoint(s) {r['joinpoints']}; {parts}; AAPC {r['aapc']['aapc']:.2f}%; "
+               + ("validated." if ok else "partly exploratory (see validated and notes)."),
+               "report each segment's APC and the AAPC with intervals; say that joinpoint locations are estimated",
+               **{**r, "segments": seg.to_dict("records")})

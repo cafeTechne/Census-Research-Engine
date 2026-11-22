@@ -1191,6 +1191,184 @@ METHODS["multilevel"] = MethodSpec(
 )
 
 
+# ---------------------------------------------------------------- Round 76: disparity, kitagawa
+def _run_disparity(a, args, frame, level, replicates, correction, ctx):
+    from ..disparity import disparity_measures
+    return disparity_measures(frame, a["groups"], a["reference"], a["populations"], replicates=replicates,
+                              level=level, omitted_groups=args.get("omitted_groups"), total=args.get("total"))
+
+
+def _run_kitagawa(a, args, frame, level, replicates, correction, ctx):
+    from ..disparity import kitagawa_decomposition
+    area, other = a["areas"]
+    years = sorted(frame["Year"].unique()) if "Year" in frame.columns else [None]
+    parts = [kitagawa_decomposition(frame, area, other, a["rates"], a["populations"], replicates=replicates,
+                                    level=level, year=y).assign(Year=y) for y in years]
+    out = pd.concat(parts, ignore_index=True)
+    if years == [None]:
+        out = out.drop(columns="Year")
+    return out
+
+
+def _release_row(res, h, mask):
+    sub = res[mask]
+    if "Year" in sub.columns and h.get("release") is not None:
+        sub = sub[sub["Year"] == h["release"]]
+    if len(sub) != 1:
+        raise ValueError("the hypothesis must select exactly one result row (give release for multiple releases)")
+    return sub.iloc[0]
+
+
+def _refusal(row, what):
+    if bool(row["validated"]):
+        return {}
+    reason = "; ".join(n for n in row["notes"] if n.startswith("Exploratory") or n.startswith("Uncertainty")) or \
+        "outside the validated range"
+    from ..disparity import AUDIT
+    return {"confirmatory_refusal": f"{what}: {reason} ({AUDIT})"}
+
+
+def _stat_disparity(h, res):
+    from ..disparity import index_test
+    stat = h["statistic"]
+    mask = (res["GEOID"].astype(str) == str(h["geoid"])) & (res["measure"] == stat)
+    if stat in ("rd", "log_rr"):
+        mask &= res["group"] == h["group"]
+    row = _release_row(res, h, mask)
+    if not (np.isfinite(row["estimate"]) and np.isfinite(row["se"])):
+        raise ValueError(f"{stat} or its uncertainty is undefined; see analysis notes")
+    out = {"estimate": float(row["estimate"]), "se": float(row["se"]), "se_basis": f"{row['basis']} ({row['se_scale']} scale)",
+           "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"])}
+    if stat in ("rd", "log_rr"):
+        out["p_two_sided"] = float(row["p_value"])
+    else:
+        out.update(index_test(row, h["null_value"]))
+    out.update(_refusal(row, f"disparity {stat} for {h['geoid']}"))
+    return out
+
+
+def _stat_kitagawa(h, res):
+    row = _release_row(res, h, res["component"] == h["statistic"])
+    out = {"estimate": float(row["estimate"]), "se": float(row["se"]), "se_basis": row["basis"],
+           "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"])}
+    out.update(_refusal(row, f"kitagawa {h['statistic']}"))
+    return out
+
+
+def _hyp_release(ctx, label):
+    from .schema import manifest_releases
+    h, errors = ctx["h"], ctx["errors"]
+    releases = manifest_releases(ctx["manifest"])
+    year = h.get("release")
+    if year is not None and (type(year) is not int or year not in releases):
+        errors.append(f"{label} release must name a declared release integer")
+    if len(releases) > 1 and year is None:
+        errors.append(f"{label} hypotheses over multiple releases require an explicit release selector")
+
+
+def _check_var_list(a, key, names, errors, label, n=None):
+    v = a.get(key)
+    if not isinstance(v, list) or len(v) < 2 or not all(isinstance(x, str) and x in names for x in v) \
+            or len(set(v)) != len(v):
+        errors.append(f"{label}: {key} must be a list of at least two distinct manifest variables")
+        return False
+    if n is not None and len(v) != n:
+        errors.append(f"{label}: {key} must have one entry per group/stratum, in the same order")
+        return False
+    return True
+
+
+def _check_disparity(stage, ctx):
+    label = f"analyses ({ctx['a'].get('id')}) disparity"
+    if stage == "before_spatial":
+        a, errors, names = ctx["a"], ctx["errors"], ctx["names"]
+        ok = _check_var_list(a, "groups", names, errors, label)
+        if ok:
+            _check_var_list(a, "populations", names, errors, label, len(a["groups"]))
+            if a.get("reference") not in a["groups"]:
+                errors.append(f"{label}: reference must be one of the groups, declared in advance")
+        args = a.get("args") or {}
+        bad = set(args)-{"omitted_groups", "total"}
+        if bad:
+            errors.append(f"{label}: takes args omitted_groups and total only, not {sorted(bad)}")
+        og = args.get("omitted_groups")
+        if og is not None and (not isinstance(og, list) or not all(isinstance(x, str) for x in og)):
+            errors.append(f"{label}: omitted_groups must be a list of group names")
+        if args.get("total") is not None and args["total"] not in names:
+            errors.append(f"{label}: total must be a manifest variable (the universe population)")
+        if ctx["manifest"].get("geography", {}).get("level") not in (None, "county", "state", "tract", "place", "zcta",
+                                                                      "puma", "county_subdivision", "cbsa"):
+            errors.append(f"{label}: unsupported geography level")
+        return
+    if stage != "hypothesis":
+        return
+    h, errors = ctx["h"], ctx["errors"]
+    a = ctx["a"]; stat = h.get("statistic")
+    if not isinstance(h.get("geoid"), str):
+        errors.append(f"{label}: hypotheses need a geoid (string)")
+    if stat in ("rd", "log_rr"):
+        if h.get("group") not in (a.get("groups") or []) or h.get("group") == a.get("reference"):
+            errors.append(f"{label}: {stat} hypotheses name a non-reference group from the analysis")
+        if h.get("null_value", 0) != 0:
+            errors.append(f"{label}: {stat} is tested against zero (no difference)")
+    else:
+        nv = h.get("null_value")
+        if type(nv) not in (int, float) or not np.isfinite(nv) or nv <= 0:
+            errors.append(f"{label}: {stat} hypotheses need a pre-registered positive null_value (tested on the log scale)")
+        if "group" in h:
+            errors.append(f"{label}: {stat} summarises all groups; it takes no group")
+    _hyp_release(ctx, label)
+
+
+def _check_kitagawa(stage, ctx):
+    label = f"analyses ({ctx['a'].get('id')}) kitagawa"
+    if stage == "before_spatial":
+        a, errors, names = ctx["a"], ctx["errors"], ctx["names"]
+        if _check_var_list(a, "rates", names, errors, label):
+            _check_var_list(a, "populations", names, errors, label, len(a["rates"]))
+        ar = a.get("areas")
+        if not isinstance(ar, list) or len(ar) != 2 or not all(isinstance(x, str) for x in ar) or ar[0] == ar[1]:
+            errors.append(f"{label}: areas must be [area, comparison area], two distinct GEOID strings")
+        if a.get("args"):
+            errors.append(f"{label}: takes no args")
+        return
+    if stage == "hypothesis":
+        if "geoid" in ctx["h"] or "group" in ctx["h"]:
+            ctx["errors"].append(f"{label}: the areas are fixed by the analysis; hypotheses name a component only")
+        if ctx["h"].get("null_value", 0) != 0:
+            ctx["errors"].append(f"{label}: components are tested against zero")
+        _hyp_release(ctx, label)
+
+
+METHODS["disparity"] = MethodSpec(
+    "disparity", ("groups", "populations", "reference"), ("rd", "log_rr", "idisp", "bgv", "theil", "mld"),
+    _run_disparity, replicate=True, check=_check_disparity, default_target="these_areas",
+    text=(
+        "Between-group disparities compare mutually exclusive population groups within each area against a "
+        "reference group declared in advance: rate difference and log rate ratio per group, Pearcy-Keppel Index of "
+        "Disparity, population-weighted between-group variance, and Theil and mean log deviation over the declared "
+        "groups (absolute and relative measures together). Sampling SEs are sqrt(4/80 sum(theta_r - theta)^2) from "
+        "80 replicate refits on the identity scale (differences, log ratios) or the log scale (indices), with normal "
+        "intervals back-transformed. Validated (Round 76): differences and the Index of Disparity up to a largest "
+        "group-rate CV of .50; log ratios, between-group variance, Theil and MLD up to .30; two to six groups. "
+        "Index measures are tested against pre-registered positive values on the log scale.",
+        ["harper_lynch", "pearcy_keppel", "vre"],
+    ),
+)
+
+METHODS["kitagawa"] = MethodSpec(
+    "kitagawa", ("rates", "populations", "areas"), ("crude_difference", "rate_effect", "composition_effect"),
+    _run_kitagawa, replicate=True, check=_check_kitagawa, default_target="these_areas",
+    text=(
+        "The difference in crude rates between the two declared areas was split into a rate effect and a "
+        "composition effect across strata with symmetric (Kitagawa) weights; the two sum to the crude difference. "
+        "SEs come from 80 replicate refits of each component, with normal intervals; validated (Round 76) up to "
+        "a largest stratum-rate CV of .50.",
+        ["kitagawa", "vre"],
+    ),
+)
+
+
 STATISTIC_EXTRACTORS = {
     'coefficient': _stat_coefficient,
     'joint_wald': _stat_joint_wald,
@@ -1205,6 +1383,8 @@ STATISTIC_EXTRACTORS = {
     "dissimilarity": _stat_segregation,
     "isolation": _stat_segregation,
     "theil_h": _stat_segregation,
+    **{k: _stat_disparity for k in ("rd", "log_rr", "idisp", "bgv", "theil", "mld")},
+    **{k: _stat_kitagawa for k in ("crude_difference", "rate_effect", "composition_effect")},
 }
 
 ANALYSIS_METHODS = {name: (spec.required, spec.statistics) for name, spec in METHODS.items()}

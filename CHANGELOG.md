@@ -5,6 +5,47 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.73.0 (Round 77): joinpoint regression and age-adjusted rate ratios
+
+- **Joinpoint regression** (`census/joinpoint.py`; frozen core `census/joinpoint_core.py`; N54): log-linear segments by
+  weighted least squares with grid-searched joinpoints (Joinpoint spacing defaults), the number of joinpoints chosen
+  by Kim et al. (2000) sequential permutation tests, per-segment APC and whole-period AAPC.
+- **Ratio of two directly age-adjusted rates** with the Tiwari et al. (2006) interval (and a log-delta comparison).
+- **Validation** (`docs/audits/joinpoint_validation.md`, criterion `01ad5a4`; 15–25 annual points, 50–5,000 events
+  per year, 0–2 true joinpoints):
+  - selection passes (false-joinpoint rate .012–.023 at α .05);
+  - APC and AAPC intervals **fail** (t given the true number .51–.91; empirical-quantile with selection .02–.88):
+    exploratory, because joinpoint locations are estimated;
+  - Tiwari (.900–.921) and log-delta (.887–.900) ratio intervals pass.
+- **Tool `joinpoint`** (full profile; 73 tools), with `rate_ratio={...}` for the age-adjusted ratio. Refuses
+  overlapping ACS five-year releases and incomplete (suppressed) years.
+- **Recipe**: `policy_change` step 4; protocol and MCP rule text.
+- No manifest method and no example (see `docs/audits/round77_compatibility.md`).
+
+## 0.72.0 (Round 76): between-group disparity measures and Kitagawa decomposition
+
+- **Disparities between population groups** (`census/disparity.py`; frozen core `census/disparity_core.py`; N53):
+  rate difference and log rate ratio against a reference group declared in advance, the Pearcy–Keppel Index of
+  Disparity, between-group variance, and Theil and mean log deviation over groups. Intervals come from ACS replicate
+  refits (identity scale for differences and log ratios, log scale for indices) or, for event counts with known
+  populations, from the Poisson delta method (differences, ratios) and a parametric bootstrap (indices).
+- **Kitagawa decomposition** of a crude-rate difference between two areas into rate and composition effects.
+- **Validation** (`docs/audits/disparity_validation.md`, criterion `e995978`, 2,000 draws per cell):
+  - ACS: rate difference (.879–.924) and Index of Disparity (.875–.919) pass up to a largest group-rate CV of .50;
+    log ratio, between-group variance, Theil and MLD pass up to .30 (at .50: .50–.84);
+  - counts: difference and log ratio pass from 20 expected events (.888–.911); the bootstrap index measures
+    **fail** (.07–.84) and are exploratory;
+  - Kitagawa passes in every cell (.887–.927).
+- **Manifest methods `disparity` and `kitagawa`**; rows outside the validated range are refused in confirmatory
+  runs.
+- **Tool `disparity_measures`** (full profile; 72 tools), also `decompose_areas=[a, b]` for Kitagawa.
+- **Recipe**: `health_inequality` gains "Between population groups"; `segregation` links to it. Protocol rule text
+  and MCP instructions updated together.
+- **Example** (`docs/audits/r76_disparity_example.md`, exploratory): MI/NY county family poverty by race/ethnicity
+  and a Wayne–Oakland Kitagawa decomposition (age composition explains 0.3 of a 13.1-point gap).
+- **Goldens**: run golden byte-identical; schema golden differs only in the supported-method list
+  (`docs/audits/round76_compatibility.md`).
+
 ## 0.71.0 (Round 75): manifest support for the Round 73 methods, tract coordinates, recipes, README
 
 No new statistics: every method wired here was validated earlier.

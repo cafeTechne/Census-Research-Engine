@@ -330,6 +330,20 @@ Round 48: interrupted_series(method="bootstrap_t") is validated for 30+ annual p
 coefficient) is validated for 20+ points (.867-.889). Round 63: method="bootstrap_t_cons"
 (critical values at least the t(n - p - 1) quantile) is validated for 17+ points; at 15 points
 every method failed (.849-.855), and the EWC HAR test failed (.61-.72).
+
+Round 76: disparities between population groups within an area (race/ethnicity, sex): the disparity_measures
+tool (full profile) or manifest method "disparity" (groups = one rate per mutually exclusive group, populations,
+reference declared in advance; list left-out groups in omitted_groups). Report absolute (rd, bgv) and relative
+(log_rr, idisp, theil, mld) measures together. Validated: ACS rd and idisp up to a largest group-rate CV of .50,
+log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_rr with 20+ events per group (count
+idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
+"kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
+
+Round 77: the joinpoint tool (full profile) describes where an ANNUAL rate series changed trend without a pre-set
+date (for a known policy date use interrupted_series). The number of joinpoints is validated (Kim et al. permutation
+tests, false-joinpoint rate .012-.023); APC and AAPC intervals failed (.51-.91, joinpoint locations are estimated):
+report them as exploratory. Complete years only; overlapping ACS five-year releases refused. joinpoint(rate_ratio=...)
+gives the ratio of two directly age-adjusted rates with the Tiwari interval (validated .900-.921).
 """
 # END GENERATED RULES A
 
@@ -1427,6 +1441,8 @@ for _fn in (
     workflows_inference.reliability_profile,
     workflows_inference.trend_test,
     workflows_inference.interrupted_series,
+    workflows_inference.disparity_measures,
+    workflows_inference.joinpoint,
     workflows_inference.make_figure,
     workflows_inference.make_table,
     workflows_inference.make_results_bundle,
@@ -1479,6 +1495,8 @@ minimum_detectable_difference = workflows_inference.minimum_detectable_differenc
 reliability_profile = workflows_inference.reliability_profile
 trend_test = workflows_inference.trend_test
 interrupted_series = workflows_inference.interrupted_series
+disparity_measures = workflows_inference.disparity_measures
+joinpoint = workflows_inference.joinpoint
 make_figure = workflows_inference.make_figure
 make_table = workflows_inference.make_table
 make_results_bundle = workflows_inference.make_results_bundle
