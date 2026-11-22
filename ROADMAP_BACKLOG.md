@@ -45,7 +45,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 71 | Tract-level spatial inference: validation, plus a residual-dependence warning | N49 | merged (v0.68.0; SCPC .20/.30 pass for tract OLS; SEM fails) |
 | 72 | Data sources: CBP, ERS typology and rural–urban codes, CHR additional measures, state-wide tract pulls | N50 | merged (v0.67.0; state-wide tract pulls already existed) |
 | 73 | Methods: three-level multilevel models, loading-weighted indices, indirect standardization helper | N51 | merged (v0.69.0; three-level fixed effects and loadings indices validated; share intervals exploratory) |
-| 74 | Replication suite: the five replications as registered manifests and engine regression checks | N52 | planned |
+| 74 | Replication suite: the five replications as registered manifests and engine regression checks | N52 | merged (v0.70.0; specs + runner, all five agree; not manifests, see round74_compatibility.md) |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 
 Order rationale:

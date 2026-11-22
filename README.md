@@ -343,6 +343,23 @@ PUMS supports custom person/household universes with the appropriate survey weig
 
 Descriptive Poisson–Gamma event-rate smoothing is Python-only (`census.rate_smoothing.eb_poisson_gamma`); it serves a different purpose from Fay–Herriot smoothing of ACS estimates. Interval-censored NB2 for counts suppressed as 1–9 is `fit_model(model="negbin", exposure=..., censored="<true/false column>")` (validated; hidden counts are never estimated). The `interrupted_series` tool (full profile) estimates level and slope changes in an annual series with AR(1) errors and a linear trend on each side: `method="bootstrap_t_cons"` (the default) is validated from 17 points, `"bootstrap_t_bb"` from 19, `"bootstrap_t_bc"` from 20 and `"bootstrap_t"` from 30; every method failed at 15 points, so shorter series are exploratory. It refuses non-consecutive years: overlapping ACS five-year releases are not annual observations (use `trend_test`). The [method status table](STATUS.md#methods-validation-status) and recipes give the gates and alternatives. [docs/agent_routing.md](docs/agent_routing.md) lists common research questions with the tool, profile and validation flag the engine returns for each; a test runs every row.
 
+## Replications
+
+The engine reproduces five published findings (Rounds 66–69, each registered before its comparison):
+
+| Finding | Outcome |
+| :--- | :--- |
+| A. County Health Rankings 2025 county Black/White dissimilarity | Replicated exactly (2,055 counties) |
+| B. Census state Gini (B19083), from PUMS | Replicated (median difference .0008; 10 of 12 intervals contain it) |
+| C. Mitchell et al. 2022, NC tract life expectancy and ICE | Partly replicated (5 of 6 slopes) |
+| D. Monnat 2018, county drug-related mortality and economic distress | Replicated (9.95 vs 9.62) |
+| E. Boing et al. 2020, tract/county/state shares of life-expectancy variation | Replicated (70.0/10.6/19.4 vs 70.4/10.7/19.0%) |
+
+Each is a spec in `docs/replications/` (published target, pre-set rule, original result, engine route and rerun
+tolerance). `scripts/run_replications.py` reruns them through the engine's own routes and checks each against its
+original audit; `get_recipe("replications")` explains how. The Round 74 rerun agrees with every original audit
+(`docs/audits/replication_suite.md`). D needs the owner's manual CDC WONDER exports, so without them it is skipped.
+
 ## Context covariates
 
 County characteristics the ACS does not measure can be joined as **covariates** (Round 72): County Business

@@ -1,0 +1,80 @@
+{
+ "id": "state_gini",
+ "label": "replication rerun",
+ "replication": "B (Round 66)",
+ "study": "Census Bureau ACS 2019-2023 table B19083: state Gini index of household income",
+ "target": "12 pre-set states' published Gini (WY VT DE NM MS AZ GA MI NY TX CA NC)",
+ "published": {
+  "56": 0.4483,
+  "50": 0.4522,
+  "10": 0.4495,
+  "35": 0.4774,
+  "28": 0.484,
+  "04": 0.4624,
+  "13": 0.4779,
+  "26": 0.4639,
+  "36": 0.5152,
+  "48": 0.4765,
+  "06": 0.4887,
+  "37": 0.476
+ },
+ "rule": "Round 66 criterion (d30d7ed): replicated when the median |PUMS - published| <= .005 and >= 10 of 12 PUMS 90% intervals contain the published value.",
+ "original": {
+  "audit": "docs/audits/r66_numeric_replication.md",
+  "criterion_commit": "d30d7ed",
+  "outcome": "replicated",
+  "headline": {
+   "56": 0.44585,
+   "50": 0.45266,
+   "10": 0.45033,
+   "35": 0.47591,
+   "28": 0.48425,
+   "04": 0.4616,
+   "13": 0.47704,
+   "26": 0.46317,
+   "36": 0.51385,
+   "48": 0.47604,
+   "06": 0.48761,
+   "37": 0.47418
+  },
+  "note": "Round 66 primary: household income x ADJINC, negatives set to zero, TYPEHUGQ 1, NP > 0 (estimates stored to 5 decimals)"
+ },
+ "frame": {
+  "year": 2023,
+  "states": [
+   "56",
+   "50",
+   "10",
+   "35",
+   "28",
+   "04",
+   "13",
+   "26",
+   "36",
+   "48",
+   "06",
+   "37"
+  ],
+  "var": "(HINCP > 0) * HINCP * ADJINC / 1000000",
+  "where": "TYPEHUGQ == 1 and NP > 0"
+ },
+ "engine_route": [
+  {
+   "step": "test_association",
+   "args": {
+    "state": "<each>",
+    "year": 2023,
+    "kind": "inequality",
+    "var": "(HINCP > 0) * HINCP * ADJINC / 1000000",
+    "where": "TYPEHUGQ == 1 and NP > 0",
+    "weight": "housing"
+   }
+  }
+ ],
+ "data": "public",
+ "tolerance": {
+  "kind": "each_within_original",
+  "value": 0.0005,
+  "text": "each state's Gini within .0005 of Round 66"
+ }
+}

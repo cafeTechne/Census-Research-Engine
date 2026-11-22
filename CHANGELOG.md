@@ -5,6 +5,34 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.70.0 (Round 74): replication suite
+
+- `docs/replications/<id>.json` holds five specs: `chr_segregation` (A), `state_gini` (B), `nc_ice` (C),
+  `le_variance` (E) and `monnat_d` (D). Each gives the published target, the pre-set rule copied from its Round 66–69
+  criterion, the original audit's headline, the MCP engine route and the rerun tolerance fixed in the plan. They are
+  labelled "replication rerun", not new registered studies.
+- `census/replications.py` and `scripts/run_replications.py [--only id]` rerun each spec through engine routes:
+  - A: `segregation_indices`, compared with the CHR file from `context_sources`;
+  - B: `test_association(kind="inequality")` with an income expression that clips negatives to zero;
+  - C: `fit_model` and `spatial_regression(model="error")`, plus the Round 71 tract SCPC interval (descriptive);
+  - E: `multilevel_model(groups=["state", "county"])`;
+  - D: `build_analysis_frame` context (CBP, ERS), `read_wonder_export`, `expected_counts`,
+    `build_index(method="loadings")` and the spatial error model.
+- The runner writes `docs/audits/replication_suite.md`. A run with absent data is reported as skipped, and WONDER is
+  never fetched.
+- **Live run: all five agree.**
+
+  | Replication | Maximum difference |
+  | :--- | :--- |
+  | A | 3e-14 against CHR, same 2,055 counties |
+  | B | 5e-6 (stored rounding) |
+  | C | 0 |
+  | D | 2e-14 |
+  | E | 1e-10 |
+
+- Recipe `replications`; README "Replications" section.
+- Goldens byte-identical. Acceptance: 2203 passed, 42 skipped; 0 failures; live reruns 4 passed.
+
 ## 0.69.0 (Round 73): three-level models, published-loading indices, expected counts
 
 - **Validation** (`docs/audits/methods73_validation.md`, criterion `e97e9fc`, kept at tag `criterion-r73`):

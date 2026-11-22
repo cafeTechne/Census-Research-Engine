@@ -1,0 +1,159 @@
+{
+ "id": "monnat_d",
+ "label": "replication rerun",
+ "replication": "D (Round 69)",
+ "study": "Monnat, S.M. (2018). Factors associated with county-level differences in U.S. drug-related mortality rates. Am J Prev Med 54:611-619, Appendix Table D.2 Model 4",
+ "target": "The economic distress index coefficient (100 x beta per SD) in a spatial error model of county drug-related mortality 2006-2015",
+ "published": {
+  "econ_index": 9.62,
+  "family_index": 8.73,
+  "rent30": 3.31,
+  "vacant": 2.79,
+  "type_mining": 12.77,
+  "type_government": -7.37
+ },
+ "rule": "Round 69 criterion (20a4c13): replicated when the economic distress coefficient is positive, its 90% interval contains 9.62, and the ratio to 9.62 is in [0.67, 1.5].",
+ "original": {
+  "audit": "docs/audits/r69_monnat_replication.md",
+  "criterion_commit": "20a4c13",
+  "outcome": "replicated",
+  "headline": {
+   "econ_index": 9.945603215399554
+  },
+  "headline_counts": {
+   "counties": 2459,
+   "islands": 24
+  }
+ },
+ "frame": {
+  "acs_year": 2014,
+  "wonder_dir": "external_data/wonder/mcd/2006-2015",
+  "excluded_states": [
+   "02",
+   "15"
+  ],
+  "excluded_counties": [
+   "48301",
+   "08014",
+   "51515"
+  ],
+  "econ_loadings": {
+   "pov2554": 0.9045,
+   "ssi": 0.8753,
+   "pubassist": 0.7125,
+   "unemp_nilf2554": 0.8187,
+   "disab1864": 0.741,
+   "lt4yr": 0.5134,
+   "unins1864": 0.6098,
+   "gini": 0.5848
+  },
+  "family_loadings": {
+   "sepdiv": 0.728,
+   "singleparent": 0.728
+  },
+  "other_covariates": [
+   "vacant",
+   "rent30",
+   "moved",
+   "age65",
+   "veteran",
+   "religious",
+   "membership",
+   "sports",
+   "black",
+   "hisp",
+   "aian",
+   "ers_type",
+   "nonmetro"
+  ],
+  "context": [
+   {
+    "source": "cbp",
+    "name": "religious",
+    "year": 2012,
+    "naics": [
+     "813110"
+    ],
+    "per": 10000,
+    "per_column": "pop"
+   },
+   {
+    "source": "cbp",
+    "name": "membership",
+    "year": 2012,
+    "naics": [
+     "8134",
+     "8139"
+    ],
+    "per": 10000,
+    "per_column": "pop"
+   },
+   {
+    "source": "cbp",
+    "name": "sports",
+    "year": 2012,
+    "naics": [
+     "713910",
+     "713940",
+     "713950"
+    ],
+    "per": 10000,
+    "per_column": "pop"
+   },
+   {
+    "source": "ers_typology",
+    "name": "ers_type",
+    "field": "Type_2015_Update"
+   },
+   {
+    "source": "ers_rucc",
+    "name": "metro2013",
+    "field": "Metro2013"
+   }
+  ],
+  "outcome": "100 x ln(deaths / expected), counties with >= 10 deaths; expected from national 2006-2015 age x sex rates, the ACS 2014 age x sex mix and WONDER person-years"
+ },
+ "engine_route": [
+  {
+   "step": "build_analysis_frame",
+   "args": {
+    "context": "<the cbp and ERS entries in frame.context>"
+   }
+  },
+  {
+   "step": "census.vital_records.read_wonder_export",
+   "note": "the owner's manual county export (never fetched)"
+  },
+  {
+   "step": "census.wonder_reference.expected_counts",
+   "args": {
+    "person_years": "WONDER population"
+   },
+   "note": "Round 73"
+  },
+  {
+   "step": "build_index",
+   "args": {
+    "method": "loadings",
+    "loadings": "<frame.econ_loadings>",
+    "standardize": true
+   },
+   "note": "Round 73"
+  },
+  {
+   "step": "spatial_regression",
+   "args": {
+    "level": "county",
+    "year": 2014,
+    "model": "error"
+   },
+   "note": "queen contiguity, islands dropped, state fixed effects"
+  }
+ ],
+ "data": "owner_wonder_exports",
+ "tolerance": {
+  "kind": "each_within_original",
+  "value": 0.05,
+  "text": "the economic distress coefficient within .05 of Round 69"
+ }
+}
