@@ -388,6 +388,12 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+Round 91: for annual policy panels with a time-varying confounder that past policy can change (treatment-confounder
+feedback), never adjust for it by regression (validation .00-.11 coverage). difference_in_differences(design="msm",
+first_treated, time_varying_confounders, product="1-year") fits an IP-weighted marginal structural model (effects of
+the 1st-3rd treated year). It is exploratory (.80-.88 with 51 units). Time zero is the first period; units treated
+then are refused.
+
 Round 90: estimate_effect(kind="treatment") reports positivity diagnostics. With 5% or more of propensities outside
 [.05, .95], plain or stabilized IP weighting under-covered (.807-.863; exploratory): use weights="overlap" (overlap-
 population effect, validated .877-.906), weights="truncated" (.864-.905) or method="ra" (g-formula, .881-.907), or

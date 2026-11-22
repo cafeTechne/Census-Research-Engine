@@ -334,6 +334,8 @@ def difference_in_differences(
     method: str = "sun_abraham",
     unit: str = "GEOID",
     causal_question: Optional[Dict[str, Any]] = None,
+    time_varying_confounders: Optional[List[str]] = None,
+    truncate_weights: bool = False,
 ) -> Dict[str, Any]:
     """Difference-in-differences on area-level ACS estimates across NON-overlapping
     periods (e.g. 2013, 2018, 2023 releases); overlapping releases are refused.
@@ -351,6 +353,9 @@ def difference_in_differences(
     With 3+ pre-periods a parallel-trends test is reported. Validated: coverage 0.90-0.91.
     Round 89: causal_question (target trial: eligibility, intervention, comparator, time_zero, outcome, follow_up,
     contrast, target) is checked; without it the result is labelled associational.
+    design="msm" (Round 91): annual panel with time_varying_confounders (e.g. unemployment) that past policy may
+    affect: IP-weighted marginal structural model (first_treated column; effects of the 1st, 2nd, 3rd treated year
+    vs never; truncate_weights clips weights at the 1st/99th percentiles). Units treated in the first period refused.
     Example: difference_in_differences("panel.csv", "poverty_rate", "treated", 2023, se="poverty_rate_se")
     """
     from census.api import PRODUCT_PERIOD_YEARS, normalize_product
@@ -372,6 +377,22 @@ def difference_in_differences(
                    "report the overall ATT and the event study with intervals; check the pre-trend result",
                    **{k: (v.to_dict("records") if isinstance(v, pd.DataFrame) else v) for k, v in r.items()}),
                    causal_question, first_treated)
+    if design == "msm":
+        from census.msm import marginal_structural_model
+        try:
+            if not first_treated:
+                return _fail(errors.INVALID_INPUT, "design='msm' needs first_treated (each unit's first treated year).")
+            r = marginal_structural_model(_load_frame(input_path), outcome, first_treated, time_varying_confounders or [],
+                                          period=period, unit=unit, truncate=truncate_weights, product=product)
+        except _ERRORS as exc:
+            return _fail(errors.INVALID_INPUT, str(exc))
+        e = r["effects"]
+        txt = "; ".join(f"year {x['duration']}: {x['estimate']:.4g} ({x['lower']:.4g} to {x['upper']:.4g})" for x in e)
+        state = "validated" if r["validated"] else "exploratory (see notes)"
+        return _with_trial(_ok(f"Marginal structural model ({r['method']}), {r['units']} units, {r['treated_units']} "
+                               f"treated: effect of the treated year vs never: {txt}; {state}.",
+                               "report the effects by treated year with intervals; state the time-varying confounders "
+                               "and the no-unmeasured-confounding assumption", **r), causal_question, first_treated)
     if treatment_period is None:
         return _fail(errors.INVALID_INPUT, "treatment_period is required for two_group and event designs.")
     try:
