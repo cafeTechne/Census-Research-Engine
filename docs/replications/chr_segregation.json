@@ -1,0 +1,114 @@
+{
+ "id": "chr_segregation",
+ "label": "replication rerun",
+ "replication": "A (Round 66)",
+ "study": "County Health Rankings 2025, measure v141: county Black/White residential segregation (dissimilarity, 0-100)",
+ "target": "Every county's published v141 value (2,055 counties outside Connecticut with at least 100 Black residents)",
+ "published": "CHR v141_r2025.csv at calculation-repository commit a516395 (SHA-256 2c737ea8...)",
+ "rule": "Round 66 criterion (d30d7ed): replicated when the median |difference| <= 0.5 points and >= 90% of counties are within 1 point.",
+ "original": {
+  "audit": "docs/audits/r66_numeric_replication.md",
+  "criterion_commit": "d30d7ed",
+  "outcome": "replicated",
+  "headline": {
+   "max_abs_difference_vs_chr": 2.842170943040401e-14
+  },
+  "headline_counts": {
+   "counties_compared": 2055
+  }
+ },
+ "frame": {
+  "year": 2023,
+  "states": [
+   "01",
+   "02",
+   "04",
+   "05",
+   "06",
+   "08",
+   "09",
+   "10",
+   "11",
+   "12",
+   "13",
+   "15",
+   "16",
+   "17",
+   "18",
+   "19",
+   "20",
+   "21",
+   "22",
+   "23",
+   "24",
+   "25",
+   "26",
+   "27",
+   "28",
+   "29",
+   "30",
+   "31",
+   "32",
+   "33",
+   "34",
+   "35",
+   "36",
+   "37",
+   "38",
+   "39",
+   "40",
+   "41",
+   "42",
+   "44",
+   "45",
+   "46",
+   "47",
+   "48",
+   "49",
+   "50",
+   "51",
+   "53",
+   "54",
+   "55",
+   "56"
+  ],
+  "excluded_states": [
+   "09"
+  ],
+  "excluded_counties": [
+   "36103",
+   "36111"
+  ],
+  "min_black": 100,
+  "groups": "B11002B_001E (Black alone householders' household population) and B11002A_001E (White alone)"
+ },
+ "engine_route": [
+  {
+   "step": "download_table",
+   "args": {
+    "table_code": "B11002A",
+    "geography": "tract",
+    "year": 2023
+   },
+   "note": "and B11002B, every state and DC"
+  },
+  {
+   "step": "census.segregation.segregation_indices",
+   "note": "naive two-group D per county on tract counts (the point index behind the segregation recipe)"
+  },
+  {
+   "step": "census.context_sources.fetch_chr_additional",
+   "args": {
+    "measure": "v141",
+    "release": 2025
+   },
+   "note": "the published values, cached and hashed"
+  }
+ ],
+ "data": "public",
+ "tolerance": {
+  "kind": "max_abs_vs_published",
+  "value": 1e-06,
+  "text": "exact: every county's D within 1e-6 points of CHR, and the same 2,055 counties"
+ }
+}

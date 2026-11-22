@@ -1,0 +1,91 @@
+{
+ "id": "nc_ice",
+ "label": "replication rerun",
+ "replication": "C (Round 67)",
+ "study": "Mitchell, U.A. et al. (2022). North Carolina tract life expectancy (USALEEP 2010-2015) and the Index of Concentration at the Extremes (ACS 2014-2018), Table 3",
+ "target": "Six slopes of ln(e0): three ICE measures, OLS and spatial error",
+ "published": {
+  "ice_race/ols": 0.045,
+  "ice_race/spatial_error": 0.054,
+  "ice_income/ols": 0.13,
+  "ice_income/spatial_error": 0.12,
+  "ice_income_race/ols": 0.13,
+  "ice_income_race/spatial_error": 0.13
+ },
+ "rule": "Round 67 criterion (14b78b2): per slope, same sign, interval overlapping the published value +/- half a unit of its last digit, ratio in [0.67, 1.5].",
+ "original": {
+  "audit": "docs/audits/r67_nc_ice_replication.md",
+  "criterion_commit": "14b78b2",
+  "outcome": "partly replicated",
+  "headline": {
+   "ice_race/ols": 0.04543609628063982,
+   "ice_race/spatial_error": 0.05403692461902612,
+   "ice_income/ols": 0.12597570133884825,
+   "ice_income/spatial_error": 0.12188633536662125,
+   "ice_income_race/ols": 0.14645141368196596,
+   "ice_income_race/spatial_error": 0.1417749934984614
+  },
+  "headline_counts": {
+   "tracts": 1971,
+   "islands": 1
+  }
+ },
+ "frame": {
+  "year": 2018,
+  "state": "37",
+  "ice": [
+   "ice_race",
+   "ice_income",
+   "ice_income_race"
+  ],
+  "definitions": {
+   "ice_income": "(B19001 014-017 - 002-005) / B19001_001",
+   "ice_race": "(B03002_003 - B03002_004) / B03002_001",
+   "ice_income_race": "(B19001H 014-017 - B19001B 002-005) / B19001_001"
+  },
+  "outcome": "ln(USALEEP e0), tracts with population, households and e0"
+ },
+ "engine_route": [
+  {
+   "step": "download_table",
+   "args": {
+    "table_code": "B19001",
+    "geography": "tract",
+    "state_code": "37",
+    "year": 2018
+   },
+   "note": "and B19001B, B19001H, B03002"
+  },
+  {
+   "step": "census.health_sources.fetch_usaleep",
+   "args": {
+    "states": [
+     "37"
+    ]
+   }
+  },
+  {
+   "step": "fit_model",
+   "args": {
+    "formula": "lnle ~ ice_race"
+   },
+   "note": "OLS slope; spatial=\"scpc\" adds the Round 71 tract interval (descriptive)"
+  },
+  {
+   "step": "spatial_regression",
+   "args": {
+    "formula": "lnle ~ ice_race",
+    "level": "tract",
+    "year": 2018,
+    "model": "error"
+   },
+   "note": "queen contiguity, islands dropped"
+  }
+ ],
+ "data": "public",
+ "tolerance": {
+  "kind": "each_within_original",
+  "value": 0.001,
+  "text": "each of the 6 slopes within .001 of Round 67"
+ }
+}
