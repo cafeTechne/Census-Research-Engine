@@ -102,3 +102,43 @@ exports in the repo or releases. Keep study states only, omit national death-cou
 vectors/complementary totals, mask censored counties in every product and run
 `census.wonder_outputs.audit_outputs` before packaging. Sensitivity endpoint
 assignments stay internal and output coefficients only; they are not strict bounds.
+
+## Between population groups (Round 76)
+
+Profile: full (`disparity_measures`); manifests use methods `disparity` and `kitagawa`.
+
+The indices above compare **areas** along a deprivation gradient. To compare **population groups within an
+area** (race/ethnicity, sex, income groups), use `disparity_measures` or the manifest method `disparity`:
+
+1. Declare mutually exclusive groups that cover the universe. ACS race-iteration tables overlap (Black alone
+   includes Hispanic Black), so build exclusive groups, for example White alone not Hispanic (H), Hispanic (I) and
+   "all other non-Hispanic" (total minus H minus I, derived on every replicate). List any group left out in
+   `omitted_groups`; the result reports it.
+2. Choose the **reference group before looking at the data** (`reference`).
+3. Report absolute and relative measures together (Harper and Lynch 2005): `rd` (rate difference) and `bgv`
+   (between-group variance) are absolute; `log_rr`, `idisp` (Pearcy–Keppel Index of Disparity), `theil` and
+   `mld` are relative.
+4. Validated ranges (`docs/audits/disparity_validation.md`):
+   - ACS replicate rates: `rd` and `idisp` up to a largest group-rate CV of .50; `log_rr`, `bgv`, `theil` and
+     `mld` up to .30;
+   - event counts with known populations (`counts=True`): `rd` and `log_rr` with 20+ events in every group; the
+     count index measures failed validation and are exploratory;
+   - two to six groups.
+   Rows outside the range carry `validated=False`. A registered manifest refuses confirmatory tests on them.
+5. Manifest example:
+
+   ```json
+   {"id":"disp","method":"disparity","groups":["pov_wnh","pov_hisp","pov_oth"],
+    "populations":["fam_wnh","fam_hisp","fam_oth"],"reference":"pov_wnh"}
+   ```
+
+   Hypotheses: `{"statistic":"log_rr","geoid":"26163","group":"pov_hisp"}` (tested against zero), or an index
+   with a pre-registered positive `null_value` (tested on the log scale), for example
+   `{"statistic":"idisp","geoid":"26163","null_value":50}`.
+6. **Kitagawa decomposition:** to split the crude-rate difference between two areas into a **rate effect** and a
+   **composition effect** across strata (such as age bands), use the manifest method `kitagawa` with `rates`,
+   `populations` and `areas: [area, comparison]` (statistics `crude_difference`, `rate_effect`,
+   `composition_effect`), or `disparity_measures(..., decompose_areas=[area, comparison])`. It is validated for
+   stratum-rate CV up to .50 and for counts averaging 20+ events per stratum.
+
+Segregation (how evenly groups are spread across tracts) is a different question: see the `segregation` recipe.

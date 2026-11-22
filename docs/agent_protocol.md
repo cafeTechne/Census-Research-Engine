@@ -535,6 +535,36 @@ coefficient) is validated for 20+ points (.867-.889). Round 63: method="bootstra
 (critical values at least the t(n - p - 1) quantile) is validated for 17+ points; at 15 points
 every method failed (.849-.855), and the EWC HAR test failed (.61-.72).
 
+## Disparities between population groups (Round 76)
+
+<!-- mcp-rules:A -->
+Round 76: disparities between population groups within an area (race/ethnicity, sex): the disparity_measures
+tool (full profile) or manifest method "disparity" (groups = one rate per mutually exclusive group, populations,
+reference declared in advance; list left-out groups in omitted_groups). Report absolute (rd, bgv) and relative
+(log_rr, idisp, theil, mld) measures together. Validated: ACS rd and idisp up to a largest group-rate CV of .50,
+log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_rr with 20+ events per group (count
+idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
+"kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
+
+## Staggered adoption and synthetic control (Round 78)
+
+<!-- mcp-rules:A -->
+Round 78: policies adopted in different years (staggered adoption) in an ANNUAL panel (ACS 1-year with
+product="1-year", 2020 refused, or another annual source): difference_in_differences(design="staggered",
+first_treated="<column>"). Sun-Abraham (default) is validated (.881-.899, 51 units); method="callaway_santanna" is
+validated only with the se column (ACS variance added, .882-.906; without it .848-.868, exploratory). Uniform bands
+are descriptive. Synthetic control for one treated unit failed (placebo size .12-.19 at .10): library only,
+exploratory. Five-year releases are refused for staggered designs.
+
+## Joinpoint and age-adjusted rate ratios (Round 77)
+
+<!-- mcp-rules:A -->
+Round 77: the joinpoint tool (full profile) describes where an ANNUAL rate series changed trend without a pre-set
+date (for a known policy date use interrupted_series). The number of joinpoints is validated (Kim et al. permutation
+tests, false-joinpoint rate .012-.023); APC and AAPC intervals failed (.51-.91, joinpoint locations are estimated):
+report them as exploratory. Complete years only; overlapping ACS five-year releases refused. joinpoint(rate_ratio=...)
+gives the ratio of two directly age-adjusted rates with the Tiwari interval (validated .900-.921).
+
 ## Event-count smoothing and nonlinear exploratory models (Round 27)
 
 For ACS direct estimates with known sampling variance, use Fay–Herriot. For event
