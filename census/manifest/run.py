@@ -280,6 +280,8 @@ class RunState:
     opts: "ResearchOptions"
     source: Dict[str, Any]
     deviations: List[Dict[str, Any]] = field(default_factory=list)
+    checkpoint: bool = False
+    checkpoint_log: Dict[str, Any] = field(default_factory=dict)
     columns: Dict[str, Tuple[str, str, str]] = field(default_factory=dict)
     panels: List[pd.DataFrame] = field(default_factory=list)
     extraction: Dict[str, Any] = field(default_factory=dict)
@@ -605,9 +607,13 @@ def _run_analyses(state: RunState) -> None:
     rep_overlap = _replicate_overlap(state.replicates) if state.replicates is not None and not census_vre_source(state.m) else None
     state.declared_fixed = _declared_covariates_only(state.m)
     state.fixed_had_replicates: Dict[str, List[str]] = {}
-    for a in state.m["analyses"]:
+    from .. import progress
+    ck = _Checkpoint(state) if state.checkpoint else None
+    total = len(state.m["analyses"])
+    for i, a in enumerate(state.m["analyses"], 1):
         a = _normalize_analysis(a)
         aid = a["id"]
+        progress.report(f"run_manifest: analysis {aid}", i, total)
         needed = set(_formula_names(a.get("formula", "")))
         for k in ("variables", "error_covariates", "groups"):
             needed |= set(a.get(k) or [])
@@ -634,11 +640,18 @@ def _run_analyses(state: RunState) -> None:
             had = [v for v in state.declared_fixed[aid] if _has_replicate_rows(state.work_reps, v)]
             if had:
                 state.fixed_had_replicates[aid] = had
+        saved = ck.load(a) if ck is not None else None
+        if saved is not None:
+            state.results[aid], extra = saved
+            state.deviations.extend(dict(d,analysis=aid) for d in extra)
+            continue
         try:
             state.results[aid] = _run_analysis(a, state.frame, state.level, state.work_reps, state.corr_method, external=state.joined_external, coords=state.coords)
             result = state.results[aid]
             extra = getattr(result,"attrs",{}).get("deviations",getattr(result,"diagnostics",{}).get("deviations",[]))
             state.deviations.extend(dict(d,analysis=aid) for d in extra)
+            if ck is not None:
+                ck.save(a, result, list(extra))
         except Exception as exc:
             kind = "replicates_incomplete" if isinstance(exc, IncompleteReplicatesError) else "analysis_failed"
             state.deviations.append({"kind": kind, "analysis": aid, "detail": f"{type(exc).__name__}: {exc}"})
@@ -648,6 +661,63 @@ def _run_analyses(state: RunState) -> None:
         state.analysed_data = _write_analysed_data(state.out, state.frame, state.work_reps)
     except Exception as exc:  # noqa: BLE001 - a convenience copy must never cost the confirmatory run
         state.analysed_data = {"error": f"analysed data not written: {type(exc).__name__}: {exc}"}
+
+
+class _Checkpoint:
+    """Per-analysis checkpoints for ``run_manifest(checkpoint=True)`` (Round 70, backlog N48).
+
+    Each completed analysis is pickled to ``<output_dir>/.checkpoint/<id>.pkl``, keyed by the manifest hash, the
+    analysis spec and a hash of the exact data it saw (analysis frame and replicates). A rerun reuses a checkpoint
+    only when all three match; anything else is ignored with a note. Checkpoints are local files the engine wrote
+    itself: never resume from a folder you did not create. The folder is removed after a successful bundle.
+    """
+
+    def __init__(self, state: "RunState") -> None:
+        import hashlib
+        self.state = state
+        self.folder = state.out / ".checkpoint"
+        self.folder.mkdir(parents=True, exist_ok=True)
+        h = hashlib.sha256()
+        for df in (state.frame, state.work_reps):
+            if isinstance(df, pd.DataFrame) and not df.empty:
+                h.update(pd.util.hash_pandas_object(df.reset_index(drop=True), index=False).values.tobytes())
+                h.update(",".join(map(str, df.columns)).encode())
+        self.data_hash = h.hexdigest()
+        state.checkpoint_log = {"folder": str(self.folder), "reused": [], "ignored": [], "saved": []}
+
+    def _key(self, a: Dict[str, Any]) -> str:
+        import hashlib
+        spec = json.dumps(a, sort_keys=True, default=str)
+        return hashlib.sha256(f"{self.state.h}|{self.data_hash}|{spec}".encode()).hexdigest()
+
+    def load(self, a: Dict[str, Any]):
+        import pickle
+        path = self.folder / f"{a['id']}.pkl"
+        if not path.exists():
+            return None
+        try:
+            with open(path, "rb") as fh:
+                saved = pickle.load(fh)
+        except Exception as exc:  # noqa: BLE001 - an unreadable checkpoint is ignored, never fatal
+            self.state.checkpoint_log["ignored"].append({"analysis": a["id"], "reason": f"unreadable: {type(exc).__name__}"})
+            return None
+        if saved.get("key") != self._key(a):
+            self.state.checkpoint_log["ignored"].append({"analysis": a["id"],
+                                                         "reason": "manifest, analysis or data changed"})
+            return None
+        self.state.checkpoint_log["reused"].append(a["id"])
+        return saved["result"], saved["deviations"]
+
+    def save(self, a: Dict[str, Any], result: Any, deviations: List[Dict[str, Any]]) -> None:
+        import pickle
+        try:
+            tmp = self.folder / f"{a['id']}.pkl.tmp"
+            with open(tmp, "wb") as fh:
+                pickle.dump({"key": self._key(a), "result": result, "deviations": deviations}, fh)
+            tmp.replace(self.folder / f"{a['id']}.pkl")
+            self.state.checkpoint_log["saved"].append(a["id"])
+        except Exception as exc:  # noqa: BLE001 - a checkpoint must never cost the run
+            self.state.checkpoint_log["ignored"].append({"analysis": a["id"], "reason": f"not saved: {type(exc).__name__}"})
 
 
 def _test_hypotheses(state: RunState) -> None:
@@ -797,7 +867,7 @@ _STAGES = (
 def run_manifest(
     manifest: Union[str, Path, Mapping[str, Any]], output_dir: Union[str, Path], client: Any = None,
     replicates: Any = None, use_cache: bool = True, replicates_synthetic: Optional[bool] = None,
-    external_fetch: Optional[Callable[[str], bytes]] = None,
+    external_fetch: Optional[Callable[[str], bytes]] = None, checkpoint: bool = False,
 ) -> Dict[str, Any]:
     """Execute a manifest exactly: plan -> extraction -> analysis frame ->
     derivations on replicates -> exclusions -> adjustments -> analyses -> hypothesis tests with the pre-registered
@@ -826,14 +896,26 @@ def run_manifest(
     ``hypotheses`` and the bundle manifest. The manifest hash is written into
     every output (results JSON, tables, figure sidecars, methods.md, bundle.json).
     ``external_fetch(url) -> bytes`` replaces the HTTP client of external sources (tests).
+    ``checkpoint=True`` (Round 70) saves each completed analysis under ``<output_dir>/.checkpoint`` and, on a rerun
+    with the same manifest and data, reuses them (see :class:`_Checkpoint`); the folder is removed after a
+    successful bundle. Results are identical with or without it.
     """
     state = _prepare(manifest, output_dir, client, replicates, use_cache,
                      replicates_synthetic, external_fetch)
     if not isinstance(state, RunState):
         return state
+    state.checkpoint = bool(checkpoint)
     for stage in _STAGES:
         stage(state)
-    return _bundle(state)
+    out = _bundle(state)
+    if state.checkpoint:
+        out["checkpoint"] = state.checkpoint_log
+        failed = any(d.get("kind") in ("analysis_failed", "replicates_incomplete") for d in state.deviations)
+        if out.get("bundle") is not None and not failed:   # keep them when an analysis failed: a rerun reuses the rest
+            import shutil
+            shutil.rmtree(state.out / ".checkpoint", ignore_errors=True)
+            out["checkpoint"]["removed"] = True
+    return out
 
 
 def _write_analysed_data(out: Path, frame: Optional[pd.DataFrame], replicates: Any) -> Dict[str, Any]:

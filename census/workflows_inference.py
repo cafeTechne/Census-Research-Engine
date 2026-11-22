@@ -1293,7 +1293,8 @@ def create_manifest(manifest_path: str) -> Dict[str, Any]:
 
 
 def run_manifest(manifest_path: str, output_dir: Optional[str] = None,
-                 replicates_path: Optional[str] = None, replicates_synthetic: Optional[bool] = None) -> Dict[str, Any]:
+                 replicates_path: Optional[str] = None, replicates_synthetic: Optional[bool] = None,
+                 checkpoint: bool = False) -> Dict[str, Any]:
     """Run a pre-registered analysis exactly as written and write a results bundle
     (tables, figures, methods.md); anything that could not run is a deviation.
 
@@ -1302,6 +1303,7 @@ def run_manifest(manifest_path: str, output_dir: Optional[str] = None,
         replicates_path: optional CSV/Parquet of replicates (long: GEOID, Year,
             variable, rep_1..rep_80) for "replicates": "required"; not with census_vre.
         replicates_synthetic: mark supplied replicates synthetic.
+        checkpoint: true = resumable long run (reuse output_dir).
 
     Returns analysis_status, data_source, replicates, deviations, hypotheses;
     success is False when analysis_status is "confirmatory_incomplete".
@@ -1317,7 +1319,8 @@ def run_manifest(manifest_path: str, output_dir: Optional[str] = None,
         return _fail(errors.INVALID_INPUT, f"replicates_path unreadable: {type(exc).__name__}: {exc}",
                      "pass a CSV or Parquet file in the analysis replicate long format")
     try:
-        res = _run(manifest_path, folder, replicates=reps, replicates_synthetic=replicates_synthetic)
+        res = _run(manifest_path, folder, replicates=reps, replicates_synthetic=replicates_synthetic,
+                   checkpoint=bool(checkpoint))
     except (FileNotFoundError, OSError, ValueError, KeyError) as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}" if isinstance(exc, KeyError) else str(exc))
     if res.get("error_code") == errors.BUNDLED_DATA_INTEGRITY:
@@ -1338,6 +1341,8 @@ def run_manifest(manifest_path: str, output_dir: Optional[str] = None,
     }
     if "adjustments" in res:
         out["adjustments"] = res["adjustments"]
+    if "checkpoint" in res:
+        out["checkpoint"] = res["checkpoint"]
     if "external" in res:
         out["external"] = res["external"]
     payload = _jsonable(out)

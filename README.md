@@ -57,6 +57,8 @@ Alternatively, set `BLS_USER_AGENT` to an identifying User-Agent that includes a
 | `CENSUS_LIVE_TESTS=1` | Enable live API contract tests and the live validation battery |
 | `CENSUS_MCP_PROFILE` | MCP tool profile (`full`, `core`, `core_spatial`, `review`, `verification`); same as `--profile` |
 | `CENSUS_HEALTH_OFFLINE=1` | Use only locally cached external health data (no downloads) |
+| `CENSUS_DOTENV` | Explicit `.env` file. Otherwise the engine loads the first `.env` found upward from the working directory, then from the package location (an installed engine finds your project's `.env`); variables already set are never overridden |
+| `CENSUS_PROGRESS=0` | Silence progress lines (stderr) from long workflows: `run_manifest`, `batch_download`, replicate refits |
 | `CENSUS_VERIFICATION_REQUEST` | The locally reviewed proposition pinned for `--profile verification` |
 
 **Exact proposition verification (opt-in).** The [verification workflow](docs/verification.md) pins a locally reviewed proposition through `CENSUS_VERIFICATION_REQUEST` before the server starts with `--profile verification`; model tools cannot approve formalizations. `python scripts/verification_eval.py --request request.json` prepares prompts and scores transcripts offline and contacts no model service. `scripts/verification_live.py --run-model ...` tests a chosen local runtime explicitly; the guide lists its settings and raw traces.
@@ -300,7 +302,8 @@ For replicate-based area models, `target="population"` uses model SEs for the ge
 2. Use `plan_extraction`, inspect `would_block`, concordance issues and advisories, then download. Build an analysis frame, check replicate availability and reliability, and handle missing/suppressed values explicitly.
 3. For confirmatory work, write a manifest, call `create_manifest` to validate/hash it, and **commit it before examining outcome associations**. Run the completed, registered file with `run_manifest`. A hash alone is not pre-registration.
 4. Check the run status and deviations: an incomplete run is not a confirmatory result. Registered methods need explicit choices; the validator does not automatically upgrade a legacy interval to a later validated one. For example, manifest correlations use `args.interval: "validated"` to opt in.
-5. Save tables, figures, methods and provenance with the manifest hash. `run_manifest` writes its bundle; `make_results_bundle` packages exploratory work. `run_variant` is an explicitly exploratory refit of cached inputs, leaving the registered analysis unchanged.
+5. For long runs, pass `checkpoint=true` to `run_manifest` with a fixed `output_dir`: a rerun after a crash reuses the finished analyses (same manifest and data only), and results are identical.
+6. Save tables, figures, methods and provenance with the manifest hash. `run_manifest` writes its bundle; `make_results_bundle` packages exploratory work. `run_variant` is an explicitly exploratory refit of cached inputs, leaving the registered analysis unchanged.
 
 Start with the [pre-registration recipe](docs/recipes/preregistered.md), the [executable offline example](docs/reference_workflow.md), or the [worked real-data workflow](docs/case_study_mi_ny.md). The [study reports](docs/studies/) distinguish registered analyses, post hoc checks and exploratory demonstrations; [validation audits](docs/audits/) report both passing and failed methods.
 

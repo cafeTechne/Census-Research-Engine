@@ -485,7 +485,10 @@ counts allowed as for Poisson). fit_eiv args.spatial "clusters" (G1) or "error" 
 unweighted OLS, no cluster/spatial_se/spatial_clusters; more than five error-prone
 covariates are not tested in a confirmatory run (Rounds 46 and 53). regression_calibration with
 model "binomial" needs args.se_method "jackknife" (Round 53); with the default bootstrap it is
-exploratory and not tested in a confirmatory run.
+exploratory and not tested in a confirmatory run. Round 70: for long runs call run_manifest(...,
+checkpoint=true) with a fixed output_dir; after a crash, the same call reuses finished analyses (same
+manifest and data only) and gives identical results. Progress lines go to stderr (CENSUS_PROGRESS=0
+silences them).
 
 ## Count repairs (Round 45)
 

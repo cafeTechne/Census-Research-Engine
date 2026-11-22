@@ -584,6 +584,9 @@ def fit_replicate(
                             context="fit_replicate")
         coefs, failed = [], 0
         for r in range(REPLICATE_COUNT):
+            if r and r % 20 == 0:
+                from . import progress as _progress
+                _progress.report("replicate refits", r, REPLICATE_COUNT)
             d = data.copy()
             for v, m in mats.items():
                 d[v] = m[:, r]
