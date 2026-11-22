@@ -2,7 +2,7 @@
 
 Author self-review, not independent. Worktree `/tmp/census-round71`, branch `phase71/tract-spatial`. Criterion
 `f947f64`, committed before the full run and verified in git. The branch was rebased onto defaultBranch `09b2464`
-(Round 72, merged first) before the docs were written. Version 0.68.0.
+(Round 72, merged first) before the docs were written. That re-hashed the criterion commit as `c7fb2dc`, with identical frozen files; the original `f947f64` is kept at tag `criterion-r71`. Version 0.68.0.
 
 ## Results (`tract_spatial_validation.md`)
 
