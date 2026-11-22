@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_88.md` (method attribution); Rounds 89–93 queued (causal question specification, positivity, marginal structural models, PEP/LODES/flows, GWR and classification), drafted from Hernán and Robins and from Walker (`docs/literature/`). Earlier: Rounds 82–87 merged (ecologic vs individual, last of the book's rounds); mapping in `docs/literature/foundations_of_epidemiology.md`. Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_89.md` (causal question specification); Rounds 90–93 queued ( positivity, marginal structural models, PEP/LODES/flows, GWR and classification), drafted from Hernán and Robins and from Walker (`docs/literature/`). Earlier: Round 88 merged (method attribution); Rounds 82–87 merged (ecologic vs individual, last of the book's rounds); mapping in `docs/literature/foundations_of_epidemiology.md`. Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -156,6 +156,15 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 88 (v0.84.0; merged, release pending owner approval; implemented by the maintainer agent):**
+method attribution (N70; owner request).
+- `census/references.py`: source registry (method papers, the guidance texts of Bovbjerg, Hernán and Robins and
+  Walker, data, software, validation audits) and `TOOL_SOURCES` for all 78 tools.
+- Method-tool results carry `method_sources`; results bundles add a Sources section, `references.md` and
+  `references.bib`; `python -m census cite`; `docs/citing.md`; CITATION.cff references.
+- A coverage test requires sources for every tool. No new statistics; no validation run. Goldens byte-identical;
+  2291 passed, 42 skipped; 0 failures.
 
 **Round 87 (v0.83.0; merged, release pending owner approval; implemented by the maintainer agent):**
 ecologic versus individual-level associations on PUMS (N64).
@@ -684,7 +693,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N62: designation accuracy (85; closed);
 - N63: bias analysis (86; closed);
 - N64: ecologic vs individual-level associations (87; closed);
-- N70: method attribution (Round 88);
+- N70: method attribution (88; closed);
 - N65–N69: causal specification, positivity, marginal structural models, PEP/LODES/flows, GWR/classification (Rounds 89–93, planned 2026-11-23 from Hernán and Robins and Walker);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 

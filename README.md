@@ -532,6 +532,13 @@ python -m census validate-crosswalks
 
 Created and maintained by [cafeTechne](https://github.com/cafeTechne). If you use this toolkit in research, cite it using [CITATION.cff](CITATION.cff) (GitHub's "Cite this repository" button produces APA and BibTeX) or the concept DOI [10.5281/zenodo.23925301](https://doi.org/10.5281/zenodo.23925301), which always resolves to the latest release (each release also has its own version DOI on Zenodo), and cite the Census Bureau as the source of the data, naming the ACS 5-year release(s) and table(s) used. Forks and derivative works must keep this attribution and the license notice.
 
+### Citing methods
+
+Successful method-tool results carry `method_sources`, which lists the papers that define the method, the textbooks
+whose guidance shaped it, the data it reads and the engine audit that validated it. Results bundles write these
+sources to `references.md` and `references.bib`. `python -m census cite --tool NAME` prints them for one tool. See
+[docs/citing.md](docs/citing.md).
+
 ## License
 
 Copyright (C) 2023–2026 cafeTechne.

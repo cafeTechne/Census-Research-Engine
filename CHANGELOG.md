@@ -5,6 +5,21 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.84.0 (Round 88): method attribution
+
+- **Source registry** (`census/references.py`; N70; owner request). It covers the method papers, the three guidance
+  texts (Bovbjerg; Hernán and Robins; Walker), data products, software and the engine's validation audits. Each
+  tool's sources carry a role (`method`, `guidance`, `data`, `software`, `validation`). Manifest citation text is
+  reused unchanged; module reference lists (small-area, multilevel, DiD) are included verbatim.
+- **`method_sources` on successful method-tool results** (MCP and CLI `tool`), added at the shared tool boundary.
+  Discovery and extraction tools omit it.
+- **Results bundles:**
+  - `methods.md` ends with a **Sources** section;
+  - new `references.md` and `references.bib`.
+- **CLI:** `python -m census cite`.
+- **Docs:** `docs/citing.md`; README "Citing methods"; CITATION.cff `references` lists the guidance texts.
+- **Coverage:** a test requires every tool to have sources. Unverified entries are flagged "[details to verify]".
+
 ## 0.83.0 (Round 87): ecologic versus individual-level associations
 
 - **Ecologic check** (`census/ecologic.py`; frozen core `census/ecologic_core.py`; N64; *Foundations of Epidemiology*

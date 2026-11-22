@@ -622,6 +622,14 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+## Method attribution (Round 88)
+
+<!-- mcp-rules:A -->
+Round 88: successful results of method tools carry method_sources (role method, guidance, data, software,
+validation; each with its citation or audit path). Cite the method papers and guidance texts a reported result rests
+on; make_results_bundle writes them to references.md and references.bib. CLI: python -m census cite --tool NAME.
+Entries marked [details to verify] were recorded without checking the publication.
+
 ## Staggered adoption and synthetic control (Round 78)
 
 <!-- mcp-rules:A -->
