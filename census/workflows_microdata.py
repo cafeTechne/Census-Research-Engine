@@ -9,6 +9,7 @@ import os
 import re
 from typing import Any, Dict, List, Optional, Union
 import pandas as pd
+import numpy as np
 
 from census import errors
 from census.data_integrity import BundledDataIntegrityError, integrity_error_result
@@ -189,9 +190,13 @@ def pums_regression(
     where: Optional[str] = None,
     product: str = "5-year",
     target: str = "these_areas",
+    marginal: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Survey-weighted regression on PUMS microdata with replicate-weight SEs
     (the design-based inference Census recommends for PUMS).
+    Round 84: model="logit" with marginal="<binary exposure column of the design>" adds the standardized
+    (marginal) risk ratio and risk difference, the attributable fraction and the modified-Poisson prevalence ratio,
+    all with replicate-weight intervals (validated). Use it whenever the outcome is common (odds ratios overstate).
 
     Args:
         formula: e.g. "np.log(WAGP) ~ AGEP + C(SCHL)" (PUMS codes).
@@ -217,9 +222,25 @@ def pums_regression(
                        + ("validated (Round 49)." if out["validated"] else "exploratory: see notes."),
                        "report coefficients with their replicate-weight intervals", **_jsonable(out))
         res = pums.pums_regression(formula, df, weight=weight, model=model, where=where, target=target)
+        extra = {}
+        if marginal:
+            if model != "logit":
+                return _fail(errors.INVALID_INPUT, "marginal measures need model='logit' with a 0/1 outcome.")
+            import patsy
+            from census.epi_measures import pums_marginal_measures
+            sub = df.loc[pums._mask(df, where)]
+            yd, Xd = patsy.dmatrices(formula, sub, return_type="dataframe", NA_action="drop")
+            if marginal not in Xd.columns:
+                return _fail(errors.INVALID_INPUT, f"marginal must be a design column; columns: {list(Xd.columns)}")
+            if not set(np.unique(Xd[marginal])) <= {0.0, 1.0}:
+                return _fail(errors.INVALID_INPUT, "marginal measures need a binary (0/1) exposure column.")
+            _, W = pums._weight_matrix(sub.loc[Xd.index], weight)
+            extra["marginal"] = pums_marginal_measures(yd.iloc[:, 0].to_numpy(float), Xd.to_numpy(float), W,
+                                                       list(Xd.columns).index(marginal))
     except _ERRORS as exc:
         return _fail(errors.INVALID_INPUT, str(exc))
     out = res.to_dict()
+    out.update(extra)
     warns = _memory_warnings(df)
     return _ok(result_summary(res) + _warning_suffix(warns),
                "report coefficients with the SE named in uncertainty_sources",
@@ -630,3 +651,78 @@ def decompose_gap(
     from census.results import _jsonable
     return _ok(summary, "report explained and unexplained parts with intervals; explained is composition, not causation",
                **_jsonable({**r, "table": r["table"].to_dict("records")}))
+
+
+def stratified_analysis(
+    input_path: Optional[str] = None,
+    stratum: Optional[str] = None,
+    cases_exposed: Optional[str] = None,
+    total_exposed: Optional[str] = None,
+    cases_unexposed: Optional[str] = None,
+    total_unexposed: Optional[str] = None,
+    person_time: bool = False,
+    state: Optional[str] = None,
+    year: Optional[int] = None,
+    exposure: Optional[str] = None,
+    outcome: Optional[str] = None,
+    strata: Optional[str] = None,
+    where: Optional[str] = None,
+    interaction: Optional[str] = None,
+    product: str = "5-year",
+) -> Dict[str, Any]:
+    """Stratified analysis (Round 83): is a third variable a confounder or an effect modifier?
+
+    Gives the crude measure, stratum-specific measures, the Mantel-Haenszel pooled (adjusted) RR, OR and RD,
+    homogeneity tests and a descriptive label (confounder / effect_modifier / neither, 10% change rule).
+    Counts: input_path with one row per stratum (stratum, cases_exposed, total_exposed, cases_unexposed,
+    total_unexposed; person_time=True when totals are person-years, giving the MH rate ratio).
+    PUMS: state, year, exposure and outcome as conditions (e.g. "DIS == 1", "HICOV == 2"), strata a code column
+    (e.g. "AGEP_BAND" or "SEX"); interaction="<second condition>" adds RERI (additive interaction).
+    Example: stratified_analysis(state="26", year=2023, exposure="DIS == 1", outcome="HICOV == 2", strata="SEX",
+    where="AGEP >= 19 and AGEP <= 64")
+    """
+    from census import stratified as st
+    try:
+        if input_path is not None:
+            need = [stratum, cases_exposed, total_exposed, cases_unexposed, total_unexposed]
+            if not all(need):
+                return _fail(errors.INVALID_INPUT, "counts mode needs stratum, cases_exposed, total_exposed, "
+                             "cases_unexposed and total_unexposed columns.")
+            r = st.stratified_counts(_load_frame(input_path), stratum, cases_exposed, total_exposed,
+                                     cases_unexposed, total_unexposed, person_time=person_time)
+        else:
+            if not (state and year and exposure and outcome and (strata or interaction)):
+                return _fail(errors.INVALID_INPUT, "PUMS mode needs state, year, exposure, outcome and strata "
+                             "(or interaction).")
+            from census import pums
+            cols = _pums_columns(exposure, outcome, strata, where, interaction)
+            df = pums.fetch_pums(state, year, product=product, record="person", columns=cols or None)
+            sub = df.loc[pums._mask(df, where)]
+            y = np.asarray(pums._values(sub, outcome), float); e = np.asarray(pums._values(sub, exposure), float)
+            _, W = pums._weight_matrix(sub, "person")
+            if interaction:
+                f2 = np.asarray(pums._values(sub, interaction), float)
+                cells = (e > 0).astype(int)+2*(f2 > 0).astype(int)
+                risks = np.stack([(W[cells == k]*y[cells == k, None]).sum(0)/W[cells == k].sum(0) for k in range(4)], axis=1)
+                r = {"additive_interaction": st.additive_interaction(risks=risks)}
+                if strata:
+                    s = sub[strata].to_numpy()
+                    r.update(st.stratified_pums(y, e, s, W, sorted(pd.unique(s[pd.notna(s)]))))
+            else:
+                s = sub[strata].to_numpy()
+                r = st.stratified_pums(y, e, s, W, sorted(pd.unique(s[pd.notna(s)])))
+    except _ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}")
+    from census.results import _jsonable
+    lab = r.get("classification", {})
+    pooled = r.get("pooled", {})
+    summary = "Stratified analysis: " + ", ".join(
+        f"MH {m.upper()} {v['estimate']:.3g} ({v['lower']:.3g} to {v['upper']:.3g})" for m, v in pooled.items()
+        if isinstance(v, dict) and "estimate" in v)
+    if lab:
+        summary += "; label " + ", ".join(f"{m}: {v}" for m, v in lab.items())
+    if "additive_interaction" in r:
+        ai = r["additive_interaction"]
+        summary += f"; RERI {ai['reri']:.3g} ({ai['lower']:.3g} to {ai['upper']:.3g})"
+    return _ok(summary + ".", "report the adjusted (MH) measure for a confounder or each stratum for an effect "
+               "modifier, with crude and stratum measures", **_jsonable(r))
