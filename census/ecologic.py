@@ -12,7 +12,11 @@ import numpy as np
 from . import ecologic_core as ec
 
 AUDIT = "docs/audits/ecologic_validation.md"
-VALIDATED_FROM = {"C1": None, "C2": None, "C1l": None}  # smallest validated record count, None = failed; from the audit
+VALIDATED_FROM = {"C1": None, "C2": None, "C1l": 5000}
+# docs/audits/ecologic_validation.json: the logit decomposition (C1l) passed in every binary cell (>= .871); the
+# linear decomposition (C1) and the ecologic slope and gap (C2) failed with 150 small areas (about 33 records per area:
+# noisy area means bias the between-area slope; .62-.86) and are exploratory. The within-area slope covered
+# everywhere but is judged with its family.
 NOTE = ("within = the association of a person's own exposure with their outcome inside areas (individual level); "
         "between = the association of area means; contextual = between - within, the area-mean association beyond "
         "the person's own exposure; ecologic = what an area-level (ACS-only) analysis estimates; ecologic_gap = "
