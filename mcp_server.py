@@ -163,8 +163,10 @@ Round 58 (docs/audits/spatial_outside_validation.md): SCPC (census.scpc.fit_scpc
 fit_model(method="replicate", spatial="scpc")) gives naive-slope intervals that do not assume
 independent clusters. It is validated for OLS (rho_bar .05) and Poisson (.10) on MI/NY and OH/PA
 alike; binomial SCPC failed at .05/.10 but passes at rho_bar .15 (Round 62, the default for binomial). Round 67: on
-North Carolina tracts SCPC under-covered with 100 km fields (.75/.81), so tract-level SCPC is exploratory
-(docs/audits/r67_nc_tract_validation.md). A 10,000-draw rerun confirmed IM-8 OLS at .858 in the
+North Carolina tracts SCPC under-covered with 100 km fields (.75/.81) at rho_bar .05/.10. Round 71
+(docs/audits/tract_spatial_validation.md): tract OLS slopes are validated with rho_bar .20 (the tract default)
+or .30 on NC and MI tracts up to 100 km (.885-.988); tract Poisson/binomial SCPC and the tract spatial
+error model (.63-.76) are exploratory. fit_model warns when residuals are spatially dependent. A 10,000-draw rerun confirmed IM-8 OLS at .858 in the
 low-reliability, correlated MI/NY cell, so prefer SCPC for OLS. With every error-prone covariate's
 reliability >= .8, G1/G2 with three to five covariates pass on OH/PA too (reliability is
 reported). Calibrated binomial slopes with IM-8 clusters are validated

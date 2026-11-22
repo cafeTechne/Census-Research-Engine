@@ -300,9 +300,9 @@ def _stat_coefficient(h, res):
     if scpc is not None and not scpc["validated"]:
         return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
                 "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
-                "confirmatory_refusal": "SCPC is validated for OLS (rho_bar .05, .10), Poisson (.10) and binomial "
-                                        "(.15, .20) only (docs/audits/spatial_outside_validation.md, "
-                                        "docs/audits/leftover_failures_validation.md)"}
+                "confirmatory_refusal": "SCPC is validated for county OLS (rho_bar .05, .10), Poisson (.10) and binomial "
+                                        "(.15, .20) and tract OLS (.20, .30) only (docs/audits/spatial_outside_validation.md, "
+                                        "docs/audits/leftover_failures_validation.md, docs/audits/tract_spatial_validation.md)"}
     if res.diagnostics.get("regression_calibration_validated") is False:
         return {"estimate": float(row["estimate"]), "se": float(row[se_col]), "se_basis": se_col,
                 "p_two_sided": float(row["p_value"]), "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"]),
@@ -424,16 +424,17 @@ def _check_fit_replicate(stage, ctx):
         glm = aargs.get("model", "ols")
         scpc = aargs.get("spatial_scpc")
         if scpc is not None:  # Round 61: SCPC naive slopes (Round 58)
-            from ..scpc import VALIDATED_RHO, DEFAULT_RHO
+            from ..scpc import validated_rho, default_rho
+            tract = manifest.get("geography", {}).get("level") == "tract"
             prefix = f"analyses[{i}] ({a.get('id')}): "
             rho = scpc.get("rho_bar") if isinstance(scpc, dict) else None
             if not isinstance(scpc, dict) or set(scpc) - {"rho_bar"} or (rho is not None and (type(rho) not in (int, float) or not 0 < rho < 1)):
                 errors.append(prefix+"spatial_scpc must be {} or {rho_bar: number in (0, 1)}")
             elif glm not in ("ols", "poisson", "binomial"):
                 errors.append(prefix+"spatial_scpc supports model ols, poisson or binomial")
-            elif (rho if rho is not None else DEFAULT_RHO[glm]) not in VALIDATED_RHO[glm] and not manifest.get("exploratory", False):
-                errors.append(prefix+f"SCPC with model {glm} and this rho_bar was not validated (Rounds 58/62: ols "
-                              ".05/.10, poisson .10, binomial .15/.20); exploratory only")
+            elif (rho if rho is not None else default_rho(glm, tract)) not in validated_rho(glm, tract) and not manifest.get("exploratory", False):
+                errors.append(prefix+f"SCPC with model {glm} and this rho_bar was not validated (Rounds 58/62 counties: ols "
+                              ".05/.10, poisson .10, binomial .15/.20; Round 71 tracts: ols .20/.30); exploratory only")
             bad = sorted(k for k in ("weights", "scale", "spatial_se", "spatial_clusters") if aargs.get(k) is not None)
             if bad:
                 errors.append(prefix+f"spatial_scpc does not combine with {bad}")

@@ -211,6 +211,7 @@ def fit_model(
     impute: Optional[Union[str, List[str]]] = None,
     se_method: Optional[str] = None,
     censored: Optional[str] = None,
+    spatial_check: str = "auto",
 ) -> Dict[str, Any]:
     """Fit a regression whose standard errors account for ACS sampling error.
 
@@ -254,6 +255,8 @@ def fit_model(
             suppression). They enter as "between 1 and 9" (interval-censored NB2, Round 45;
             validated); no hidden value is estimated or output. Needs exposure; formula terms
             must be plain column names.
+        spatial_check: "auto" (default; Round 71) tests the residuals for spatial dependence with cached boundary
+            files and adds a note naming the validated spatial interval; "on" may download them; "off" skips.
 
     target applies to method="replicate" only; corrected methods report se_total.
     Results report se_model, se_sampling, se_total and which sources are included.
@@ -404,6 +407,13 @@ def fit_model(
         out["notes"] = list(out.get("notes") or []) + [
             "No replicates supplied: standard errors include model error only, not ACS sampling error."
         ]
+    if method == "replicate" and spatial is None and spatial_check in ("auto", "on"):
+        from census import residual_dependence as rd
+        chk = rd.check(frame, formula, mode=spatial_check)
+        msg = rd.note(chk, rd.recommended(chk))
+        if msg:
+            out["spatial_dependence"] = chk
+            out["notes"] = list(out.get("notes") or []) + [msg]
     # Report the SE that the displayed intervals and p-values actually use
     # (PLAN_ROUND_11 C7): se_model for target="population", se_sampling for
     # "these_areas", se_total for "conservative" and the corrected methods.

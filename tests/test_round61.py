@@ -38,8 +38,14 @@ def fr(args, **top):
                          dict(id="H1", analysis="m1", statistic="coefficient", term="pop", direction="greater"), **top)
 
 
+def _level(m, level):
+    m["geography"] = dict(m["geography"], level=level)
+    return m
+
+
 def test_scpc_manifest_gates():
-    ok = lambda args, **top: not [e for e in errs(fr(args, **top)) if "scpc" in e.lower() or "SCPC" in e]
+    # county rules (Rounds 58/62); the base manifest is tract-level, whose benchmarks differ since Round 71
+    ok = lambda args, **top: not [e for e in errs(_level(fr(args, **top), "county")) if "scpc" in e.lower() or "SCPC" in e]
     assert ok({"spatial_scpc": {}})
     assert ok({"spatial_scpc": {"rho_bar": .10}})
     assert not ok({"spatial_scpc": {"rho_bar": 2}})
@@ -51,6 +57,10 @@ def test_scpc_manifest_gates():
     assert ok({"spatial_scpc": {}, "model": "binomial", "trials": "pop"})          # rho .15 validated (Round 62)
     assert not ok({"spatial_scpc": {}, "scale": "robust", "model": "poisson", "exposure": "pop"})
     assert not ok({"spatial_scpc": {}, "target": "these_areas"})
+    tract = lambda args: not [e for e in errs(fr(args)) if "scpc" in e.lower() or "SCPC" in e]
+    assert tract({"spatial_scpc": {}}) and tract({"spatial_scpc": {"rho_bar": .30}})      # Round 71: .20 default
+    assert not tract({"spatial_scpc": {"rho_bar": .10}})
+    assert not tract({"spatial_scpc": {}, "model": "poisson", "exposure": "pop"})
 
 
 def test_scpc_runner_and_hypothesis():
@@ -65,7 +75,7 @@ def test_scpc_runner_and_hypothesis():
     f["p"] = 1/(1+np.exp(-f.x)); f["T"] = 300.
     b = mm._run_fit_replicate(dict(method="fit_replicate", formula="p ~ x"),
                               {"spatial_scpc": {"rho_bar": .10}, "model": "binomial", "trials": "T"}, f, .9, None, "holm", ctx)
-    assert "SCPC is validated for OLS" in mm._stat_coefficient({"term": "x"}, b)["confirmatory_refusal"]
+    assert "SCPC is validated for county OLS" in mm._stat_coefficient({"term": "x"}, b)["confirmatory_refusal"]
 
 
 def rc(args, **top):
