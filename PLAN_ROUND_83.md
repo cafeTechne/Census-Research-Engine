@@ -66,9 +66,9 @@ The engine has regression only. Version 0.79.0. Branch `phase83/stratified`. Val
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, manifest, tool, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `stratified_core.py`; criterion `b358799` (tag `criterion-r83`) |
+| Results | done | MH measures, RERI, Breslow-Day pass; Woolf and PUMS Wald homogeneity fail |
+| Engine, manifest, tool, recipe | done | `stratified_analysis` (76 tools); recipe `confounding`; manifest `covariables` |
+| Example | done | `r83_stratified_example.md` (PUMS; WONDER county x age not available) |
+| Goldens, suite | done | both byte-identical; 2264 passed, 42 skipped |
+| Exceptions | listed | `round83_compatibility.md` |

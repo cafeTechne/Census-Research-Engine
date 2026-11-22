@@ -82,7 +82,7 @@ DESCRIPTION_OVERRIDES: Dict[str, str] = {
         "Return numbered steps for a standard analysis. Call this first when unsure what to do.\n"
         "name: compare_counties | tract_trend | policy_change | regression_sampling_error | group_comparison | "
         "rank_methods | rank_areas | composite_index | agreement | combine_estimates | causal | pums_tests | "
-        "small_area | health_inequality (also disparities between groups) | external_health_outcome | segregation | context_covariates | "
+        "small_area | health_inequality (also group disparities) | confounding | external_health_outcome | segregation | context_covariates | "
         "custom_geographies (neighborhoods, combined tracts) | dollars (inflation, cost of living) | "
         "spatial_patterns | cross_release | decennial_counts | reporting | preregistered | replications. "
         "Some recipes use full profile tools.\n"
