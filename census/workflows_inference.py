@@ -1665,3 +1665,44 @@ def spatial_scan(
                f"p = {p['p_value']:.3g}; {len(r['secondary'])} secondary cluster(s). "
                + ("Confirmatory (pre-specified)." if r["confirmatory"] else "Exploratory."),
                "report the cluster counties, RR and p-value; describe it as exploratory unless pre-specified", **r)
+
+
+def bias_analysis(
+    kind: str,
+    estimate: Optional[float] = None,
+    lower: Optional[float] = None,
+    upper: Optional[float] = None,
+    measure: str = "rr",
+    prevalence: Optional[float] = None,
+    table: Optional[List[float]] = None,
+    sensitivity: Optional[Union[float, List[float]]] = None,
+    specificity: Optional[Union[float, List[float]]] = None,
+    misclassified: str = "outcome",
+    prior_sd: Optional[float] = None,
+) -> Dict[str, Any]:
+    """Bias (sensitivity) analysis (Round 86).
+
+    kind="e_value": how strong an unmeasured confounder would need to be to explain away a ratio (estimate, lower,
+    upper; measure rr, irr, pr, or (with prevalence) or smd). Validated (deterministic).
+    kind="misclassification": correct a 2 x 2 table [a, b, c, d] (exposed cases, exposed non-cases, unexposed cases,
+    unexposed non-cases) for misclassified="outcome" or "exposure" with sensitivity/specificity (one value, or two
+    for differential); prior_sd adds a probabilistic analysis (exploratory: failed validation).
+    Example: bias_analysis("e_value", estimate=1.4, lower=1.1, upper=1.8)
+    """
+    from census import bias_analysis as ba
+    try:
+        if kind == "e_value":
+            if estimate is None:
+                return _fail(errors.INVALID_INPUT, "e_value needs estimate (and lower, upper).")
+            r = ba.e_value(estimate, lower, upper, measure, prevalence)
+            return _ok(f"E-value {r['e_value']:.2f}" + (f" (interval limit {r['e_value_limit']:.2f})" if "e_value_limit" in r else "")
+                       + ".", "report the E-value next to the estimate", **r)
+        if kind == "misclassification":
+            if not table or len(table) != 4 or sensitivity is None or specificity is None:
+                return _fail(errors.INVALID_INPUT, "misclassification needs table [a, b, c, d], sensitivity and specificity.")
+            r = ba.misclassification(*map(float, table), sensitivity, specificity, kind=misclassified, sd=prior_sd)
+            return _ok(f"Observed RR {r['observed']['rr']:.3f}; corrected RR {r['corrected']['rr']:.3f} (sensitivity "
+                       "analysis, exploratory).", "report as a sensitivity analysis next to the main estimate", **r)
+    except (ValueError, TypeError) as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))
+    return _fail(errors.INVALID_INPUT, "kind must be 'e_value' or 'misclassification'.")
