@@ -3,8 +3,9 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.65.0 (Round 69: replication D; DOI 10.5281/zenodo.24411452). Previous: v0.64.0 (Rounds
-64–68; DOI 10.5281/zenodo.24405380); v0.60.0 (Rounds 61–63; DOI 10.5281/zenodo.24400452); v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
+**Current release:** v0.70.0 (Rounds 70–74: tract spatial intervals, context sources, three-level models and
+loadings indices, replication suite; released as one bundle; DOI 10.5281/zenodo.24433164). Previous: v0.65.0 (Round 69;
+DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.24405380); v0.60.0 (Rounds 61–63; DOI 10.5281/zenodo.24400452); v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
 10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
 10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record
 [zenodo.org/records/23925301](https://zenodo.org/records/23925301). Per-round detail: `CHANGELOG.md`.
@@ -145,7 +146,7 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 74 (v0.70.0; merged after Round 73, release pending owner approval; implemented by the maintainer agent):**
+**Round 74 (v0.70.0; merged after Round 73, released in the bundled v0.70.0; implemented by the maintainer agent):**
 replication suite, no new statistics (N52).
 - The five published replications are specs in `docs/replications/`. Each records the published target, the
   pre-set rule, the original result, the engine route and a fixed tolerance.
@@ -158,7 +159,7 @@ replication suite, no new statistics (N52).
 
 Goldens unchanged. Acceptance: goldens byte-identical; 2203 passed, 42 skipped; 0 failures; live reruns 4 passed.
 
-**Round 73 (v0.69.0; merged after Round 71, release pending owner approval; implemented by the maintainer agent):**
+**Round 73 (v0.69.0; merged after Round 71, released in the bundled v0.70.0; implemented by the maintainer agent):**
 methods the replications needed (N51; criterion `e97e9fc`, kept at tag `criterion-r73`).
 - **Validated:** three-level random-intercept fixed-effect intervals (`multilevel_model(groups=["state",
   "county"])`, .904–.913) and per-area intervals of indices with published fixed loadings (`build_index(method=
@@ -170,7 +171,7 @@ methods the replications needed (N51; criterion `e97e9fc`, kept at tag `criterio
 
 Goldens unchanged. Acceptance: goldens byte-identical; 2195 passed, 38 skipped; 0 failures.
 
-**Round 71 (v0.68.0; merged after Round 72, release pending owner approval; implemented by the maintainer agent):**
+**Round 71 (v0.68.0; merged after Round 72, released in the bundled v0.70.0; implemented by the maintainer agent):**
 tract-level spatial intervals (N49; criterion `f947f64`).
 - **Validated for tract OLS slopes** (NC and MI tracts, fields correlated up to 100 km): SCPC with rho_bar .20, the
   tract default (.885–.972), and .30 (.932–.988).
@@ -180,7 +181,7 @@ tract-level spatial intervals (N49; criterion `f947f64`).
 
 Goldens unchanged. Acceptance: goldens byte-identical; 2185 passed, 38 skipped, 2 Round 61 tests updated for the tract rules (rerun: 6 passed).
 
-**Round 72 (v0.67.0; merged before Round 71, release pending owner approval; implemented by the maintainer
+**Round 72 (v0.67.0; merged before Round 71, released in the bundled v0.70.0; implemented by the maintainer
 agent):** context covariate sources, no new statistics (N50).
 - `census/context_sources.py`: CBP, ERS typology, ERS rural–urban codes and CHR additional measures, with cached
   files pinned by SHA-256.
@@ -190,7 +191,7 @@ agent):** context covariate sources, no new statistics (N50).
 
 Goldens unchanged. Acceptance: goldens byte-identical; 2179 passed, 38 skipped, 1 core-profile rule failure fixed (affected tests rerun).
 
-**Round 70 (v0.66.0; merged, release pending owner approval; implemented by the maintainer agent):**
+**Round 70 (v0.66.0; merged, released in the bundled v0.70.0; implemented by the maintainer agent):**
 housekeeping, no new statistics (N47, N48).
 - `census/env.py` loads `.env` from `CENSUS_DOTENV`, then upward from the working directory, then from the package
   location, so an installed engine finds the project's key.
