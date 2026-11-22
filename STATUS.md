@@ -172,6 +172,7 @@ positivity diagnostics and weighting options (N66; Hernán and Robins).
 - Validation: truncated and overlap weights, the g-formula and the flag pass; IPW fails with 5%+ extreme propensities
   (`method="ipw"` exploratory there).
 - Example (`r90_positivity_example.md`, exploratory): metro status and uninsured rates, MI/NY/OH/PA counties.
+- Goldens byte-identical; 2324 passed, 42 skipped; 0 failures.
 
 **Round 89 (v0.85.0; merged, release pending owner approval; implemented by the maintainer agent):**
 causal question specification (N65; Hernán and Robins).
@@ -179,7 +180,8 @@ causal question specification (N65; Hernán and Robins).
   sets; manifest `causal_question` and `dag` blocks (refusals for confirmatory formulas).
 - `estimate_effect` and `difference_in_differences` take `causal_question` (and `dag`), and results without one are
   labelled associational. Round 83's 10% label is marked associational.
-- Exact checks: book figures plus random-DAG cross-checks. No simulation; no new tool.
+- Exact checks: book figures plus random-DAG cross-checks. No simulation; no new tool. Goldens byte-identical;
+  2313 passed, 42 skipped; 0 failures.
 
 **Round 88 (v0.84.0; merged, release pending owner approval; implemented by the maintainer agent):**
 method attribution (N70; owner request).
@@ -187,7 +189,8 @@ method attribution (N70; owner request).
   Walker, data, software, validation audits) and `TOOL_SOURCES` for all 78 tools.
 - Method-tool results carry `method_sources`; results bundles add a Sources section, `references.md` and
   `references.bib`; `python -m census cite`; `docs/citing.md`; CITATION.cff references.
-- A coverage test requires sources for every tool. No new statistics; no validation run.
+- A coverage test requires sources for every tool. No new statistics; no validation run. Goldens byte-identical;
+  2291 passed, 42 skipped; 0 failures.
 
 **Round 87 (v0.83.0; merged, release pending owner approval; implemented by the maintainer agent):**
 ecologic versus individual-level associations on PUMS (N64).

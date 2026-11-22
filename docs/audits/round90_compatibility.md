@@ -21,3 +21,8 @@ commit (tag `criterion-r90`) is an ancestor of the branch. Version 0.86.0.
    (tested to 1e-10), and W1 failed the pre-set criterion, so the downgrade follows from the criterion.
 3. **AIPW was not part of this validation.** Its Round 41 status stands; under limited overlap a note says it was
    not tested there.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 89.
+- Full suite: 2324 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.
