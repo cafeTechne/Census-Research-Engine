@@ -72,3 +72,10 @@ def test_refusals():
         dp.pums_decomposition(df, "WAGP", "RAC1P == 2", "RAC1P == 1", ["AGEP"], model="logit")
     with pytest.raises(ValueError, match="covariate"):
         dp.pums_decomposition(df, "WAGP", "RAC1P == 2", "RAC1P == 1")
+
+
+def test_rare_levels_are_pooled():
+    df = _pums()
+    df.loc[df.index[:3], "SCHL"] = 24  # a code with 3 records
+    r = dp.pums_decomposition(df, "WAGP", "RAC1P == 2", "RAC1P == 1", ["AGEP"], ["SCHL"])
+    assert any("pooled with the reference" in n for n in r["notes"])

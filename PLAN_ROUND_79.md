@@ -47,9 +47,9 @@ replicate weights (SDR), as in Rounds 32/49. Version 0.75.0. Branch `phase79/dec
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, tool, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `decomposition_core.py`, `decomposition_validation.py`; criterion `9e52bb4` (tag `criterion-r79`) |
+| Results | done | O1 totals from 300 records; O1 detailed and F1 from 1,000 |
+| Engine, tool, recipe | done | `census/decomposition.py`; tool `decompose_gap` (74 tools); `pums_tests` section |
+| Example | done | `r79_decomposition_example.md`: MI uninsured gap 2.54 points, explained 2.73 (Fairlie) |
+| Goldens, suite | done | both goldens byte-identical; 2239 passed, 42 skipped |
+| Exceptions | listed | `round79_compatibility.md` |

@@ -19,3 +19,12 @@ Author self-review, not independent. Worktree `/tmp/census-round79`, branch `pha
    the design).
 4. **Group definitions** are two PUMS conditions checked for overlap; Round 76 has no reusable PUMS group helper.
 5. **No design-blind comparison interval** is offered (the plan listed it as exploratory only).
+6. **Rare categorical codes.** On real PUMS data some codes (for example education levels) had no records in one
+   group, which makes a group-specific regression singular. Codes with fewer than 10 records in either group are
+   pooled with the reference (most common) code, and the result notes which codes were pooled. Found while running
+   the example; the frozen core is unchanged.
+
+## Acceptance
+
+Both goldens byte-identical; 2239 passed, 42 skipped (suite run before the rare-code fix; `tests/test_round79.py`,
+5 tests including the fix, passes afterwards).

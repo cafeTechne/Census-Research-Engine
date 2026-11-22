@@ -18,6 +18,11 @@ VALIDATED_FROM = {"O1_totals": 300, "O1_detailed": 1000, "F1_totals": 1000, "F1_
 # docs/audits/decomposition_validation.json "outcome": O1 totals pass from 300 records in the smaller group;
 # O1 detailed (.851 at 300), F1 totals (.853) and F1 detailed (.802) fail only at 300 and pass from 1,000.
 ORDERINGS = 100
+MIN_LEVEL = 10  # categorical codes rarer than this in either group are pooled with the reference code
+
+
+def _label(v):
+    return str(int(v)) if isinstance(v, (float, np.floating)) and float(v).is_integer() else str(v)
 INTERPRETATION = ("'Explained' is statistical composition (differences in the covariates' distributions), not a "
                   "causal effect; the unexplained part is not a measure of discrimination.")
 
@@ -50,7 +55,7 @@ def pums_decomposition(df: pd.DataFrame, outcome: str, group_a: str, group_b: st
         raise ValueError("group_a and group_b overlap: the groups must be mutually exclusive")
     keep = a | b
     y, ok = _values(sub, outcome)
-    cols, blocks, cat_blocks = [np.ones(len(sub))], {}, []
+    cols, blocks, cat_blocks, pooled_notes, ref_levels = [np.ones(len(sub))], {}, [], [], {}
     for c in covariates:
         v, d = _values(sub, c); ok &= d
         blocks[c] = [len(cols)]; cols.append(v)
@@ -58,8 +63,14 @@ def pums_decomposition(df: pd.DataFrame, outcome: str, group_a: str, group_b: st
         codes = sub[c].to_numpy(object)
         ok &= pd.notna(codes)
         levels = pd.Series(codes[keep & ok]).value_counts().index.tolist()
+        rare = [lv for lv in levels[1:] if min(int(((codes == lv) & a & ok).sum()), int(((codes == lv) & b & ok).sum())) < MIN_LEVEL]
+        if rare:
+            pooled_notes.append(f"{c}: codes {[_label(v) for v in rare]} have fewer than {MIN_LEVEL} records in a group "
+                                f"and were pooled with the reference code {_label(levels[0])}.")
+            levels = [lv for lv in levels if lv not in rare]
         if len(levels) < 2:
             raise ValueError(f"categorical {c} has fewer than two levels in the groups")
+        ref_levels[c] = levels[0]
         blocks[c] = list(range(len(cols), len(cols)+len(levels)-1))
         cols += [(codes == lv).astype(float) for lv in levels[1:]]
         cat_blocks.append(c)
@@ -85,10 +96,10 @@ def pums_decomposition(df: pd.DataFrame, outcome: str, group_a: str, group_b: st
         rows.append(dict(component=name, estimate=est, se=se, ci_lower=lo, ci_upper=hi,
                          validated=bool(gate is not None and smallest >= gate)))
     table = pd.DataFrame(rows)
-    notes = [INTERPRETATION]
+    notes = [INTERPRETATION]+pooled_notes
     if kind == "oaxaca":
         notes.append("Threefold components (endowments, coefficients, interaction) and the gap itself are "
                      "descriptive (not judged in validation).")
     return dict(model=model, method="Oaxaca-Blinder (pooled reference)" if kind == "oaxaca" else "Fairlie (logit)",
-                table=table, records=dict(group_a=n_a, group_b=n_b), reference_levels={c: None for c in cat_blocks},
+                table=table, records=dict(group_a=n_a, group_b=n_b), reference_levels={c: _label(ref_levels[c]) for c in cat_blocks},
                 notes=notes, audit=AUDIT, level=level)

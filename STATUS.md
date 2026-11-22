@@ -157,7 +157,10 @@ Oaxaca–Blinder and Fairlie decompositions on PUMS (N56).
 - Validation (`decomposition_validation.md`, criterion `9e52bb4`): totals from 300 records, detailed parts and
   Fairlie from 1,000.
 - Full-profile tool `decompose_gap` (74 tools); `pums_tests` recipe section with the interpretation rule.
-- Example: `r79_decomposition_example.md` (exploratory; MI uninsured gap, Black vs White adults 19–64).
+- Example: `r79_decomposition_example.md` (exploratory): the MI uninsured gap between Black and White non-Hispanic
+  adults 19–64 (2.54 points) is fully explained by composition (Fairlie 2.73; income-to-poverty 1.47).
+
+Goldens: both byte-identical. Acceptance: 2239 passed, 42 skipped; 0 failures.
 
 **Round 78 (v0.74.0; merged, release pending owner approval; implemented by the maintainer agent):**
 staggered-adoption DiD and synthetic control (N55).
