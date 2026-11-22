@@ -546,6 +546,14 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+## Decomposing a PUMS gap (Round 79)
+
+<!-- mcp-rules:A -->
+Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually exclusive groups into explained
+(composition) and unexplained parts: Oaxaca-Blinder (model="linear") or Fairlie (model="logit", 0/1 outcome), with
+SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
+contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
+
 ## Staggered adoption and synthetic control (Round 78)
 
 <!-- mcp-rules:A -->
