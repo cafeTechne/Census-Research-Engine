@@ -515,6 +515,9 @@ def _methods_references(cites, lines, FH_REFS):
             lines += [f"- {r}" for r in FH_REFS]
         elif c in REFERENCES:
             lines.append(f"- {REFERENCES[c]}")
+        elif c == "hernan_robins":
+            from ..references import citation_text
+            lines.append(f"- {citation_text('hernan_robins2020')}")
 
 
 def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, Any]] = None) -> str:
@@ -541,6 +544,8 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
                   + (f": {INCOMPLETE_STATUS_TEXT}." if status == STATUS_CONFIRMATORY_INCOMPLETE else "."), ""]
     _methods_data(m, run, source, lines, cites, data_citation)
     _methods_design(m, lines)
+    from .causal_block import causal_methods  # Round 89 (only when the manifest has the blocks)
+    causal_methods(m, lines, cites)
     _methods_derivations(m, rep_info, lines, cites)
     _methods_adjustments(m, run, lines, cites)
     _methods_replicates(rep_info, lines)

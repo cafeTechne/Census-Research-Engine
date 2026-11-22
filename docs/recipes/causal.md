@@ -3,6 +3,19 @@
 Causal estimates need assumptions the data cannot check. Write them down first; register the design
 for any confirmatory claim (`get_recipe("preregistered")`).
 
+**State the causal question first (Round 89; Hernán and Robins, *What If*, chapters 3 and 22).** Describe the
+target trial you would run: `causal_question={"eligibility", "intervention", "comparator", "time_zero", "outcome",
+"follow_up", "contrast": "average_effect"|"effect_in_treated", "target": "super_population"|"these_areas"}`. Area
+characteristics such as poverty or education are not interventions: add `"versions"` naming the intervention that
+would change them. Without a causal question, results are labelled associational.
+
+**Draw the diagram, then adjust (chapters 6-8, 18).** `dag={"edges": ["L -> A", "L -> Y", "A -> Y"], "outcome":
+"Y"}` (treatment defaults to the tool's treatment; unmeasured nodes are named `U`, `U1`, ...). The tool checks the
+backdoor criterion for your confounders and lists minimal sufficient sets. Never adjust for a mediator, another
+descendant of treatment, or a collider (M-bias). An instrument-like variable adds nothing and can amplify bias. The
+10% change-in-estimate label from `stratified_analysis` is associational: the diagram decides. Manifests take the same
+`causal_question` and `dag` blocks, and a formula that fails the check is refused.
+
 1. **Treatment effect** of a binary area exposure (e.g. a state policy, coded 0/1):
    `estimate_effect(input_path, "treatment", outcome, treatment=..., confounders=[...])` (AIPW, doubly
    robust). Assumes no unmeasured confounding and overlap. Validated with precisely measured

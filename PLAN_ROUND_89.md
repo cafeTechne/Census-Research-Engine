@@ -60,9 +60,9 @@ change rule. That rule can recommend adjusting for a collider (M-bias, the book'
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Target-trial block | | |
-| DAG checks | | |
-| Book-figure tests | | |
-| Engine, docs | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Target-trial block | done | manifests, `estimate_effect`, `difference_in_differences` |
+| DAG checks | done | d-separation, backdoor, minimal sets, reasons |
+| Book-figure tests | done | Figures 7.1–7.4, 18.1–18.4; random-DAG cross-checks |
+| Engine, docs | done | recipe `causal`, protocol rule, sources |
+| Goldens, suite | see audit | `round89_compatibility.md` |
+| Exceptions | 3 | see audit |
