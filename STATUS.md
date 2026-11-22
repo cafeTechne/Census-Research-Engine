@@ -164,7 +164,8 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 GWR, neighbourhood types, regions and diversity (N69; Walker).
 - Tool `spatial_model` (79 tools): GWR (exploratory), k-means types and SKATER regions with per-area stability
   (descriptive); `diversity_index` (exploratory).
-- Example (`r93_spatial_models_example.md`): Wayne County tracts.
+- Example (`r93_spatial_models_example.md`): Wayne County tracts. Goldens byte-identical; 2343 passed, 42 skipped;
+  0 failures.
 
 **Round 92 (v0.88.0; merged, release pending owner approval; implemented by the maintainer agent):**
 data sources from Walker (N68).

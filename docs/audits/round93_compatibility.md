@@ -25,3 +25,8 @@ commit (tag `criterion-r93`) is an ancestor of the branch. Version 0.89.0.
    replicate tables. That matches the validation design.
 4. **Diversity is library-only** (`census.spatial_models.diversity_index`), not a tool option. Its inputs are
    replicate share tables.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 92.
+- Full suite: 2343 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.
