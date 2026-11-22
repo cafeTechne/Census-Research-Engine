@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.75.0 (Round 79): Oaxaca–Blinder and Fairlie decompositions on PUMS
+
+- **Decompositions** (`census/decomposition.py`; frozen core `census/decomposition_core.py`; N56): twofold
+  Oaxaca–Blinder with the pooled reference (Neumark; Jann), detailed contributions with Yun-normalised categoricals,
+  threefold reported; Fairlie (logit) with rank-matched pairs over 100 random orderings. Intervals from the 80 SDR
+  replicate weights.
+- **Validation** (`docs/audits/decomposition_validation.md`, criterion `9e52bb4`; 12 cells, 1,000 draws):
+  Oaxaca–Blinder totals pass from 300 records in the smaller group (.862–.894); detailed contributions and every
+  Fairlie quantity pass from 1,000 (they under-covered at 300, .802–.853).
+- **Tool `decompose_gap`** (full profile; 74 tools); `pums_tests` recipe section "Decomposing a gap" with the
+  interpretation rule (explained = composition, not causation); protocol and MCP rule text.
+- **Example** (`docs/audits/r79_decomposition_example.md`, exploratory): Michigan uninsured gap, Black vs White
+  non-Hispanic adults 19–64, PUMS 2019–2023.
+
 ## 0.74.0 (Round 78): staggered-adoption DiD and synthetic control
 
 - **Staggered adoption** (`census/staggered.py`; frozen core `census/policy_core.py`; N55): Sun–Abraham (2021)

@@ -589,3 +589,44 @@ def make_web_map(
     return _ok(f"Interactive map of {column} written ({res.get('n_features')} areas, {res.get('bytes')} bytes).",
                "open the HTML file in a browser; it makes no network requests",
                **{k: (str(v) if k == "path" else v) for k, v in dict(res).items()})
+
+
+def decompose_gap(
+    state: str,
+    year: int,
+    outcome: str,
+    group_a: str,
+    group_b: str,
+    covariates: Optional[List[str]] = None,
+    categorical: Optional[List[str]] = None,
+    model: str = "linear",
+    where: Optional[str] = None,
+    product: str = "5-year",
+) -> Dict[str, Any]:
+    """How much of a gap between two groups is explained by composition (Round 79; PUMS microdata).
+
+    Oaxaca-Blinder (model="linear", numeric outcome such as "WAGP") or Fairlie (model="logit", a 0/1 condition such
+    as "HICOV == 2" = uninsured). group_a / group_b: mutually exclusive PUMS conditions, e.g. "RAC1P == 2 and
+    HISP == 1" and "RAC1P == 1 and HISP == 1". covariates: numeric columns ("AGEP", "POVPIP"); categorical: code
+    columns ("SCHL", "ESR"). where: universe, e.g. "AGEP >= 19 and AGEP <= 64". Replicate-weight intervals.
+    'Explained' is statistical composition, not a causal effect.
+    Example: decompose_gap("26", 2023, "HICOV == 2", "RAC1P == 2 and HISP == 1", "RAC1P == 1 and HISP == 1",
+    covariates=["AGEP"], categorical=["SCHL", "ESR"], model="logit", where="AGEP >= 19 and AGEP <= 64")
+    """
+    from census import pums
+    from census.decomposition import pums_decomposition
+    covariates, categorical = list(covariates or []), list(categorical or [])
+    try:
+        cols = _pums_columns(outcome, group_a, group_b, where, *covariates, *categorical)
+        df = pums.fetch_pums(state, year, product=product, record="person", columns=cols or None)
+        r = pums_decomposition(df, outcome, group_a, group_b, covariates, categorical, model=model, where=where)
+    except _ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
+                     "check the conditions, covariates and universe, then retry")
+    t = r["table"].set_index("component")
+    summary = (f"{r['method']}: gap {t.loc['gap', 'estimate']:.4g}; explained {t.loc['explained', 'estimate']:.4g} "
+               f"({t.loc['explained', 'ci_lower']:.4g} to {t.loc['explained', 'ci_upper']:.4g}); unexplained "
+               f"{t.loc['unexplained', 'estimate']:.4g}.")
+    from census.results import _jsonable
+    return _ok(summary, "report explained and unexplained parts with intervals; explained is composition, not causation",
+               **_jsonable({**r, "table": r["table"].to_dict("records")}))

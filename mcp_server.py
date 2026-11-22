@@ -339,6 +339,11 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually exclusive groups into explained
+(composition) and unexplained parts: Oaxaca-Blinder (model="linear") or Fairlie (model="logit", 0/1 outcome), with
+SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
+contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
+
 Round 78: policies adopted in different years (staggered adoption) in an ANNUAL panel (ACS 1-year with
 product="1-year", 2020 refused, or another annual source): difference_in_differences(design="staggered",
 first_treated="<column>"). Sun-Abraham (default) is validated (.881-.899, 51 units); method="callaway_santanna" is
@@ -1450,6 +1455,7 @@ for _fn in (
     workflows_inference.interrupted_series,
     workflows_inference.disparity_measures,
     workflows_inference.joinpoint,
+    workflows_microdata.decompose_gap,
     workflows_inference.make_figure,
     workflows_inference.make_table,
     workflows_inference.make_results_bundle,
@@ -1504,6 +1510,7 @@ trend_test = workflows_inference.trend_test
 interrupted_series = workflows_inference.interrupted_series
 disparity_measures = workflows_inference.disparity_measures
 joinpoint = workflows_inference.joinpoint
+decompose_gap = workflows_microdata.decompose_gap
 make_figure = workflows_inference.make_figure
 make_table = workflows_inference.make_table
 make_results_bundle = workflows_inference.make_results_bundle
