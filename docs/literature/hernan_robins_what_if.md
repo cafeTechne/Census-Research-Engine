@@ -1,0 +1,16 @@
+# Hernán and Robins, *Causal Inference: What If*: guidance mapped to engine work
+
+Source: Hernán MA, Robins JM. *Causal Inference: What If*. Chapman & Hall/CRC (draft of 10 November 2019, 310 pages;
+the owner's copy is `literature_pdfs/Hernan_Book.pdf`, gitignored). Summary and mapping by the maintainer agent,
+2026-11-23, to draft Rounds 88–90 (backlog N65–N67). Author self-review, not independent. The book was read by
+chapter structure and in full for chapters 3, 7.4, 10.3, 18.2, 20.2 and 22; other chapters by section headings and
+summaries.
+
+| Chapter | Guidance | Engine today | Planned |
+| :--- | :--- | :--- | :--- |
+| 1–3 | A causal effect contrasts counterfactual outcomes under **well-defined interventions**. Identification needs exchangeability, positivity and consistency. Social "treatments" (socioeconomic status, poverty) are especially vague: there are many versions of "being poor". Ask: what **target trial** would answer the question? Specify eligibility, interventions, outcome, follow-up, contrast and analysis | `estimate_effect`, DiD and the marginal measures run whenever asked; area exposures (poverty rate) are rarely interventions | 88: a target-trial specification in manifests and causal tools; a well-defined-intervention warning for social exposures |
+| 6–8, 18 | Causal diagrams decide adjustment (the backdoor criterion). Associational rules, including the 10% change-in-estimate rule, can recommend adjusting for a collider (M-bias). Adjusting for colliders, mediators, descendants of treatment or instruments induces or amplifies bias | Round 83 declares covariable roles by hand and labels confounders with the 10% rule | 88: manifest DAG; d-separation checks of adjustment sets; refusals for colliders, mediators and treatment descendants; Round 83's label marked associational |
+| 3, 12–13, 15 | Positivity: every confounder stratum needs treated and untreated units; IP weighting and standardization both fail without it. Compare IP weighting and the g-formula: large disagreement signals model misspecification | `estimate_effect` (IPW, AIPW, RA) notes "check the propensity distribution" but reports no diagnostic | 89: overlap diagnostics, stabilized and truncated weights, IPW-versus-g-formula agreement |
+| 10.3 | Intervals mean different things for a super-population and for the study population itself (the "myth of the super-population") | `target="population"` versus `"these_areas"` already encodes this | 88: protocol text explains the two targets in these terms |
+| 19–21 | Time-varying treatments with time-varying confounders affected by past treatment (treatment-confounder feedback): traditional adjustment is biased even with all confounders measured; g-methods (IP-weighted marginal structural models, g-formula, g-estimation) are required | Round 78's staggered DiD adjusts for nothing time-varying; annual state panels have time-varying confounders (unemployment) affected by policy | 90: IP-weighted marginal structural models for annual panels |
+| 22 | Target-trial emulation: define time zero; align eligibility, treatment assignment and start of follow-up; avoid immortal-time and prevalent-user biases | Policy tools take a "first treated" year but no explicit time zero or eligibility | 88 (spec) and 90 (panel emulation) |

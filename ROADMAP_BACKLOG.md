@@ -37,6 +37,11 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N62 | Area designations by thresholds on noisy ACS estimates have no accuracy statement (probability above threshold, sensitivity, PPV) (ch. 11) | owner, 2026-11-22 (book) | missing method | 85 (closed) |
 | N63 | No quantitative bias analysis: E-values, misclassification correction, both-directions covariable sensitivity (ch. 6–7) | owner, 2026-11-22 (book) | missing method | 86 (closed) |
 | N64 | No way to measure ecologic bias: within-area versus between-area (contextual) associations on PUMS (ch. 9) | owner, 2026-11-22 (book) | missing method | 87 (closed) |
+| N65 | Causal tools run without a stated causal question: no target-trial specification, no causal diagram, adjustment sets chosen by hand or by the associational 10% rule (Hernán and Robins chapters 3, 6–8, 18, 22) | owner, 2026-11-23 (book) | missing method | 88 |
+| N66 | Inverse-probability methods report no positivity (overlap) diagnostics, stabilized or truncated weights, or IPW-versus-g-formula agreement (chapters 3, 12–13, 15) | owner, 2026-11-23 (book) | validation gap | 89 |
+| N67 | Annual policy panels with time-varying confounders affected by past treatment need g-methods (IP-weighted marginal structural models); Round 78 adjusts for nothing time-varying (chapters 19–21) | owner, 2026-11-23 (book) | missing method | 90 |
+| N68 | Data sources from Walker chapters 4 and 11 are missing: Population Estimates (annual population by age and sex, the denominators for annual rates), LEHD LODES jobs and commuting, ACS county-to-county migration flows | owner, 2026-11-23 (book) | data source | 91 |
+| N69 | No geographically weighted regression, geodemographic classification, regionalization or diversity index with ACS uncertainty (Walker chapter 8) | owner, 2026-11-23 (book) | missing method | 92 |
 
 ## 2. Recorded limits (not scheduled; reopen only with a new idea)
 
@@ -71,9 +76,17 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 85 | Area designations as screening tests (probability above threshold, Sn/Sp/PPV/NPV) | N62 | merged (v0.81.0) |
 | 86 | Quantitative bias analysis: E-values, misclassification, both-directions sensitivity | N63 | merged (v0.82.0) |
 | 87 | Ecologic versus individual-level associations on PUMS (within, between, contextual) | N64 | merged (v0.83.0) |
+| 88 | Causal question specification: target trial, causal diagram, adjustment-set checks | N65 | planned |
+| 89 | Positivity diagnostics, stabilized and truncated weights, IPW vs g-formula | N66 | planned |
+| 90 | IP-weighted marginal structural models for annual policy panels | N67 | planned |
+| 91 | Data sources: Population Estimates, LEHD LODES, ACS migration flows | N68 | planned |
+| 92 | Geographically weighted regression, geodemographic classification, regionalization, diversity index | N69 | planned |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 
 Order rationale:
+- **Rounds 88–92** (added 2026-11-23 from Hernán and Robins and from Walker; mappings in `docs/literature/`): 88
+  first because 89–90 rely on its causal specification; 91 adds the annual denominators 90 needs; 92 is exploratory
+  spatial modelling.
 - **Rounds 82–87** (added 2026-11-22 from *Foundations of Epidemiology*; mapping in
   `docs/literature/foundations_of_epidemiology.md`): 82 first, because its labels and reporting conventions are used
   by every later round; 83–84 add the book's core measures of association; 85 frames area designations as screening;

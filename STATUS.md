@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | None queued (Rounds 82–87, from *Foundations of Epidemiology*, merged) (ecologic vs individual, last of the book's rounds); mapping in `docs/literature/foundations_of_epidemiology.md`. Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_88.md` (causal question specification); Rounds 89–92 queued (positivity, marginal structural models, PEP/LODES/flows, GWR and classification), drafted from Hernán and Robins and from Walker (`docs/literature/`). Earlier: Rounds 82–87 merged (ecologic vs individual, last of the book's rounds); mapping in `docs/literature/foundations_of_epidemiology.md`. Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -684,6 +684,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N62: designation accuracy (85; closed);
 - N63: bias analysis (86; closed);
 - N64: ecologic vs individual-level associations (87; closed);
+- N65–N69: causal specification, positivity, marginal structural models, PEP/LODES/flows, GWR/classification (Rounds 88–92, planned 2026-11-23 from Hernán and Robins and Walker);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.
