@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_90.md` (positivity); Rounds 91–93 queued ( positivity, marginal structural models, PEP/LODES/flows, GWR and classification), drafted from Hernán and Robins and from Walker (`docs/literature/`). Earlier: Rounds 88–90 merged (method attribution, causal question specification, positivity); Rounds 82–87 merged (ecologic vs individual, last of the book's rounds); mapping in `docs/literature/foundations_of_epidemiology.md`. Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | None queued. Rounds 88–93 merged (method attribution; from Hernán and Robins: causal specification, positivity, marginal structural models; from Walker: PEP/LODES/flows, spatial models); mappings in `docs/literature/`. Next sources named by the owner (2026-11-23): Moraga, *Spatial Statistics for Data Science* (online), `literature_pdfs/cdc_6914_DS1.pdf`, `literature_pdfs/handbook-on-health-inequality-monitoring.pdf`. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -72,6 +72,8 @@ manifests refuse them in confirmatory analyses.
 | Small-area proportions and several releases (Round 80) | **Passed** (real 2019–2023 S2701 sampling variances, MI/NY counties and tracts): arcsine Fay–Herriot with bias-corrected back-transform and bootstrap MSE, per-area coverage .898–.904, worst decile ≥ .880, relative bias ≤ .078 for p < .10 (quantile interval .892–.895 also passes); Rao–Yu temporal Fay–Herriot for 2–3 releases .897–.898 (MSE gain 3–7% counties, 10–24% tracts) | `sae_extensions_validation.md`, criterion `251dc9d` |
 | PUMS gap decompositions (Round 79) | **Passed with size gates** (Round 32 design, weight CV 1, SDR intervals): Oaxaca–Blinder explained/unexplained totals from 300 records in the smaller group (.862–.894); Oaxaca–Blinder detailed contributions (Yun-normalised) and Fairlie totals and detailed contributions from 1,000 records (.863–.894); at 300 they under-covered (.802–.853) | `decomposition_validation.md`, criterion `9e52bb4` |
 | Staggered adoption and synthetic control (Round 78) | **Passed selected** (51 units, 12/18 annual periods, AR(1) .3/.7, ACS-like error): Sun–Abraham event study and overall ATT (.881–.899); Callaway–Sant'Anna with the ACS variance added (.882–.906). **Failed**: Callaway–Sant'Anna multiplier bootstrap alone (.848–.868), uniform bands (.76–.81), synthetic-control placebo test (size .12–.19 at .10) and conformal intervals (.73–.86 with 9 pre-periods; .87–.95 with 15, not a pre-set gate): exploratory, library only | `policy_validation.md`, criterion `baf934b` |
+| Spatial models (Round 93) | **Failed** (exploratory): GWR local intervals (.71 with varying slopes; non-stationarity test size .12–.17); entropy diversity (.847 at 50 respondents per tract, .883 at 200). **Reported**: classification/SKATER stability is informative (unstable areas misclassified 39–50%, stable 3–16%) | `spatial_models_validation.md`, tag `criterion-r93` |
+| Marginal structural models (Round 91) | **Failed** (exploratory): IP-weighted MSM for annual panels with treatment-confounder feedback, .805–.881 (stabilized) and .799–.885 (truncated), 51 units; regression on the current confounder .00–.11 | `msm_validation.md`, tag `criterion-r91` |
 | Positivity and weighting (Round 90) | **Passed**: truncated weights (.864–), overlap weights for the overlap-population effect (.877–), g-formula (.881–), IPW vs g-formula flag (size ≤ .061). **Failed**: stabilized/plain IPW with 5%+ extreme propensities (.807–.863): exploratory there | `positivity_validation.md`, tag `criterion-r90` |
 | Ecologic vs individual (Round 87) | **Passed**: logit within/between/contextual decomposition on PUMS with SDR SEs (.871–, 30 or 150 PUMA-like areas, 5,000+ records). **Failed**: the identity-scale (risk-difference) decomposition and the ecologic slope and gap with 150 small areas (.62–.86; noisy area means bias the between slope): exploratory | `ecologic_validation.md`, tag `criterion-r87` |
 | Bias analysis (Round 86) | E-values reproduce VanderWeele and Ding's published example (deterministic; available everywhere). **Failed**: the probabilistic misclassification interval (.76–.83 under correct priors with a null effect or exposure misclassification; about 1.00 with differential outcome misclassification): exploratory. The simple correction is unbiased (point correction, no interval) | `bias_analysis_validation.md`, criterion `734cce5` |
@@ -158,11 +160,25 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
+**Round 93 (v0.89.0; merged, release pending owner approval; implemented by the maintainer agent):**
+GWR, neighbourhood types, regions and diversity (N69; Walker).
+- Tool `spatial_model` (79 tools): GWR (exploratory), k-means types and SKATER regions with per-area stability
+  (descriptive); `diversity_index` (exploratory).
+- Example (`r93_spatial_models_example.md`): Wayne County tracts.
+
 **Round 92 (v0.88.0; merged, release pending owner approval; implemented by the maintainer agent):**
 data sources from Walker (N68).
 - `census/demographic_sources.py`: Population Estimates (vintages 2019, 2024; totals and age/sex), LEHD LODES8
   (WAC/RAC/OD; block, tract, county), ACS county-to-county migration flows 2010–2020 with MOEs.
-- Context sources `pep`, `lodes`, `acs_flows`; checks in `r92_source_checks.md`. No new tool.
+- Context sources `pep`, `lodes`, `acs_flows`; checks in `r92_source_checks.md`. No new tool. Goldens
+  byte-identical; 2336 passed, 42 skipped; 0 failures.
+
+**Round 91 (v0.87.0; merged, release pending owner approval; implemented by the maintainer agent):**
+marginal structural models for annual policy panels (N67; Hernán and Robins).
+- `census/msm.py` (frozen core `msm_core.py`); `difference_in_differences(design="msm", time_varying_confounders=...)`.
+- Validation failed (.80–.88): exploratory. Regression on a feedback confounder fails far worse (.00–.11).
+- Example (`r91_msm_example.md`, exploratory): Medicaid expansion, uninsured rate, unemployment.
+- Goldens byte-identical; 2329 passed, 42 skipped; 0 failures.
 
 **Round 90 (v0.86.0; merged, release pending owner approval; implemented by the maintainer agent):**
 positivity diagnostics and weighting options (N66; Hernán and Robins).
@@ -171,6 +187,7 @@ positivity diagnostics and weighting options (N66; Hernán and Robins).
 - Validation: truncated and overlap weights, the g-formula and the flag pass; IPW fails with 5%+ extreme propensities
   (`method="ipw"` exploratory there).
 - Example (`r90_positivity_example.md`, exploratory): metro status and uninsured rates, MI/NY/OH/PA counties.
+- Goldens byte-identical; 2324 passed, 42 skipped; 0 failures.
 
 **Round 89 (v0.85.0; merged, release pending owner approval; implemented by the maintainer agent):**
 causal question specification (N65; Hernán and Robins).
@@ -178,7 +195,8 @@ causal question specification (N65; Hernán and Robins).
   sets; manifest `causal_question` and `dag` blocks (refusals for confirmatory formulas).
 - `estimate_effect` and `difference_in_differences` take `causal_question` (and `dag`), and results without one are
   labelled associational. Round 83's 10% label is marked associational.
-- Exact checks: book figures plus random-DAG cross-checks. No simulation; no new tool.
+- Exact checks: book figures plus random-DAG cross-checks. No simulation; no new tool. Goldens byte-identical;
+  2313 passed, 42 skipped; 0 failures.
 
 **Round 88 (v0.84.0; merged, release pending owner approval; implemented by the maintainer agent):**
 method attribution (N70; owner request).
@@ -186,7 +204,8 @@ method attribution (N70; owner request).
   Walker, data, software, validation audits) and `TOOL_SOURCES` for all 78 tools.
 - Method-tool results carry `method_sources`; results bundles add a Sources section, `references.md` and
   `references.bib`; `python -m census cite`; `docs/citing.md`; CITATION.cff references.
-- A coverage test requires sources for every tool. No new statistics; no validation run.
+- A coverage test requires sources for every tool. No new statistics; no validation run. Goldens byte-identical;
+  2291 passed, 42 skipped; 0 failures.
 
 **Round 87 (v0.83.0; merged, release pending owner approval; implemented by the maintainer agent):**
 ecologic versus individual-level associations on PUMS (N64).
@@ -718,8 +737,9 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N70: method attribution (88; closed);
 - N65: causal question specification (89; closed);
 - N66: positivity diagnostics and weighting (90; closed);
+- N67: marginal structural models (91; closed, exploratory);
 - N68: Population Estimates, LODES, migration flows (92; closed);
-- N67 and N69: marginal structural models, GWR/classification (Rounds 91 and 93, planned 2026-11-23 from Hernán and Robins and Walker);
+- N69: GWR, classification, regionalization, diversity (93; closed, exploratory);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

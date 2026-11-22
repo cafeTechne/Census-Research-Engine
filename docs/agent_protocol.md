@@ -638,6 +638,15 @@ never mix vintages; a denominator or covariate, never an outcome), lodes (LEHD j
 noise-infused, no MOE) and acs_flows (ACS county-to-county migration 2010-2020 with <name>_moe; later releases give
 state partners only). All are covariates; list them with list_health_sources(kind="context").
 
+## Marginal structural models (Round 91)
+
+<!-- mcp-rules:A -->
+Round 91: for annual policy panels with a time-varying confounder that past policy can change (treatment-confounder
+feedback), never adjust for it by regression (validation .00-.11 coverage). difference_in_differences(design="msm",
+first_treated, time_varying_confounders, product="1-year") fits an IP-weighted marginal structural model (effects of
+the 1st-3rd treated year). It is exploratory (.80-.88 with 51 units). Time zero is the first period; units treated
+then are refused.
+
 ## Positivity and weighting (Round 90)
 
 <!-- mcp-rules:A -->

@@ -5,6 +5,26 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.89.0 (Round 93): GWR, neighbourhood types, regions and diversity
+
+- **New full-profile tool `spatial_model`** (79 tools; `census/spatial_models.py`, frozen core
+  `census/spatial_models_core.py`; N69; Walker, *Analyzing US Census Data*, chapter 8):
+  - `kind="gwr"`: geographically weighted regression, AICc bandwidth, robust local intervals and a permutation test
+    of non-stationarity;
+  - `"classify"`: k-means neighbourhood types on principal components;
+  - `"regionalize"`: SKATER on queen contiguity.
+
+  Classification results carry per-area stability under sampling error.
+- **Entropy diversity index** in the library (`diversity_index`).
+- **Validation** (`docs/audits/spatial_models_validation.md`, criterion tag `criterion-r93`), Wayne County tracts:
+  - GWR **failed**: local coverage .71 when slopes vary, and test size .12–.17. It is exploratory.
+  - Diversity **failed** narrowly: .847 at 50 respondents per tract, .883 at 200.
+  - Stability is informative: unstable areas were misclassified 39–50% of the time, stable ones 3–16%.
+- **Example** (`docs/audits/r93_spatial_models_example.md`, exploratory): Wayne County poverty, unemployment and
+  education.
+- **Recipe** `spatial_patterns` section; README question row; protocol rule; sources Brunsdon et al. 1996 and
+  Assunção et al. 2006.
+
 ## 0.88.0 (Round 92): Population Estimates, LEHD LODES and ACS migration flows
 
 - **`census/demographic_sources.py`** (N68; Walker, *Analyzing US Census Data*, chapters 4 and 11):
@@ -18,6 +38,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 - **Checks** (`docs/audits/r92_source_checks.md`): state equals the sum of counties (PEP); tract sums equal county
   totals (LODES); in − out = net (flows).
 - **Recipe** `context_covariates`; README; protocol rule; data sources registered for attribution.
+
+## 0.87.0 (Round 91): marginal structural models for annual policy panels
+
+- **IP-weighted marginal structural models** (`census/msm.py`; frozen core `census/msm_core.py`; N67; Hernán and
+  Robins chapters 19–21): `difference_in_differences(design="msm", first_treated=..., time_varying_confounders=[...])`.
+  - Stabilized or truncated time-varying weights; effects of the 1st, 2nd and 3rd treated year versus never; cluster
+    bootstrap over units.
+  - Time zero is the first period; "start and stay on" strategies only.
+- **Validation** (`docs/audits/msm_validation.md`, criterion tag `criterion-r91`): **failed**. Coverage was .805–.881
+  (stabilized) and .799–.885 (truncated) with 51 units, and the method is exploratory. Under feedback, regression on
+  the current confounder covered .00–.11 (bias up to −1.6), and no adjustment .05–.68.
+- **Example** (`docs/audits/r91_msm_example.md`, exploratory): Medicaid expansion and the state uninsured rate with
+  time-varying unemployment: −2.7, −3.2 and −3.6 points in expansion years 1–3.
+- **Recipe** `policy_change` step; protocol rule; sources Robins, Hernán and Brumback 2000 and Cole and Hernán 2008.
 
 ## 0.86.0 (Round 90): positivity diagnostics and weighting options
 

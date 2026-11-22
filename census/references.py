@@ -119,6 +119,9 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "lunceford_davidian2004": _src("paper", "Lunceford, J.K. & Davidian, M.", 2004, "Stratification and weighting via "
                                    "the propensity score in estimation of causal treatment effects: a comparative "
                                    "study", "Statistics in Medicine", volume="23", pages="2937-2960"),
+    "cole_hernan2008": _src("paper", "Cole, S.R. & Hernán, M.A.", 2008, "Constructing inverse probability weights for "
+                            "marginal structural models", "American Journal of Epidemiology", volume="168",
+                            pages="656-664", doi="10.1093/aje/kwn164"),
     "brunsdon1996": _src("paper", "Brunsdon, C., Fotheringham, A.S. & Charlton, M.E.", 1996, "Geographically weighted "
                          "regression: a method for exploring spatial nonstationarity", "Geographical Analysis",
                          volume="28", pages="281-298"),
@@ -279,7 +282,9 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "spatial_small_area_estimates": [("pysal", "software"), *GEO],
     "multilevel_model": [("kenward_roger1997", "method"), ("statsmodels", "software"), _audit("methods73_validation.md")],
     "difference_in_differences": [*CAUSAL, ("callaway_santanna2021", "method"), ("sun_abraham2021", "method"),
-                                  ("goodman_bacon2021", "method"), _audit("policy_validation.md")],
+                                  ("goodman_bacon2021", "method"), ("robins_hernan_brumback2000", "method"),
+                                  ("cole_hernan2008", "method"), _audit("policy_validation.md"),
+                                  _audit("msm_validation.md")],
     "interrupted_series": [("bootstrap_efron1993", "method"), _audit("missing_censored_its_validation.md")],
     "joinpoint": [("kim2000", "method"), ("tiwari2006", "method"), ("fay_feuer1997", "method"), *EPI,
                   _audit("joinpoint_validation.md")],
