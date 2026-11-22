@@ -9,7 +9,7 @@ Author self-review, not independent. Worktree `/tmp/census-round71`, branch `pha
 - SCPC rho_bar .20, .30 and the distance-set benchmark pass every cell of both geometries. The spatial error ML
   interval and HC3 fail.
 - **Tract default.** The pre-set rule picks the shortest average median length among the passing procedures:
-  rho_bar .20 (mean median length .608, against .723 for .30 and .726 for the distance benchmark).
+  rho_bar .20 (mean median length 0.608, against 0.739 for .30 and 0.743 for the distance benchmark).
 
 ## Behaviour changes
 
