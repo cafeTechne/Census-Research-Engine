@@ -221,6 +221,20 @@ def _methods_data(m, run, source, lines, cites, data_citation):
             if c["equivalent"]:
                 lines.append(f"  Measurement comparison: in {c['analysis']}, {c['outcome']} is compared with its "
                              f"direct ACS equivalent {sorted(c['equivalent'])}.")
+    for e in m.get("indices") or []:   # Round 75
+        how = ("published fixed loadings " + ", ".join(f"{k} {v:g}" for k, v in (e.get("loadings") or {}).items())
+               if e.get("method") == "loadings" else
+               "first-principal-component weights" if e.get("method", "pca") == "pca" else "equal weights")
+        lines.append(f"Index {e['name']}: indicators {', '.join(e['indicators'])} standardised with full-sample means "
+                     f"and SDs and combined with {how}"
+                     + ("; scores rescaled to mean 0, SD 1" if e.get("standardize") else "")
+                     + ". Means, SDs and weights are fixed in every replicate, so the index's replicate values carry "
+                     "the indicators' sampling error (Rounds 36/73).")
+    for d in m.get("derivations") or []:
+        if d.get("person_years"):
+            lines.append(f"Expected count {d['name']}: person-years ({d['person_years']}) x the ACS age x sex mix x "
+                         "the reference rates (indirect standardization, Round 69 construction); person-years are "
+                         "held fixed in every replicate.")
     if m.get("aggregation"):
         lines.append(f"Geographies were aggregated into {len(set(m['aggregation']['mapping'].values()))} groups; "
                      "aggregate MOEs use replicate variance where available, else the ACS approximation "

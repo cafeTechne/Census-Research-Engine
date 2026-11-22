@@ -259,7 +259,9 @@ validated (.904-.913 with 30 or 49 top units). Variance shares are reported; the
 intervals are exploratory (screened on 100 draws only); share_intervals=False skips them. The
 three-level model takes no sampling_se, replicates or random slopes. Expected counts for indirect
 standardization: census.wonder_reference.expected_counts (national WONDER age x sex rates; period_years,
-or person_years with the ACS age x sex mix).
+or person_years with the ACS age x sex mix). Round 75 manifests: method "multilevel" (groups "county_fips"
+or ["state_fips", "county_fips"]); an "indices" block (ACS indicators; weights fixed in replicates; an
+index cannot explain its own indicator); expected_count "person_years" (an external variable).
 
 Round 37 agreement (full profile tool check_agreement; recipe agreement): bias (b - a)
 and Cohen's kappa of quintile classes passed validation for independent areas. Bland-Altman

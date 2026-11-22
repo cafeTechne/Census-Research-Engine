@@ -5,6 +5,41 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.71.0 (Round 75): manifest support for the Round 73 methods, tract coordinates, recipes, README
+
+No new statistics: every method wired here was validated earlier.
+
+- **Manifest method `multilevel`** (`census/manifest/methods.py`; statistic `coefficient`):
+  - `"groups": "county_fips"` fits two levels (Kenward–Roger; replicates; `args.target`, `args.sampling_se`);
+  - `"groups": ["state_fips", "county_fips"]` fits three levels (Round 73 fixed-effect intervals, no ACS sampling
+    error, no args);
+  - `state_fips` and `county_fips` are GEOID prefixes the run adds when an analysis names them.
+- **Manifest `"indices"` block** (new run stage `_build_indices`):
+  - indicators are ACS variables or derivations, with `"loadings"`, `"pca"` or `"equal"` weights and optional
+    `standardize`;
+  - full-sample means, SDs and weights stay fixed in every replicate (Rounds 36/73), so the index gets replicate
+    rows and a replicate SE;
+  - explaining an indicator with its own index is refused (circularity);
+  - `run.json` records `indices`, and the methods text describes each index.
+- **`expected_count` derivation `person_years`** (an external variable; new run stage `_apply_person_years` after the
+  external join):
+  - expected = person-years × the ACS age × sex mix × the reference rates (Round 69's construction);
+  - replicate rows are rescaled per replicate, and a propagated SE scales with the value.
+- **Tract coordinates:** `frame_coordinates` on tract frames without `Year` tries 2020 tracts, then 2010 tracts
+  (2019 boundaries), and notes which it used. Otherwise it raises an error asking for a `Year` column. The boundary
+  error names the vintage.
+- **Recipes:** six new (`policy_change`, `custom_geographies`, `dollars`, `spatial_patterns`, `cross_release`,
+  `reporting`; 25 in all). `small_area` gains `spatial_small_area_estimates`, `pums_tests` gains `pums_tabulate`,
+  and `preregistered` gains the Round 75 manifest options.
+- **README:**
+  - the latest-release paragraph;
+  - a table of all 25 recipes;
+  - routing rows for custom areas, dollars, spatial patterns and cross-release work;
+  - the Round 75 manifest options;
+  - the tract-ID advisory.
+- **Goldens:** the run golden is byte-identical. The schema golden differs only in the "supported methods" list of
+  one error message, which now includes `multilevel` (intended).
+
 ## 0.70.0 (Round 74): replication suite
 
 - `docs/replications/<id>.json` holds five specs: `chr_segregation` (A), `state_gini` (B), `nc_ice` (C),

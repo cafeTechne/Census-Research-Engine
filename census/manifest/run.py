@@ -547,6 +547,31 @@ def _join_external(state: RunState) -> None:
             state.external_info = {"variables": state.m["external"], "error": f"{type(exc).__name__}: {exc}"}
 
 
+def _build_indices(state: RunState) -> None:
+    # 3b'. composite indices built in the manifest (Round 75; Round 36/73 construction, weights fixed in replicates)
+    state.indices_info = None
+    if state.frame is not None and state.m.get("indices"):
+        from .round75 import build_indices
+        try:
+            state.frame, state.work_reps, state.indices_info = build_indices(state.frame, state.work_reps,
+                                                                              state.m["indices"])
+        except Exception as exc:  # noqa: BLE001 - recorded; analyses using the index then do not run
+            state.deviations.append({"kind": "analysis_frame_failed", "detail": f"indices: {type(exc).__name__}: {exc}"})
+
+
+def _apply_person_years(state: RunState) -> None:
+    # 3c'. expected counts scaled by external person-years (Round 75; census.wonder_reference.expected_counts rule)
+    state.person_years_info = None
+    if state.frame is not None and any("person_years" in d for d in state.m.get("derivations") or []):
+        from .round75 import apply_person_years
+        try:
+            state.frame, state.work_reps, state.person_years_info = apply_person_years(
+                state.frame, state.work_reps, state.m["derivations"])
+        except Exception as exc:  # noqa: BLE001
+            state.deviations.append({"kind": "analysis_frame_failed",
+                                     "detail": f"person-years expected counts: {type(exc).__name__}: {exc}"})
+
+
 def _join_context(state: RunState) -> None:
     # 3d. context covariates (Round 72), county values joined on GEOID (tracts take their county's value)
     state.context_info = None
@@ -618,6 +643,8 @@ def _run_analyses(state: RunState) -> None:
     available = set(state.columns) | {str(d["name"]) for d in state.m.get("derivations") or []} | set(state.joined_external)
     available |= {n + "_numerator" for n in state.joined_external}
     available |= set(state.joined_context)
+    from .round75 import GEO_GROUP_COLUMNS, index_names, with_geo_groups
+    available |= set(index_names(state.m)) | (set(GEO_GROUP_COLUMNS) if state.frame is not None and "GEOID" in state.frame else set())
     state.results: Dict[str, Any] = {}
     # caller-supplied replicates of overlapping releases: refused (census_vre is refused at validation)
     rep_overlap = _replicate_overlap(state.replicates) if state.replicates is not None and not census_vre_source(state.m) else None
@@ -632,7 +659,8 @@ def _run_analyses(state: RunState) -> None:
         progress.report(f"run_manifest: analysis {aid}", i, total)
         needed = set(_formula_names(a.get("formula", "")))
         for k in ("variables", "error_covariates", "groups"):
-            needed |= set(a.get(k) or [])
+            v = a.get(k) or []
+            needed |= {v} if isinstance(v, str) else set(v)
         needed |= {a[k] for k in ("variable", "variable_1", "variable_2") if a.get(k)}
         if state.frame is None or not needed <= available:
             state.deviations.append({"kind": "analysis_not_run", "analysis": aid,
@@ -662,7 +690,7 @@ def _run_analyses(state: RunState) -> None:
             state.deviations.extend(dict(d,analysis=aid) for d in extra)
             continue
         try:
-            state.results[aid] = _run_analysis(a, state.frame, state.level, state.work_reps, state.corr_method, external=state.joined_external, coords=state.coords)
+            state.results[aid] = _run_analysis(a, with_geo_groups(state.frame, needed), state.level, state.work_reps, state.corr_method, external=state.joined_external, coords=state.coords)
             result = state.results[aid]
             extra = getattr(result,"attrs",{}).get("deviations",getattr(result,"diagnostics",{}).get("deviations",[]))
             state.deviations.extend(dict(d,analysis=aid) for d in extra)
@@ -841,6 +869,10 @@ def _bundle(state: RunState) -> Dict[str, Any]:
         run_info["external"] = state.external_info
     if getattr(state, "context_info", None) is not None:
         run_info["context"] = state.context_info
+    if getattr(state, "indices_info", None) is not None:
+        run_info["indices"] = state.indices_info
+    if getattr(state, "person_years_info", None) is not None:
+        run_info["person_years"] = state.person_years_info
     if state.analysed_data:
         run_info["analysed_data"] = state.analysed_data
     if not complete:
@@ -873,7 +905,9 @@ _STAGES = (
     _build_frame,
     _fetch_vre,
     _derive_replicates,
+    _build_indices,
     _join_external,
+    _apply_person_years,
     _join_context,
     _apply_exclusions,
     _apply_adjustments,

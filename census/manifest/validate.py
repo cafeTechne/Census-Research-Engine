@@ -270,6 +270,10 @@ def _check_manifest_measures(manifest, errors, releases):
         from ..context_sources import validate_context
         errors.extend(validate_context(manifest.get("context"), list(names)+list(ext_names)))
         names = list(names)+[c.get("name") for c in manifest.get("context") or [] if isinstance(c, Mapping)]
+    from .round75 import GEO_GROUP_COLUMNS, index_errors, index_names, person_years_errors  # Round 75
+    errors.extend(index_errors(manifest))
+    errors.extend(person_years_errors(manifest, ext_names))
+    names = list(names)+index_names(manifest)+list(GEO_GROUP_COLUMNS)
     _check_adjustments(manifest, names, errors)
     _check_replicates(manifest, errors)
 
@@ -455,4 +459,6 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
     _check_manifest_hypotheses(manifest, ids, errors)
     if ext_names:
         errors.extend(circularity_errors(manifest))
+    from .round75 import index_circularity_errors
+    errors.extend(index_circularity_errors(manifest))
     return errors

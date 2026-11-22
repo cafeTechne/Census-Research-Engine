@@ -52,8 +52,22 @@ def frame_coordinates(frame: pd.DataFrame, acs_year: Optional[int] = None) -> pd
     level = "county" if lengths == {5} else "tract" if lengths == {11} else None
     if level is None:
         raise ValueError("spatial correction needs county (5-digit) or tract (11-digit) GEOIDs")
-    year = acs_year or (int(frame["Year"].max()) if "Year" in frame else 2022)
-    return unit_coordinates(geoids, level, year)[0]
+    if acs_year or "Year" in frame:
+        return unit_coordinates(geoids, level, acs_year or int(frame["Year"].max()))[0]
+    if level == "county":
+        return unit_coordinates(geoids, level, 2022)[0]
+    # Round 75: no release given. Tract GEOIDs changed in 2020, so try 2020 tracts, then 2010 tracts (2019).
+    errors = []
+    for year in (2022, 2019):
+        try:
+            coords = unit_coordinates(geoids, level, year)[0]
+            coords.attrs["tract_vintage_note"] = (f"No Year column: tract points from the {year} boundary vintage "
+                                                  f"({'2020' if year >= 2020 else '2010'} tracts), where every GEOID was found.")
+            return coords
+        except ValueError as exc:
+            errors.append(f"{year}: {exc}")
+    raise ValueError("tract GEOIDs were not all found in the 2020-tract (2022) or 2010-tract (2019) boundaries "
+                     f"({'; '.join(errors)}). Add a Year column with the ACS release so its vintage is used.")
 
 
 def distance_classes(frame: pd.DataFrame, coords: pd.DataFrame) -> np.ndarray:
