@@ -52,9 +52,9 @@ Version 0.83.0. Branch `phase87/ecologic`. Validation first.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, tool, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `ecologic_core.py`; tag `criterion-r87` |
+| Results | done | logit decomposition passes; identity-scale decomposition and ecologic gap fail (exploratory) |
+| Engine, tool, recipe | done | `pums_regression(ecologic_check=...)`; `pums_tests` section; protocol rule |
+| Example | done | `r87_ecologic_example.md` (MI and OH) |
+| Goldens, suite | done | both byte-identical; 2279 passed, 42 skipped |
+| Exceptions | listed | `round87_compatibility.md` |

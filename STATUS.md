@@ -165,6 +165,7 @@ ecologic versus individual-level associations on PUMS (N64).
   ecologic gap fail with many small areas (exploratory).
 - Example (`r87_ecologic_example.md`, exploratory): disability and income-to-poverty, MI and OH: the area-level
   slope is about 1.7 times the individual-level slope in both states.
+- Goldens byte-identical. Acceptance: 2279 passed, 42 skipped; 0 failures.
 
 **Round 86 (v0.82.0; merged, release pending owner approval; implemented by the maintainer agent):**
 quantitative bias analysis (N63).
