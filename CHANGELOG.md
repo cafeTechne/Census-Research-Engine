@@ -23,7 +23,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
     which reproduce Round 69's expected deaths to 7.8e-16.
 - Example (`docs/audits/r73_three_level_example.md`): replication E through `multilevel_model` gives Round 68's
   shares exactly.
-- Goldens byte-identical.
+- Goldens byte-identical. Acceptance: 2195 passed, 38 skipped; 0 failures.
 
 ## 0.68.0 (Round 71): tract-level spatial intervals
 

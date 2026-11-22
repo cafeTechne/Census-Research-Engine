@@ -63,10 +63,10 @@ The WONDER rule holds: no hidden 1–9 count is used or output.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Cores, scripts, criterion commit | | |
-| Three-level results | | |
-| Loadings-index results | | |
-| Expected-counts helper | | |
-| Engine, tests, example | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| Cores, scripts, criterion commit | done | criterion `e97e9fc` (tag `criterion-r73`); M2 dropped before the run |
+| Three-level results | done | M1 passed .904–.913; M3 screening .88–.98 (exploratory) |
+| Loadings-index results | done | LI passed: mean .897–.899, every area ≥ .878 |
+| Expected-counts helper | done | reproduces Round 69 expected deaths (max rel. diff 7.8e-16) |
+| Engine, tests, example | done | `multilevel_model(groups=[...])`, `build_index(method="loadings")`; `tests/test_round73.py` (8); `r73_three_level_example.md` |
+| Goldens, final suite | done | goldens byte-identical; 2195 passed, 38 skipped |
+| Exceptions | recorded | M2 dropped; M3 screening; person-years library-only; share_intervals added (round73_compatibility.md) |

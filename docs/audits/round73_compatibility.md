@@ -34,4 +34,4 @@ Author self-review, not independent. Worktree `/tmp/census-round73`, branch `pha
 - Goldens: byte-identical.
 - New tests: `tests/test_round73.py` (8). Related files were rerun: 167 passed.
 - Example: `r73_three_level_example.md`.
-- Full suite: SUITE_LINE_73.
+- Full suite: goldens byte-identical; 2195 passed, 38 skipped; 0 failures.

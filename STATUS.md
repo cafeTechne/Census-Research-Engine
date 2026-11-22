@@ -154,7 +154,7 @@ methods the replications needed (N51; criterion `e97e9fc`, kept at tag `criterio
   reproduces Round 69's expected deaths (maximum relative difference 7.8e-16).
 - Example: replication E through `multilevel_model` gives Round 68's shares exactly (69.99/10.60/19.41%).
 
-Goldens unchanged. Acceptance: SUITE_LINE_73.
+Goldens unchanged. Acceptance: goldens byte-identical; 2195 passed, 38 skipped; 0 failures.
 
 **Round 71 (v0.68.0; merged after Round 72, release pending owner approval; implemented by the maintainer agent):**
 tract-level spatial intervals (N49; criterion `f947f64`).
