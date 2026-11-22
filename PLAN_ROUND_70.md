@@ -68,8 +68,8 @@ failure. A killed run loses all of its work.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| `.env` discovery | | |
-| Checkpoints | | |
-| Progress lines / MCP notifications | | |
-| Goldens, final suite | | |
-| Exceptions | | |
+| `.env` discovery | done | `census/env.py`; 4 tests |
+| Checkpoints | done | `run_manifest(checkpoint=True)`; pickled per analysis, keyed by manifest/spec/data hash |
+| Progress lines / MCP notifications | partly | stderr lines done; MCP notifications deferred (sync tools) |
+| Goldens, final suite | done | identical; 2171 passed, 37 skipped |
+| Exceptions | three | MCP notifications deferred; pickle not JSON; no regression-calibration progress |

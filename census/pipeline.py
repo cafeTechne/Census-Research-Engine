@@ -103,7 +103,7 @@ from census.panel import (
 from census.stats import add_reliability_columns, clean_census_sentinels, parse_variable_code
 from census.tables import load_variable_metadata
 
-PACKAGE_VERSION = "0.65.0"
+PACKAGE_VERSION = "0.66.0"
 
 CONCORDANCE_MODES = ("fail", "strict", "code")
 MAX_ISSUES_IN_RESULT = 100
@@ -1344,6 +1344,9 @@ def run_batch(
                 call_index += 1
                 if progress:
                     progress(call_index, total_calls, ent.name, year)
+                elif call_index % 25 == 0 or call_index == total_calls:
+                    from census import progress as _progress
+                    _progress.report(f"batch_download {table_code}", call_index, total_calls)
                 data = client.fetch(
                     year=year, table_code=table_code, dataset=dataset, **ent.request_kwargs()
                 )

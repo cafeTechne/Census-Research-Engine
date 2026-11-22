@@ -10,7 +10,6 @@ and independently review concordance overrides (docs/agent_protocol.md).
 import os
 from typing import Any, Dict, List, Optional, Union
 
-from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 import pandas as pd
 
@@ -64,7 +63,9 @@ from census.review import draft_override, record_override
 from census.stats import acs_overlap_years
 from census import mcp_profiles, recipes, workflows, workflows_geo, workflows_inference, workflows_microdata, workflows_verification
 
-load_dotenv()
+from census.env import load_environment
+
+load_environment()
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PROTOCOL_PATH = os.path.join(ROOT, "docs", "agent_protocol.md")
@@ -287,7 +288,10 @@ counts allowed as for Poisson). fit_eiv args.spatial "clusters" (G1) or "error" 
 unweighted OLS, no cluster/spatial_se/spatial_clusters; more than five error-prone
 covariates are not tested in a confirmatory run (Rounds 46 and 53). regression_calibration with
 model "binomial" needs args.se_method "jackknife" (Round 53); with the default bootstrap it is
-exploratory and not tested in a confirmatory run.
+exploratory and not tested in a confirmatory run. Round 70: for long runs call run_manifest(...,
+checkpoint=true) with a fixed output_dir; after a crash, the same call reuses finished analyses (same
+manifest and data only) and gives identical results. Progress lines go to stderr (CENSUS_PROGRESS=0
+silences them).
 
 Round 45 count repairs: interval-censored NB2 (fit_model(model="negbin", exposure=..., censored=
 "<true/false column>") since Round 64; census.missing_censored_its.fit_censored_negbin) uses WONDER

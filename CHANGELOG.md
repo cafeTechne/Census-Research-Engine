@@ -5,6 +5,26 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.66.0 (Round 70): `.env` discovery and long-job checkpoints
+
+- **N47:** `census/env.py` `load_environment()` replaces the bare `load_dotenv()` in `census/api.py` and
+  `mcp_server.py`. Order: `CENSUS_DOTENV`, then `.env` upward from the working directory, then upward from the
+  package. It never overrides set variables and never prints values. An engine installed from a wheel now finds
+  the project's `.env`.
+- **N48:**
+  - `run_manifest(..., checkpoint=True)`, also through MCP and the CLI: each finished analysis is pickled under
+    `<output_dir>/.checkpoint`, keyed by manifest hash, analysis spec and a hash of the analysed data;
+  - a rerun reuses matching checkpoints and ignores stale ones with a note. Results are identical;
+  - the folder is removed after a bundle with no failed analysis.
+  - Progress lines on stderr: per analysis, every 25 download requests, every 20 replicate refits
+    (`CENSUS_PROGRESS=0` silences them).
+- Exceptions:
+  - MCP progress notifications are deferred: the tools are synchronous, and the stderr lines appear in the server
+    log;
+  - checkpoints are pickles, not JSON: results hold DataFrames and model objects. They are local files the engine
+    wrote itself; never resume from a folder you did not create.
+- Goldens byte-identical. Acceptance: goldens byte-identical; 2171 passed, 37 skipped; 0 failures.
+
 ## 0.65.0 (Round 69): replication D
 
 - Criterion `20a4c13`, committed after a counts-only build: 3,106 counties and 2,484 with at least 10 deaths, both

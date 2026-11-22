@@ -103,6 +103,14 @@ Create or edit `.claude/config.json` in the workspace root:
 }
 ```
 
+**Where the key comes from.** The server reads `CENSUS_API_KEY` from its environment, as above. Without it, the
+server loads a `.env`, in this order:
+1. the file named by `CENSUS_DOTENV`;
+2. the first `.env` upward from the server's working directory;
+3. the first `.env` upward from the engine's install location.
+
+Values already in the environment are never overridden (Round 70).
+
 ### Option C: User-Global Configuration (`~/.claude.json`)
 To enable the tool across all projects in Claude Code, add the server under `"mcpServers"` in `~/.claude.json` (located at `%USERPROFILE%\.claude.json` on Windows):
 

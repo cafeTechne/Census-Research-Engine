@@ -41,7 +41,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 
 | Round | Theme | Covers | Status |
 | :--- | :--- | :--- | :--- |
-| 70 | Housekeeping: `.env` discovery and long-job progress/checkpoints (no new statistics) | N47, N48 | planned |
+| 70 | Housekeeping: `.env` discovery and long-job progress/checkpoints (no new statistics) | N47, N48 | merged (v0.66.0) |
 | 71 | Tract-level spatial inference: validation, plus a residual-dependence warning | N49 | planned |
 | 72 | Data sources: CBP, ERS typology and rural–urban codes, CHR additional measures, state-wide tract pulls | N50 | planned |
 | 73 | Methods: three-level multilevel models, loading-weighted indices, indirect standardization helper | N51 | planned |

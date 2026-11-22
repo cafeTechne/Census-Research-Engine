@@ -6,7 +6,6 @@ import re
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import quote, quote_plus
 
-from dotenv import load_dotenv
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
@@ -20,7 +19,9 @@ from census.decennial import (
     is_decennial,
 )
 
-load_dotenv()
+from census.env import load_environment
+
+load_environment()
 
 BASE_URL = "https://api.census.gov/data"
 DEFAULT_API_KEY = os.getenv("CENSUS_API_KEY", "")
