@@ -25,6 +25,12 @@ Goal: estimate the effect of a policy or event that began at a known time.
    - Report the overall ATT, the event study and the pre-trend check. Uniform event-study bands are descriptive.
    - **A single treated unit** (one state): synthetic control (`census.staggered.synthetic_control`, library only)
      failed validation and is exploratory.
+   **Time-varying confounders affected by the policy (Round 91; Hernán and Robins chapters 19-21):** if a covariate
+   such as unemployment both responds to earlier policy and affects later adoption and the outcome, do not adjust for
+   it by regression (in validation that covered .00-.11 for later years). Use
+   `difference_in_differences(design="msm", first_treated=..., time_varying_confounders=["unemp"], product="1-year")`:
+   an IP-weighted marginal structural model giving effects of the 1st, 2nd and 3rd treated year. It is
+   **exploratory** (coverage .80-.88 with 51 units, slightly too narrow); report it beside the staggered DiD.
 4. **One annual series with a break:** call
    `interrupted_series(values=[...], years=[...], interruption_year=2014)`.
    - It reports the level and slope changes, with AR(1) errors.
