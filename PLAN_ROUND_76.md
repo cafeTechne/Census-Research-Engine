@@ -62,9 +62,9 @@ variance of each component.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, manifest, tool | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `disparity_core.py`, `disparity_validation.py`; criterion `e995978` (tag `criterion-r76`) |
+| Results | done | ACS rd/idisp to CV .50, log_rr/bgv/theil/mld to .30; counts rd/log_rr pass, count indices fail; Kitagawa passes |
+| Engine, manifest, tool | done | `census/disparity.py`; manifest `disparity`, `kitagawa`; tool `disparity_measures` (72 tools); recipe section |
+| Example | done | `r76_disparity_example.md` (B17010 family poverty; B17020 has no VRE file) |
+| Goldens, suite | done | run golden identical; schema golden: method list only; 2223 passed, 42 skipped |
+| Exceptions | listed | `round76_compatibility.md`: example table, simulated CVs, count manifests not offered |

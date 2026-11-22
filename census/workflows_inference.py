@@ -1461,3 +1461,63 @@ def interrupted_series(
                "report both changes with their intervals and the AR(1) and linear-trend assumptions"
                if res["validated"] else "label the result exploratory; validated methods need 17+ annual points",
                **res)
+
+
+def disparity_measures(
+    input_path: str,
+    groups: List[str],
+    populations: List[str],
+    reference: Optional[str] = None,
+    replicates_path: Optional[str] = None,
+    counts: bool = False,
+    omitted_groups: Optional[List[str]] = None,
+    decompose_areas: Optional[List[str]] = None,
+    confidence_level: float = 0.90,
+) -> Dict[str, Any]:
+    """Disparities BETWEEN POPULATION GROUPS within each area (race/ethnicity, sex, income groups), Round 76.
+
+    Gives the rate difference and log rate ratio of each group against a reference group, the Index of
+    Disparity, the between-group variance, and Theil and mean log deviation over the groups.
+    groups: one rate column per mutually exclusive group (with replicates_path), or one event-count column per group
+    with counts=True (Poisson; populations are the denominators). populations: the matching group population
+    columns. reference: the comparison group, chosen before looking at the data. omitted_groups: names of
+    groups left out of the universe (reported).
+    Validated: ACS differences and Index of Disparity up to group-rate CV .50; ratios and indices up to .30;
+    counts: difference and ratio with 20+ events per group (count indices are exploratory); 2-6 groups.
+    decompose_areas=[area, comparison]: instead runs a Kitagawa decomposition of the crude-rate difference into
+    rate and composition effects; then groups are stratum (e.g. age band) rates or counts and populations the
+    stratum populations.
+    For differences ACROSS AREAS along a deprivation gradient use the health_inequality recipe instead.
+    Example: disparity_measures("frame.csv", ["pov_white", "pov_black", "pov_hisp"], ["pop_white", "pop_black",
+    "pop_hisp"], reference="pov_white", replicates_path="reps.parquet")
+    """
+    from census.disparity import disparity_measures as _dm, kitagawa_decomposition as _kd
+    try:
+        frame = _load_frames(input_path)
+        reps = _read_replicates(replicates_path)
+        if decompose_areas is not None:
+            if len(decompose_areas) != 2:
+                return _fail(errors.INVALID_INPUT, "decompose_areas must be [area, comparison area].")
+            out = _kd(frame, decompose_areas[0], decompose_areas[1], groups, populations, replicates=reps,
+                      counts=counts, level=confidence_level)
+            rows = out.set_index("component")
+            ok = bool(out["validated"].all())
+            return _ok(f"Kitagawa {decompose_areas[0]} minus {decompose_areas[1]}: crude difference "
+                       f"{rows.loc['crude_difference', 'estimate']:.4g} = rate effect "
+                       f"{rows.loc['rate_effect', 'estimate']:.4g} + composition effect "
+                       f"{rows.loc['composition_effect', 'estimate']:.4g}; "
+                       + ("validated." if ok else "exploratory (outside the validated range; see notes)."),
+                       "report both components with their intervals" if ok else "label the result exploratory",
+                       rows=_records(out))
+        if reference is None:
+            return _fail(errors.INVALID_INPUT, "reference is required: the comparison group, declared in advance.")
+        out = _dm(frame, groups, reference, populations, replicates=reps, counts=counts, level=confidence_level,
+                  omitted_groups=omitted_groups)
+    except (ValueError, KeyError, TypeError, FileNotFoundError) as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))
+    n_val = int(out["validated"].sum())
+    return _ok(f"{out['GEOID'].nunique()} area(s), {len(groups)} groups vs {reference}: {len(out)} measure rows, "
+               f"{n_val} validated, {len(out) - n_val} exploratory.",
+               "report absolute (rd, bgv) and relative (log_rr, idisp, theil, mld) measures together, with intervals; "
+               "label rows with validated=False exploratory",
+               audit=out.attrs["audit"], rows=_records(out))
