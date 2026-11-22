@@ -62,7 +62,7 @@ def _error_variance(f, col):
 
 def estimate_effect(frame: pd.DataFrame, outcome: str, treatment: str, confounders: Sequence[str],
                     method: str = "aipw", replicates: Optional[pd.DataFrame] = None,
-                    calibrate: bool = False, seed: int = 20270501) -> Dict[str, Any]:
+                    calibrate: bool = False, seed: int = 20270501, weights: Optional[str] = None) -> Dict[str, Any]:
     """Average effect of a binary area-level treatment (0/1) adjusting for ``confounders``.
 
     ``calibrate=True`` (AIPW only; Round 47, validated) replaces every confounder with an SE column
@@ -80,7 +80,27 @@ def estimate_effect(frame: pd.DataFrame, outcome: str, treatment: str, confounde
     if min(T.sum(), (1-T).sum()) < 10:
         raise ValueError("each treatment group needs at least 10 areas")
     noisy = [c for c in confounders if _has_error(f, c, replicates)]
-    notes = ["Assumes no unmeasured confounding and overlap (check the propensity distribution); areas independent."]
+    from . import positivity as pz  # Round 90
+    if weights is not None:
+        if calibrate:
+            raise ValueError("weights= and calibrate=True cannot be combined (not validated together)")
+        if weights not in ("stabilized", "truncated", "overlap"):
+            raise ValueError("weights must be 'stabilized', 'truncated' or 'overlap'")
+        out = pz.weighted(y, T, Z, weights)
+        out["notes"] = ["Assumes no unmeasured confounding; areas independent."]+out["notes"]
+        if noisy:
+            out["notes"].append(f"Confounders with sampling error {noisy} leave residual confounding (Round 47).")
+            out["validated"] = False
+        return dict(out, n=len(y), n_treated=int(T.sum()))
+    positivity = pz.diagnose(T, Z)
+    notes = ["Assumes no unmeasured confounding and overlap; areas independent. Propensity diagnostics are in "
+             "'positivity' (Round 90)."]
+    if positivity["limited_overlap"]:
+        notes.append(f"Limited overlap: {positivity['share_outside']:.0%} of propensities lie outside [.05, .95] "
+                     "(Hernán and Robins 3.3). IP weighting under-covered there in validation; prefer "
+                     "weights='overlap' (overlap-population effect) or method='ra' (g-formula), both validated "
+                     f"({pz.AUDIT}), or restrict the population to areas with overlap. AIPW (validated in Round 41 "
+                     "with good overlap) was not tested under limited overlap.")
     if calibrate:
         cal = [c for c in confounders if f"{c}_se" in f or f"{c}_moe" in f]
         if not cal:
@@ -97,13 +117,15 @@ def estimate_effect(frame: pd.DataFrame, outcome: str, treatment: str, confounde
                      "the interval is a percentile bootstrap. Assumes errors independent of each other and of the "
                      "true values.")
         return dict(kind="treatment", method="aipw_calibrated", ate=out, n=len(y), n_treated=int(T.sum()),
-                    validated=CALIBRATED_TREATMENT_VALIDATED, calibrated=cal, notes=notes, audit=ROBUST_AUDIT)
+                    validated=CALIBRATED_TREATMENT_VALIDATED, calibrated=cal, notes=notes, audit=ROBUST_AUDIT,
+                    positivity=positivity)
     out = cc.treatment_effect(y, T, Z, method)
     if noisy:
         notes.append(f"Confounders with sampling error {noisy}: plain AIPW leaves residual confounding (Round 47: "
                      "coverage .77-.87 at reliability .7-.9). Use calibrate=True with _se columns (validated).")
-    return dict(kind="treatment", method=method, ate=out, n=len(y), n_treated=int(T.sum()), validated=not noisy,
-                notes=notes, audit=AUDIT)
+    validated = not noisy and not (method == "ipw" and positivity["limited_overlap"])
+    return dict(kind="treatment", method=method, ate=out, n=len(y), n_treated=int(T.sum()), validated=validated,
+                notes=notes, audit=AUDIT, positivity=positivity)
 
 
 def _aipw_calibrated_mixed(y, T, Z, idx, S2, rng, boot=200):

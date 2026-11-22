@@ -48,9 +48,9 @@
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r90` |
+| Results | done | W2, W3, G1, flag pass; W1 (stabilized IPW) fails with 5%+ extreme propensities |
+| Engine, recipe | done | `estimate_effect` positivity + `weights=`; recipe, protocol rule |
+| Example | done | `r90_positivity_example.md` |
+| Goldens, suite | see audit | `round90_compatibility.md` |
+| Exceptions | 3 | see audit |
