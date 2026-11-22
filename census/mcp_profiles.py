@@ -82,7 +82,7 @@ DESCRIPTION_OVERRIDES: Dict[str, str] = {
         "Return numbered steps for a standard analysis. Call this first when unsure what to do.\n"
         "name: compare_counties | tract_trend | policy_change | regression_sampling_error | group_comparison | "
         "rank_methods | rank_areas | composite_index | agreement | combine_estimates | causal | pums_tests | "
-        "small_area | health_inequality | external_health_outcome | segregation | context_covariates | "
+        "small_area | health_inequality (also disparities between groups) | external_health_outcome | segregation | context_covariates | "
         "custom_geographies (neighborhoods, combined tracts) | dollars (inflation, cost of living) | "
         "spatial_patterns | cross_release | decennial_counts | reporting | preregistered | replications. "
         "Some recipes use full profile tools.\n"
@@ -226,6 +226,8 @@ US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
    validated (warn about attenuation above it). SMR needs integer observed counts,
    reference rates per person-year and a hashed reference_source; only the
    conservative combined log interval drives SMR tests. R1 applies to external outcomes.
+   Disparities between population groups within an area (race/ethnicity): same recipe,
+   section "Between population groups" (disparity_measures [full]).
 9. Spatial dependence: fit_replicate with spatial_clusters={"k":8,"method":"im"},
    target="population" is validated for unweighted OLS/binomial/Poisson (Round 30;
    estimand: the coefficient on ACS estimates as observed, not corrected). IM-EIV,
