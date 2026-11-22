@@ -546,6 +546,14 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+## Risk ratios instead of odds ratios (Round 84)
+
+<!-- mcp-rules:A -->
+Round 84: for common binary outcomes (above about 10%) odds ratios overstate risk ratios. Area binomial models:
+fit_model(model="binomial", trials=..., marginal="<exposure>") adds the standardized risk ratio, risk difference and
+attributable fraction (and dose_levels=5 a dose-response test). PUMS: pums_regression(model="logit",
+marginal="<0/1 exposure>") adds the same plus the modified-Poisson prevalence ratio. All validated (.862-.898).
+
 ## Confounding and effect modification (Round 83)
 
 <!-- mcp-rules:A -->

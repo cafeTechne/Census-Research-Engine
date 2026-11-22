@@ -5,6 +5,19 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.80.0 (Round 84): marginal risk ratios, prevalence ratios, attributable fractions, dose-response
+
+- **Marginal (standardized) measures** (`census/epi_measures.py`; frozen core `census/epi_measures_core.py`; N61;
+  *Foundations of Epidemiology* chapters 4 and 10): g-computation risk ratios and differences and attributable
+  fractions for area binomial models (HC3 delta SEs) and PUMS logit models (SDR SEs); modified-Poisson prevalence
+  ratios; dose-response trend tests over ordered exposure levels.
+- **Validation** (`docs/audits/epi_measures_validation.md`, criterion `c5f6266`): every candidate passes
+  (coverage .862–.898; trend size .083–.129).
+- **Options**: `fit_model(model="binomial", marginal=..., marginal_values=..., dose_levels=...)` and
+  `pums_regression(model="logit", marginal=...)`; a note pairs ORs with marginal RRs when the outcome is common.
+  No new tool.
+- **Example** (`docs/audits/r84_marginal_example.md`, exploratory): MI/NY county disability and poverty.
+
 ## 0.79.0 (Round 83): stratified analysis, Mantel–Haenszel and effect modification
 
 - **Stratified analysis** (`census/stratified.py`; frozen core `census/stratified_core.py`; N60; *Foundations of

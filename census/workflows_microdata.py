@@ -190,9 +190,13 @@ def pums_regression(
     where: Optional[str] = None,
     product: str = "5-year",
     target: str = "these_areas",
+    marginal: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Survey-weighted regression on PUMS microdata with replicate-weight SEs
     (the design-based inference Census recommends for PUMS).
+    Round 84: model="logit" with marginal="<binary exposure column of the design>" adds the standardized
+    (marginal) risk ratio and risk difference, the attributable fraction and the modified-Poisson prevalence ratio,
+    all with replicate-weight intervals (validated). Use it whenever the outcome is common (odds ratios overstate).
 
     Args:
         formula: e.g. "np.log(WAGP) ~ AGEP + C(SCHL)" (PUMS codes).
@@ -218,9 +222,25 @@ def pums_regression(
                        + ("validated (Round 49)." if out["validated"] else "exploratory: see notes."),
                        "report coefficients with their replicate-weight intervals", **_jsonable(out))
         res = pums.pums_regression(formula, df, weight=weight, model=model, where=where, target=target)
+        extra = {}
+        if marginal:
+            if model != "logit":
+                return _fail(errors.INVALID_INPUT, "marginal measures need model='logit' with a 0/1 outcome.")
+            import patsy
+            from census.epi_measures import pums_marginal_measures
+            sub = df.loc[pums._mask(df, where)]
+            yd, Xd = patsy.dmatrices(formula, sub, return_type="dataframe", NA_action="drop")
+            if marginal not in Xd.columns:
+                return _fail(errors.INVALID_INPUT, f"marginal must be a design column; columns: {list(Xd.columns)}")
+            if not set(np.unique(Xd[marginal])) <= {0.0, 1.0}:
+                return _fail(errors.INVALID_INPUT, "marginal measures need a binary (0/1) exposure column.")
+            _, W = pums._weight_matrix(sub.loc[Xd.index], weight)
+            extra["marginal"] = pums_marginal_measures(yd.iloc[:, 0].to_numpy(float), Xd.to_numpy(float), W,
+                                                       list(Xd.columns).index(marginal))
     except _ERRORS as exc:
         return _fail(errors.INVALID_INPUT, str(exc))
     out = res.to_dict()
+    out.update(extra)
     warns = _memory_warnings(df)
     return _ok(result_summary(res) + _warning_suffix(warns),
                "report coefficients with the SE named in uncertainty_sources",
