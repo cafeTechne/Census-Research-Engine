@@ -15,12 +15,12 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | Path | What |
 | :--- | :--- |
 | `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
-| `mcp_server.py` | MCP server (78 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
+| `mcp_server.py` | MCP server (79 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_93.md` (GWR, classification, regionalization, diversity), drafted from Walker (`docs/literature/`). Earlier: Rounds 88–92 merged (method attribution, causal question specification, positivity, marginal structural models, PEP/LODES/flows); Rounds 82–87 merged; mapping in `docs/literature/foundations_of_epidemiology.md`. Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | None queued. Rounds 88–93 merged (method attribution; from Hernán and Robins: causal specification, positivity, marginal structural models; from Walker: PEP/LODES/flows, spatial models); mappings in `docs/literature/`. Next sources named by the owner (2026-11-23): Moraga, *Spatial Statistics for Data Science* (online), `literature_pdfs/cdc_6914_DS1.pdf`, `literature_pdfs/handbook-on-health-inequality-monitoring.pdf`. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -72,6 +72,7 @@ manifests refuse them in confirmatory analyses.
 | Small-area proportions and several releases (Round 80) | **Passed** (real 2019–2023 S2701 sampling variances, MI/NY counties and tracts): arcsine Fay–Herriot with bias-corrected back-transform and bootstrap MSE, per-area coverage .898–.904, worst decile ≥ .880, relative bias ≤ .078 for p < .10 (quantile interval .892–.895 also passes); Rao–Yu temporal Fay–Herriot for 2–3 releases .897–.898 (MSE gain 3–7% counties, 10–24% tracts) | `sae_extensions_validation.md`, criterion `251dc9d` |
 | PUMS gap decompositions (Round 79) | **Passed with size gates** (Round 32 design, weight CV 1, SDR intervals): Oaxaca–Blinder explained/unexplained totals from 300 records in the smaller group (.862–.894); Oaxaca–Blinder detailed contributions (Yun-normalised) and Fairlie totals and detailed contributions from 1,000 records (.863–.894); at 300 they under-covered (.802–.853) | `decomposition_validation.md`, criterion `9e52bb4` |
 | Staggered adoption and synthetic control (Round 78) | **Passed selected** (51 units, 12/18 annual periods, AR(1) .3/.7, ACS-like error): Sun–Abraham event study and overall ATT (.881–.899); Callaway–Sant'Anna with the ACS variance added (.882–.906). **Failed**: Callaway–Sant'Anna multiplier bootstrap alone (.848–.868), uniform bands (.76–.81), synthetic-control placebo test (size .12–.19 at .10) and conformal intervals (.73–.86 with 9 pre-periods; .87–.95 with 15, not a pre-set gate): exploratory, library only | `policy_validation.md`, criterion `baf934b` |
+| Spatial models (Round 93) | **Failed** (exploratory): GWR local intervals (.71 with varying slopes; non-stationarity test size .12–.17); entropy diversity (.847 at 50 respondents per tract, .883 at 200). **Reported**: classification/SKATER stability is informative (unstable areas misclassified 39–50%, stable 3–16%) | `spatial_models_validation.md`, tag `criterion-r93` |
 | Marginal structural models (Round 91) | **Failed** (exploratory): IP-weighted MSM for annual panels with treatment-confounder feedback, .805–.881 (stabilized) and .799–.885 (truncated), 51 units; regression on the current confounder .00–.11 | `msm_validation.md`, tag `criterion-r91` |
 | Positivity and weighting (Round 90) | **Passed**: truncated weights (.864–), overlap weights for the overlap-population effect (.877–), g-formula (.881–), IPW vs g-formula flag (size ≤ .061). **Failed**: stabilized/plain IPW with 5%+ extreme propensities (.807–.863): exploratory there | `positivity_validation.md`, tag `criterion-r90` |
 | Ecologic vs individual (Round 87) | **Passed**: logit within/between/contextual decomposition on PUMS with SDR SEs (.871–, 30 or 150 PUMA-like areas, 5,000+ records). **Failed**: the identity-scale (risk-difference) decomposition and the ecologic slope and gap with 150 small areas (.62–.86; noisy area means bias the between slope): exploratory | `ecologic_validation.md`, tag `criterion-r87` |
@@ -158,6 +159,13 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 93 (v0.89.0; merged, release pending owner approval; implemented by the maintainer agent):**
+GWR, neighbourhood types, regions and diversity (N69; Walker).
+- Tool `spatial_model` (79 tools): GWR (exploratory), k-means types and SKATER regions with per-area stability
+  (descriptive); `diversity_index` (exploratory).
+- Example (`r93_spatial_models_example.md`): Wayne County tracts. Goldens byte-identical; 2343 passed, 42 skipped;
+  0 failures.
 
 **Round 92 (v0.88.0; merged, release pending owner approval; implemented by the maintainer agent):**
 data sources from Walker (N68).
@@ -732,7 +740,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N66: positivity diagnostics and weighting (90; closed);
 - N67: marginal structural models (91; closed, exploratory);
 - N68: Population Estimates, LODES, migration flows (92; closed);
-- N69: GWR/classification (Round 93, planned 2026-11-23 from Hernán and Robins and Walker);
+- N69: GWR, classification, regionalization, diversity (93; closed, exploratory);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

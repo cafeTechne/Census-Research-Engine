@@ -122,6 +122,12 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "cole_hernan2008": _src("paper", "Cole, S.R. & Hernán, M.A.", 2008, "Constructing inverse probability weights for "
                             "marginal structural models", "American Journal of Epidemiology", volume="168",
                             pages="656-664", doi="10.1093/aje/kwn164"),
+    "brunsdon1996": _src("paper", "Brunsdon, C., Fotheringham, A.S. & Charlton, M.E.", 1996, "Geographically weighted "
+                         "regression: a method for exploring spatial nonstationarity", "Geographical Analysis",
+                         volume="28", pages="281-298"),
+    "assuncao2006": _src("paper", "Assunção, R.M., Neves, M.C., Câmara, G. & da Costa Freitas, C.", 2006, "Efficient "
+                         "regionalization techniques for socio-economic geographical units using minimum spanning trees",
+                         "International Journal of Geographical Information Science", volume="20", pages="797-811"),
     "muller_watson2022": _src("paper", "Müller, U.K. & Watson, M.W.", 2022, "Spatial correlation robust inference",
                               "Econometrica", volume="90", pages="2901-2935"),
     "prasad_rao1990": _src("paper", "Prasad, N.G.N. & Rao, J.N.K.", 1990, "The estimation of the mean squared error of "
@@ -305,6 +311,8 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "get_boundaries": GEO, "make_map": GEO, "make_web_map": GEO,
     "spatial_autocorrelation": [("moran1950", "method"), ("anselin1995", "method"), ("pysal", "software"), *GEO,
                                 _audit("lisa_validation.md")],
+    "spatial_model": [("brunsdon1996", "method"), ("assuncao2006", "method"), *GEO, ("scipy", "software"),
+                      _audit("spatial_models_validation.md")],
     "spatial_regression": [("spatial_lesage2009", "method"), ("pysal", "software"), *GEO,
                            _audit("spatial_regression_validation.md")],
     # health and context sources

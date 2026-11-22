@@ -5,6 +5,26 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.89.0 (Round 93): GWR, neighbourhood types, regions and diversity
+
+- **New full-profile tool `spatial_model`** (79 tools; `census/spatial_models.py`, frozen core
+  `census/spatial_models_core.py`; N69; Walker, *Analyzing US Census Data*, chapter 8):
+  - `kind="gwr"`: geographically weighted regression, AICc bandwidth, robust local intervals and a permutation test
+    of non-stationarity;
+  - `"classify"`: k-means neighbourhood types on principal components;
+  - `"regionalize"`: SKATER on queen contiguity.
+
+  Classification results carry per-area stability under sampling error.
+- **Entropy diversity index** in the library (`diversity_index`).
+- **Validation** (`docs/audits/spatial_models_validation.md`, criterion tag `criterion-r93`), Wayne County tracts:
+  - GWR **failed**: local coverage .71 when slopes vary, and test size .12–.17. It is exploratory.
+  - Diversity **failed** narrowly: .847 at 50 respondents per tract, .883 at 200.
+  - Stability is informative: unstable areas were misclassified 39–50% of the time, stable ones 3–16%.
+- **Example** (`docs/audits/r93_spatial_models_example.md`, exploratory): Wayne County poverty, unemployment and
+  education.
+- **Recipe** `spatial_patterns` section; README question row; protocol rule; sources Brunsdon et al. 1996 and
+  Assunção et al. 2006.
+
 ## 0.88.0 (Round 92): Population Estimates, LEHD LODES and ACS migration flows
 
 - **`census/demographic_sources.py`** (N68; Walker, *Analyzing US Census Data*, chapters 4 and 11):

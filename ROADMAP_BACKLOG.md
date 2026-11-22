@@ -82,7 +82,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 90 | Positivity diagnostics, stabilized and truncated weights, IPW vs g-formula | N66 | done (v0.86.0) |
 | 91 | IP-weighted marginal structural models for annual policy panels | N67 | done (v0.87.0; exploratory) |
 | 92 | Data sources: Population Estimates, LEHD LODES, ACS migration flows | N68 | done (v0.88.0) |
-| 93 | Geographically weighted regression, geodemographic classification, regionalization, diversity index | N69 | planned |
+| 93 | Geographically weighted regression, geodemographic classification, regionalization, diversity index | N69 | done (v0.89.0; exploratory) |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 
 Order rationale:

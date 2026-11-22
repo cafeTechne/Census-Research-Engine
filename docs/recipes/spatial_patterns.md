@@ -39,3 +39,21 @@ neighbouring counties with an unusually high rate?"
    (`prespecified=True`). Secondary clusters use the same Monte Carlo p-value (conservative).
 5. **WONDER rule:** suppressed counties (counts 1–9 hidden) make the scan refuse; exclude them with
    `exclude=[...]` and a stated `exclude_rule`. No count is imputed or output.
+
+## Local relationships, neighbourhood types and regions (Round 93; Walker 2023 chapter 8)
+
+- **Does a relationship vary over space?** `spatial_model(input_path, "gwr", level, year, outcome=...,
+  predictors=[...])` fits a geographically weighted regression (bandwidth by AICc). It writes the local
+  coefficients with robust intervals and gives a permutation test of non-stationarity. **Exploratory**: local
+  intervals covered only .71 when slopes really varied (smoothing bias), and the test rejected .12–.17 at .10 under
+  constant slopes. Report it beside a global model, and treat local collinearity and edge effects as live risks
+  (Walker 8.4.3).
+- **Neighbourhood types:** `spatial_model(..., "classify", ..., features=[...], k=4)` runs k-means on principal
+  components. **Regions:** `"regionalize"` runs SKATER on queen contiguity. Every feature needs `_se` or `_moe`.
+  - Fix k before looking at the result.
+  - Each area gets a **stability** score: the share of 20 sampling-error replicates that put it in the same group.
+  - In validation, areas below .8 were misclassified 39–50% of the time, against 3–16% above it. Map stability with
+    the groups, and do not interpret unstable areas' labels.
+- **Diversity:** `census.spatial_models.diversity_index` gives entropy (maximum ln G) with replicate intervals. It
+  is exploratory: .847 coverage with about 50 respondents per tract, .883 with 200.
+

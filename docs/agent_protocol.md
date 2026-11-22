@@ -622,6 +622,14 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+## Spatial models (Round 93)
+
+<!-- mcp-rules:A -->
+Round 93: spatial_model (full profile) kind="gwr" is exploratory (local intervals .71 when slopes vary; report beside
+a global model). kind="classify" (k-means) and "regionalize" (SKATER) are descriptive: fix k in advance, give each
+feature an _se or _moe column, and report per-area stability; do not interpret groups of areas with stability
+below .8 (misclassified 39-50% in validation).
+
 ## Population Estimates, LODES and migration flows (Round 92)
 
 <!-- mcp-rules:A -->

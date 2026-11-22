@@ -1,0 +1,128 @@
+{
+ "rows": {
+  "gwr": [
+   {
+    "slope": "constant",
+    "noise": "low",
+    "mean_coverage": 0.8661664000000001,
+    "share_areas_ge80": 1.0,
+    "min_area": 0.836,
+    "reject_rate": 0.166,
+    "median_bandwidth_km": 21.115859541763445
+   },
+   {
+    "slope": "constant",
+    "noise": "high",
+    "mean_coverage": 0.8941952,
+    "share_areas_ge80": 1.0,
+    "min_area": 0.87,
+    "reject_rate": 0.116,
+    "median_bandwidth_km": 21.115859541763445
+   },
+   {
+    "slope": "varying",
+    "noise": "low",
+    "mean_coverage": 0.7139776,
+    "share_areas_ge80": 0.3136,
+    "min_area": 0.332,
+    "reject_rate": 1.0,
+    "median_bandwidth_km": 5.765423565764071
+   },
+   {
+    "slope": "varying",
+    "noise": "high",
+    "mean_coverage": 0.7068576,
+    "share_areas_ge80": 0.3232,
+    "min_area": 0.404,
+    "reject_rate": 1.0,
+    "median_bandwidth_km": 7.693343398283823
+   }
+  ],
+  "cls": [
+   {
+    "kind": "kmeans",
+    "noise": "low",
+    "ari": 0.4992568332603764,
+    "stability": 0.8930296,
+    "share_unstable": 0.201616,
+    "wrong_unstable": 0.5004238949251313,
+    "wrong_stable": 0.16365501792065792
+   },
+   {
+    "kind": "kmeans",
+    "noise": "high",
+    "ari": 0.3872275655437163,
+    "stability": 0.7663728000000001,
+    "share_unstable": 0.45360799999999996,
+    "wrong_unstable": 0.47240789637113034,
+    "wrong_stable": 0.15485156214009418
+   },
+   {
+    "kind": "skater",
+    "noise": "low",
+    "ari": 0.7186525848150873,
+    "stability": 0.8214599999999999,
+    "share_unstable": 0.28864,
+    "wrong_unstable": 0.4355026810024411,
+    "wrong_stable": 0.029959494353442286
+   },
+   {
+    "kind": "skater",
+    "noise": "high",
+    "ari": 0.6486152630913962,
+    "stability": 0.7520072,
+    "share_unstable": 0.443656,
+    "wrong_unstable": 0.38606738733694307,
+    "wrong_stable": 0.03902565193584422
+   }
+  ],
+  "div": [
+   {
+    "n_eff": 50,
+    "D1": {
+     "mean_coverage": 0.8474191999999999,
+     "share_areas_ge80": 1.0
+    },
+    "D1bc": {
+     "mean_coverage": 0.8460912,
+     "share_areas_ge80": 1.0
+    }
+   },
+   {
+    "n_eff": 200,
+    "D1": {
+     "mean_coverage": 0.8826335999999999,
+     "share_areas_ge80": 1.0
+    },
+    "D1bc": {
+     "mean_coverage": 0.8821007999999998,
+     "share_areas_ge80": 1.0
+    }
+   }
+  ]
+ },
+ "outcome": {
+  "R1": {
+   "passed": false
+  },
+  "D1": {
+   "passed": false
+  },
+  "D1bc": {
+   "passed": false
+  }
+ },
+ "draws": {
+  "gwr": 500,
+  "cls": 200,
+  "div": 1000
+ },
+ "criterion_commit": "504c6c76cde25f01a2be5c155dc68bdb692a7915",
+ "seconds": 459,
+ "frozen_sha256": {
+  "scripts/spatial_models_validation.py": "57fdde929a82bf25546eeb10572bf5fb2886741f817f84dc028a652b98bb8403",
+  "census/spatial_models_core.py": "a1973613fae2cdaf5b57584de44b131e7cae6c6c62a6555272a02d4d08d9d09f",
+  "docs/audits/mi_tract_geometry.json": "1755293430b5c371d73167df75f11f239eeff3938524529558c7e5263d0cdca8",
+  "docs/audits/spatial_models_validation_criterion.md": "fd06e63cb6cc9f49171ccb5d50c0791db82b7780e6059b553978e7447a49b653"
+ }
+}
