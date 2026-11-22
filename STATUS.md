@@ -163,7 +163,8 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 data sources from Walker (N68).
 - `census/demographic_sources.py`: Population Estimates (vintages 2019, 2024; totals and age/sex), LEHD LODES8
   (WAC/RAC/OD; block, tract, county), ACS county-to-county migration flows 2010–2020 with MOEs.
-- Context sources `pep`, `lodes`, `acs_flows`; checks in `r92_source_checks.md`. No new tool.
+- Context sources `pep`, `lodes`, `acs_flows`; checks in `r92_source_checks.md`. No new tool. Goldens
+  byte-identical; 2336 passed, 42 skipped; 0 failures.
 
 **Round 91 (v0.87.0; merged, release pending owner approval; implemented by the maintainer agent):**
 marginal structural models for annual policy panels (N67; Hernán and Robins).

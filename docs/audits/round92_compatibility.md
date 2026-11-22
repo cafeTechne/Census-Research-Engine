@@ -20,3 +20,9 @@ statistics changed and no simulation was run.
    partners only (checked against the live API).
 3. **Population pyramids** (Walker chapter 4) are left to `pep_age_sex` plus the existing figure tools; no new
    figure type was added.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 91.
+- Full suite: 2336 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures. `tests/test_round72.py` lists the new
+  sources (intended).
