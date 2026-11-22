@@ -331,7 +331,8 @@ PUMS supports custom person/household universes with the appropriate survey weig
 | PUMS custom tabulations (count, mean, proportion, median, ratio, crosstabs) | `census.pums.tabulate` / `pums_tabulate` | Reproduces all 32 Census PUMS verification estimates and SEs (Wyoming, 2024 1-year and 2020–2024 5-year) |
 | PUMS regression with replicate weights | `census.pums.pums_regression`, `census.pums_models.fit_pums_model` / `pums_regression` | Ordered logit/probit, multinomial logit, weighted median and probit have dedicated replicate-weight validation; avoid design-blind model SEs |
 | ACS 1-year estimates | `product="1-year"` in `plan_extraction`, `batch_download`, `run_batch` | Areas of 65,000+ only (others reported); 2020 skipped (no standard release); 1-year vs 5-year comparisons refused |
-| Multilevel models | `census.multilevel.fit_multilevel` / `multilevel_model` | Kenward–Roger intervals; coverage 0.89; reproduces the statsmodels `dietox` reference |
+| Multilevel models | `census.multilevel.fit_multilevel` / `multilevel_model` | Kenward–Roger intervals; coverage 0.89; reproduces the statsmodels `dietox` reference. Three levels (`groups=["state", "county"]`, Round 73): fixed-effect intervals validated (.904–.913); variance-share intervals exploratory |
+| Published-loading indices | `build_index(method="loadings", loadings={...})` | A paper's fixed factor loadings; per-area intervals validated (Round 73, mean .897–.899) |
 | Difference-in-differences | `census.did.difference_in_differences` | Non-overlapping periods only; coverage 0.90–0.91; reproduces Card and Krueger (1994) |
 | Cost of living between places | `census.rpp.adjust_for_place` / `adjust_for_place` | BEA Regional Price Parities; reproduces BEA real personal income for all states (2008); never applied by default |
 | Interactive maps | `census.web_maps.web_choropleth` / `make_web_map` | Self-contained HTML, no external requests |

@@ -249,6 +249,17 @@ fixed in every replicate. Validated: per-area score intervals (with replicates) 
 Feldt interval for Cronbach's alpha (independent areas; it under-covers with spatial
 dependence; build_index(spatial=True) uses the effective sample size, validated .912-.926 in Round 48). Quintile stability and typologies are descriptive. An outcome cannot be an
 indicator of the index used to explain it (circularity).
+Round 73 (docs/audits/methods73_validation.md): build_index(method="loadings", loadings={indicator: weight})
+applies a paper's published fixed loadings (two or more indicators); its per-area replicate intervals are
+validated (mean coverage .897-.899, every area >= .878); standardize=True rescales scores to mean 0, SD 1.
+
+Round 73 three-level models (full profile multilevel_model with groups=[top, middle], e.g.
+["state", "county"]): REML random intercepts; fixed-effect intervals use t(G_top - 1) and are
+validated (.904-.913 with 30 or 49 top units). Variance shares are reported; their jackknife
+intervals are exploratory (screened on 100 draws only); share_intervals=False skips them. The
+three-level model takes no sampling_se, replicates or random slopes. Expected counts for indirect
+standardization: census.wonder_reference.expected_counts (national WONDER age x sex rates; period_years,
+or person_years with the ACS age x sex mix).
 
 Round 37 agreement (full profile tool check_agreement; recipe agreement): bias (b - a)
 and Cohen's kappa of quintile classes passed validation for independent areas. Bland-Altman
