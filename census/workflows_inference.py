@@ -212,8 +212,15 @@ def fit_model(
     se_method: Optional[str] = None,
     censored: Optional[str] = None,
     spatial_check: str = "auto",
+    marginal: Optional[str] = None,
+    marginal_values: Optional[List[float]] = None,
+    dose_levels: int = 0,
 ) -> Dict[str, Any]:
     """Fit a regression whose standard errors account for ACS sampling error.
+    Round 84 (model="binomial" with trials): marginal="<exposure term>" adds the standardized risk ratio and risk
+    difference between marginal_values [low, high] (default the exposure's quartiles) and the attributable fraction
+    (validated); dose_levels=5 adds a dose-response trend test over exposure quintiles. Odds ratios overstate risk
+    ratios for common outcomes: report the marginal RR.
 
     Args:
         input_path: Analysis frame from build_analysis_frame.
@@ -407,6 +414,15 @@ def fit_model(
         out["notes"] = list(out.get("notes") or []) + [
             "No replicates supplied: standard errors include model error only, not ACS sampling error."
         ]
+    if marginal:
+        if model != "binomial" or not trials:
+            return _fail(errors.INVALID_INPUT, "marginal measures need model='binomial' with trials.")
+        from census.epi_measures import area_marginal_measures
+        try:
+            out["marginal"] = area_marginal_measures(frame, formula, trials, marginal, marginal_values,
+                                                     confidence_level, dose_levels)
+        except (ValueError, KeyError, np.linalg.LinAlgError) as exc:
+            return _fail(errors.INVALID_INPUT, f"marginal measures: {exc}")
     if method == "replicate" and spatial is None and spatial_check in ("auto", "on"):
         from census import residual_dependence as rd
         chk = rd.check(frame, formula, mode=spatial_check)

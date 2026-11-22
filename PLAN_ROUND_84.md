@@ -63,9 +63,9 @@ and ORs only. Version 0.80.0. Branch `phase84/epi-measures`. Validation first.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine options, manifest statistics | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `epi_measures_core.py`; criterion `c5f6266` (tag `criterion-r84`) |
+| Results | done | every candidate passes |
+| Engine options, manifest statistics | done (no manifest statistics) | `fit_model(marginal=, dose_levels=)`, `pums_regression(marginal=)` |
+| Example | done | `r84_marginal_example.md` |
+| Goldens, suite | done | both byte-identical; 2269 passed, 42 skipped |
+| Exceptions | listed | `round84_compatibility.md` |

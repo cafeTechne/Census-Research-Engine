@@ -76,3 +76,10 @@ differences in the groups' characteristics?
 4. **Interpretation rule:** "explained" is statistical composition (differences in the covariates'
    distributions), not a causal effect, and the unexplained part is not a measure of discrimination; it also
    absorbs omitted characteristics.
+
+## Risk ratios and prevalence ratios from PUMS (Round 84)
+
+For a common 0/1 outcome, `pums_regression(state, year, "I(HICOV == 2) ~ dis + AGEP", model="logit",
+marginal="dis")` adds the standardized risk ratio and risk difference for the binary exposure, the attributable
+fraction and the modified-Poisson prevalence ratio, all with replicate-weight intervals (validated). Odds ratios from
+the logit overstate the risk ratio for outcomes above about 10%.
