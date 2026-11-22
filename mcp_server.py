@@ -1427,6 +1427,7 @@ for _fn in (
     workflows_inference.reliability_profile,
     workflows_inference.trend_test,
     workflows_inference.interrupted_series,
+    workflows_microdata.decompose_gap,
     workflows_inference.make_figure,
     workflows_inference.make_table,
     workflows_inference.make_results_bundle,
@@ -1479,6 +1480,7 @@ minimum_detectable_difference = workflows_inference.minimum_detectable_differenc
 reliability_profile = workflows_inference.reliability_profile
 trend_test = workflows_inference.trend_test
 interrupted_series = workflows_inference.interrupted_series
+decompose_gap = workflows_microdata.decompose_gap
 make_figure = workflows_inference.make_figure
 make_table = workflows_inference.make_table
 make_results_bundle = workflows_inference.make_results_bundle
