@@ -157,7 +157,7 @@ python -m census tool minimum_detectable_difference --arg moe1=2.1 --arg moe2=2.
 | [`health_inequality`](docs/recipes/health_inequality.md) | Area health inequality indices, indirectly standardized ratios, and disparities between population groups (Kitagawa too) with ACS uncertainty |
 | [`external_health_outcome`](docs/recipes/external_health_outcome.md) | Health outcome from CDC PLACES, USALEEP, County Health Rankings or WONDER, without circularity; binomial counts with denominator trials and robust (HC3) SEs |
 | [`segregation`](docs/recipes/segregation.md) | County residential segregation from tract counts with strict ACS replicate uncertainty |
-| [`context_covariates`](docs/recipes/context_covariates.md) | County covariates from other sources (County Business Patterns, ERS county types and rural-urban codes, CHR additional measures), joined to an ACS frame (Round 72) |
+| [`context_covariates`](docs/recipes/context_covariates.md) | County covariates from other sources (County Business Patterns, ERS county types and rural-urban codes, CHR additional measures; Round 92: Population Estimates, LEHD LODES jobs, ACS migration flows), joined to an ACS frame (Round 72) |
 | [`custom_geographies`](docs/recipes/custom_geographies.md) | Neighborhoods and combined areas: mapping tracts to polygons, summed counts with MOEs, medians from brackets, 2010/2020 tracts (Round 75) |
 | [`dollars`](docs/recipes/dollars.md) | Inflation (R-CPI-U-RS) and place price levels (BEA RPPs) for dollar estimates (Round 75) |
 | [`spatial_patterns`](docs/recipes/spatial_patterns.md) | Global and local spatial clustering (Moran's I, LISA) and maps with reliability (Round 75) |

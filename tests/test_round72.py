@@ -93,7 +93,8 @@ def test_manifest_context_validation():
 def test_listing():
     from census.workflows_inference import list_health_sources
     out = list_health_sources(kind="context")
-    assert out["success"] and set(out["sources"]) == {"cbp", "ers_typology", "ers_rucc", "chr_additional"}
+    assert out["success"] and set(out["sources"]) == {"cbp", "ers_typology", "ers_rucc", "chr_additional",
+                                                      "pep", "lodes", "acs_flows"}  # Round 92
     assert list_health_sources(kind="x")["success"] is False
 
 

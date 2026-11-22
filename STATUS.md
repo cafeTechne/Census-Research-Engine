@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_92.md` (Population Estimates, LODES, migration flows); Round 93 queued (GWR and classification), drafted from Hernán and Robins and from Walker (`docs/literature/`). Earlier: Rounds 88–91 merged (method attribution, causal question specification, positivity, marginal structural models); Rounds 82–87 merged; mapping in `docs/literature/foundations_of_epidemiology.md`. Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_93.md` (GWR, classification, regionalization, diversity), drafted from Walker (`docs/literature/`). Earlier: Rounds 88–92 merged (method attribution, causal question specification, positivity, marginal structural models, PEP/LODES/flows); Rounds 82–87 merged; mapping in `docs/literature/foundations_of_epidemiology.md`. Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -158,6 +158,13 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 92 (v0.88.0; merged, release pending owner approval; implemented by the maintainer agent):**
+data sources from Walker (N68).
+- `census/demographic_sources.py`: Population Estimates (vintages 2019, 2024; totals and age/sex), LEHD LODES8
+  (WAC/RAC/OD; block, tract, county), ACS county-to-county migration flows 2010–2020 with MOEs.
+- Context sources `pep`, `lodes`, `acs_flows`; checks in `r92_source_checks.md`. No new tool. Goldens
+  byte-identical; 2336 passed, 42 skipped; 0 failures.
 
 **Round 91 (v0.87.0; merged, release pending owner approval; implemented by the maintainer agent):**
 marginal structural models for annual policy panels (N67; Hernán and Robins).
@@ -724,7 +731,8 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N65: causal question specification (89; closed);
 - N66: positivity diagnostics and weighting (90; closed);
 - N67: marginal structural models (91; closed, exploratory);
-- N68–N69: PEP/LODES/flows, GWR/classification (Rounds 92–93, planned 2026-11-23 from Hernán and Robins and Walker);
+- N68: Population Estimates, LODES, migration flows (92; closed);
+- N69: GWR/classification (Round 93, planned 2026-11-23 from Hernán and Robins and Walker);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

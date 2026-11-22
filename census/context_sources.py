@@ -14,6 +14,13 @@ Entry format (``build_analysis_frame(context=[...])`` and manifest ``"context": 
     {"source": "ers_typology", "name": "econ_type", "field": "Type_2015_Update"}
     {"source": "ers_rucc", "name": "rucc", "field": "RuralUrbanContinuumCode2013"}   # or "Metro2013"
     {"source": "chr_additional", "name": "segregation_bw", "measure": "v141", "release": 2025}
+    {"source": "pep", "name": "pop_2023", "vintage": 2024, "year": 2023}                       # Round 92
+    {"source": "lodes", "name": "jobs", "year": 2021, "kind": "wac", "column": "C000", "per": 1000, "per_column": "pop"}
+    {"source": "acs_flows", "name": "net_mig", "year": 2020, "field": "net_domestic"}     # adds net_mig_moe
+
+Round 92 sources (``census/demographic_sources.py``): PEP populations are denominators and covariates, never
+outcomes; LODES (noise-infused administrative data, no MOE) and ACS flows (with MOEs, added as ``<name>_moe``) are
+covariates. LODES and flows are fetched for the states present in the frame.
 """
 import hashlib
 import io
@@ -58,6 +65,20 @@ CONTEXT_SOURCES: Dict[str, Dict[str, Any]] = {
                        "licence": "Non-commercial research use", "access": "GitHub raw file at a pinned commit",
                        "years": sorted(CHR_COMMITS), "level": "county", "required": ("name", "measure", "release"),
                        "derived_from": "measure-specific (v141: ACS 2019-2023 B11002 tracts)"},
+    "pep": {"title": "Census Population Estimates (July 1 county population, by vintage)",
+            "publisher": "U.S. Census Bureau", "licence": "Public domain (U.S. Government work)",
+            "access": "www2.census.gov popest dataset files", "years": "vintage 2019: 2010-2019; vintage 2024: 2020-2024",
+            "level": "county", "required": ("name", "vintage", "year"),
+            "derived_from": "decennial census base, births, deaths and migration (not a sample; no MOE)"},
+    "lodes": {"title": "LEHD LODES8 jobs by workplace (wac) or residence (rac)", "publisher": "U.S. Census Bureau (LEHD)",
+              "licence": "Public domain (U.S. Government work)", "access": "lehd.ces.census.gov LODES8 files",
+              "years": "2002-2022 (coverage varies by state)", "level": "county", "required": ("name", "year", "kind"),
+              "derived_from": "unemployment insurance and federal employment records; noise infusion, no MOE"},
+    "acs_flows": {"title": "ACS county-to-county migration flows (five-year)", "publisher": "U.S. Census Bureau",
+                  "licence": "Public domain (U.S. Government work)", "access": "Census API acs/flows (your API key)",
+                  "years": "2010-2020 (last year of the release)", "level": "county",
+                  "required": ("name", "year", "field"), "derived_from": "ACS residence one year ago (sample; MOEs)",
+                  "fields": ["net_domestic", "moved_in", "moved_in_domestic", "moved_out_domestic"]},
 }
 
 
@@ -102,6 +123,28 @@ def validate_context(entries: Any, names: Sequence[str] = ()) -> List[str]:
             errors.append(p+f"field must be one of {info['fields']}")
         if e["source"] == "chr_additional" and e.get("release") not in CHR_COMMITS:
             errors.append(p+f"chr_additional release must be one of {sorted(CHR_COMMITS)}")
+        if e["source"] == "pep":
+            from .demographic_sources import PEP_VINTAGES
+            v = PEP_VINTAGES.get(e.get("vintage"))
+            if v is None:
+                errors.append(p+f"pep vintage must be one of {sorted(PEP_VINTAGES)}")
+            elif e.get("year") not in v["years"]:
+                errors.append(p+f"pep vintage {e['vintage']} covers {v['years'][0]}-{v['years'][-1]}")
+        if e["source"] == "lodes":
+            from .demographic_sources import LODES_JOB_TYPES, LODES_YEARS
+            if e.get("year") not in LODES_YEARS:
+                errors.append(p+f"lodes year must be in {LODES_YEARS[0]}-{LODES_YEARS[-1]}")
+            if e.get("kind") not in ("wac", "rac"):
+                errors.append(p+"lodes kind must be 'wac' (workplace) or 'rac' (residence)")
+            if e.get("job_type", "JT00") not in LODES_JOB_TYPES:
+                errors.append(p+f"lodes job_type must be one of {sorted(LODES_JOB_TYPES)}")
+            if e.get("per") is not None and not e.get("per_column"):
+                errors.append(p+"per needs per_column (the population column of the frame)")
+        if e["source"] == "acs_flows":
+            if not isinstance(e.get("year"), int) or not 2010 <= e["year"] <= 2020:
+                errors.append(p+"acs_flows year must be 2010-2020 (county-to-county releases)")
+            if e.get("field") not in info["fields"]:
+                errors.append(p+f"field must be one of {info['fields']}")
     return errors
 
 
@@ -206,6 +249,36 @@ def context_frame(entries: Sequence[Mapping[str, Any]], frame: Optional[pd.DataF
             if ers is None:
                 ers = fetch_ers()
             s, rec = pd.to_numeric(ers[0][e["field"]], errors="coerce"), ers[1]
+        elif src == "pep":
+            from .demographic_sources import pep_totals
+            t, rec = pep_totals(int(e["vintage"]))
+            t = t[(t.level == "county") & (t.year == int(e["year"]))]
+            s = t.set_index("GEOID").population.astype(float)
+        elif src in ("lodes", "acs_flows"):
+            from . import demographic_sources as ds
+            states = sorted({str(g)[:2] for g in (frame.GEOID if frame is not None and "GEOID" in frame else [])})
+            if not states:
+                raise ValueError(f"context {src} needs a frame with GEOID to know which states to fetch")
+            parts, recs = [], []
+            for st in states:
+                if src == "lodes":
+                    d, r = ds.lodes(st, int(e["year"]), e["kind"], "county", e.get("job_type", "JT00"))
+                    key = "w_county" if e["kind"] == "wac" else "h_county"
+                    parts.append(d.set_index(key)[e.get("column", "C000")].astype(float))
+                else:
+                    d, r = ds.migration_flows(st, int(e["year"]), client=client)
+                    n = ds.net_migration(d).set_index("GEOID")
+                    parts.append(n[[e["field"], e["field"]+"_moe"]])
+                recs.append(r)
+            s = pd.concat(parts)
+            rec = {"source_url": recs[0].get("source_url"), "states": states, "files": recs}
+            if src == "acs_flows":
+                out = out.join(s[e["field"]+"_moe"].rename(e["name"]+"_moe"), how="outer") if not out.empty else \
+                    s[e["field"]+"_moe"].rename(e["name"]+"_moe").to_frame()
+                s = s[e["field"]]
+            elif e.get("per") is not None:
+                pop = _county_values(frame, e["per_column"])
+                s = s.reindex(pop.index).fillna(0)/pop*float(e["per"])
         else:
             s, rec = fetch_chr_additional(e["measure"], int(e["release"]), fetch)
         out = out.join(s.rename(e["name"]), how="outer") if not out.empty else s.rename(e["name"]).to_frame()

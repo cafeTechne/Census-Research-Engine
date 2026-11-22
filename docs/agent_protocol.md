@@ -622,6 +622,14 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+## Population Estimates, LODES and migration flows (Round 92)
+
+<!-- mcp-rules:A -->
+Round 92 context sources: pep (Population Estimates, July 1 county population; vintage 2019 or 2024; no MOE;
+never mix vintages; a denominator or covariate, never an outcome), lodes (LEHD jobs by workplace or residence;
+noise-infused, no MOE) and acs_flows (ACS county-to-county migration 2010-2020 with <name>_moe; later releases give
+state partners only). All are covariates; list them with list_health_sources(kind="context").
+
 ## Marginal structural models (Round 91)
 
 <!-- mcp-rules:A -->

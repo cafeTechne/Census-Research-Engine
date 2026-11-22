@@ -200,6 +200,12 @@ SOURCES: Dict[str, Dict[str, Any]] = {
                     url="https://www.bea.gov/data/prices-inflation/regional-price-parities-state-and-metro-area"),
     "bls_cpi_rs": _src("data", "U.S. Bureau of Labor Statistics", 2024, "Consumer Price Index Retroactive Series "
                        "(R-CPI-U-RS)", url="https://www.bls.gov/cpi/research-series/r-cpi-u-rs-home.htm"),
+    "pep": _src("data", "U.S. Census Bureau", 2025, "Population Estimates Program: county population totals and "
+                "characteristics (vintages 2019 and 2024)", url="https://www.census.gov/programs-surveys/popest.html"),
+    "lodes": _src("data", "U.S. Census Bureau", 2024, "LEHD Origin-Destination Employment Statistics (LODES8)",
+                  url="https://lehd.ces.census.gov/data/"),
+    "acs_flows": _src("data", "U.S. Census Bureau", 2022, "American Community Survey county-to-county migration flows",
+                      url="https://www.census.gov/topics/population/migration/guidance/county-to-county-migration-flows.html"),
     "cbp_ers": _src("data", "U.S. Census Bureau; USDA Economic Research Service", 2024, "County Business Patterns; "
                     "ERS county typology codes and Rural-Urban Continuum Codes",
                     url="https://www.census.gov/programs-surveys/cbp.html"),
@@ -249,7 +255,8 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "apportion_tracts": [("decennial2020", "data"), *GEO, _audit("rate_apportionment_validation.md")],
     "custom_area_mapping": [("decennial2020", "data"), *GEO],
     # analysis frames and models
-    "build_analysis_frame": [*ACS, *REP, ("cbp_ers", "data"), ("chr", "data")],
+    "build_analysis_frame": [*ACS, *REP, ("cbp_ers", "data"), ("chr", "data"), ("pep", "data"), ("lodes", "data"),
+                             ("acs_flows", "data"), ("walker2023", "guidance")],
     "fit_model": [*REP, ("statsmodels", "software"), ("fuller", "method"), ("carroll", "method"), ("simex", "method"),
                   ("fay_herriot1979", "method"), ("muller_watson2022", "method"), ("cluster_im", "method"),
                   ("bovbjerg2020", "guidance"), _audit("inference_validation.md"), _audit("epi_measures_validation.md")],
@@ -301,7 +308,8 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "spatial_regression": [("spatial_lesage2009", "method"), ("pysal", "software"), *GEO,
                            _audit("spatial_regression_validation.md")],
     # health and context sources
-    "list_health_sources": [("cdc_places", "data"), ("chr", "data"), ("usaleep", "data"), ("cdc_wonder", "data")],
+    "list_health_sources": [("cdc_places", "data"), ("chr", "data"), ("usaleep", "data"), ("cdc_wonder", "data"),
+                            ("pep", "data"), ("lodes", "data"), ("acs_flows", "data")],
     # reporting and manifests
     "make_figure": [("acs", "guidance")], "make_table": [("acs", "guidance"), *EPI],
     "make_results_bundle": [("acs", "guidance"), *EPI],
