@@ -546,6 +546,14 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+## Designating areas by a threshold (Round 85)
+
+<!-- mcp-rules:A -->
+Round 85: a threshold designation on noisy ACS rates is a screening test. designation_accuracy (full profile) gives
+each area's probability of truly exceeding the threshold (Fay-Herriot posterior; validated) and the expected
+sensitivity, specificity, PPV and NPV of the point, lower-bound, probability-.5 and probability-.8 rules
+(exploratory). Report any designated list with its rule's expected PPV and sensitivity.
+
 ## Risk ratios instead of odds ratios (Round 84)
 
 <!-- mcp-rules:A -->

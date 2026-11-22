@@ -5,6 +5,19 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.81.0 (Round 85): area designations as screening tests
+
+- **Designation accuracy** (`census/designation.py`; frozen core `census/designation_core.py`; N62; *Foundations of
+  Epidemiology* chapter 11): each area's probability of truly exceeding a threshold (Fay–Herriot posterior on the
+  arcsine scale, or the direct flat-prior probability) and the expected sensitivity, specificity, PPV and NPV of
+  four designation rules.
+- **Validation** (`docs/audits/designation_validation.md`, criterion `61fa47a`; MI/NY tracts and counties, 10–50%
+  truly qualifying): the Fay–Herriot probability is calibrated (within .031); the direct probability (up to .17
+  off) and the rule-accuracy criterion (PPV predictive interval .54–.85 on tracts; expected values within about .01)
+  fail and are exploratory.
+- **Tool `designation_accuracy`** (full profile; 77 tools); `small_area` recipe section "Designating areas".
+- **Example** (`docs/audits/r85_designation_example.md`, exploratory): Michigan tracts at 20% poverty.
+
 ## 0.80.0 (Round 84): marginal risk ratios, prevalence ratios, attributable fractions, dose-response
 
 - **Marginal (standardized) measures** (`census/epi_measures.py`; frozen core `census/epi_measures_core.py`; N61;

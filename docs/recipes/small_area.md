@@ -31,6 +31,23 @@ releases (for example 2014–2018 and 2019–2023) with the Rao–Yu model and r
 - Validated (.897–.898 coverage); the MSE gain over single-release estimates was 3–7% on counties and 10–24% on
   tracts.
 
+## Designating areas (Round 85)
+
+Profile: full (`designation_accuracy`).
+
+Programs often designate areas by a threshold on a noisy ACS rate ("tracts with poverty of at least 20%"). The
+designation is a screening test (*Foundations of Epidemiology* chapter 11): some designated areas are truly below the
+line (false positives) and some missed areas are truly above it.
+1. `designation_accuracy(input_path, "poverty", 20, se_col="poverty_se", covariates=[...])` gives each area's
+   probability of truly being at or above the threshold (Fay–Herriot posterior; validated, calibration within .031
+   on MI/NY tracts and counties) and, for four rules (point estimate, lower 90% bound, probability ≥ .5, ≥ .8), the
+   number designated with the expected sensitivity, specificity, PPV and NPV (exploratory).
+2. Choose the rule by cost: the point rule maximises sensitivity, the lower-bound and probability-.8 rules maximise
+   PPV. In MI tracts at 20% poverty the point rule designates 682 tracts with expected PPV .78; probability ≥ .8
+   designates 373 with PPV .94.
+3. Report the designated list with the rule's expected PPV and sensitivity. Do not use the direct-estimate
+   probability (`probability_above_direct`): it ignores regression to the mean and was miscalibrated by up to .17.
+
 ## Three levels (tracts in counties in states)
 
 `multilevel_model(input_path, "e0 ~ 1", ["state", "county"])` fits a three-level random-intercept model (Round 73):
