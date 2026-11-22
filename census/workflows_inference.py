@@ -128,6 +128,7 @@ def build_analysis_frame(
     table_code: Optional[Union[str, List[str]]] = None,
     year: Optional[int] = None,
     output_path: Optional[str] = None,
+    context: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """Make a model-ready table from a downloaded file: each variable gets its
     estimate, standard error (_se), CV (_cv), and method, plus optional Census
@@ -142,6 +143,9 @@ def build_analysis_frame(
         use_replicates: Download Census replicate estimates (needs table_code, year).
         table_code, year: Detailed table(s) (one code or a list) and release for replicates.
         output_path: Where to write the frame (default downloads/analysis_frame.parquet).
+        context: Optional county covariates from other sources (Round 72; list_health_sources(kind="context")),
+            e.g. [{"source": "ers_rucc", "name": "rucc", "field": "RuralUrbanContinuumCode2013"}]; tracts get
+            their county's value.
 
     Example: build_analysis_frame("out/B17001_county_panel_2023.csv", derive=[...])
     """
@@ -160,6 +164,15 @@ def build_analysis_frame(
             geoids = list(df["GEOID"].astype(str))
             rep = pd.concat([_replicates_for(t, year, df, geoids) for t in tables], ignore_index=True)
             frame, replicates = attach_replicates(frame, rep, derive=derive)
+        ctx_info = None
+        if context:
+            from census.context_sources import context_frame, join_context, validate_context
+            errs = validate_context(context, list(frame.columns))
+            if errs:
+                return _fail(errors.INVALID_INPUT, "; ".join(errs), "fix the context entries")
+            ctx, prov = context_frame(context, frame)
+            frame, join = join_context(frame, ctx)
+            ctx_info = {"provenance": prov, "join": join}
         report = coverage_report(frame, replicates)
     except _INPUT_ERRORS as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
@@ -176,6 +189,7 @@ def build_analysis_frame(
         "fit_model (or correlation_matrix) with input_path=output_path"
         + (" and replicates_path" if rep_path else ""),
         output_path=path, replicates_path=rep_path, coverage=_records(report),
+        **({"context": ctx_info} if ctx_info else {}),
     )
 
 
@@ -1183,7 +1197,7 @@ def save_json(result: Dict[str, Any], path: str) -> str:
     return path
 
 
-def list_health_sources(source: Optional[str] = None) -> Dict[str, Any]:
+def list_health_sources(source: Optional[str] = None, kind: str = "outcome") -> Dict[str, Any]:
     """List external health data sources a manifest can use as an outcome, with the
     circularity rule. Read each measure's kind and acs_equivalent before designing a study.
 
@@ -1196,11 +1210,21 @@ def list_health_sources(source: Optional[str] = None) -> Dict[str, Any]:
 
     Args:
         source: places, usaleep, chr or wonder; omit for all.
+        kind: "outcome" (default) or "context" (Round 72: county covariate sources such as CBP, ERS
+            typology and rural-urban codes, CHR additional measures; never outcomes).
 
     Example: list_health_sources(source="places")
     """
     from census.health_sources import registry_summary
 
+    if kind == "context":
+        from census.context_sources import list_context_sources
+        ctx = list_context_sources()
+        return _ok(f"Context covariate sources: {', '.join(ctx)} (covariates only, never outcomes)",
+                   "add a context entry to build_analysis_frame(context=[...]) or a manifest 'context' block",
+                   sources=ctx)
+    if kind != "outcome":
+        return _fail(errors.INVALID_INPUT, "kind must be 'outcome' or 'context'")
     try:
         reg = registry_summary(source)
     except ValueError as exc:

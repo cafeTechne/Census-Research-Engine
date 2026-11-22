@@ -5,6 +5,28 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.67.0 (Round 72): context covariate sources
+
+- New `census/context_sources.py`:
+  - `cbp`: County Business Patterns establishments by NAICS, 2012–2022, through the Census API and the query cache;
+  - `ers_typology` and `ers_rucc`: ERS 2015 economic types, 2013 rural–urban codes and metro status, from the ERS
+    GIS service (CC0), cached;
+  - `chr_additional`: CHR additional measures at CHR's pinned calculation-repository commit, cached.
+- Interfaces:
+  - `build_analysis_frame(context=[...])`;
+  - a manifest `"context"` block (validated; joined after external data; `run.json` records provenance; a failed
+    join is a `context_join_failed` deviation);
+  - `list_health_sources(kind="context")`;
+  - recipe `context_covariates`.
+- Tract frames take their county's value. Context variables are covariates, never outcomes.
+- Plan item "state-wide tract pulls": already the behaviour when no counties are named (`build_entities("tract",
+  state)` makes one request per state), so no change.
+- Live checks:
+  - the CHR v141 file hashes to the value pinned in Round 66;
+  - CBP 2012 NAICS 813110 gives Autauga County (01001) 51 establishments, as in Round 69;
+  - ERS returns every county, with type codes 0–5.
+- Goldens byte-identical. Acceptance: goldens byte-identical; 2179 passed, 38 skipped, 1 core-profile rule failure fixed (affected tests rerun).
+
 ## 0.66.0 (Round 70): `.env` discovery and long-job checkpoints
 
 - **N47:** `census/env.py` `load_environment()` replaces the bare `load_dotenv()` in `census/api.py` and

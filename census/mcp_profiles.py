@@ -68,8 +68,9 @@ CORE_STYLE_PROFILES = ("core", "core_spatial")
 
 # Core-profile parameters that are nested objects by necessity (J2 exceptions).
 NESTED_PARAM_EXCEPTIONS: Dict[str, List[str]] = {
-    # Optional list of {"name","op","num","den"} specs; the frame is usable without it.
-    "build_analysis_frame": ["derive"],
+    # Optional lists of {"name","op","num","den"} specs and (Round 72) context covariate entries; the frame is
+    # usable without either.
+    "build_analysis_frame": ["derive", "context"],
 }
 
 DESCRIPTION_BUDGET = 700  # characters, enforced by tests/test_mcp_profiles.py
