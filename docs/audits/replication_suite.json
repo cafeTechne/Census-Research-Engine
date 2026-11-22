@@ -1,0 +1,238 @@
+[
+ {
+  "id": "chr_segregation",
+  "status": "agrees",
+  "max_abs_difference": 2.842170943040401e-14,
+  "compared": 2055,
+  "tolerance": {
+   "kind": "max_abs_vs_published",
+   "value": 1e-06,
+   "text": "exact: every county's D within 1e-6 points of CHR, and the same 2,055 counties"
+  },
+  "missing": [],
+  "n_missing": 0,
+  "counties": 2055,
+  "chr_counties": 2055,
+  "chr_file_sha256": "2c737ea89db403c0cbf825b10ad2e03fccfcdc4e66fd242eb90b2a9c305636fe",
+  "counts_match_original": true,
+  "seconds": 3
+ },
+ {
+  "id": "state_gini",
+  "status": "agrees",
+  "max_abs_difference": 4.803195039038144e-06,
+  "compared": 12,
+  "tolerance": {
+   "kind": "each_within_original",
+   "value": 0.0005,
+   "text": "each state's Gini within .0005 of Round 66"
+  },
+  "missing": [],
+  "n_missing": 0,
+  "states": [
+   {
+    "state": "56",
+    "gini": 0.4458469440806405,
+    "lower": 0.43960994294104216,
+    "upper": 0.45208394522023887,
+    "validated": true
+   },
+   {
+    "state": "50",
+    "gini": 0.4526618940684698,
+    "lower": 0.4469166587304677,
+    "upper": 0.4584071294064719,
+    "validated": true
+   },
+   {
+    "state": "10",
+    "gini": 0.45033177121787105,
+    "lower": 0.44391304202045023,
+    "upper": 0.45675050041529186,
+    "validated": true
+   },
+   {
+    "state": "35",
+    "gini": 0.47591042797304417,
+    "lower": 0.47234045802013613,
+    "upper": 0.4794803979259522,
+    "validated": true
+   },
+   {
+    "state": "28",
+    "gini": 0.4842500850007052,
+    "lower": 0.48127105074865045,
+    "upper": 0.48722911925275997,
+    "validated": true
+   },
+   {
+    "state": "04",
+    "gini": 0.4615968806577908,
+    "lower": 0.45939480946994576,
+    "upper": 0.46379895184563585,
+    "validated": true
+   },
+   {
+    "state": "13",
+    "gini": 0.4770428106065715,
+    "lower": 0.4752641202943648,
+    "upper": 0.4788215009187782,
+    "validated": true
+   },
+   {
+    "state": "26",
+    "gini": 0.46317390355692434,
+    "lower": 0.46165881708113354,
+    "upper": 0.46468899003271513,
+    "validated": true
+   },
+   {
+    "state": "36",
+    "gini": 0.5138535323773352,
+    "lower": 0.5124239980602687,
+    "upper": 0.5152830666944017,
+    "validated": true
+   },
+   {
+    "state": "48",
+    "gini": 0.4760411528666676,
+    "lower": 0.47490325930155247,
+    "upper": 0.4771790464317827,
+    "validated": true
+   },
+   {
+    "state": "06",
+    "gini": 0.48760519680496095,
+    "lower": 0.486661301540148,
+    "upper": 0.4885490920697739,
+    "validated": true
+   },
+   {
+    "state": "37",
+    "gini": 0.474179682078283,
+    "lower": 0.4726029691706559,
+    "upper": 0.47575639498591005,
+    "validated": true
+   }
+  ],
+  "seconds": 32
+ },
+ {
+  "id": "nc_ice",
+  "status": "agrees",
+  "max_abs_difference": 0.0,
+  "compared": 6,
+  "tolerance": {
+   "kind": "each_within_original",
+   "value": 0.001,
+   "text": "each of the 6 slopes within .001 of Round 67"
+  },
+  "missing": [],
+  "n_missing": 0,
+  "tracts": 1971,
+  "islands": 1,
+  "slopes": {
+   "ice_race": {
+    "ols": 0.04543609628063982,
+    "spatial_error": 0.05403692461902612,
+    "scpc": {
+     "lower": 0.025205497947335533,
+     "upper": 0.06566669461387381,
+     "validated": true,
+     "rho_bar": 0.2
+    }
+   },
+   "ice_income": {
+    "ols": 0.12597570133884825,
+    "spatial_error": 0.12188633536662125,
+    "scpc": {
+     "lower": 0.10889232573357419,
+     "upper": 0.1430590769441327,
+     "validated": true,
+     "rho_bar": 0.2
+    }
+   },
+   "ice_income_race": {
+    "ols": 0.14645141368196596,
+    "spatial_error": 0.1417749934984614,
+    "scpc": {
+     "lower": 0.13157582540661764,
+     "upper": 0.16132700195726854,
+     "validated": true,
+     "rho_bar": 0.2
+    }
+   }
+  },
+  "seconds": 20
+ },
+ {
+  "id": "le_variance",
+  "status": "agrees",
+  "max_abs_difference": 1.1361223073436122e-10,
+  "compared": 3,
+  "tolerance": {
+   "kind": "each_within_original",
+   "value": 0.1,
+   "text": "each share within 0.1 point of Round 68"
+  },
+  "missing": [],
+  "n_missing": 0,
+  "shares": {
+   "tract": 69.99385787300264,
+   "county": 10.598503130802591,
+   "state": 19.40763899619478
+  },
+  "tracts": 65662,
+  "counties": 3020,
+  "top_units": 49,
+  "seconds": 7
+ },
+ {
+  "id": "monnat_d",
+  "status": "agrees",
+  "max_abs_difference": 2.1316282072803006e-14,
+  "compared": 1,
+  "tolerance": {
+   "kind": "each_within_original",
+   "value": 0.05,
+   "text": "the economic distress coefficient within .05 of Round 69"
+  },
+  "missing": [],
+  "n_missing": 0,
+  "counties": 2459,
+  "islands": 24,
+  "slopes": {
+   "econ_index": {
+    "estimate": 9.945603215399533,
+    "lower": 7.766296218658033,
+    "upper": 12.124910212141033
+   },
+   "family_index": {
+    "estimate": 8.102325259407028,
+    "lower": 6.474373953697748,
+    "upper": 9.730276565116307
+   },
+   "rent30": {
+    "estimate": 1.4700051681336288,
+    "lower": 0.17474746604771219,
+    "upper": 2.765262870219545
+   },
+   "vacant": {
+    "estimate": 0.8209638338366121,
+    "lower": -0.9049510743748885,
+    "upper": 2.5468787420481127
+   },
+   "type_mining": {
+    "estimate": 4.912560928440931,
+    "lower": -0.007987941295088952,
+    "upper": 9.833109798176952
+   },
+   "type_government": {
+    "estimate": -9.033998724217184,
+    "lower": -12.430985022877943,
+    "upper": -5.637012425556426
+   }
+  },
+  "seconds": 7
+ }
+]

@@ -19,7 +19,7 @@ standing rules, and what is next. Read this instead of old plans. Updated each r
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_74.md` (replication suite). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | None queued (Rounds 70–74 merged). Merged plans are archived (below). Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -73,6 +73,7 @@ manifests refuse them in confirmatory analyses.
 | Replication E (Round 68) | **Replicated**: Boing et al. 2020 headline: tract/county/state shares of US life-expectancy variation 70.0/10.6/19.4% vs 70.4/10.7/19.0% (USALEEP; counts match exactly). Three-level model via statsmodels (engine is two-level only: N46) | `r68_le_variance_replication.md`, criterion `110c22e` |
 | Tract-level spatial intervals (Round 71) | **Passed** (NC 2018 and MI 2020 tracts, fields correlated over 0–100 km): SCPC for OLS slopes with ρ̄ .20 (.885–.972; the tract default) and .30 (.932–.988). **Failed**: the spatial error ML slope interval (.63–.76 beyond 20 km) and HC3 (.10–.26 beyond 0 km). Tract Poisson and binomial SCPC are untested and stay exploratory | `tract_spatial_validation.md`, criterion `f947f64` |
 | Replication C and SCPC at tract level (Round 67) | **Partly replicated**: Mitchell et al. 2022 (NC tract life expectancy on ICE), 5 of 6 slopes; ICE Race and Income match to the printed digit (R² 19.60%, 48.19% exact); the combined index's OLS slope is 13% larger (definition). **SCPC failed on NC tracts** at 100 km (.75/.81; HC3 .12–.26), so tract-level SCPC with ρ̄ .05/.10 is exploratory (Round 71 validated .20/.30) | `r67_nc_ice_replication.md`, `r67_nc_tract_validation.md`; plan `e75a41b`, criterion `14b78b2` (deviation 2) |
+| Replication suite (Round 74) | **All five reruns agree** with their original audits through the engine's own routes (A exact against CHR, 2,055 counties; B within 5e-6; C 0; D 2e-14; E 1e-10). Reruns, not new registered results | `replication_suite.md`, `docs/replications/` |
 | Replications and segregation on new geometry (Round 66) | **Replicated**: CHR 2025 county Black/White dissimilarity (2,055 counties, exact); Census state Gini B19083 from PUMS (median difference .0008; 10 of 12 intervals contain it). **Simulation on GA/TX/AZ**: isolation and H pass; bias-corrected D failed at noise .75–1 on TX (16 of 18 counties ≥ .80), so its range now ends at .75 | `r66_numeric_replication.md`, `r66_segregation_geometry_validation.md`, criterion `dd48bf6`/`d30d7ed` |
 | Small samples and many covariates (Round 63) | **Passed**: conservative bootstrap-t (`bootstrap_t_cons`) for interrupted series from 17 points (.865–.896); bootstrap-bias-corrected variant from 19; G1 with up to 8 and G2 with up to 7 error-prone covariates when every reliability ≥ .8. **Failed**: every interrupted-series method at 15 points (.849–.855); G2 with 8 (.856) | `small_many_validation.md`, criterion `ac2f34c` |
 | Leftover failures (Round 62) | **Passed**: binomial SCPC with ρ̄ .15 (.886–.954) and .20; clipped six-group bias-corrected H at any finite noise level. **Failed**: Theil T also with 8,000 households (.858): exploratory at every sample size tested | `leftover_failures_validation.md`, criterion `8f14e39` |
@@ -143,6 +144,19 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 74 (v0.70.0; merged after Round 73, release pending owner approval; implemented by the maintainer agent):**
+replication suite, no new statistics (N52).
+- The five published replications are specs in `docs/replications/`. Each records the published target, the
+  pre-set rule, the original result, the engine route and a fixed tolerance.
+- `census/replications.py` and `scripts/run_replications.py` rerun the specs and write
+  `docs/audits/replication_suite.md`. A missing input (the owner's WONDER exports) is reported as skipped and never
+  fetched.
+- **Every rerun agrees** with its original audit. A matches CHR exactly; B, C, D and E match their audits to within
+  rounding.
+- Recipe `replications`.
+
+Goldens unchanged. Acceptance: SUITE_LINE_74.
 
 **Round 73 (v0.69.0; merged after Round 71, release pending owner approval; implemented by the maintainer agent):**
 methods the replications needed (N51; criterion `e97e9fc`, kept at tag `criterion-r73`).
@@ -496,7 +510,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N49: tract-level spatial inference (71; closed: SCPC rho_bar .20/.30 validated for tract OLS);
 - N50: context data sources (CBP, ERS, CHR additional) and state-wide tract pulls (72);
 - N51: three-level models, loading-weighted indices, expected counts (73; closed);
-- N52: replication suite (74);
+- N52: replication suite (74; closed);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.
