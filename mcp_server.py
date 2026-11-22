@@ -339,6 +339,11 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+Round 86: report an E-value with ratio estimates (bias_analysis kind="e_value"; also in stratified_analysis and the
+marginal measures): the minimum unmeasured-confounder strength that would explain the estimate away. A 2 x 2 table
+can be corrected for misclassification (kind="misclassification"); its probabilistic interval failed validation
+(exploratory). For a covariable of uncertain causal direction, report results with and without it.
+
 Round 85: a threshold designation on noisy ACS rates is a screening test. designation_accuracy (full profile) gives
 each area's probability of truly exceeding the threshold (Fay-Herriot posterior; validated) and the expected
 sensitivity, specificity, PPV and NPV of the point, lower-bound, probability-.5 and probability-.8 rules
@@ -1488,6 +1493,7 @@ for _fn in (
     workflows_inference.trend_test,
     workflows_inference.interrupted_series,
     workflows_inference.designation_accuracy,
+    workflows_inference.bias_analysis,
     workflows_inference.spatial_scan,
     workflows_inference.disparity_measures,
     workflows_inference.joinpoint,
@@ -1546,6 +1552,7 @@ reliability_profile = workflows_inference.reliability_profile
 trend_test = workflows_inference.trend_test
 interrupted_series = workflows_inference.interrupted_series
 designation_accuracy = workflows_inference.designation_accuracy
+bias_analysis = workflows_inference.bias_analysis
 spatial_scan = workflows_inference.spatial_scan
 disparity_measures = workflows_inference.disparity_measures
 joinpoint = workflows_inference.joinpoint

@@ -59,6 +59,8 @@ def area_marginal_measures(frame: pd.DataFrame, formula: str, trials: str, expos
                       "each value (g-computation; HC3 delta SEs, population target). The attributable fraction is the "
                       "share of the outcome that would not occur if every area had the low exposure value; fractions "
                       "over several causes sum past 100%."])
+    from .bias_analysis_core import e_value as _ev  # Round 86
+    out["e_value"] = _ev(out["rr"], out["rr_lower"], out["rr_upper"])
     if prev > COMMON_OUTCOME:
         out["notes"].append(OR_NOTE)
     if dose_levels >= 3:
@@ -83,6 +85,8 @@ def pums_marginal_measures(y: np.ndarray, X: np.ndarray, W: np.ndarray, col: int
     out["paf_lower"], out["paf_upper"] = sorted((out["paf_lower"], out["paf_upper"]))
     prev = float(np.average(y, weights=W[:, 0]))
     out.update(prevalence=prev, validated=VALIDATED["pums_marginal"], audit=AUDIT, notes=[])
+    from .bias_analysis_core import e_value as _ev  # Round 86
+    out["e_value"] = _ev(out["rr"], out["rr_lower"], out["rr_upper"])
     if prevalence_ratio:
         out["prevalence_ratio"] = em.prevalence_ratio(y, X, W, col, level)
     if prev > COMMON_OUTCOME:

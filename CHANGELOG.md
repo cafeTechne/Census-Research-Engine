@@ -5,6 +5,18 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.82.0 (Round 86): quantitative bias analysis
+
+- **E-values** (VanderWeele and Ding 2017; `census/bias_analysis.py`, frozen core `census/bias_analysis_core.py`; N63;
+  *Foundations of Epidemiology* chapters 6–7) for risk, rate, prevalence and odds ratios and standardized
+  differences; added to `stratified_analysis` and the marginal measures.
+- **Misclassification bias analysis** of 2 x 2 tables: simple correction (outcome or exposure, differential or not)
+  and a probabilistic analysis with beta priors. Validation (`docs/audits/bias_analysis_validation.md`): the simple
+  correction is unbiased; the probabilistic interval **fails** (.76–.83 to about 1.00) and is exploratory.
+- **Tool `bias_analysis`** (full profile; 78 tools); `reporting` recipe section; both-directions helper for
+  covariables of uncertain causal direction.
+- **Example** (`docs/audits/r86_bias_example.md`, exploratory).
+
 ## 0.81.0 (Round 85): area designations as screening tests
 
 - **Designation accuracy** (`census/designation.py`; frozen core `census/designation_core.py`; N62; *Foundations of
