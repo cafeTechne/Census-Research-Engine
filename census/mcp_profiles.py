@@ -213,7 +213,8 @@ CORE_INSTRUCTIONS = """\
 US Census ACS 5-year data tools. Every result has `summary` and `next_step`.
 1. For any "how do I..." or multi-step task, call get_recipe FIRST and follow it
    (no arguments lists recipes).
-2. Report every estimate with its 90% margin of error (MOE).
+2. Report every estimate with its 90% margin of error (MOE). Area results describe areas,
+   not people, at one time: say "is associated with", never "causes".
 3. Rates: derive_estimate(operation='proportion') when the numerator is part of
    the denominator. Compare two estimates with calculate_significance.
 4. Trends need non-overlapping releases (e.g. 2013, 2018, 2023): trend_test.

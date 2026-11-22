@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_82.md` (epidemiologic reporting conventions); Rounds 83–87 queued (stratified analysis, marginal measures, designation accuracy, bias analysis, ecologic vs individual), drafted from *Foundations of Epidemiology* (`docs/literature/foundations_of_epidemiology.md`). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_83.md` (stratified analysis; Round 82 merged); Rounds 84–87 queued (marginal measures, designation accuracy, bias analysis, ecologic vs individual), drafted from *Foundations of Epidemiology* (`docs/literature/foundations_of_epidemiology.md`). Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -151,6 +151,16 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 82 (v0.78.0; merged, release pending owner approval; implemented by the maintainer agent):**
+epidemiologic reporting conventions from *Foundations of Epidemiology* (N59); no new statistics.
+- Measure types and design labels in manifest methods text and run info; generated limitations; interpretation
+  templates; 95% display option; ACS allocation shares (`reliability_profile(allocation_tables=...)`); Table 1;
+  design limitations in results bundles; association-language rule.
+- Checks (`r82_reporting_checks.md`): B99 lines sum to published totals in all 145 MI/NY counties; Table 1
+  reproduces direct tertile means. Median allocation in MI/NY counties: health insurance 20.5%, disability 12.1%.
+- Goldens: intended changes only (methods text, two run-info keys, hashes); `round82_compatibility.md`.
+  Acceptance: 2258 passed, 42 skipped; 0 failures.
 
 **Round 81 (v0.77.0; merged, released in the bundled v0.77.0; implemented by the maintainer agent):**
 Kulldorff Poisson spatial scan for county counts (N58).
@@ -613,7 +623,8 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N56: Oaxaca–Blinder and Fairlie decompositions (79; closed);
 - N57: small-area proportions and several releases (80; closed);
 - N58: spatial scan (81; closed);
-- N59–N64: epidemiologic reporting, stratified analysis, marginal measures, designation accuracy, bias analysis, ecologic vs individual (Rounds 82–87, planned 2026-11-22 from *Foundations of Epidemiology*);
+- N59: epidemiologic reporting conventions (82; closed);
+- N60–N64: stratified analysis, marginal measures, designation accuracy, bias analysis, ecologic vs individual (Rounds 83–87, planned 2026-11-22 from *Foundations of Epidemiology*);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

@@ -859,6 +859,10 @@ def _bundle(state: RunState) -> Dict[str, Any]:
     run_info = {"manifest_hash": state.h, "analysis_status": status, "deviations": state.deviations,
                 "exclusions": state.exclusion_log, "extraction": state.extraction, "n_units": None if state.frame is None
                 else int(len(state.frame)), "title": state.m.get("title"), "data_source": state.source, "replicates": rep_info}
+    from ..epi_reporting import analysis_outcomes, design_labels, manifest_measure_types  # Round 82
+    _types = manifest_measure_types(state.m)
+    run_info["design"] = design_labels(state.m.get("geography", {}).get("level"))
+    run_info["measure_types"] = {o: _types.get(o, "unspecified") for o in analysis_outcomes(state.m)}
     if state.spatial_info is not None:
         run_info["spatial_coordinates"] = state.spatial_info
     if state.m.get("adjustments"):

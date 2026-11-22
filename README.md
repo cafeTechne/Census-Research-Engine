@@ -163,7 +163,7 @@ python -m census tool minimum_detectable_difference --arg moe1=2.1 --arg moe2=2.
 | [`spatial_patterns`](docs/recipes/spatial_patterns.md) | Global and local spatial clustering (Moran's I, LISA) and maps with reliability (Round 75) |
 | [`cross_release`](docs/recipes/cross_release.md) | Variable concordance across releases and reviewed crosswalk decisions (Round 75) |
 | [`decennial_counts`](docs/recipes/decennial_counts.md) | Use 2020 Census counts (P.L. 94-171, DHC) without inventing margins of error |
-| [`reporting`](docs/recipes/reporting.md) | Publication tables, maps, codebooks and exploratory results bundles (Round 75) |
+| [`reporting`](docs/recipes/reporting.md) | Publication tables, maps, codebooks and exploratory results bundles (Round 75); epidemiologic reporting conventions: measure types, ecologic and cross-sectional limits, allocation shares, Table 1 (Round 82) |
 | [`replications`](docs/recipes/replications.md) | Rerun the five published replications (Rounds 66-69) and check the engine still reproduces them (Round 74) |
 
 </details>

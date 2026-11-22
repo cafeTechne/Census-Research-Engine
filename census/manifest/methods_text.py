@@ -483,6 +483,27 @@ def _methods_deviations(results, lines):
             lines.append(f"- Exclusion {e['rule']}: " + ", ".join(f"{k}={v}" for k, v in e.items() if k != "rule"))
 
 
+def _methods_design(m, lines):
+    """Round 82: study design and measure types (Foundations of Epidemiology, chapters 1, 2 and 9)."""
+    from ..epi_reporting import MEASURE_TEXT, analysis_outcomes, design_labels, manifest_measure_types
+    types = manifest_measure_types(m)
+    d = design_labels(m.get("geography", {}).get("level"))
+    lines += ["", "### Study design and measures", "",
+              f"Design: {' and '.join(d['design'])}; the units of analysis are {d['unit']} areas."]
+    for o in analysis_outcomes(m):
+        lines.append(f"- `{o}` is {MEASURE_TEXT[types.get(o, 'unspecified')]}.")
+
+
+def _methods_limitations(m, results, lines):
+    """Round 82: generated limitations (Foundations of Epidemiology, chapters 1, 6 and 9; Appendix 1)."""
+    from ..epi_reporting import analysis_outcomes, limitations, manifest_measure_types
+    run = results or {}
+    items = limitations(m.get("geography", {}).get("level"), measure_types=manifest_measure_types(m),
+                        outcomes=analysis_outcomes(m), deviations=run.get("deviations", []),
+                        exploratory_methods=["registered as exploratory"] if m.get("exploratory") else [])
+    lines += ["", "### Limitations", ""]+[f"- {x}" for x in items]
+
+
 def _methods_references(cites, lines, FH_REFS):
     lines += ["", "### References", ""]
     seen = []
@@ -519,11 +540,13 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
         lines += [f"**Analysis status: {status}**"
                   + (f": {INCOMPLETE_STATUS_TEXT}." if status == STATUS_CONFIRMATORY_INCOMPLETE else "."), ""]
     _methods_data(m, run, source, lines, cites, data_citation)
+    _methods_design(m, lines)
     _methods_derivations(m, rep_info, lines, cites)
     _methods_adjustments(m, run, lines, cites)
     _methods_replicates(rep_info, lines)
     _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites)
     _methods_hypotheses(m, corr, level, lines, cites)
     _methods_deviations(results, lines)
+    _methods_limitations(m, results, lines)
     _methods_references(cites, lines, FH_REFS)
     return "\n".join(lines) + "\n"

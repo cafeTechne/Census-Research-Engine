@@ -546,6 +546,16 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+## Epidemiologic reporting conventions (Round 82)
+
+<!-- mcp-rules:A -->
+Round 82 (Foundations of Epidemiology): area analyses are ECOLOGIC (they describe areas, not individuals) and
+CROSS-SECTIONAL (no temporal order): write "is associated with" / "times as high in ... compared with ...", never
+"causes", "leads to" or "effect of" (except estimate_effect and DiD, which state their assumptions). Say whether
+an outcome is a prevalence (ACS, PLACES) or an incidence rate (WONDER per person-year), with units and period.
+An interval that includes the null means "no evidence of a difference", not "no difference". Report allocation
+(imputation) shares above 5% (reliability_profile allocation_tables) and give a Table 1 (make_table kind="table1").
+
 ## Spatial scan (Round 81)
 
 <!-- mcp-rules:A -->

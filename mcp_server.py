@@ -339,6 +339,13 @@ log_rr/bgv/theil/mld up to .30; counts (Poisson, known populations) rd and log_r
 idisp/bgv/theil/mld failed, .07-.84: exploratory); 2-6 groups. Kitagawa rate/composition decomposition (manifest
 "kitagawa", or disparity_measures(decompose_areas=[a, b])) validated to stratum CV .50 and 20+ events per stratum.
 
+Round 82 (Foundations of Epidemiology): area analyses are ECOLOGIC (they describe areas, not individuals) and
+CROSS-SECTIONAL (no temporal order): write "is associated with" / "times as high in ... compared with ...", never
+"causes", "leads to" or "effect of" (except estimate_effect and DiD, which state their assumptions). Say whether
+an outcome is a prevalence (ACS, PLACES) or an incidence rate (WONDER per person-year), with units and period.
+An interval that includes the null means "no evidence of a difference", not "no difference". Report allocation
+(imputation) shares above 5% (reliability_profile allocation_tables) and give a Table 1 (make_table kind="table1").
+
 Round 81: spatial_scan (full profile) finds clusters of counties with high event counts (Kulldorff Poisson scan).
 The primary-cluster p-value is validated with windows up to 50% of the expected total and 999 replicates (size
 .099-.116 at .10). Denominators must be exact: ACS-estimated denominators inflate false clusters (.15-.53), and a

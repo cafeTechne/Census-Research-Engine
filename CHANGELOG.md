@@ -5,6 +5,30 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.78.0 (Round 82): epidemiologic reporting conventions
+
+Drawn from *Foundations of Epidemiology* (Bovbjerg 2020; `docs/literature/foundations_of_epidemiology.md`); no new
+statistics (N59).
+
+- **Measure types** (`census/epi_reporting.py`): every manifest outcome is typed as a count, prevalence, incidence
+  proportion, incidence rate, level, ratio, index or expected count; methods text states each, and external
+  variables may declare `measure_type`.
+- **Design labels**: manifest methods text gains "Study design and measures" and a generated "Limitations" section
+  (ecologic fallacy; cross-sectional design without temporal order; prevalence caveat; undeclared measure types;
+  run deviations). Run info records `design` and `measure_types`.
+- **Interpretation templates** (`interpret_ratio`, `interpret_difference`): "times as high … compared with …", and
+  "no evidence of a difference" when an interval includes the null; `rescale_interval` and
+  `make_table(kind="comparison", confidence_level=0.95)` for health journals.
+- **Item nonresponse**: `reliability_profile(allocation_tables=[...], year=...)` reports the share of answers the
+  Census Bureau allocated (imputed) per area from the B99 tables, flagged above 5%. Checks
+  (`docs/audits/r82_reporting_checks.md`): allocated and not-allocated lines sum to the published totals in all 145
+  MI/NY counties; median allocation 20.5% (health insurance), 12.1% (disability), 37.4% (family poverty income).
+- **Table 1**: `make_table(kind="table1", exposure=..., variables=[...], population=...)`.
+- **Results bundles**: `make_results_bundle(design="area" | "individual" | "none")` adds design limitations.
+- **Rules**: association-language rule in the protocol, MCP text (core rule 2) and the `reporting` recipe.
+- **Goldens**: intended changes only (methods text; two new run-info keys; their file hashes), documented field by
+  field in `docs/audits/round82_compatibility.md`.
+
 ## 0.77.0 (Round 81): spatial scan statistic for county counts
 
 - **Kulldorff Poisson spatial scan** (`census/scan.py`; frozen core `census/scan_core.py`; N58): circular windows

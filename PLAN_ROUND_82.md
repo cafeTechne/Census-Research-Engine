@@ -75,9 +75,9 @@ No new inferential statistics. Version 0.78.0. Branch `phase82/epi-reporting`.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Measure types, units | | |
-| Design labels, language, templates | | |
-| Allocation rates | | |
-| Table 1, limitations | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Measure types, units | done | `census/epi_reporting.py`; methods text "Study design and measures"; run info `measure_types` |
+| Design labels, language, templates | done | ecologic/cross-sectional limitations; `interpret_ratio`/`interpret_difference`; 95% display; protocol/MCP rule |
+| Allocation rates | done | `reliability_profile(allocation_tables=...)`; B99 lines sum to totals in 145 MI/NY counties |
+| Table 1, limitations | done | `make_table(kind="table1")`; generated limitations in methods text and bundles |
+| Goldens, suite | done | intended changes only (methods text, 2 run-info keys, hashes); 2258 passed, 42 skipped |
+| Exceptions | listed | `round82_compatibility.md` (undeclared types reported not refused; allocation tool-only) |

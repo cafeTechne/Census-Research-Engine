@@ -31,7 +31,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N56 | No decomposition of group gaps in microdata (Oaxaca–Blinder, Fairlie) with replicate-weight SEs | owner, 2026-11-22 | missing method | 79 (closed) |
 | N57 | Fay–Herriot is validated on the linear scale only: proportions near 0 and borrowing strength over releases (Rao–Yu) are missing | owner, 2026-11-22 | missing method | 80 (closed) |
 | N58 | No cluster detection for county counts (Kulldorff spatial scan) | owner, 2026-11-22 | missing method | 81 (closed) |
-| N59 | Results do not say what kind of measure an outcome is (prevalence vs incidence rate), that area analyses are ecologic and cross-sectional, or how much of each ACS answer was imputed (allocation); bundles lack a "Table 1" and a limitations section (Foundations of Epidemiology ch. 1, 2, 6, 9, App. 1) | owner, 2026-11-22 (book) | reporting | 82 |
+| N59 | Results do not say what kind of measure an outcome is (prevalence vs incidence rate), that area analyses are ecologic and cross-sectional, or how much of each ACS answer was imputed (allocation); bundles lack a "Table 1" and a limitations section (Foundations of Epidemiology ch. 1, 2, 6, 9, App. 1) | owner, 2026-11-22 (book) | reporting | 82 (closed) |
 | N60 | No stratified analysis: Mantel–Haenszel pooling, homogeneity tests, crude-versus-adjusted comparison, effect-modifier reporting or additive interaction (ch. 7–8) | owner, 2026-11-22 (book) | missing method | 83 |
 | N61 | Binomial/logit results give odds ratios only, which overstate risk ratios for common ACS outcomes; no marginal RR/RD, prevalence ratio, attributable fraction or dose-response trend (ch. 4, 10) | owner, 2026-11-22 (book) | missing method | 84 |
 | N62 | Area designations by thresholds on noisy ACS estimates have no accuracy statement (probability above threshold, sensitivity, PPV) (ch. 11) | owner, 2026-11-22 (book) | missing method | 85 |
@@ -65,7 +65,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 79 | Oaxaca–Blinder and Fairlie decompositions (PUMS) | N56 | merged (v0.75.0) |
 | 80 | Fay–Herriot for proportions and temporal Fay–Herriot | N57 | merged (v0.76.0) |
 | 81 | Spatial scan statistic for county counts | N58 | merged (v0.77.0) |
-| 82 | Epidemiologic reporting conventions: measure types, design labels, allocation rates, Table 1, limitations | N59 | planned |
+| 82 | Epidemiologic reporting conventions: measure types, design labels, allocation rates, Table 1, limitations | N59 | merged (v0.78.0) |
 | 83 | Stratified analysis: Mantel–Haenszel, homogeneity, effect modification, additive interaction | N60 | planned |
 | 84 | Marginal risk ratios/differences, prevalence ratios, attributable fractions, dose-response | N61 | planned |
 | 85 | Area designations as screening tests (probability above threshold, Sn/Sp/PPV/NPV) | N62 | planned |

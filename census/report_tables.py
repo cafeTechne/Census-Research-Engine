@@ -363,15 +363,34 @@ def descriptive_table(
     return ReportTable(title, display, data, notes, citation, label)
 
 
+def table_one_table(frame: pd.DataFrame, exposure: str, variables: Sequence[str], *,
+                    population: Optional[str] = None, digits: int = 2, title: str = "Table 1. Study areas",
+                    citation: str = "", label: str = "") -> ReportTable:
+    """Round 82: the study areas described by tertiles of the exposure (an epidemiologic "Table 1")."""
+    from .epi_reporting import ECOLOGIC_NOTE, table_one
+    data = table_one(frame, exposure, variables, population=population)
+    display = data.copy()
+    for c in display.columns:
+        display[c] = [v if isinstance(v, str) else (f"{v:,.0f}" if r in ("areas", "population") else _fmt(v, digits))
+                      for r, v in zip(display.index, display[c])]
+    display = display.reset_index().rename(columns={"index": "Characteristic"})
+    notes = [f"Areas grouped into tertiles of {exposure} (Q1 lowest). Means and medians are over areas, not people. "
+             + ECOLOGIC_NOTE, "Median SE is the median sampling standard error of the area estimates."]
+    return ReportTable(title, display, data.reset_index(), notes, citation, label)
+
+
 def comparison_table(
     comparisons: pd.DataFrame, *, label_col: Optional[str] = None, digits: int = 2,
     title: str = "Comparisons of estimates", citation: str = "", label: str = "",
+    confidence_level: Optional[float] = None,
 ) -> ReportTable:
     """Formats ``census.multitest.batch_z_test`` output: difference with
     markers (from its corrected p-values), interval, Z, raw and adjusted p."""
     df = comparisons.reset_index(drop=True)
     label_col = label_col or next((c for c in ("NAME", "GEOID") if c in df.columns), None)
     level = float(df["confidence_level"].iloc[0]) if "confidence_level" in df and len(df) else 0.90
+    if confidence_level is not None:  # Round 82: display intervals at another level; tests unchanged
+        level = float(confidence_level)
     zc = Z90 if math.isclose(level, 0.90) else float(stats.norm.ppf(1 - (1 - level) / 2))
     diff, se = df["difference"].astype(float), df["se_difference"].astype(float)
     data = pd.DataFrame({"label": df[label_col].astype(str) if label_col else df.index.astype(str),
