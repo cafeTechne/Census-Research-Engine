@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | None queued (Round 75 merged). Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_76.md` (between-group disparity measures); Rounds 77–81 queued (joinpoint, staggered DiD and synthetic control, decompositions, small-area proportions, spatial scan). Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -524,6 +524,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N50: context data sources (CBP, ERS, CHR additional) and state-wide tract pulls (72);
 - N51: three-level models, loading-weighted indices, expected counts (73; closed);
 - N52: replication suite (74; closed);
+- N53–N58: disparity measures, joinpoint, staggered DiD/synthetic control, decompositions, small-area proportions, spatial scan (Rounds 76–81, planned 2026-11-22);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

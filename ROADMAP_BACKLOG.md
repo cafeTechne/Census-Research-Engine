@@ -25,6 +25,12 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N50 | Data sources the replications needed are not in the engine: County Business Patterns, ERS county typology and rural–urban codes, CHR additional measures. All-state tract pulls need a hand loop (no one-request-per-state path) | R66, R69 | missing capability | 72 |
 | N51 | Methods the replications needed are missing: three-level multilevel models (was N46), indices from published loadings, indirect standardization for a county frame from a national age × sex file | R68, R69 | missing method | 73 |
 | N52 | The replications are one-off scripts: an agent cannot rerun them through MCP or manifests, and nothing checks that the engine still reproduces them | R66–R69 | reproducibility | 74 |
+| N53 | No between-group disparity measures (rate ratio/difference vs a reference group, Index of Disparity, between-group variance, Theil and MLD over groups) or Kitagawa rate decomposition; only area-gradient SII/RII exist | owner, 2026-11-22 | missing method | 76 |
+| N54 | Annual surveillance trends lack joinpoint regression (number of joinpoints, APC/AAPC) and rate ratios of age-adjusted rates (Tiwari) | owner, 2026-11-22 | missing method | 77 |
+| N55 | Policy evaluation has two-group DiD and ITS only: staggered adoption (two-way FE is biased) and synthetic control are missing | owner, 2026-11-22 | missing method | 78 |
+| N56 | No decomposition of group gaps in microdata (Oaxaca–Blinder, Fairlie) with replicate-weight SEs | owner, 2026-11-22 | missing method | 79 |
+| N57 | Fay–Herriot is validated on the linear scale only: proportions near 0 and borrowing strength over releases (Rao–Yu) are missing | owner, 2026-11-22 | missing method | 80 |
+| N58 | No cluster detection for county counts (Kulldorff spatial scan) | owner, 2026-11-22 | missing method | 81 |
 
 ## 2. Recorded limits (not scheduled; reopen only with a new idea)
 
@@ -46,6 +52,13 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 72 | Data sources: CBP, ERS typology and rural–urban codes, CHR additional measures, state-wide tract pulls | N50 | merged (v0.67.0; state-wide tract pulls already existed) |
 | 73 | Methods: three-level multilevel models, loading-weighted indices, indirect standardization helper | N51 | merged (v0.69.0; three-level fixed effects and loadings indices validated; share intervals exploratory) |
 | 74 | Replication suite: the five replications as registered manifests and engine regression checks | N52 | merged (v0.70.0; specs + runner, all five agree; not manifests, see round74_compatibility.md) |
+| 75 | Manifest support for the Round 73 methods, tract coordinates, recipes, README | gaps after R74 | merged (v0.71.0) |
+| 76 | Between-group disparity measures and Kitagawa decomposition | N53 | planned |
+| 77 | Joinpoint regression and age-adjusted rate ratios | N54 | planned |
+| 78 | Staggered-adoption DiD and synthetic control | N55 | planned |
+| 79 | Oaxaca–Blinder and Fairlie decompositions (PUMS) | N56 | planned |
+| 80 | Fay–Herriot for proportions and temporal Fay–Herriot | N57 | planned |
+| 81 | Spatial scan statistic for county counts | N58 | planned |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 
 Order rationale:
@@ -53,3 +66,10 @@ Order rationale:
 - **Round 71** closes the largest validation gap; tract studies are common in public health.
 - **Rounds 72–73** turn the replications' hand-built steps into engine features.
 - **Round 74** depends on 72–73, so that the replications can run through manifests.
+- **Rounds 76–81** (added 2026-11-22, owner request for more inferential statistics) follow the public-health focus:
+  - 76 and 77 cover disparity and surveillance measures that public-health reports use every day;
+  - 78 and 79 cover policy and gap-decomposition designs;
+  - 80 and 81 cover small-area and cluster methods.
+
+  Each is validated first; a failed method stays exploratory. Round 76 should precede 79, which reuses its group
+  definitions, and N39 (the ACS refresh) may interrupt when the release lands.
