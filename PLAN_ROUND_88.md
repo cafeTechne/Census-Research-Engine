@@ -49,9 +49,9 @@ sources as they are built.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Registry | | |
-| Tool sources and coverage test | | |
-| Results, bundles, CLI | | |
-| Docs, CITATION.cff | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Registry | done | `census/references.py`; manifest text reused unchanged; module lists verbatim |
+| Tool sources and coverage test | done | 78 tools; `tests/test_round88.py` |
+| Results, bundles, CLI | done | 49 method tools; Sources section, `references.md`, `references.bib`; `cite` |
+| Docs, CITATION.cff | done | `docs/citing.md`, README, CHANGELOG, STATUS, protocol rule |
+| Goldens, suite | see audit | `round88_compatibility.md` |
+| Exceptions | 4 | no manifest `.bib`; discovery tools omitted; one unverified entry; audits by path |

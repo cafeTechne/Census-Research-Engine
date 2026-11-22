@@ -1161,6 +1161,8 @@ def make_results_bundle(
             folder) and, for extraction metadata, table, years, states, endpoint,
             call failures and data source are recorded.
         title, notes: Methods heading and extra methods/limitations lines.
+    methods.md ends with a "Sources" section, and references.md/references.bib list the method papers,
+    guidance texts, data and validation audits recorded in the results' method_sources (Round 88).
         design: "area" (default; adds the ecologic and cross-sectional limitations, Round 82), "individual"
             (PUMS person records: cross-sectional only) or "none" (annual series, trials: no design lines).
     The data source comes from what the inputs and results recorded when their data
@@ -1260,6 +1262,15 @@ def make_results_bundle(
     design_notes = [] if design == "none" else design_labels(None, individual=design == "individual")["notes"]
     if notes or design_notes:
         lines += ["## Notes and limitations", ""] + [f"- {n}" for n in list(notes or [])+design_notes] + [""]
+    from census import references as refs
+    by_role = refs.collect(loaded.values())
+    cited = [i for r in refs.ROLES for i in by_role[r] if not i.startswith("audit:")]
+    lines += [refs.render_sources(by_role, "## Sources")]
+    if not cited:
+        lines += ["No saved result recorded method_sources (results saved before Round 88 or outside the tool "
+                  "interface); cite methods with `python -m census cite --tool NAME`.", ""]
+    references = {"references.md": "# References\n\n" + refs.render_sources(by_role),
+                  "references.bib": refs.cite(cited, "bibtex") if cited else "% no method sources recorded\n"}
     provenance = {"analysis_status": STATUS_EXPLORATORY, "data_source": source, "inputs": input_records,
                   "recorded_data_sources": recorded, "extractions": extractions, "title": title}
     if warnings:
@@ -1270,13 +1281,14 @@ def make_results_bundle(
         provenance["design"] = design_labels(None, individual=design == "individual")["design"]
     try:
         bundle = results_bundle(output_dir, figures=figure_specs, methods="\n".join(lines), results=loaded,
-                                provenance=provenance, citation=citation)
+                                provenance=provenance, citation=citation, references=references)
     except (OSError, ValueError, TypeError) as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}")
     return _ok(f"Results bundle with {len(loaded)} result(s), {len(figure_paths or [])} figure file(s) and "
                f"{len(input_records)} input hash(es) written; data source {source['kind']}."
                + (f" WARNING: {' '.join(warnings)}" if warnings else ""),
-               "cite bundle.json (file hashes and provenance) and methods.md with the results"
+               "cite bundle.json (file hashes and provenance) and methods.md with the results; references.md and "
+               "references.bib list the method papers, guidance texts and data behind them"
                + ("; resolve the data source warning before reporting" if warnings else ""),
                output_dir=output_dir, data_source=source, citation=citation, warnings=warnings,
                results=list(loaded), files=len(bundle.get("files", {})), extractions=extractions)

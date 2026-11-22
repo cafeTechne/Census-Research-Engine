@@ -12,7 +12,7 @@ authors:
   - alias: cafeTechne
 license: AGPL-3.0-or-later
 repository-code: "https://github.com/cafeTechne/Census-Research-Engine"
-version: "0.83.0"
+version: "0.84.0"
 doi: "10.5281/zenodo.23925301"
 # doi: Zenodo concept DOI, added after the first archived release (see CHANGELOG.md "Releasing").
 date-released: "2026-11-22"
@@ -22,3 +22,36 @@ keywords:
   - margins of error
   - survey statistics
   - research data
+references:
+  - type: book
+    title: "Foundations of Epidemiology"
+    authors:
+      - family-names: Bovbjerg
+        given-names: Marit L.
+    year: 2020
+    publisher:
+      name: "Oregon State University"
+    url: "https://open.oregonstate.education/epidemiology/"
+    notes: "Guidance for Rounds 82-87 (docs/literature/foundations_of_epidemiology.md)."
+  - type: book
+    title: "Causal Inference: What If"
+    authors:
+      - family-names: Hernán
+        given-names: Miguel A.
+      - family-names: Robins
+        given-names: James M.
+    year: 2020
+    publisher:
+      name: "Chapman & Hall/CRC"
+    url: "https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/"
+    notes: "Guidance for Rounds 89-91 (docs/literature/hernan_robins_what_if.md)."
+  - type: book
+    title: "Analyzing US Census Data: Methods, Maps, and Models in R"
+    authors:
+      - family-names: Walker
+        given-names: Kyle
+    year: 2023
+    publisher:
+      name: "CRC Press"
+    url: "https://walker-data.com/census-r/"
+    notes: "Guidance for Rounds 92-93 (docs/literature/walker_analyzing_us_census_data.md)."

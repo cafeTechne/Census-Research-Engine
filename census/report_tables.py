@@ -465,13 +465,14 @@ def results_bundle(
     figures: Optional[Mapping[str, FigureSpec]] = None, methods: Optional[str] = None,
     results: Optional[Mapping[str, Any]] = None, provenance: Optional[Mapping[str, Any]] = None,
     citation: str = "", wonder_policy: Optional[Mapping[str, Any]] = None,
+    references: Optional[Mapping[str, str]] = None,
 ) -> Dict[str, Any]:
     """Write one analysis's outputs into ``folder``:
 
     ``tables/<name>.{tex,md,csv}``, ``figures/<name>.*`` (each figure given
     as a ``census.figures.FigureOutput``, whose files are copied, or as
     ``(figure_function, kwargs)``, which is rendered there), ``captions.md``,
-    ``methods.md`` (when given), ``results/<name>.json`` (``to_dict()`` of
+    ``methods.md`` (when given), ``references.md``/``references.bib`` (when given), ``results/<name>.json`` (``to_dict()`` of
     result objects), and ``bundle.json`` listing every file with its SHA-256,
     the citation and ``provenance``. Returns the bundle manifest.
 
@@ -565,6 +566,10 @@ def results_bundle(
         (root / "captions.md").write_text("\n\n".join(captions) + "\n", encoding="utf-8", newline="\n")
     if methods:
         (root / "methods.md").write_text(methods.rstrip() + "\n", encoding="utf-8", newline="\n")
+    for fname, text in (references or {}).items():  # references.md / references.bib (Round 88)
+        if fname not in ("references.md", "references.bib"):
+            raise ValueError(f"unexpected references file {fname!r}")
+        (root / fname).write_text(text.rstrip() + "\n", encoding="utf-8", newline="\n")
     for name, res in (results or {}).items():
         # plain dicts may hold DataFrames (e.g. manifest hypotheses): write records, not a truncated repr
         d = res.to_dict() if hasattr(res, "to_dict") else _jsonable(res)

@@ -388,6 +388,11 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+Round 88: successful results of method tools carry method_sources (role method, guidance, data, software,
+validation; each with its citation or audit path). Cite the method papers and guidance texts a reported result rests
+on; make_results_bundle writes them to references.md and references.bib. CLI: python -m census cite --tool NAME.
+Entries marked [details to verify] were recorded without checking the publication.
+
 Round 78: policies adopted in different years (staggered adoption) in an ANNUAL panel (ACS 1-year with
 product="1-year", 2020 refused, or another annual source): difference_in_differences(design="staggered",
 first_treated="<column>"). Sun-Abraham (default) is validated (.881-.899, 51 units); method="callaway_santanna" is
@@ -501,11 +506,14 @@ INSTRUCTIONS = "\n\n".join((_INSTR_HEAD, _RULES_A.strip("\n"), _INSTR_MID, _RULE
 mcp = FastMCP("US-Census-ACS-Downloader", instructions=INSTRUCTIONS)
 
 
+from census.references import attributed  # noqa: E402
+
+
 def _tool(fn: Any) -> Any:
     """Register ``fn`` as an MCP tool behind the one integrity boundary: a
     bundled data/metadata checksum failure anywhere below returns
     BUNDLED_DATA_INTEGRITY instead of escaping or being misreported."""
-    mcp.tool()(integrity_errors(fn))
+    mcp.tool()(integrity_errors(attributed(fn)))  # successful results carry method_sources (Round 88)
     return fn
 
 

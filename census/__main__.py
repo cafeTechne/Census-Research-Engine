@@ -407,10 +407,31 @@ def cmd_tool(args: argparse.Namespace) -> int:
                                      error_type=type(exc).__name__)
         result["summary"] = f"{args.name} failed: {type(exc).__name__}: {exc}"
         result["next_step"] = "check the arguments (column names, formula, paths) and call again"
+    from census.references import attach
+    result = attach(args.name, result)  # method_sources on successful results (Round 88)
     if getattr(args, "save", None):
         # the same JSON as --json prints, kept as a file for later steps (e.g. results bundles)
         workflows_inference.save_json(result, args.save)
     return _emit(result, args.json)
+
+
+def cmd_cite(args: argparse.Namespace) -> int:
+    """References for a tool's methods (or source ids), as text or BibTeX (Round 88)."""
+    from census import references as R
+    if args.list:
+        print("\n".join(sorted(R.TOOL_SOURCES)))
+        return EXIT_OK
+    if args.tool:
+        if args.tool not in R.TOOL_SOURCES:
+            return _emit(errors.error_result(errors.INVALID_INPUT, f"Unknown tool '{args.tool}'."), True)
+        print(R.tool_reference(args.tool, args.format), end="")
+        return EXIT_OK
+    unknown = [i for i in args.ids if i not in R.SOURCES]
+    if unknown or not args.ids:
+        return _emit(errors.error_result(errors.INVALID_INPUT, "Give --tool NAME, --list, or known source ids"
+                                         + (f" (unknown: {', '.join(unknown)})" if unknown else "") + "."), True)
+    print(R.cite(args.ids, args.format), end="")
+    return EXIT_OK
 
 
 def cmd_cache(args: argparse.Namespace) -> int:
@@ -584,6 +605,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--save", metavar="PATH", help="also write the JSON result to PATH (written even on failure)")
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_tool)
+
+    p = sub.add_parser("cite", help="references for a tool's methods, guidance texts, data and validation audits")
+    p.add_argument("ids", nargs="*", help="source ids (alternative to --tool)")
+    p.add_argument("--tool", help="tool name, e.g. stratified_analysis")
+    p.add_argument("--list", action="store_true", help="list tools with registered sources")
+    p.add_argument("--format", choices=("text", "bibtex"), default="text")
+    p.set_defaults(func=cmd_cite)
 
     p = sub.add_parser("cache", help="query cache maintenance; import loads frozen API responses; clear deletes "
                        "every response and the synthetic marker")
