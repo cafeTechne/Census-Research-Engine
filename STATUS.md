@@ -181,7 +181,8 @@ method attribution (N70; owner request).
   Walker, data, software, validation audits) and `TOOL_SOURCES` for all 78 tools.
 - Method-tool results carry `method_sources`; results bundles add a Sources section, `references.md` and
   `references.bib`; `python -m census cite`; `docs/citing.md`; CITATION.cff references.
-- A coverage test requires sources for every tool. No new statistics; no validation run.
+- A coverage test requires sources for every tool. No new statistics; no validation run. Goldens byte-identical;
+  2291 passed, 42 skipped; 0 failures.
 
 **Round 87 (v0.83.0; merged, release pending owner approval; implemented by the maintainer agent):**
 ecologic versus individual-level associations on PUMS (N64).
