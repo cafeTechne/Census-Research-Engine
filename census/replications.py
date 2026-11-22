@@ -217,10 +217,160 @@ def run_nc_ice(spec, client=None) -> Dict[str, Any]:
     return out
 
 
-# ---- E and D (need Round 73) -------------------------------------------------------------------------------------
+# ---- E: shares of US life-expectancy variation (Boing et al. 2020) ----------------------------------------------
+
+def run_le_variance(spec, client=None) -> Dict[str, Any]:
+    from . import health_sources
+    from . import workflows_microdata as wm
+    p = spec["frame"]
+    try:
+        rows = health_sources.fetch_usaleep(p["states"])["rows"]
+    except Exception as exc:  # noqa: BLE001
+        raise Unavailable(f"USALEEP: {type(exc).__name__}: {exc}")
+    le, _ = health_sources.parse_usaleep(rows, "le", include_predicted=True)
+    d = le[le["le"].notna()].copy()
+    d["e0"] = d["le"].astype(float); d["state"] = d.GEOID.str[:2]; d["county"] = d.GEOID.str[:5]
+    with tempfile.TemporaryDirectory() as tmp:
+        path = os.path.join(tmp, "e0.parquet"); d[["GEOID", "e0", "state", "county"]].to_parquet(path, index=False)
+        out = wm.multilevel_model(path, "e0 ~ 1", ["state", "county"], share_intervals=False)
+    if not out.get("success"):
+        raise RuntimeError(f"multilevel_model: {out}")
+    s = out["shares"]
+    head = {"tract": 100*s["bottom"], "county": 100*s["middle"], "state": 100*s["top"]}
+    res = compare(spec, head)
+    res.update(shares=head, tracts=out["n"], counties=out["n_middle"], top_units=out["n_top"])
+    return res
+
+
+# ---- D: Monnat 2018 Model 4 (county drug-related mortality; the owner's WONDER exports) ------------------------
+
+def _label_lines(table, year, *must, exclude=()):
+    import re
+    from .metadata import table_variables
+    meta, _ = table_variables(table, "acs5", year)
+    out = sorted(code for code, m in meta.items() if code.endswith("E")
+                 and all(re.search(x, m["label"]) for x in must) and not any(re.search(x, m["label"]) for x in exclude))
+    if not out:
+        raise ValueError(f"no {table} line matches {must}")
+    return out
+
+
+def monnat_frame(spec, client=None) -> pd.DataFrame:
+    """ACS 2014 county covariates (Round 69's definitions), CBP and ERS context, WONDER deaths and expected deaths."""
+    from .context_sources import context_frame
+    from .vital_records import read_wonder_export
+    from .wonder_reference import acs_band_populations, expected_counts
+    p = spec["frame"]
+    wdir = ROOT/p["wonder_dir"]
+    county_tsv, nat_tsv = wdir/"county"/"drug_related.tsv", wdir/"national_age_sex"/"drug_related.tsv"
+    if not (county_tsv.exists() and nat_tsv.exists()):
+        raise Unavailable(f"the owner's WONDER exports are absent ({p['wonder_dir']}; docs/data/wonder_exports.md "
+                          "Part G). WONDER is never fetched automatically.")
+    c = client or _client()
+    yr = p["acs_year"]
+    T = {}
+    for t in ("B17001", "B23001", "B18101", "B15002", "B19056", "B19057", "B19083", "B27001", "B25002", "B25070",
+              "B12001", "B11003", "B07003", "B01001", "B21001", "B03002", "B01003"):
+        T[t] = _acs(c, yr, "*", t, geo="county").set_index("GEOID")
+    L = lambda t, *m, exclude=(): _label_lines(t, yr, *m, exclude=exclude)  # noqa: E731
+    tot = lambda t, codes: sum(pd.to_numeric(T[t][k], errors="coerce") for k in codes)  # noqa: E731
+    col = lambda t, k: pd.to_numeric(T[t][k], errors="coerce")  # noqa: E731
+    f = pd.DataFrame(index=T["B01003"].index)
+    age = r"(25 to 34|35 to 44|45 to 54) years$"
+    f["pov2554"] = tot("B17001", L("B17001", "below poverty", age))/tot("B17001", L("B17001", r"(below|at or above) poverty", age))
+    a23 = r"!!(25 to 29|30 to 34|35 to 44|45 to 54) years"
+    unem = L("B23001", a23, r"Civilian!!Unemployed$")+L("B23001", a23, r"Not in labor force$")
+    f["unemp_nilf2554"] = tot("B23001", unem)/(tot("B23001", L("B23001", a23+r"$"))-tot("B23001", L("B23001", a23, r"In Armed Forces$")))
+    a18 = r"(18 to 34|35 to 64) years"
+    f["disab1864"] = tot("B18101", L("B18101", a18, r"With a disability$"))/tot("B18101", L("B18101", a18+r"$"))
+    ba = L("B15002", r"(Bachelor's degree|Master's degree|Professional school degree|Doctorate degree)$")
+    f["lt4yr"] = 1-tot("B15002", ba)/col("B15002", "B15002_001E")
+    f["ssi"] = col("B19056", "B19056_002E")/col("B19056", "B19056_001E")
+    f["pubassist"] = col("B19057", "B19057_002E")/col("B19057", "B19057_001E")
+    f["gini"] = col("B19083", "B19083_001E")
+    a27 = r"(18 to 24|25 to 34|35 to 44|45 to 54|55 to 64) years"
+    f["unins1864"] = tot("B27001", L("B27001", a27, r"No health insurance coverage$"))/tot("B27001", L("B27001", a27+r"$"))
+    f["vacant"] = col("B25002", "B25002_003E")/col("B25002", "B25002_001E")
+    r30 = L("B25070", r"(30.0 to 34.9|35.0 to 39.9|40.0 to 49.9|50.0 percent or more)")
+    f["rent30"] = tot("B25070", r30)/(col("B25070", "B25070_001E")-tot("B25070", L("B25070", "Not computed")))
+    f["sepdiv"] = tot("B12001", L("B12001", r"(Separated|Divorced)$"))/col("B12001", "B12001_001E")
+    own = r"With own children (of the householder )?under 18 years$"
+    f["singleparent"] = tot("B11003", L("B11003", r"Other family", own))/tot("B11003", L("B11003", own))
+    f["moved"] = tot("B07003", L("B07003", r"(Moved from different county within same state|Moved from different state|"
+                                 r"Moved from abroad)$"))/col("B07003", "B07003_001E")
+    f["age65"] = tot("B01001", L("B01001", r"(65 and 66|67 to 69|70 to 74|75 to 79|80 to 84|85 years and over)"))/col("B01001", "B01001_001E")
+    f["veteran"] = col("B21001", "B21001_002E")/col("B21001", "B21001_001E")
+    b = col("B03002", "B03002_001E")
+    f["black"] = col("B03002", "B03002_004E")/b; f["hisp"] = col("B03002", "B03002_012E")/b
+    f["aian"] = col("B03002", "B03002_005E")/b
+    f["pop"] = col("B01003", "B01003_001E")
+    f.index.name = "GEOID"
+    ctx, _ = context_frame(p["context"], f.reset_index(), client=c)
+    f = f.join(ctx.reindex(f.index))
+    for e in p["context"]:
+        if e["source"] == "cbp":
+            f[e["name"]] = f[e["name"]].fillna(0)        # a county without establishments has zero
+    f["nonmetro"] = (f.metro2013 == 0).astype(float)
+    w = read_wonder_export(str(county_tsv), "county")["rows"].set_index("GEOID")
+    d = f.join(w[["deaths", "deaths_suppressed", "population"]], how="inner")
+    d = d[~d.index.str[:2].isin(p["excluded_states"]) & ~d.index.isin(p["excluded_counties"])].copy()
+    pops = acs_band_populations(T["B01001"].reindex(d.index))
+    d["expected"] = expected_counts(pops, str(nat_tsv), person_years=d.population)
+    return d
+
+
+def run_monnat_d(spec, client=None) -> Dict[str, Any]:
+    from .composite_index import build_index
+    from . import boundaries, spatial
+    from . import workflows_geo as wg
+    p = spec["frame"]
+    d = monnat_frame(spec, client)
+    cov = list(p["econ_loadings"])+list(p["family_loadings"])+p["other_covariates"]
+    d = d[~d[cov].isna().any(axis=1)]
+    cc = d[(d.deaths >= 10) & (d.expected > 0)].copy()
+    cc.index.name = "GEOID"
+    base = cc.reset_index()
+    X = pd.DataFrame(index=cc.index)
+    for name, key in (("econ_index", "econ_loadings"), ("family_index", "family_loadings")):
+        r = build_index(base, list(p[key]), method="loadings", loadings=p[key], standardize=True)
+        X[name] = r["table"].set_index("area").score.reindex(cc.index).to_numpy()
+    z = lambda s: (s-s.mean())/s.std(ddof=1)  # noqa: E731
+    for k in ("vacant", "rent30", "moved", "age65", "veteran"):
+        X[k] = z(cc[k])
+    for k in ("religious", "membership", "sports", "black", "hisp", "aian"):
+        q = pd.qcut(cc[k].rank(method="first"), 4, labels=False)
+        for j in (1, 2, 3):
+            X[f"{k}_q{j+1}"] = (q == j).astype(float)
+    for code, name in {1: "farming", 2: "mining", 3: "manufacturing", 4: "government", 5: "recreation"}.items():
+        X[f"type_{name}"] = (cc.ers_type == code).astype(float)
+    X["nonmetro"] = cc.nonmetro
+    for s in sorted(cc.index.str[:2].unique())[1:]:
+        X[f"st{s}"] = (cc.index.str[:2] == s).astype(float)
+    data = X.assign(y=100*np.log(cc.deaths/cc.expected)).reset_index()
+    gdf = boundaries.get_boundaries("county", p["acs_year"])
+    gdf = gdf[gdf.GEOID.astype(str).isin(set(data.GEOID))]
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        islands = {str(i) for i in getattr(spatial.spatial_weights(gdf, "queen"), "islands", [])}
+    keep = data[~data.GEOID.isin(islands)]
+    cols = [c for c in X.columns if keep[c].std() > 0]
+    with tempfile.TemporaryDirectory() as tmp:
+        path = os.path.join(tmp, "monnat.parquet"); keep.to_parquet(path, index=False)
+        sem = wg.spatial_regression(path, "y ~ "+" + ".join(cols), "county", p["acs_year"], model="error")
+    if not sem.get("success"):
+        raise RuntimeError(f"spatial_regression: {sem.get('error')}")
+    t = {r["term"]: r for r in sem["coefficients"]}
+    head = {"econ_index": float(t["econ_index"]["estimate"])}
+    res = compare(spec, head)
+    res.update(counties=int(len(keep)), islands=len(islands),
+               slopes={k: dict(estimate=float(t[k]["estimate"]), lower=float(t[k]["ci_lower"]),
+                               upper=float(t[k]["ci_upper"])) for k in spec["published"] if k in t})
+    return res
+
 
 RUNNERS: Dict[str, Callable[..., Dict[str, Any]]] = {
     "chr_segregation": run_chr_segregation, "state_gini": run_state_gini, "nc_ice": run_nc_ice,
+    "le_variance": run_le_variance, "monnat_d": run_monnat_d,
 }
 
 
