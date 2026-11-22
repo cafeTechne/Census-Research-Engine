@@ -723,7 +723,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N65: causal question specification (89; closed);
 - N66: positivity diagnostics and weighting (90; closed);
 - N67: marginal structural models (91; closed, exploratory);
-- N68–N69: PEP/LODES/flows, GWR/classification (Rounds 91–93, planned 2026-11-23 from Hernán and Robins and Walker);
+- N68–N69: PEP/LODES/flows, GWR/classification (Rounds 92–93, planned 2026-11-23 from Hernán and Robins and Walker);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.
