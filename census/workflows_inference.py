@@ -914,19 +914,41 @@ def minimum_detectable_difference(
                **res)
 
 
-def reliability_profile(input_path: str, variables: Optional[List[str]] = None) -> Dict[str, Any]:
+def reliability_profile(input_path: str, variables: Optional[List[str]] = None,
+                        allocation_tables: Optional[List[str]] = None, year: Optional[int] = None) -> Dict[str, Any]:
     """Distribution of coefficients of variation for each variable in a file:
     how many estimates are high (CV<=12%), moderate, or low (CV>30%) reliability.
-    Use before choosing a geography level or model."""
+    Use before choosing a geography level or model.
+    allocation_tables (Round 82): ACS table or variable codes (e.g. ["B27010", "B18101"]); adds the share of
+    answers the Census Bureau allocated (imputed) per area from the matching B99 tables for `year`, flagged above
+    5% (item nonresponse worth discussing)."""
     from census.planning import reliability_profile as _profile
 
     try:
-        res = _profile(_load_frame(input_path), variables)
+        frame = _load_frame(input_path)
+        res = _profile(frame, variables)
+        extra: Dict[str, Any] = {}
+        if allocation_tables:
+            from census import epi_reporting as er
+            b99 = [b for t in allocation_tables for b in (er.allocation_tables_for(t) or ([t] if str(t).upper().startswith("B99") else []))]
+            if not b99:
+                return _fail(errors.INVALID_INPUT, "no B99 allocation table is mapped for those codes.")
+            geo = frame["GEOID"].astype(str)
+            level = {2: "state", 5: "county", 11: "tract"}.get(int(geo.str.len().max()))
+            if level is None or year is None:
+                return _fail(errors.INVALID_INPUT, "allocation needs state, county or tract GEOIDs and year.")
+            shares = er.fetch_allocation(b99, int(year), level, sorted(geo.str[:2].unique()))
+            summary = er.allocation_summary(shares, geo)
+            extra = {"allocation": summary, "allocation_notes": er.allocation_note(summary)}
     except _INPUT_ERRORS as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
                      "check the formula, column names, and input file, then retry")
-    return _ok(f"Reliability profile for {len(res)} variable(s).",
-               "build_analysis_frame with the reliable variables", profile=_records(res))
+    return _ok(f"Reliability profile for {len(res)} variable(s)."
+               + (f" Allocation above 5% for {sum(r['above_limit'] for r in extra['allocation'])} table(s)."
+                  if extra else ""),
+               "build_analysis_frame with the reliable variables"
+               + ("; report allocation shares above 5% as a limitation" if extra.get("allocation_notes") else ""),
+               profile=_records(res), **extra)
 
 
 def trend_test(years: List[int], estimates: List[float], moes: List[float],
@@ -1014,13 +1036,17 @@ def make_figure(
 
 
 def make_table(kind: str, input_path: str, output_dir: Optional[str] = None,
-               variables: Optional[List[str]] = None, name: str = "table") -> Dict[str, Any]:
+               variables: Optional[List[str]] = None, name: str = "table", exposure: Optional[str] = None,
+               population: Optional[str] = None, confidence_level: Optional[float] = None) -> Dict[str, Any]:
     """Publication table as LaTeX (booktabs), Markdown, and CSV.
 
     Args:
-        kind: "descriptive" (variables from an analysis frame) or "comparison"
-            (a batch_significance output file).
-        input_path: The file. variables: For descriptive tables.
+        kind: "descriptive" (variables from an analysis frame), "comparison" (a batch_significance output file) or
+            "table1" (Round 82: the study areas described by tertiles of `exposure`, with `variables` and optional
+            `population`; the "Table 1" of an epidemiologic report).
+        input_path: The file. variables: For descriptive and table1 tables.
+        confidence_level: comparison tables only: re-express the intervals at this level (e.g. 0.95 for health
+            journals); tests and p-values are unchanged.
         output_dir: Folder (default downloads/tables).
     """
     from census import report_tables
@@ -1031,9 +1057,13 @@ def make_table(kind: str, input_path: str, output_dir: Optional[str] = None,
         if kind == "descriptive":
             table = report_tables.descriptive_table(df, variables or [c for c in df.columns if f"{c}_se" in df.columns])
         elif kind == "comparison":
-            table = report_tables.comparison_table(df)
+            table = report_tables.comparison_table(df, confidence_level=confidence_level)
+        elif kind == "table1":
+            if not exposure or not variables:
+                return _fail(errors.INVALID_INPUT, "kind='table1' needs exposure and variables.")
+            table = report_tables.table_one_table(df, exposure, variables, population=population)
         else:
-            return _fail(errors.INVALID_INPUT, "kind must be 'descriptive' or 'comparison'.")
+            return _fail(errors.INVALID_INPUT, "kind must be 'descriptive', 'comparison' or 'table1'.")
         written = table.write(folder, name)
     except _INPUT_ERRORS as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
@@ -1096,6 +1126,7 @@ def make_results_bundle(
     title: str = "",
     notes: Optional[List[str]] = None,
     allow_failed_results: bool = False,
+    design: str = "area",
 ) -> Dict[str, Any]:
     """Collect an exploratory (not pre-registered) analysis into one results bundle:
     results JSON, figures, methods.md, and bundle.json with every file's SHA-256,
@@ -1114,6 +1145,8 @@ def make_results_bundle(
             folder) and, for extraction metadata, table, years, states, endpoint,
             call failures and data source are recorded.
         title, notes: Methods heading and extra methods/limitations lines.
+        design: "area" (default; adds the ecologic and cross-sectional limitations, Round 82), "individual"
+            (PUMS person records: cross-sectional only) or "none" (annual series, trials: no design lines).
     The data source comes from what the inputs and results recorded when their data
     were read (extraction metadata records the cache marker at extraction time): all
     synthetic -> "synthetic", none synthetic -> "census_api", both -> "mixed" (with a
@@ -1207,14 +1240,18 @@ def make_results_bundle(
     if failed:
         lines += ["## Failed steps (FAILED: not results)", ""]
         lines += [f"- {f['name']}: FAILED ({f['error_code']}): {f['error']}" for f in failed] + [""]
-    if notes:
-        lines += ["## Notes and limitations", ""] + [f"- {n}" for n in notes] + [""]
+    from census.epi_reporting import design_labels
+    design_notes = [] if design == "none" else design_labels(None, individual=design == "individual")["notes"]
+    if notes or design_notes:
+        lines += ["## Notes and limitations", ""] + [f"- {n}" for n in list(notes or [])+design_notes] + [""]
     provenance = {"analysis_status": STATUS_EXPLORATORY, "data_source": source, "inputs": input_records,
                   "recorded_data_sources": recorded, "extractions": extractions, "title": title}
     if warnings:
         provenance["warnings"] = warnings
     if failed:
         provenance["failed_results"] = failed
+    if design != "none":
+        provenance["design"] = design_labels(None, individual=design == "individual")["design"]
     try:
         bundle = results_bundle(output_dir, figures=figure_specs, methods="\n".join(lines), results=loaded,
                                 provenance=provenance, citation=citation)

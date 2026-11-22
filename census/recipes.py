@@ -16,7 +16,7 @@ RECIPES: Dict[str, str] = {
     "dollars": "Inflation (R-CPI-U-RS) and place price levels (BEA RPPs) for dollar estimates (Round 75)",
     "spatial_patterns": "Global and local spatial clustering (Moran's I, LISA) and maps with reliability (Round 75)",
     "cross_release": "Variable concordance across releases and reviewed crosswalk decisions (Round 75)",
-    "reporting": "Publication tables, maps, codebooks and exploratory results bundles (Round 75)",
+    "reporting": "Publication tables, maps, codebooks and exploratory results bundles (Round 75); epidemiologic reporting conventions: measure types, ecologic and cross-sectional limits, allocation shares, Table 1 (Round 82)",
     "replications": "Rerun the five published replications (Rounds 66-69) and check the engine still reproduces "
                     "them (Round 74)",
     "context_covariates": "County covariates from other sources (County Business Patterns, ERS county types and "
