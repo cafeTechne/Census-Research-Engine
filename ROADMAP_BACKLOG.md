@@ -81,7 +81,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 89 | Causal question specification: target trial, causal diagram, adjustment-set checks | N65 | done (v0.85.0) |
 | 90 | Positivity diagnostics, stabilized and truncated weights, IPW vs g-formula | N66 | done (v0.86.0) |
 | 91 | IP-weighted marginal structural models for annual policy panels | N67 | planned |
-| 92 | Data sources: Population Estimates, LEHD LODES, ACS migration flows | N68 | planned |
+| 92 | Data sources: Population Estimates, LEHD LODES, ACS migration flows | N68 | done (v0.88.0) |
 | 93 | Geographically weighted regression, geodemographic classification, regionalization, diversity index | N69 | planned |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 

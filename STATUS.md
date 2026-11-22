@@ -158,6 +158,12 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
+**Round 92 (v0.88.0; merged, release pending owner approval; implemented by the maintainer agent):**
+data sources from Walker (N68).
+- `census/demographic_sources.py`: Population Estimates (vintages 2019, 2024; totals and age/sex), LEHD LODES8
+  (WAC/RAC/OD; block, tract, county), ACS county-to-county migration flows 2010–2020 with MOEs.
+- Context sources `pep`, `lodes`, `acs_flows`; checks in `r92_source_checks.md`. No new tool.
+
 **Round 90 (v0.86.0; merged, release pending owner approval; implemented by the maintainer agent):**
 positivity diagnostics and weighting options (N66; Hernán and Robins).
 - `census/positivity.py` (frozen core `positivity_core.py`); `estimate_effect` returns `positivity` and takes
@@ -712,7 +718,8 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N70: method attribution (88; closed);
 - N65: causal question specification (89; closed);
 - N66: positivity diagnostics and weighting (90; closed);
-- N67–N69: marginal structural models, PEP/LODES/flows, GWR/classification (Rounds 91–93, planned 2026-11-23 from Hernán and Robins and Walker);
+- N68: Population Estimates, LODES, migration flows (92; closed);
+- N67 and N69: marginal structural models, GWR/classification (Rounds 91 and 93, planned 2026-11-23 from Hernán and Robins and Walker);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

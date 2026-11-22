@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.88.0 (Round 92): Population Estimates, LEHD LODES and ACS migration flows
+
+- **`census/demographic_sources.py`** (N68; Walker, *Analyzing US Census Data*, chapters 4 and 11):
+  - `pep_totals` and `pep_age_sex`: Census Population Estimates, vintages 2019 and 2024. July 1 county and state
+    populations, and county age groups by sex. Values carry their vintage; there is no MOE.
+  - `lodes`: LODES8 WAC, RAC and OD files aggregated to block, tract or county. Noise-infused; no MOE.
+  - `migration_flows` and `net_migration`: ACS county-to-county flows 2010–2020 with MOEs. Later releases have state
+    partners only and are refused.
+- **Context sources** `pep`, `lodes` and `acs_flows` for `build_analysis_frame(context=...)` and manifests. Flows add
+  `<name>_moe`; LODES supports `per`/`per_column`.
+- **Checks** (`docs/audits/r92_source_checks.md`): state equals the sum of counties (PEP); tract sums equal county
+  totals (LODES); in − out = net (flows).
+- **Recipe** `context_covariates`; README; protocol rule; data sources registered for attribution.
+
 ## 0.86.0 (Round 90): positivity diagnostics and weighting options
 
 - **Positivity** (`census/positivity.py`; frozen core `census/positivity_core.py`; N66; Hernán and Robins chapters

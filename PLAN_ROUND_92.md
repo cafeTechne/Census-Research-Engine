@@ -42,9 +42,9 @@ Version 0.88.0. Branch `phase92/sources`. No new statistics.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| PEP | | |
-| LODES | | |
-| Flows | | |
-| Checks | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| PEP | done | vintages 2019, 2024; totals and age/sex |
+| LODES | done | WAC/RAC/OD; block, tract, county |
+| Flows | done | 2010–2020 county-to-county; later refused |
+| Checks | pass | `r92_source_checks.md` |
+| Goldens, suite | see audit | `round92_compatibility.md` |
+| Exceptions | 3 | see audit |
