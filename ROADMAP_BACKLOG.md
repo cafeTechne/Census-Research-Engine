@@ -26,10 +26,10 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N51 | Methods the replications needed are missing: three-level multilevel models (was N46), indices from published loadings, indirect standardization for a county frame from a national age × sex file | R68, R69 | missing method | 73 |
 | N52 | The replications are one-off scripts: an agent cannot rerun them through MCP or manifests, and nothing checks that the engine still reproduces them | R66–R69 | reproducibility | 74 |
 | N53 | No between-group disparity measures (rate ratio/difference vs a reference group, Index of Disparity, between-group variance, Theil and MLD over groups) or Kitagawa rate decomposition; only area-gradient SII/RII exist | owner, 2026-11-22 | missing method | 76 (closed) |
-| N54 | Annual surveillance trends lack joinpoint regression (number of joinpoints, APC/AAPC) and rate ratios of age-adjusted rates (Tiwari) | owner, 2026-11-22 | missing method | 77 |
-| N55 | Policy evaluation has two-group DiD and ITS only: staggered adoption (two-way FE is biased) and synthetic control are missing | owner, 2026-11-22 | missing method | 78 |
-| N56 | No decomposition of group gaps in microdata (Oaxaca–Blinder, Fairlie) with replicate-weight SEs | owner, 2026-11-22 | missing method | 79 |
-| N57 | Fay–Herriot is validated on the linear scale only: proportions near 0 and borrowing strength over releases (Rao–Yu) are missing | owner, 2026-11-22 | missing method | 80 |
+| N54 | Annual surveillance trends lack joinpoint regression (number of joinpoints, APC/AAPC) and rate ratios of age-adjusted rates (Tiwari) | owner, 2026-11-22 | missing method | 77 (closed) |
+| N55 | Policy evaluation has two-group DiD and ITS only: staggered adoption (two-way FE is biased) and synthetic control are missing | owner, 2026-11-22 | missing method | 78 (closed) |
+| N56 | No decomposition of group gaps in microdata (Oaxaca–Blinder, Fairlie) with replicate-weight SEs | owner, 2026-11-22 | missing method | 79 (closed) |
+| N57 | Fay–Herriot is validated on the linear scale only: proportions near 0 and borrowing strength over releases (Rao–Yu) are missing | owner, 2026-11-22 | missing method | 80 (closed) |
 | N58 | No cluster detection for county counts (Kulldorff spatial scan) | owner, 2026-11-22 | missing method | 81 |
 
 ## 2. Recorded limits (not scheduled; reopen only with a new idea)
@@ -54,10 +54,10 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 74 | Replication suite: the five replications as registered manifests and engine regression checks | N52 | merged (v0.70.0; specs + runner, all five agree; not manifests, see round74_compatibility.md) |
 | 75 | Manifest support for the Round 73 methods, tract coordinates, recipes, README | gaps after R74 | merged, released (v0.71.0) |
 | 76 | Between-group disparity measures and Kitagawa decomposition | N53 | merged (v0.72.0) |
-| 77 | Joinpoint regression and age-adjusted rate ratios | N54 | planned |
-| 78 | Staggered-adoption DiD and synthetic control | N55 | planned |
-| 79 | Oaxaca–Blinder and Fairlie decompositions (PUMS) | N56 | planned |
-| 80 | Fay–Herriot for proportions and temporal Fay–Herriot | N57 | planned |
+| 77 | Joinpoint regression and age-adjusted rate ratios | N54 | merged (v0.73.0) |
+| 78 | Staggered-adoption DiD and synthetic control | N55 | merged (v0.74.0) |
+| 79 | Oaxaca–Blinder and Fairlie decompositions (PUMS) | N56 | merged (v0.75.0) |
+| 80 | Fay–Herriot for proportions and temporal Fay–Herriot | N57 | merged (v0.76.0) |
 | 81 | Spatial scan statistic for county counts | N58 | planned |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 

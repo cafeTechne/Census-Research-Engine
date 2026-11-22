@@ -5,6 +5,66 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.76.0 (Round 80): Fay–Herriot for proportions and across releases
+
+- **Arcsine Fay–Herriot** (`census/sae_extensions.py`; frozen core `census/sae_extensions_core.py`; N57): direct
+  proportions transformed with the arcsine square root, sampling variance 1/(4 n_eff), bias-corrected back-transform
+  and a 200-fit parametric-bootstrap MSE. `small_area_estimates(transform="arcsine", n_col=...)`.
+- **Rao–Yu temporal Fay–Herriot**: area plus AR(1) area-time effects across 2–3 non-overlapping releases, latest
+  release reported, bootstrap MSE. `small_area_estimates(temporal=True, release_column="Year")`; overlapping releases
+  refused.
+- **Validation** (`docs/audits/sae_extensions_validation.md`, criterion `251dc9d`; real S2701 sampling variances for
+  MI/NY counties and tracts; 500 draws): arcsine per-area coverage .898–.904 (worst decile ≥ .880; relative bias
+  ≤ .078 below p = .10); Rao–Yu .897–.898, MSE gain 3–24%.
+- **Recipe** `small_area` sections; protocol and MCP rule text. No new tool, no manifest change.
+- **Example** (`docs/audits/r80_sae_example.md`, exploratory): Michigan tract and county uninsured rates.
+
+## 0.75.0 (Round 79): Oaxaca–Blinder and Fairlie decompositions on PUMS
+
+- **Decompositions** (`census/decomposition.py`; frozen core `census/decomposition_core.py`; N56): twofold
+  Oaxaca–Blinder with the pooled reference (Neumark; Jann), detailed contributions with Yun-normalised categoricals,
+  threefold reported; Fairlie (logit) with rank-matched pairs over 100 random orderings. Intervals from the 80 SDR
+  replicate weights.
+- **Validation** (`docs/audits/decomposition_validation.md`, criterion `9e52bb4`; 12 cells, 1,000 draws):
+  Oaxaca–Blinder totals pass from 300 records in the smaller group (.862–.894); detailed contributions and every
+  Fairlie quantity pass from 1,000 (they under-covered at 300, .802–.853).
+- **Tool `decompose_gap`** (full profile; 74 tools); `pums_tests` recipe section "Decomposing a gap" with the
+  interpretation rule (explained = composition, not causation); protocol and MCP rule text.
+- **Example** (`docs/audits/r79_decomposition_example.md`, exploratory): Michigan uninsured gap, Black vs White
+  non-Hispanic adults 19–64, PUMS 2019–2023.
+
+## 0.74.0 (Round 78): staggered-adoption DiD and synthetic control
+
+- **Staggered adoption** (`census/staggered.py`; frozen core `census/policy_core.py`; N55): Sun–Abraham (2021)
+  interaction-weighted event study and Callaway–Sant'Anna (2021) group-time ATTs with a multiplier bootstrap, overall
+  ATT and pre-trend check. `difference_in_differences(design="staggered", first_treated=...)` on annual panels
+  (ACS 1-year with 2020 refused, or another annual source); five-year releases refused.
+- **Validation** (`docs/audits/policy_validation.md`, criterion `baf934b`; 51 units, 12/18 periods):
+  - Sun–Abraham passes (.881–.899) and is the default;
+  - Callaway–Sant'Anna passes only with the ACS sampling variance added (.882–.906; bootstrap alone .848–.868);
+  - uniform bands (.76–.81) and synthetic control (placebo size .12–.19; conformal .73–.95) fail.
+- **Synthetic control** is library-only and exploratory (`census.staggered.synthetic_control`).
+- **Recipe** `policy_change` step 3 (route choice); protocol and MCP rule text.
+- **Example** (`docs/audits/r78_medicaid_example.md`, exploratory): Medicaid expansion and the all-ages state
+  uninsured rate, overall ATT −1.23 points (−2.18 to −0.27).
+
+## 0.73.0 (Round 77): joinpoint regression and age-adjusted rate ratios
+
+- **Joinpoint regression** (`census/joinpoint.py`; frozen core `census/joinpoint_core.py`; N54): log-linear segments by
+  weighted least squares with grid-searched joinpoints (Joinpoint spacing defaults), the number of joinpoints chosen
+  by Kim et al. (2000) sequential permutation tests, per-segment APC and whole-period AAPC.
+- **Ratio of two directly age-adjusted rates** with the Tiwari et al. (2006) interval (and a log-delta comparison).
+- **Validation** (`docs/audits/joinpoint_validation.md`, criterion `01ad5a4`; 15–25 annual points, 50–5,000 events
+  per year, 0–2 true joinpoints):
+  - selection passes (false-joinpoint rate .012–.023 at α .05);
+  - APC and AAPC intervals **fail** (t given the true number .51–.91; empirical-quantile with selection .02–.88):
+    exploratory, because joinpoint locations are estimated;
+  - Tiwari (.900–.921) and log-delta (.887–.900) ratio intervals pass.
+- **Tool `joinpoint`** (full profile; 73 tools), with `rate_ratio={...}` for the age-adjusted ratio. Refuses
+  overlapping ACS five-year releases and incomplete (suppressed) years.
+- **Recipe**: `policy_change` step 4; protocol and MCP rule text.
+- No manifest method and no example (see `docs/audits/round77_compatibility.md`).
+
 ## 0.72.0 (Round 76): between-group disparity measures and Kitagawa decomposition
 
 - **Disparities between population groups** (`census/disparity.py`; frozen core `census/disparity_core.py`; N53):
