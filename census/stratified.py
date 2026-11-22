@@ -26,7 +26,9 @@ VALIDATED = {"mh_counts": True, "mh_pums": True, "reri_counts": True, "reri_pums
 ROLE_NOTE = ("Classification follows Foundations of Epidemiology Table 8-5: stratum measures that differ "
              "(homogeneity p <= .10) with the crude between them indicate an effect modifier (report each stratum); "
              "otherwise a crude-to-adjusted change above 10% indicates a confounder (report the adjusted measure). "
-             "It is descriptive, not a test.")
+             "It is descriptive, not a test. It is an associational label (10% rule): a causal diagram, not the change "
+             "in estimate, decides whether to adjust, because associational rules can recommend adjusting for a "
+             "collider (Hernán and Robins 7.4; Round 89: estimate_effect(dag=...) or the manifest dag block).")
 
 
 def _label(crude, pooled, strata, p_hom, measure):
@@ -75,7 +77,8 @@ def stratified_counts(frame: pd.DataFrame, stratum: str, cases_exposed: str, tot
     return dict(measure="risk", pooled={m: {k: float(v) for k, v in x.items()} for m, x in pooled.items()},
                 crude={k: float(v) for k, v in cr.items()},
                 strata={m: dict(zip(strata, map(float, v))) for m, v in sm.items()}, homogeneity=hom,
-                classification=labels, validated=VALIDATED["mh_counts"], notes=notes, audit=AUDIT)
+                classification=labels, classification_basis="associational (10% rule)",
+                validated=VALIDATED["mh_counts"], notes=notes, audit=AUDIT)
 
 
 def stratified_pums(y: np.ndarray, e: np.ndarray, s: np.ndarray, W: np.ndarray, strata: Sequence[Any],
@@ -91,7 +94,7 @@ def stratified_pums(y: np.ndarray, e: np.ndarray, s: np.ndarray, W: np.ndarray, 
     return dict(pooled=est, crude={k: float(v) for k, v in cr.items()},
                 strata={m: dict(zip(map(str, strata), map(float, v))) for m, v in sm.items()},
                 homogeneity={m: dict(h, test="replicate Wald", validated=False) for m, h in hom.items()},
-                classification=labels, records=counts,
+                classification=labels, classification_basis="associational (10% rule)", records=counts,
                 validated=VALIDATED["mh_pums"] and min(counts.values()) >= 300, notes=notes, audit=AUDIT)
 
 

@@ -5,6 +5,30 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.85.0 (Round 89): causal question specification
+
+- **Target trial and causal diagram** (`census/causal_spec.py`; N65; Hernán and Robins, *What If*, chapters 3, 6–8,
+  18, 22).
+  - A `causal_question` block holds the target-trial protocol: eligibility, intervention, comparator, time zero,
+    outcome, follow-up, contrast, and target (super-population or these areas).
+  - A `dag` block holds the causal diagram; unmeasured nodes are named `U...`.
+  - The engine checks d-separation by the moralized ancestral graph and the backdoor criterion, and enumerates
+    minimal sufficient adjustment sets.
+  - It flags adjusted mediators, treatment descendants, colliders it opens (M-bias), instrument-like variables and
+    unmeasured nodes, with the open paths named.
+- **Manifests:**
+  - a formula that fails the check is a validation error (exploratory manifests get the findings in methods text);
+  - a "Causal question" methods section appears only when the blocks are present.
+- **Tools:**
+  - `estimate_effect(causal_question=..., dag=...)` and `difference_in_differences(causal_question=...)` return a
+    `causal_assessment`;
+  - without a causal question, results are labelled associational;
+  - social exposures need named intervention versions.
+- **Round 83's classification** is marked "associational (10% rule)" (`classification_basis`).
+- **Recipe** `causal` sections; protocol rule; sources Pearl 2009 and Lauritzen et al. 1990.
+- **Tests** reproduce the book's Figures 7.1–7.4 and 18.1–18.4. d-separation and the backdoor verdict are
+  cross-checked against path enumeration on random DAGs.
+
 ## 0.84.0 (Round 88): method attribution
 
 - **Source registry** (`census/references.py`; N70; owner request). It covers the method papers, the three guidance

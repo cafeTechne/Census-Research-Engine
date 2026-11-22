@@ -463,4 +463,6 @@ def validate_manifest(manifest: Mapping[str, Any], resolve: bool = True, client:
     errors.extend(index_circularity_errors(manifest))
     from .covariables import covariable_errors  # Round 83
     errors.extend(covariable_errors(manifest))
+    from .causal_block import causal_errors  # Round 89
+    errors.extend(causal_errors(manifest))
     return errors

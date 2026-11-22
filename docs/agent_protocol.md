@@ -622,6 +622,16 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+## Causal question specification (Round 89)
+
+<!-- mcp-rules:A -->
+Round 89: before a causal claim, state the target trial (causal_question: eligibility, intervention, comparator,
+time_zero, outcome, follow_up, contrast, target) and a causal diagram (dag: edges, outcome); estimate_effect and
+difference_in_differences take both, manifests take both blocks. Without causal_question results are labelled
+associational. Adjustment sets come from the diagram (backdoor criterion), never from the 10% change rule; manifests
+refuse formulas adjusting for mediators, treatment descendants, colliders or unmeasured nodes, or leaving a backdoor
+path open. Social exposures (poverty, education, race) need named intervention versions.
+
 ## Method attribution (Round 88)
 
 <!-- mcp-rules:A -->

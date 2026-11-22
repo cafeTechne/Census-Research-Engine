@@ -111,6 +111,8 @@ SOURCES: Dict[str, Dict[str, Any]] = {
                           "Communications in Statistics - Theory and Methods", volume="26", pages="1481-1496"),
     "pearl2009": _src("book", "Pearl, J.", 2009, "Causality: Models, Reasoning, and Inference (2nd ed.)",
                       publisher="Cambridge University Press, Cambridge"),
+    "lauritzen1990": _src("paper", "Lauritzen, S.L., Dawid, A.P., Larsen, B.N. & Leimer, H.-G.", 1990,
+                          "Independence properties of directed Markov fields", "Networks", volume="20", pages="491-505"),
     "muller_watson2022": _src("paper", "Müller, U.K. & Watson, M.W.", 2022, "Spatial correlation robust inference",
                               "Econometrica", volume="90", pages="2901-2935"),
     "prasad_rao1990": _src("paper", "Prasad, N.G.N. & Rao, J.N.K.", 1990, "The estimation of the mean squared error of "
@@ -249,7 +251,7 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "check_agreement": [("bland_altman1986", "method"), ("cohen1960", "method"), _audit("agreement_validation.md")],
     "combine_estimates": [("paule_mandel1982", "method"), ("hartung_knapp2001", "method"), ("schuirmann1987", "method"),
                           _audit("evidence_validation.md")],
-    "estimate_effect": [*CAUSAL, ("anderson_rubin1949", "method"), ("statsmodels", "software"),
+    "estimate_effect": [*CAUSAL, ("pearl2009", "method"), ("lauritzen1990", "method"), ("anderson_rubin1949", "method"), ("statsmodels", "software"),
                         _audit("causal_validation.md"), _audit("causal_robustness_validation.md")],
     "small_area_estimates": [("rao_yu1994", "method"), ("hadam2020", "method"),
                              _audit("sae_extensions_validation.md")],

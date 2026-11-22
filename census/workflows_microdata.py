@@ -333,6 +333,7 @@ def difference_in_differences(
     first_treated: Optional[str] = None,
     method: str = "sun_abraham",
     unit: str = "GEOID",
+    causal_question: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Difference-in-differences on area-level ACS estimates across NON-overlapping
     periods (e.g. 2013, 2018, 2023 releases); overlapping releases are refused.
@@ -348,6 +349,8 @@ def difference_in_differences(
         product: "5-year" (default) or "1-year"; sets the period length used for
             the overlap check (5 or 1) unless period_years is given.
     With 3+ pre-periods a parallel-trends test is reported. Validated: coverage 0.90-0.91.
+    Round 89: causal_question (target trial: eligibility, intervention, comparator, time_zero, outcome, follow_up,
+    contrast, target) is checked; without it the result is labelled associational.
     Example: difference_in_differences("panel.csv", "poverty_rate", "treated", 2023, se="poverty_rate_se")
     """
     from census.api import PRODUCT_PERIOD_YEARS, normalize_product
@@ -364,10 +367,11 @@ def difference_in_differences(
             return _fail(errors.INVALID_INPUT, str(exc))
         o = r["overall"]
         state = "validated" if r["validated"] else "exploratory (see notes)"
-        return _ok(f"Staggered DiD ({r['method']}), {r['units']} units: overall ATT {o['estimate']:.4g} "
+        return _with_trial(_ok(f"Staggered DiD ({r['method']}), {r['units']} units: overall ATT {o['estimate']:.4g} "
                    f"({o['ci_lower']:.4g} to {o['ci_upper']:.4g}); {state}.",
                    "report the overall ATT and the event study with intervals; check the pre-trend result",
-                   **{k: (v.to_dict("records") if isinstance(v, pd.DataFrame) else v) for k, v in r.items()})
+                   **{k: (v.to_dict("records") if isinstance(v, pd.DataFrame) else v) for k, v in r.items()}),
+                   causal_question, first_treated)
     if treatment_period is None:
         return _fail(errors.INVALID_INPUT, "treatment_period is required for two_group and event designs.")
     try:
@@ -379,8 +383,21 @@ def difference_in_differences(
     except _ERRORS as exc:
         return _fail(errors.INVALID_INPUT, str(exc))
     out = res.to_dict()
-    return _ok(result_summary(res), "report the DiD estimate with its interval and the parallel-trends result",
-               **{k: v for k, v in out.items() if k != "summary"})
+    return _with_trial(_ok(result_summary(res), "report the DiD estimate with its interval and the parallel-trends "
+                           "result", **{k: v for k, v in out.items() if k != "summary"}), causal_question, treated)
+
+
+def _with_trial(result, causal_question, treatment):
+    """Round 89: target-trial assessment on a successful DiD result (the design, not a diagram, handles
+    confounding: parallel trends replaces adjustment)."""
+    from census import causal_spec as cs
+    a = cs.assess(causal_question=causal_question, treatment=treatment)
+    result["causal_assessment"] = a
+    if a["problems"]:
+        result["summary"] += " CAUSAL SPECIFICATION PROBLEMS: " + "; ".join(a["problems"]) + "."
+    elif not causal_question:
+        result["summary"] += " Label: associational (no causal question specified)."
+    return result
 
 
 def adjust_for_place(

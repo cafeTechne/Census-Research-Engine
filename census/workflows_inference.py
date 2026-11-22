@@ -724,6 +724,8 @@ def estimate_effect(
     method: Optional[str] = None,
     replicates_path: Optional[str] = None,
     calibrate: bool = False,
+    causal_question: Optional[Dict[str, Any]] = None,
+    dag: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Causal-style estimates for areas (state the assumptions; register designs for confirmatory claims).
 
@@ -738,6 +740,9 @@ def estimate_effect(
     measurement; mediation with an exactly measured mediator. Round 47: calibrate=True for noisy
     confounders or mediators; iv also reports an Anderson-Rubin interval (valid for weak instruments;
     use it when first-stage F < 10).
+    Round 89: causal_question (target trial: eligibility, intervention, comparator, time_zero, outcome, follow_up,
+    contrast, target) and dag ({edges: ["L -> A", ...], outcome[, treatment]}) are checked (backdoor criterion);
+    without causal_question the result is labelled associational. See get_recipe("causal").
     Example: estimate_effect("frame.parquet", "iv", "mortality", x="poverty", instrument="poverty_2017")
     """
     from census import causal
@@ -773,8 +778,23 @@ def estimate_effect(
     except _INPUT_ERRORS as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}", "check the columns for this kind, then retry")
     from census.results import _jsonable
-    return _ok(summary + (" Validated." if out["validated"] else " Exploratory: see notes."),
-               "report the estimate with its interval and the assumptions in notes", **_jsonable(out))
+    summary += " Validated." if out["validated"] else " Exploratory: see notes."
+    assessment, summary = _causal_assessment(summary, causal_question, dag, treatment or x,
+                                             confounders if kind == "treatment" else controls or [])
+    return _ok(summary, "report the estimate with its interval and the assumptions in notes",
+               causal_assessment=assessment, **_jsonable(out))
+
+
+def _causal_assessment(summary, causal_question, dag, treatment, adjust):
+    """Round 89: target-trial and causal-diagram assessment for exploratory causal tools (never refuses)."""
+    from census import causal_spec as cs
+    a = cs.assess(causal_question=causal_question, dag=dag, treatment=treatment,
+                  adjust=list(adjust or []) if dag is not None else None)
+    if a["problems"]:
+        summary += " CAUSAL SPECIFICATION PROBLEMS: " + "; ".join(a["problems"]) + "."
+    elif not causal_question:
+        summary += " Label: associational (no causal question specified)."
+    return a, summary
 
 
 def small_area_estimates(

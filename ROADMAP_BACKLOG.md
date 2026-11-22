@@ -78,7 +78,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 86 | Quantitative bias analysis: E-values, misclassification, both-directions sensitivity | N63 | merged (v0.82.0) |
 | 87 | Ecologic versus individual-level associations on PUMS (within, between, contextual) | N64 | merged (v0.83.0) |
 | 88 | Method attribution: a source registry, sources on every tool result, references in bundles | N70 | done (v0.84.0) |
-| 89 | Causal question specification: target trial, causal diagram, adjustment-set checks | N65 | planned |
+| 89 | Causal question specification: target trial, causal diagram, adjustment-set checks | N65 | done (v0.85.0) |
 | 90 | Positivity diagnostics, stabilized and truncated weights, IPW vs g-formula | N66 | planned |
 | 91 | IP-weighted marginal structural models for annual policy panels | N67 | planned |
 | 92 | Data sources: Population Estimates, LEHD LODES, ACS migration flows | N68 | planned |
