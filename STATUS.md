@@ -15,12 +15,12 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | Path | What |
 | :--- | :--- |
 | `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
-| `mcp_server.py` | MCP server (76 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
+| `mcp_server.py` | MCP server (77 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_85.md` (designation accuracy; Round 84 merged); Rounds 86–87 queued (bias analysis, ecologic vs individual), drafted from *Foundations of Epidemiology* (`docs/literature/foundations_of_epidemiology.md`). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_86.md` (bias analysis; Round 85 merged); Round 87 queued (ecologic vs individual), drafted from *Foundations of Epidemiology* (`docs/literature/foundations_of_epidemiology.md`). Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -72,6 +72,7 @@ manifests refuse them in confirmatory analyses.
 | Small-area proportions and several releases (Round 80) | **Passed** (real 2019–2023 S2701 sampling variances, MI/NY counties and tracts): arcsine Fay–Herriot with bias-corrected back-transform and bootstrap MSE, per-area coverage .898–.904, worst decile ≥ .880, relative bias ≤ .078 for p < .10 (quantile interval .892–.895 also passes); Rao–Yu temporal Fay–Herriot for 2–3 releases .897–.898 (MSE gain 3–7% counties, 10–24% tracts) | `sae_extensions_validation.md`, criterion `251dc9d` |
 | PUMS gap decompositions (Round 79) | **Passed with size gates** (Round 32 design, weight CV 1, SDR intervals): Oaxaca–Blinder explained/unexplained totals from 300 records in the smaller group (.862–.894); Oaxaca–Blinder detailed contributions (Yun-normalised) and Fairlie totals and detailed contributions from 1,000 records (.863–.894); at 300 they under-covered (.802–.853) | `decomposition_validation.md`, criterion `9e52bb4` |
 | Staggered adoption and synthetic control (Round 78) | **Passed selected** (51 units, 12/18 annual periods, AR(1) .3/.7, ACS-like error): Sun–Abraham event study and overall ATT (.881–.899); Callaway–Sant'Anna with the ACS variance added (.882–.906). **Failed**: Callaway–Sant'Anna multiplier bootstrap alone (.848–.868), uniform bands (.76–.81), synthetic-control placebo test (size .12–.19 at .10) and conformal intervals (.73–.86 with 9 pre-periods; .87–.95 with 15, not a pre-set gate): exploratory, library only | `policy_validation.md`, criterion `baf934b` |
+| Designation accuracy (Round 85) | **Passed**: Fay–Herriot posterior probability that an area truly exceeds a threshold (calibration within .031 in every bin, MI/NY tracts and counties). **Failed**: the flat-prior direct probability (off by up to .17) and the rule-accuracy criterion (expected Sn/Sp/PPV/NPV agreed within about .01 on average, but the PPV predictive interval under-covered on tracts, .54–.85): exploratory | `designation_validation.md`, criterion `61fa47a` |
 | Marginal measures (Round 84) | **Passed** (every candidate): g-computation risk ratio, risk difference and attributable fraction for area binomial models with HC3 delta SEs (.862–.898) and for PUMS logit models with SDR SEs (.866–); modified-Poisson prevalence ratios with SDR SEs (.869–); dose-response trend tests (size .083–.129) | `epi_measures_validation.md`, criterion `c5f6266` |
 | Stratified analysis (Round 83) | **Passed**: Mantel–Haenszel RR, OR, RD and IRR for counts (.877–.906, down to 5 expected cases per stratum and arm); MH RR/OR/RD on PUMS with SDR weights (.881–.909, from 300 records per stratum); RERI by delta, bootstrap and SDR (.887–); Breslow–Day–Tarone homogeneity (size .102–.114). **Failed**: Woolf RR homogeneity (size .032–.113, conservative with sparse strata) and the PUMS replicate Wald homogeneity test (.099–.151): exploratory | `stratified_validation.md`, criterion `b358799` |
 | Joinpoint and age-adjusted rate ratios (Round 77) | **Passed selected**: the number of joinpoints by Kim et al. permutation tests (false-joinpoint rate .012–.023 at α .05; 15–25 annual points, 50–5,000 events per year); Tiwari (.900–.921) and log-delta (.887–.900) intervals for ratios of age-adjusted rates. **Failed**: APC intervals (t given the true number .51–.91; empirical-quantile with selection .02–.88) and AAPC intervals (.75–.92): exploratory, because joinpoint locations are estimated | `joinpoint_validation.md`, criterion `01ad5a4` |
@@ -153,6 +154,15 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 85 (v0.81.0; merged, release pending owner approval; implemented by the maintainer agent):**
+area designations as screening tests (N62).
+- `census/designation.py` (frozen core `designation_core.py`); tool `designation_accuracy` (77 tools); `small_area`
+  recipe section.
+- Validation (`designation_validation.md`, criterion `61fa47a`): the Fay–Herriot probability passes; the direct
+  probability and the rule-accuracy criterion fail (exploratory).
+- Example (`r85_designation_example.md`, exploratory): MI tracts at 20% poverty: the point rule designates 682 tracts
+  (expected PPV .78), probability ≥ .8 designates 373 (PPV .94); 309 tracts change status.
 
 **Round 84 (v0.80.0; merged, release pending owner approval; implemented by the maintainer agent):**
 marginal risk ratios and differences, prevalence ratios, attributable fractions and dose-response (N61).
@@ -648,7 +658,8 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N59: epidemiologic reporting conventions (82; closed);
 - N60: stratified analysis (83; closed);
 - N61: marginal measures, prevalence ratios, attributable fractions, dose-response (84; closed);
-- N62–N64: stratified analysis, marginal measures, designation accuracy, bias analysis, ecologic vs individual (Rounds 85–87, planned 2026-11-22 from *Foundations of Epidemiology*);
+- N62: designation accuracy (85; closed);
+- N63–N64: stratified analysis, marginal measures, designation accuracy, bias analysis, ecologic vs individual (Rounds 86–87, planned 2026-11-22 from *Foundations of Epidemiology*);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.
