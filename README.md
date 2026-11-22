@@ -19,14 +19,14 @@ Extraction uses the shared pipeline. Advanced analyses are exposed through the M
 
 Start with [choosing an analysis](#inference), [MCP setup and tool inventory](#mcp-server), or the [research workflow](#a-reproducible-research-workflow).
 
-**Latest release: v0.70.0** ([DOI 10.5281/zenodo.24433164](https://doi.org/10.5281/zenodo.24433164)):
+**Latest release: v0.71.0** ([DOI 10.5281/zenodo.24434858](https://doi.org/10.5281/zenodo.24434858)):
 - validated spatial intervals for tract-level slopes;
-- county context covariates (County Business Patterns, ERS county types and rural–urban codes, CHR additional
-  measures);
-- three-level models and indices from published loadings;
+- county context covariates;
+- three-level models and indices from published loadings, now usable in pre-registered manifests;
+- 25 recipes;
 - a [replication suite](#replications) that reruns five published findings.
 
-Round 75 brings these methods to pre-registered manifests and adds six recipes. [CHANGELOG.md](CHANGELOG.md) lists every round.
+[CHANGELOG.md](CHANGELOG.md) lists every round.
 
 ## Installation
 

@@ -3,8 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.70.0 (Rounds 70–74: tract spatial intervals, context sources, three-level models and
-loadings indices, replication suite; released as one bundle; DOI 10.5281/zenodo.24433164). Previous: v0.65.0 (Round 69;
+**Current release:** v0.71.0 (Round 75: manifest support for the Round 73 methods, recipes, README; local-model
+evaluation; DOI 10.5281/zenodo.24434858). Previous: v0.70.0 (Rounds 70–74; DOI 10.5281/zenodo.24433164); v0.65.0 (Round 69;
 DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.24405380); v0.60.0 (Rounds 61–63; DOI 10.5281/zenodo.24400452); v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
 10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
 10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record
@@ -146,7 +146,7 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 75 (v0.71.0; merged, release pending owner approval; implemented by the maintainer agent):** manifest
+**Round 75 (v0.71.0; merged, released as v0.71.0; implemented by the maintainer agent):** manifest
 support for the Round 73 methods, tract coordinates, recipes and README; no new statistics.
 - Manifests gain:
   - method `multilevel`, with two levels (`"groups": "county_fips"`) or three (`["state_fips", "county_fips"]`);
