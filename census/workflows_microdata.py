@@ -8,6 +8,7 @@ census.workflows_inference: plain arguments in, JSON-safe dicts out, with
 import os
 import re
 from typing import Any, Dict, List, Optional, Union
+import pandas as pd
 
 from census import errors
 from census.data_integrity import BundledDataIntegrityError, integrity_error_result
@@ -280,7 +281,7 @@ def difference_in_differences(
     input_path: str,
     outcome: str,
     treated: str,
-    treatment_period: int,
+    treatment_period: Optional[int] = None,
     period: str = "Year",
     se: Optional[str] = None,
     design: str = "two_group",
@@ -289,9 +290,16 @@ def difference_in_differences(
     target: str = "population",
     product: str = "5-year",
     period_years: Optional[int] = None,
+    first_treated: Optional[str] = None,
+    method: str = "sun_abraham",
+    unit: str = "GEOID",
 ) -> Dict[str, Any]:
     """Difference-in-differences on area-level ACS estimates across NON-overlapping
     periods (e.g. 2013, 2018, 2023 releases); overlapping releases are refused.
+    design="staggered" (Round 78): policies starting in different years in an ANNUAL panel (ACS 1-year with
+    product="1-year", or another annual source; 2020 1-year refused). first_treated: column with each unit's first
+    treated year (blank = never treated); treated and treatment_period are then not used. method "sun_abraham"
+    (default, validated) or "callaway_santanna" (validated with se). Returns the overall ATT and an event study.
 
     Args:
         treated: 0/1 column marking treated areas. treatment_period: first treated release.
@@ -305,6 +313,23 @@ def difference_in_differences(
     from census.api import PRODUCT_PERIOD_YEARS, normalize_product
     from census.did import difference_in_differences as _did
 
+    if design == "staggered":
+        from census.staggered import staggered_did
+        try:
+            if not first_treated:
+                return _fail(errors.INVALID_INPUT, "design='staggered' needs first_treated (each unit's first treated year).")
+            r = staggered_did(_load_frame(input_path), outcome, first_treated, period=period, unit=unit, se=se,
+                              method=method, product=product)
+        except _ERRORS as exc:
+            return _fail(errors.INVALID_INPUT, str(exc))
+        o = r["overall"]
+        state = "validated" if r["validated"] else "exploratory (see notes)"
+        return _ok(f"Staggered DiD ({r['method']}), {r['units']} units: overall ATT {o['estimate']:.4g} "
+                   f"({o['ci_lower']:.4g} to {o['ci_upper']:.4g}); {state}.",
+                   "report the overall ATT and the event study with intervals; check the pre-trend result",
+                   **{k: (v.to_dict("records") if isinstance(v, pd.DataFrame) else v) for k, v in r.items()})
+    if treatment_period is None:
+        return _fail(errors.INVALID_INPUT, "treatment_period is required for two_group and event designs.")
     try:
         years = int(period_years) if period_years is not None else PRODUCT_PERIOD_YEARS[normalize_product(product)]
         frame = _load_frame(input_path)

@@ -5,6 +5,21 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.74.0 (Round 78): staggered-adoption DiD and synthetic control
+
+- **Staggered adoption** (`census/staggered.py`; frozen core `census/policy_core.py`; N55): Sun–Abraham (2021)
+  interaction-weighted event study and Callaway–Sant'Anna (2021) group-time ATTs with a multiplier bootstrap, overall
+  ATT and pre-trend check. `difference_in_differences(design="staggered", first_treated=...)` on annual panels
+  (ACS 1-year with 2020 refused, or another annual source); five-year releases refused.
+- **Validation** (`docs/audits/policy_validation.md`, criterion `baf934b`; 51 units, 12/18 periods):
+  - Sun–Abraham passes (.881–.899) and is the default;
+  - Callaway–Sant'Anna passes only with the ACS sampling variance added (.882–.906; bootstrap alone .848–.868);
+  - uniform bands (.76–.81) and synthetic control (placebo size .12–.19; conformal .73–.95) fail.
+- **Synthetic control** is library-only and exploratory (`census.staggered.synthetic_control`).
+- **Recipe** `policy_change` step 3 (route choice); protocol and MCP rule text.
+- **Example** (`docs/audits/r78_medicaid_example.md`, exploratory): Medicaid expansion and the all-ages state
+  uninsured rate, overall ATT −1.23 points (−2.18 to −0.27).
+
 ## 0.73.0 (Round 77): joinpoint regression and age-adjusted rate ratios
 
 - **Joinpoint regression** (`census/joinpoint.py`; frozen core `census/joinpoint_core.py`; N54): log-linear segments by
