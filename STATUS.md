@@ -172,7 +172,8 @@ causal question specification (N65; Hernán and Robins).
   sets; manifest `causal_question` and `dag` blocks (refusals for confirmatory formulas).
 - `estimate_effect` and `difference_in_differences` take `causal_question` (and `dag`), and results without one are
   labelled associational. Round 83's 10% label is marked associational.
-- Exact checks: book figures plus random-DAG cross-checks. No simulation; no new tool.
+- Exact checks: book figures plus random-DAG cross-checks. No simulation; no new tool. Goldens byte-identical;
+  2313 passed, 42 skipped; 0 failures.
 
 **Round 88 (v0.84.0; merged, release pending owner approval; implemented by the maintainer agent):**
 method attribution (N70; owner request).
