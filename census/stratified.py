@@ -67,6 +67,11 @@ def stratified_counts(frame: pd.DataFrame, stratum: str, cases_exposed: str, tot
               "rr": _label(cr["rr"], pooled["rr"]["estimate"], sm["rr"], w_p, "rr")}
     notes.append("The RR homogeneity test (Woolf-type) is exploratory (too conservative with sparse strata); the OR "
                  "homogeneity test (Breslow-Day-Tarone) is validated.")
+    from .bias_analysis_core import e_value as _ev  # Round 86
+    for m in ("rr", "or"):
+        x = pooled[m]
+        pooled[m]["e_value"] = _ev(float(x["estimate"]), float(x["lower"]), float(x["upper"]),
+                                   "rr" if m == "rr" else "or", float(c.sum()/n0.sum()) if m == "or" else None)["e_value"]
     return dict(measure="risk", pooled={m: {k: float(v) for k, v in x.items()} for m, x in pooled.items()},
                 crude={k: float(v) for k, v in cr.items()},
                 strata={m: dict(zip(strata, map(float, v))) for m, v in sm.items()}, homogeneity=hom,
