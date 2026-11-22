@@ -567,6 +567,8 @@ def build_index(
     outcome: Optional[str] = None,
     typology_k: Optional[int] = None,
     spatial: bool = False,
+    loadings: Optional[Dict[str, float]] = None,
+    standardize: bool = False,
 ) -> Dict[str, Any]:
     """Build a composite (e.g. deprivation) index from three or more ACS estimates, with
     per-area score intervals, quintiles and their stability, Cronbach's alpha and an
@@ -576,7 +578,9 @@ def build_index(
         input_path: Analysis frame (GEOID per row).
         indicators: Estimate columns; higher = more deprived unless listed in reverse.
         replicates_path: From build_analysis_frame (needed for score intervals).
-        method: "pca" (first principal component) or "equal" weights.
+        method: "pca" (first principal component), "equal" weights, or "loadings" (Round 73: published fixed
+            weights given in loadings={indicator: weight}, e.g. a paper's factor loadings; two indicators allowed).
+        standardize: rescale the scores to mean 0, SD 1 (for "per SD" models).
         reverse: Indicators where higher means less deprived (e.g. median income).
         outcome: The outcome you will relate the index to; refused if it is an indicator.
         typology_k: Also group areas into k types (descriptive), with replicate stability.
@@ -593,7 +597,8 @@ def build_index(
             from census.small_spatial import frame_coordinates
             coords = frame_coordinates(frame)
         out = _build(frame, indicators, replicates=_read_replicates(replicates_path) if replicates_path else None,
-                     method=method, reverse=reverse or (), outcome=outcome, typology_k=typology_k, coords=coords)
+                     method=method, reverse=reverse or (), outcome=outcome, typology_k=typology_k, coords=coords,
+                     loadings=loadings, standardize=standardize)
     except _INPUT_ERRORS as exc:
         return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
                      "check the indicator names (at least three) and replicates, then retry")

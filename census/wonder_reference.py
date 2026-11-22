@@ -67,3 +67,39 @@ def expected_count_weights(entry,*,validate_only=False):
     rates,_,info=resolve_reference_export(entry.get('reference_export'),period,names,validate_only=validate_only)
     if not np.isfinite(rates).all() or (rates<0).any():raise ValueError('reference rates unavailable for expected counts')
     return period*rates,info
+
+
+def acs_band_populations(b01001, prefix='age'):
+    """ACS B01001 rows (columns B01001_xxxE, index GEOID) -> the 20 age/sex band columns in ``band_order()``."""
+    import pandas as pd
+    out = {}
+    for sex, offset in (('M', 0), ('F', 24)):
+        for band, cells in zip(BANDS, MALE_CELLS):
+            out[band_name(sex, band, prefix)] = sum(pd.to_numeric(b01001[f'B01001_{c+offset:03}E']) for c in cells)
+    return pd.DataFrame(out, index=b01001.index)
+
+
+def expected_counts(band_populations, reference_path, *, expected_sha256=None, person_years=None, period_years=None):
+    """Expected counts from a national WONDER age x sex reference file (Round 73, backlog N51).
+
+    ``band_populations``: the 20 ACS age/sex band columns in ``band_order()`` (``acs_band_populations``).
+    The reference rates are per person-year (``read_wonder_reference``: under-one and 1-4 pooled before division,
+    Not Stated excluded). Either
+    - ``period_years``: expected = period x sum_b rate_b x population_b (the manifest ``expected_count`` rule), or
+    - ``person_years``: the ACS gives only the age x sex mix; expected = person_years x sum_b rate_b x share_b, where
+      ``person_years`` is e.g. the county's WONDER population summed over the study years (Round 69).
+    No suppressed or hidden count is read or produced.
+    """
+    import pandas as pd
+    from .vital_records import read_wonder_reference
+    validate_band_order(list(band_populations.columns))
+    if (person_years is None) == (period_years is None):
+        raise ValueError('give exactly one of person_years or period_years')
+    ref = read_wonder_reference(reference_path, expected_sha256=expected_sha256)
+    rates = ref['rows'].set_index(['sex', 'band']).loc[band_order()].rate.to_numpy(float)
+    pops = band_populations.to_numpy(float)
+    base = pops @ rates
+    if period_years is not None:
+        return pd.Series(base*float(period_years), index=band_populations.index, name='expected')
+    py = pd.Series(person_years).reindex(band_populations.index).to_numpy(float)
+    return pd.Series(base/pops.sum(axis=1)*py, index=band_populations.index, name='expected')

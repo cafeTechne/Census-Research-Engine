@@ -5,6 +5,26 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.69.0 (Round 73): three-level models, published-loading indices, expected counts
+
+- **Validation** (`docs/audits/methods73_validation.md`, criterion `e97e9fc`, kept at tag `criterion-r73`):
+  - **M1 passed:** three-level random intercepts (REML), with fixed-effect Wald intervals on t(G_top − 1):
+    .904–.913 with 30 or 49 top units, unbalanced, shares (.70, .11, .19) and (.50, .25, .25);
+  - **LI passed:** indices with fixed published loadings on Round 36's design: mean per-area coverage
+    .897–.899, every area ≥ .878;
+  - **M3 screening only:** delete-one-top-unit jackknife share intervals .88–.98 on 100 draws. They stay
+    exploratory as pre-set; the parametric bootstrap was dropped before the run.
+- **Engine:**
+  - `census/multilevel3.py` `fit_three_level`;
+  - `multilevel_model(groups=[top, middle], share_intervals=True)`, which refuses `sampling_se`, replicates and
+    random slopes for three levels;
+  - `build_index(method="loadings", loadings={...}, standardize=False)`, with two or more indicators;
+  - `census.wonder_reference.acs_band_populations` and `expected_counts(..., period_years= | person_years=)`,
+    which reproduce Round 69's expected deaths to 7.8e-16.
+- Example (`docs/audits/r73_three_level_example.md`): replication E through `multilevel_model` gives Round 68's
+  shares exactly.
+- Goldens byte-identical. Acceptance: 2195 passed, 38 skipped; 0 failures.
+
 ## 0.68.0 (Round 71): tract-level spatial intervals
 
 - **Validation** (`docs/audits/tract_spatial_validation.md`, criterion `f947f64`; NC 2018 and MI 2020 tracts,

@@ -9,6 +9,12 @@ Goal: more reliable estimates for small areas (tracts, small counties) whose dir
 5. Read `gamma` (shrinkage): near 1 keeps the direct estimate, near 0 relies on the model.
 6. Report the EBLUP with its MSE-based interval next to the direct estimate and MOE. Label model-based estimates as such.
 
+## Three levels (tracts in counties in states)
+
+`multilevel_model(input_path, "e0 ~ 1", ["state", "county"])` fits a three-level random-intercept model (Round 73):
+fixed-effect intervals are validated (t with G_top - 1 df); variance shares are reported, but their jackknife
+intervals are exploratory (`share_intervals=False` skips the one-refit-per-state jackknife).
+
 ## Event counts (deaths)
 
 Use Fay–Herriot for ACS direct estimates with known sampling variances. Use

@@ -1,0 +1,118 @@
+{
+ "ml": [
+  {
+   "G": 30,
+   "shares": [
+    0.7,
+    0.11,
+    0.19
+   ],
+   "m1_coverage": 0.904,
+   "m1_failed": 0,
+   "m3_coverage": {
+    "bottom": 0.96,
+    "mid": 0.96,
+    "top": 0.98
+   },
+   "m3_failed": 0
+  },
+  {
+   "G": 30,
+   "shares": [
+    0.5,
+    0.25,
+    0.25
+   ],
+   "m1_coverage": 0.911,
+   "m1_failed": 0,
+   "m3_coverage": {
+    "bottom": 0.89,
+    "mid": 0.88,
+    "top": 0.9
+   },
+   "m3_failed": 0
+  },
+  {
+   "G": 49,
+   "shares": [
+    0.7,
+    0.11,
+    0.19
+   ],
+   "m1_coverage": 0.913,
+   "m1_failed": 0,
+   "m3_coverage": {
+    "bottom": 0.94,
+    "mid": 0.96,
+    "top": 0.93
+   },
+   "m3_failed": 0
+  },
+  {
+   "G": 49,
+   "shares": [
+    0.5,
+    0.25,
+    0.25
+   ],
+   "m1_coverage": 0.912,
+   "m1_failed": 0,
+   "m3_coverage": {
+    "bottom": 0.9,
+    "mid": 0.89,
+    "top": 0.9
+   },
+   "m3_failed": 0
+  }
+ ],
+ "li": [
+  {
+   "reliability": 0.9,
+   "range_km": 0,
+   "mean": 0.8977827586206896,
+   "min": 0.8785,
+   "failed": 0
+  },
+  {
+   "reliability": 0.9,
+   "range_km": 100,
+   "mean": 0.8979896551724138,
+   "min": 0.8785,
+   "failed": 0
+  },
+  {
+   "reliability": 0.7,
+   "range_km": 0,
+   "mean": 0.897148275862069,
+   "min": 0.8845,
+   "failed": 0
+  },
+  {
+   "reliability": 0.7,
+   "range_km": 100,
+   "mean": 0.8986241379310345,
+   "min": 0.8805,
+   "failed": 0
+  }
+ ],
+ "passed": {
+  "M1": true,
+  "M3_screen": true,
+  "LI": true
+ },
+ "draws": {
+  "M1": 1000,
+  "M3": 100,
+  "LI": 2000
+ },
+ "criterion_commit": "e97e9fc",
+ "frozen_sha256": {
+  "scripts/methods73_validation.py": "39e99cb81652246436f21c8259dfe2a9b2876cc18cb92abf18a69160340b4bf9",
+  "census/multilevel3_core.py": "d762e5e3b8e52649286ac153b814e4f753c8b96be569d116c40e8713bbf8d466",
+  "census/loadings_index_core.py": "69fa3633a00c62baaf142471d0cf5f8aeeca495a6750fd58f4e999ebd829ed3a",
+  "census/index_core.py": "44cfdbd08bce2c3cc9ead65ec61804c67bcbffaee6e4f6c3b5136d73acba3078",
+  "census/simulation.py": "b0ba4c803939d8803fc8a7e702b4f70bda5f486736bd651b8630d7e1262b198e",
+  "scripts/index_validation.py": "2c78b8ac76b4b613f2a91f791fd6196c5490b559fe8b35debca4c6c4b35be80a",
+  "docs/audits/methods73_validation_criterion.md": "1081eebaff3df24a8a570087160fe9cdfa1b11f5c6146b86667f49a9de9a1c8b"
+ }
+}

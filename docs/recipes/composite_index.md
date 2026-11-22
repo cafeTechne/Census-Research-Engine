@@ -6,6 +6,9 @@
 3. `build_index(input_path, indicators, replicates_path=...)`: first-principal-component weights
    (`method="pca"`) or equal weights. Standardisation and weights come from the full sample and stay
    fixed in every replicate, so each area's score has a replicate SE and a 90% interval (validated).
+   To reproduce a published index, use `method="loadings"` with the paper's loadings, e.g.
+   `loadings={"pov": .90, "unemp": .82}` (two or more indicators; Round 73, intervals validated), and
+   `standardize=True` for a "per SD" model.
 4. Report scores with intervals and `quintile_stability` (the share of replicates keeping the area in
    its quintile): low stability means the quintile label is fragile.
 5. Cronbach's alpha (Feldt interval) describes internal consistency; its interval is validated for

@@ -18,6 +18,11 @@ from . import index_core as ic
 AUDIT = "docs/audits/index_validation.md"
 
 
+# Round 73 (docs/audits/methods73_validation.md): per-area intervals with fixed published loadings.
+LOADINGS_VALIDATED = True   # LI passed (mean .897-.899, every area >= .878)
+LOADINGS_AUDIT = "docs/audits/methods73_validation.md"
+
+
 def _ari(a, b):
     from scipy.special import comb
     ct = pd.crosstab(a, b).to_numpy()
@@ -29,10 +34,20 @@ def _ari(a, b):
 def build_index(frame: pd.DataFrame, indicators: Sequence[str], *, replicates: Optional[pd.DataFrame] = None,
                 method: str = "pca", reverse: Sequence[str] = (), outcome: Optional[str] = None,
                 typology_k: Optional[int] = None, level: float = 0.90, label_col: str = "GEOID",
-                seed: int = 20270121, coords: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
-    """Index of ``indicators`` (higher = more deprived after flipping ``reverse``)."""
+                seed: int = 20270121, coords: Optional[pd.DataFrame] = None,
+                loadings: Optional[Dict[str, float]] = None, standardize: bool = False) -> Dict[str, Any]:
+    """Index of ``indicators`` (higher = more deprived after flipping ``reverse``).
+
+    ``method="loadings"`` (Round 73) applies published fixed ``loadings`` (e.g. a factor-weighted index from a
+    paper) to the standardised indicators; two indicators are allowed. ``standardize=True`` rescales the scores
+    (and their intervals) to mean 0, SD 1."""
     indicators = list(indicators)
-    if len(indicators) < 3:
+    if method == "loadings":
+        if not loadings:
+            raise ValueError("method='loadings' needs loadings={indicator: weight}")
+        if len(indicators) < 2:
+            raise ValueError("a loadings index needs at least two indicators")
+    elif len(indicators) < 3:
         raise ValueError("an index needs at least three indicators")
     if outcome is not None and outcome in indicators:
         raise ValueError(f"CIRCULARITY: the outcome {outcome!r} cannot be an indicator of an index used to explain it")
@@ -47,7 +62,11 @@ def build_index(frame: pd.DataFrame, indicators: Sequence[str], *, replicates: O
     X = X*sign
     m, s = ic.standardize(X)
     Z = (X-m)/s
-    l, share = ic.loadings(Z, method)
+    if method == "loadings":
+        from . import loadings_index_core as lc
+        l, share = lc.fixed_loadings(indicators, loadings), None
+    else:
+        l, share = ic.loadings(Z, method)
     labels = data[label_col].astype(str).tolist() if label_col in data else list(map(str, range(len(data))))
     notes = [f"Indicators standardised with full-sample means and SDs; {method} weights fixed in every replicate."]
     quint = pd.qcut(ic.scores(X, m, s, l), 5, labels=False)+1
@@ -64,11 +83,15 @@ def build_index(frame: pd.DataFrame, indicators: Sequence[str], *, replicates: O
         rep_scores = np.einsum("nkr,k->nr", (reps-m[None, :, None])/s[None, :, None], l)
         cuts = np.quantile(sc, [.2, .4, .6, .8])
         same = (np.digitize(rep_scores, cuts)+1 == quint[:, None]).mean(axis=1)
-        out["validated_scores"] = True
+        out["validated_scores"] = True if method != "loadings" else LOADINGS_VALIDATED
     else:
         sc = ic.scores(X, m, s, l); se = lo = hi = np.full(len(sc), np.nan); same = np.full(len(sc), np.nan)
         out["validated_scores"] = False
         notes.append("EXPLORATORY: no replicates, so score intervals are unavailable.")
+    if standardize:
+        mu, sd = float(np.mean(sc)), float(np.std(sc, ddof=1))
+        sc, lo, hi, se = (sc-mu)/sd, (lo-mu)/sd, (hi-mu)/sd, se/sd
+        notes.append("Scores standardised to mean 0, SD 1 after weighting (intervals rescaled alike).")
     out["table"] = pd.DataFrame(dict(area=labels, score=sc, se=se, lower=lo, upper=hi, quintile=quint,
                                      quintile_stability=same)).sort_values("score", ascending=False).reset_index(drop=True)
     if coords is not None:
