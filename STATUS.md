@@ -164,6 +164,7 @@ marginal structural models for annual policy panels (N67; Hernán and Robins).
 - `census/msm.py` (frozen core `msm_core.py`); `difference_in_differences(design="msm", time_varying_confounders=...)`.
 - Validation failed (.80–.88): exploratory. Regression on a feedback confounder fails far worse (.00–.11).
 - Example (`r91_msm_example.md`, exploratory): Medicaid expansion, uninsured rate, unemployment.
+- Goldens byte-identical; 2329 passed, 42 skipped; 0 failures.
 
 **Round 90 (v0.86.0; merged, release pending owner approval; implemented by the maintainer agent):**
 positivity diagnostics and weighting options (N66; Hernán and Robins).

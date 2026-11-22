@@ -51,5 +51,5 @@ Round 78's staggered DiD adjusts for nothing time-varying. Version 0.87.0. Branc
 | Results | fail | M1 .805–.881, M2 .799–.885; exploratory |
 | Engine, recipe | done | `difference_in_differences(design="msm")`; recipe, protocol |
 | Example | done | `r91_msm_example.md` |
-| Goldens, suite | see audit | `round91_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2329 passed, 42 skipped |
 | Exceptions | 3 | see audit |
