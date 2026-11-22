@@ -161,6 +161,8 @@ Fay–Herriot for proportions and across releases (N57).
 - Example (`r80_sae_example.md`, exploratory): MI tract uninsured rates, median 90% interval 4.70 points against
   5.60 direct; MI counties across 2014–2018 and 2019–2023.
 
+Goldens: both byte-identical. Acceptance: 2245 passed, 42 skipped; 0 failures.
+
 **Round 79 (v0.75.0; merged, release pending owner approval; implemented by the maintainer agent):**
 Oaxaca–Blinder and Fairlie decompositions on PUMS (N56).
 - `census/decomposition.py` (frozen core `decomposition_core.py`): twofold Oaxaca–Blinder with the pooled reference

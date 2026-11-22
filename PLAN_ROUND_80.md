@@ -50,9 +50,9 @@ Version 0.76.0. Branch `phase80/sae`. Validation first.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, manifest | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | `sae_extensions_core.py`, `sae_extensions_validation.py`; criterion `251dc9d` (tag `criterion-r80`) |
+| Results | done | P1, P1q and T1 all pass |
+| Engine, manifest | done (no manifest) | `census/sae_extensions.py`; `small_area_estimates(transform=, temporal=)`; recipe sections |
+| Example | done | `r80_sae_example.md` (MI tracts and counties; no map) |
+| Goldens, suite | done | both goldens byte-identical; 2245 passed, 42 skipped |
+| Exceptions | listed | `round80_compatibility.md` |
