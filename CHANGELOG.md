@@ -5,6 +5,16 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.83.0 (Round 87): ecologic versus individual-level associations
+
+- **Ecologic check** (`census/ecologic.py`; frozen core `census/ecologic_core.py`; N64; *Foundations of Epidemiology*
+  chapter 9): on PUMS, the within-PUMA (individual), between-PUMA and contextual associations of an exposure, the
+  area-level (ecologic) slope and the ecologic gap, with SDR replicate SEs; `pums_regression(ecologic_check=...)`.
+- **Validation** (`docs/audits/ecologic_validation.md`): the logit decomposition passes (.871–); the identity-scale
+  decomposition and the ecologic gap fail with 150 small areas (.62–.86) and are exploratory.
+- **Recipe** `pums_tests` section and a protocol rule against applying area results to individuals.
+- **Example** (`docs/audits/r87_ecologic_example.md`, exploratory): MI and OH disability and income-to-poverty.
+
 ## 0.82.0 (Round 86): quantitative bias analysis
 
 - **E-values** (VanderWeele and Ding 2017; `census/bias_analysis.py`, frozen core `census/bias_analysis_core.py`; N63;
