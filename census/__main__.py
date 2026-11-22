@@ -71,7 +71,7 @@ spatial_autocorrelation spatial_regression spatial_small_area_estimates custom_a
 pums_tabulate pums_regression multilevel_model difference_in_differences adjust_for_place
 place_adjust_frame make_web_map verify_proposition
 compare_groups test_association estimate_effect check_agreement combine_estimates rank_areas build_index
-list_health_sources run_variant interrupted_series disparity_measures
+list_health_sources run_variant interrupted_series disparity_measures joinpoint decompose_gap
 """.split())
 _INPUT_CODES = {
     errors.PROPOSITION_MISMATCH,

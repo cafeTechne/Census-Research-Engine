@@ -1546,3 +1546,50 @@ def disparity_measures(
                "report absolute (rd, bgv) and relative (log_rr, idisp, theil, mld) measures together, with intervals; "
                "label rows with validated=False exploratory",
                audit=out.attrs["audit"], rows=_records(out))
+def joinpoint(
+    years: Optional[List[int]] = None,
+    counts: Optional[List[float]] = None,
+    population: Optional[List[float]] = None,
+    rates: Optional[List[float]] = None,
+    se: Optional[List[float]] = None,
+    input_path: Optional[str] = None,
+    year_column: str = "year",
+    max_joinpoints: int = 3,
+    product: str = "annual",
+    rate_ratio: Optional[Dict[str, List[float]]] = None,
+) -> Dict[str, Any]:
+    """Joinpoint regression of an ANNUAL rate series (Round 77): where did the trend change, and the annual percent
+    change (APC) of each segment plus the average APC (AAPC), as NCI Joinpoint reports them.
+
+    Give years with counts + population (e.g. deaths and population per year), or rates + se; or input_path with
+    those column names. Complete years only (suppressed years are refused). Not for overlapping ACS five-year
+    releases. For a known policy date use interrupted_series instead.
+    rate_ratio={"cases1": [...], "population1": [...], "cases2": [...], "population2": [...], "standard": [...]}
+    instead returns the ratio of two directly age-adjusted rates with the Tiwari interval.
+    Example: joinpoint(years=[1999, ..., 2022], counts=[...], population=[...])
+    """
+    from census import joinpoint as jp
+    try:
+        if rate_ratio is not None:
+            r = jp.age_adjusted_rate_ratio(**rate_ratio)
+            return _ok(f"Age-adjusted rate ratio {r['ratio']:.4g} ({r['ci_lower']:.4g} to {r['ci_upper']:.4g}; "
+                       f"{r['method']}); {'validated' if r['validated'] else 'exploratory'}.",
+                       "report the ratio with its interval and both age-adjusted rates", **r)
+        if input_path is not None:
+            f = _load_frame(input_path).sort_values(year_column)
+            years = [int(v) for v in f[year_column]]
+            pick = lambda c: [float(v) for v in f[c]] if c in f else None  # noqa: E731
+            counts, population, rates, se = pick("counts"), pick("population"), pick("rates"), pick("se")
+        if not years:
+            return _fail(errors.INVALID_INPUT, "years (or input_path with a year column) are required.")
+        r = jp.joinpoint(years, counts=counts, population=population, rates=rates, se=se,
+                         max_joinpoints=max_joinpoints, product=product)
+    except (ValueError, KeyError, TypeError, FileNotFoundError) as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))
+    seg = r["segments"]
+    parts = "; ".join(f"{s.start}-{s.end}: APC {s.apc:.2f}% ({s.ci_lower:.2f} to {s.ci_upper:.2f})" for s in seg.itertuples())
+    ok = all(r["validated"].values())
+    return _ok(f"{r['n_joinpoints']} joinpoint(s) {r['joinpoints']}; {parts}; AAPC {r['aapc']['aapc']:.2f}%; "
+               + ("validated." if ok else "partly exploratory (see validated and notes)."),
+               "report each segment's APC and the AAPC with intervals; say that joinpoint locations are estimated",
+               **{**r, "segments": seg.to_dict("records")})

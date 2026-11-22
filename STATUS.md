@@ -15,12 +15,12 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | Path | What |
 | :--- | :--- |
 | `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
-| `mcp_server.py` | MCP server (72 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
+| `mcp_server.py` | MCP server (74 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_77.md` (joinpoint and age-adjusted rate ratios; Round 76 merged); Rounds 78–81 queued (staggered DiD and synthetic control, decompositions, small-area proportions, spatial scan). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_80.md` (Fay–Herriot for proportions and across releases; Round 79 merged); Round 81 queued (spatial scan). Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -68,6 +68,9 @@ manifests refuse them in confirmatory analyses.
 | Multivariate group tests and count models | **Passed**: multivariate wild score bootstrap (MANOVA/MANCOVA; size .090–.101); NB2 with HC3 (.885–.901, overdispersion and excess zeros). **Poisson HC3 under-covered with strong overdispersion (.808–.867)**; zero-inflated Poisson failed | `manova_counts_validation.md`, criterion `0686bc0` |
 | Combining evidence (`combine_estimates`) | **Passed selected**: Paule–Mandel + Hartung–Knapp pooling for 2–4 estimates (.885–.911; 5–10 with truncation since Round 48); fixed effect only when homogeneity is declared in advance; TOST equivalence; z-test power. DerSimonian–Laird failed with heterogeneity (.82–.84) | `evidence_validation.md`, criterion `3edd5f4` |
 | Agreement between sources (`check_agreement`) | **Passed selected**: bias (.894–.900) and kappa of quintile classes (.883–.912). Failed (estimates only, intervals exploratory): Bland–Altman limits observed (.838) and error-free (.826; both repaired in Round 48), Lin's CCC (.859) and corrected CCC (.38–.77) | `agreement_validation.md`, criterion `e6d4be6` |
+| PUMS gap decompositions (Round 79) | **Passed with size gates** (Round 32 design, weight CV 1, SDR intervals): Oaxaca–Blinder explained/unexplained totals from 300 records in the smaller group (.862–.894); Oaxaca–Blinder detailed contributions (Yun-normalised) and Fairlie totals and detailed contributions from 1,000 records (.863–.894); at 300 they under-covered (.802–.853) | `decomposition_validation.md`, criterion `9e52bb4` |
+| Staggered adoption and synthetic control (Round 78) | **Passed selected** (51 units, 12/18 annual periods, AR(1) .3/.7, ACS-like error): Sun–Abraham event study and overall ATT (.881–.899); Callaway–Sant'Anna with the ACS variance added (.882–.906). **Failed**: Callaway–Sant'Anna multiplier bootstrap alone (.848–.868), uniform bands (.76–.81), synthetic-control placebo test (size .12–.19 at .10) and conformal intervals (.73–.86 with 9 pre-periods; .87–.95 with 15, not a pre-set gate): exploratory, library only | `policy_validation.md`, criterion `baf934b` |
+| Joinpoint and age-adjusted rate ratios (Round 77) | **Passed selected**: the number of joinpoints by Kim et al. permutation tests (false-joinpoint rate .012–.023 at α .05; 15–25 annual points, 50–5,000 events per year); Tiwari (.900–.921) and log-delta (.887–.900) intervals for ratios of age-adjusted rates. **Failed**: APC intervals (t given the true number .51–.91; empirical-quantile with selection .02–.88) and AAPC intervals (.75–.92): exploratory, because joinpoint locations are estimated | `joinpoint_validation.md`, criterion `01ad5a4` |
 | Between-group disparities and Kitagawa (Round 76) | **Passed selected** (90% coverage ≥ .86 in every cell; 2–6 groups): ACS replicate intervals for the rate difference (.879–.924) and Index of Disparity (.875–.919) up to a largest group-rate CV of .50; log rate ratio, between-group variance, Theil and MLD up to CV .30 (at .50: .50–.84). Counts: Poisson delta rate difference and log ratio from 20 expected events (.888–.911); bootstrap count index measures **failed** (.07–.84: exploratory). Kitagawa rate and composition effects passed everywhere (.887–.927; CV to .50, 20+ events per stratum) | `disparity_validation.md`, criterion `e995978` |
 | Three-level models and published-loading indices (Round 73) | **Passed**: three-level random-intercept fixed-effect intervals with t(G_top − 1) (`multilevel_model(groups=[top, middle])`; .904–.913 with 30 or 49 top units, unbalanced, two share splits); per-area intervals of indices with fixed published loadings (`build_index(method="loadings")`; mean .897–.899, every area ≥ .878). **Screening only** (100 draws, stays exploratory): jackknife variance-share intervals (.88–.98). Parametric bootstrap dropped before the run (too slow) | `methods73_validation.md`, criterion `e97e9fc` (tag `criterion-r73`) |
 | Composite index scores and Cronbach's α (`build_index`) | **Passed**: per-area score intervals (PCA and equal weights; mean coverage .898–.899, every area ≥ .874); Feldt α interval for independent areas (.891–.912; under-covers with spatial dependence, .58–.67; Round 48 effective-n repair). Quintile stability and typologies descriptive | `index_validation.md`, criterion `e86907d` |
@@ -146,6 +149,44 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 79 (v0.75.0; merged, release pending owner approval; implemented by the maintainer agent):**
+Oaxaca–Blinder and Fairlie decompositions on PUMS (N56).
+- `census/decomposition.py` (frozen core `decomposition_core.py`): twofold Oaxaca–Blinder with the pooled reference
+  and Yun normalisation, threefold reported; Fairlie with rank-matched orderings; SDR replicate-weight intervals.
+- Validation (`decomposition_validation.md`, criterion `9e52bb4`): totals from 300 records, detailed parts and
+  Fairlie from 1,000.
+- Full-profile tool `decompose_gap` (74 tools); `pums_tests` recipe section with the interpretation rule.
+- Example: `r79_decomposition_example.md` (exploratory): the MI uninsured gap between Black and White non-Hispanic
+  adults 19–64 (2.54 points) is fully explained by composition (Fairlie 2.73; income-to-poverty 1.47).
+
+Goldens: both byte-identical. Acceptance: 2239 passed, 42 skipped; 0 failures.
+
+**Round 78 (v0.74.0; merged, release pending owner approval; implemented by the maintainer agent):**
+staggered-adoption DiD and synthetic control (N55).
+- `census/staggered.py` (frozen core `policy_core.py`): Sun–Abraham (default) and Callaway–Sant'Anna event studies
+  and overall ATT; synthetic control with placebo and conformal inference (library only, exploratory).
+- Validation (`policy_validation.md`, criterion `baf934b`): Sun–Abraham and Callaway–Sant'Anna with the ACS variance
+  pass; the bootstrap alone, uniform bands and synthetic control fail.
+- `difference_in_differences(design="staggered", first_treated=...)`; `policy_change` recipe step 3. No new tool
+  (73) and no manifest method (no annual panels in manifests).
+- Example (`r78_medicaid_example.md`, exploratory): ACA Medicaid expansion and the all-ages state uninsured rate,
+  ACS 1-year 2010–2023 without 2020: overall ATT −1.23 points (90% CI −2.18 to −0.27), flat pre-trends.
+
+Goldens: both byte-identical. Acceptance: 2235 passed, 42 skipped; 0 failures.
+
+**Round 77 (v0.73.0; merged, release pending owner approval; implemented by the maintainer agent):**
+joinpoint regression and age-adjusted rate ratios (N54).
+- `census/joinpoint.py` (frozen core `joinpoint_core.py`): log-linear joinpoint model (WLS, grid search, Kim et al.
+  permutation selection), APC/AAPC; Tiwari ratio of age-adjusted rates.
+- Validation (`joinpoint_validation.md`, criterion `01ad5a4`): selection and both ratio intervals pass; APC and AAPC
+  intervals fail and are exploratory.
+- Full-profile tool `joinpoint` (73 tools); `policy_change` recipe step 4. No manifest method (series are annual
+  external data; manifests are ACS five-year area frames).
+- Example: skipped as the plan allows (the owner's WONDER exports are pooled five-year periods, not annual series); see the
+  compatibility audit.
+
+Goldens: both byte-identical. Acceptance: 2229 passed, 42 skipped; 0 failures.
 
 **Round 76 (v0.72.0; merged, release pending owner approval; implemented by the maintainer agent):**
 between-group disparity measures and Kitagawa decomposition (N53).
@@ -541,7 +582,10 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N51: three-level models, loading-weighted indices, expected counts (73; closed);
 - N52: replication suite (74; closed);
 - N53: between-group disparity measures and Kitagawa (76; closed);
-- N54–N58: joinpoint, staggered DiD/synthetic control, decompositions, small-area proportions, spatial scan (Rounds 77–81, planned 2026-11-22);
+- N54: joinpoint and age-adjusted rate ratios (77; closed);
+- N55: staggered DiD and synthetic control (78; closed);
+- N56: Oaxaca–Blinder and Fairlie decompositions (79; closed);
+- N57–N58: staggered DiD/synthetic control, decompositions, small-area proportions, spatial scan (Rounds 80–81, planned 2026-11-22);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

@@ -55,3 +55,24 @@ Each model is refitted with the 80 replicate weights; the intervals use Var = 4/
 deviations. All five passed validation (90% coverage .875–.915 with household clustering and weight CV
 up to 1; `docs/audits/pums_models_validation.md`). Model-based SEs that ignore the design covered only
 .62–.887: do not use them. Library: `census.pums_models.fit_pums_model(formula, df, model)`.
+
+## Decomposing a gap (Round 79)
+
+Profile: full (`decompose_gap`).
+
+How much of a gap between two groups (for example, uninsured rates of Black and White adults) is explained by
+differences in the groups' characteristics?
+
+1. Define two **mutually exclusive** groups as PUMS conditions, e.g. `group_a="RAC1P == 2 and HISP == 1"`,
+   `group_b="RAC1P == 1 and HISP == 1"`, and the universe with `where` (e.g. `"AGEP >= 19 and AGEP <= 64"`).
+2. Call `decompose_gap(state, year, outcome, group_a, group_b, covariates=[...], categorical=[...], model=...)`:
+   - `model="linear"`: Oaxaca–Blinder (twofold, pooled reference) for a numeric outcome such as `WAGP`;
+   - `model="logit"`: Fairlie for a 0/1 condition such as `"HICOV == 2"` (uninsured);
+   - `categorical` code columns (e.g. `SCHL`, `ESR`) are normalised so results do not depend on the reference code.
+3. Validated (`docs/audits/decomposition_validation.md`; SDR replicate-weight intervals):
+   - Oaxaca–Blinder explained and unexplained totals from 300 records in the smaller group;
+   - Oaxaca–Blinder detailed contributions and every Fairlie quantity from 1,000 records (they under-covered at 300).
+   Rows below the gate carry `validated=False`.
+4. **Interpretation rule:** "explained" is statistical composition (differences in the covariates'
+   distributions), not a causal effect, and the unexplained part is not a measure of discrimination; it also
+   absorbs omitted characteristics.

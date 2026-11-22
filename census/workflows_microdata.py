@@ -8,6 +8,7 @@ census.workflows_inference: plain arguments in, JSON-safe dicts out, with
 import os
 import re
 from typing import Any, Dict, List, Optional, Union
+import pandas as pd
 
 from census import errors
 from census.data_integrity import BundledDataIntegrityError, integrity_error_result
@@ -280,7 +281,7 @@ def difference_in_differences(
     input_path: str,
     outcome: str,
     treated: str,
-    treatment_period: int,
+    treatment_period: Optional[int] = None,
     period: str = "Year",
     se: Optional[str] = None,
     design: str = "two_group",
@@ -289,9 +290,16 @@ def difference_in_differences(
     target: str = "population",
     product: str = "5-year",
     period_years: Optional[int] = None,
+    first_treated: Optional[str] = None,
+    method: str = "sun_abraham",
+    unit: str = "GEOID",
 ) -> Dict[str, Any]:
     """Difference-in-differences on area-level ACS estimates across NON-overlapping
     periods (e.g. 2013, 2018, 2023 releases); overlapping releases are refused.
+    design="staggered" (Round 78): policies starting in different years in an ANNUAL panel (ACS 1-year with
+    product="1-year", or another annual source; 2020 1-year refused). first_treated: column with each unit's first
+    treated year (blank = never treated); treated and treatment_period are then not used. method "sun_abraham"
+    (default, validated) or "callaway_santanna" (validated with se). Returns the overall ATT and an event study.
 
     Args:
         treated: 0/1 column marking treated areas. treatment_period: first treated release.
@@ -305,6 +313,23 @@ def difference_in_differences(
     from census.api import PRODUCT_PERIOD_YEARS, normalize_product
     from census.did import difference_in_differences as _did
 
+    if design == "staggered":
+        from census.staggered import staggered_did
+        try:
+            if not first_treated:
+                return _fail(errors.INVALID_INPUT, "design='staggered' needs first_treated (each unit's first treated year).")
+            r = staggered_did(_load_frame(input_path), outcome, first_treated, period=period, unit=unit, se=se,
+                              method=method, product=product)
+        except _ERRORS as exc:
+            return _fail(errors.INVALID_INPUT, str(exc))
+        o = r["overall"]
+        state = "validated" if r["validated"] else "exploratory (see notes)"
+        return _ok(f"Staggered DiD ({r['method']}), {r['units']} units: overall ATT {o['estimate']:.4g} "
+                   f"({o['ci_lower']:.4g} to {o['ci_upper']:.4g}); {state}.",
+                   "report the overall ATT and the event study with intervals; check the pre-trend result",
+                   **{k: (v.to_dict("records") if isinstance(v, pd.DataFrame) else v) for k, v in r.items()})
+    if treatment_period is None:
+        return _fail(errors.INVALID_INPUT, "treatment_period is required for two_group and event designs.")
     try:
         years = int(period_years) if period_years is not None else PRODUCT_PERIOD_YEARS[normalize_product(product)]
         frame = _load_frame(input_path)
@@ -564,3 +589,44 @@ def make_web_map(
     return _ok(f"Interactive map of {column} written ({res.get('n_features')} areas, {res.get('bytes')} bytes).",
                "open the HTML file in a browser; it makes no network requests",
                **{k: (str(v) if k == "path" else v) for k, v in dict(res).items()})
+
+
+def decompose_gap(
+    state: str,
+    year: int,
+    outcome: str,
+    group_a: str,
+    group_b: str,
+    covariates: Optional[List[str]] = None,
+    categorical: Optional[List[str]] = None,
+    model: str = "linear",
+    where: Optional[str] = None,
+    product: str = "5-year",
+) -> Dict[str, Any]:
+    """How much of a gap between two groups is explained by composition (Round 79; PUMS microdata).
+
+    Oaxaca-Blinder (model="linear", numeric outcome such as "WAGP") or Fairlie (model="logit", a 0/1 condition such
+    as "HICOV == 2" = uninsured). group_a / group_b: mutually exclusive PUMS conditions, e.g. "RAC1P == 2 and
+    HISP == 1" and "RAC1P == 1 and HISP == 1". covariates: numeric columns ("AGEP", "POVPIP"); categorical: code
+    columns ("SCHL", "ESR"). where: universe, e.g. "AGEP >= 19 and AGEP <= 64". Replicate-weight intervals.
+    'Explained' is statistical composition, not a causal effect.
+    Example: decompose_gap("26", 2023, "HICOV == 2", "RAC1P == 2 and HISP == 1", "RAC1P == 1 and HISP == 1",
+    covariates=["AGEP"], categorical=["SCHL", "ESR"], model="logit", where="AGEP >= 19 and AGEP <= 64")
+    """
+    from census import pums
+    from census.decomposition import pums_decomposition
+    covariates, categorical = list(covariates or []), list(categorical or [])
+    try:
+        cols = _pums_columns(outcome, group_a, group_b, where, *covariates, *categorical)
+        df = pums.fetch_pums(state, year, product=product, record="person", columns=cols or None)
+        r = pums_decomposition(df, outcome, group_a, group_b, covariates, categorical, model=model, where=where)
+    except _ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}",
+                     "check the conditions, covariates and universe, then retry")
+    t = r["table"].set_index("component")
+    summary = (f"{r['method']}: gap {t.loc['gap', 'estimate']:.4g}; explained {t.loc['explained', 'estimate']:.4g} "
+               f"({t.loc['explained', 'ci_lower']:.4g} to {t.loc['explained', 'ci_upper']:.4g}); unexplained "
+               f"{t.loc['unexplained', 'estimate']:.4g}.")
+    from census.results import _jsonable
+    return _ok(summary, "report explained and unexplained parts with intervals; explained is composition, not causation",
+               **_jsonable({**r, "table": r["table"].to_dict("records")}))

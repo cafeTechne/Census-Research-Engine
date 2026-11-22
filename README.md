@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23925301.svg)](https://doi.org/10.5281/zenodo.23925301)
 
-A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **72 MCP tools**, a Python library and a command-line interface.
+A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **74 MCP tools**, a Python library and a command-line interface.
 
 Use it to compare counties or neighborhoods, study associations while accounting for noisy ACS predictors and spatial dependence, construct custom population tabulations, measure segregation or income inequality, and evaluate agreement between sources. Statistical methods have different validated ranges; an available method is not automatically suitable for every research design. Each inference method was checked by a simulation whose pass criterion was fixed in advance (90% intervals must cover at least 86% of the time); methods or settings that failed are still available but are marked exploratory in their results (`validated: false` and a note). [STATUS.md](STATUS.md) records the current release, validation evidence and remaining limitations.
 
@@ -120,7 +120,7 @@ Call `get_recipe()` to list the 25 task guides, then `get_recipe(name="regressio
 
 | Profile | Tools | Use |
 | :--- | ---: | :--- |
-| `full` (default) | 72 | All registered tools; use this for the complete research workflow |
+| `full` (default) | 74 | All registered tools; use this for the complete research workflow |
 | `core` | 16 | A smaller set for discovery, extraction, basic models, group/PUMS tests and outputs; guided results include `summary` and `next_step` |
 | `core_spatial` | 17 | Core plus `spatial_autocorrelation`; advanced tools such as `rank_areas` still require `full` |
 | `review` | 10 | Variable concordance and independent review of overrides |
@@ -168,7 +168,7 @@ python -m census tool minimum_detectable_difference --arg moe1=2.1 --arg moe2=2.
 </details>
 
 <details>
-<summary>All 72 MCP tools, grouped by purpose</summary>
+<summary>All 74 MCP tools, grouped by purpose</summary>
 
 The analysis tables below explain which to choose. This inventory also includes discovery, maintenance and review tools.
 
@@ -184,8 +184,8 @@ The analysis tables below explain which to choose. This inventory also includes 
 | Agreement, evidence and causal designs | `check_agreement`, `combine_estimates`, `estimate_effect` |
 | Geographic analysis and maps | `get_boundaries`, `custom_area_mapping`, `make_map`, `make_web_map`, `spatial_autocorrelation`, `spatial_regression` |
 | Small-area and hierarchical models | `small_area_estimates`, `spatial_small_area_estimates`, `multilevel_model` |
-| Survey microdata | `pums_tabulate`, `test_association`, `pums_regression` |
-| Time and purchasing power | `interrupted_series`, `difference_in_differences`, `adjust_inflation`, `adjust_for_place`, `place_adjust_frame` |
+| Survey microdata | `pums_tabulate`, `test_association`, `pums_regression`, `decompose_gap` |
+| Time and purchasing power | `interrupted_series`, `joinpoint`, `difference_in_differences`, `adjust_inflation`, `adjust_for_place`, `place_adjust_frame` |
 | Register studies and publishable outputs | `create_manifest`, `run_manifest`, `run_variant`, `make_figure`, `make_table`, `make_results_bundle`, `list_health_sources` |
 | Numerical checks and exact verification | `run_validation`, `verify_proposition` |
 
@@ -310,7 +310,7 @@ Choose the observation unit first. **Area analyses** use one row per county, tra
 | Research question | Start with | When and how to use it |
 | :--- | :--- | :--- |
 | Is a difference meaningful given the MOEs? | `calculate_significance`; `batch_significance` for many areas | Two estimates or releases; use multiplicity correction when comparing many areas. For design planning, use `minimum_detectable_difference` and `reliability_profile`. [Compare counties](docs/recipes/compare_counties.md) |
-| Is there change over time? | `trend_test`; `difference_in_differences` for a treatment/control design; `interrupted_series` (full profile) for an annual series with a break | Trends need at least three non-overlapping ACS five-year releases. DiD needs a defensible comparison group and parallel-trends assumptions. Interrupted series need annual, non-ACS-window data and are validated from 17 points ([below](#methods-accessed-through-manifests-or-python)). [Tract trends](docs/recipes/tract_trend.md), [policy change](docs/recipes/policy_change.md) |
+| Is there change over time? | `trend_test`; `difference_in_differences` for a treatment/control design (`design="staggered"` for policies adopted in different years in an annual panel, Round 78); `interrupted_series` (full profile) for an annual series with a break; `joinpoint` (full profile) for an annual series with no known break date (number of joinpoints validated; APC intervals exploratory) | Trends need at least three non-overlapping ACS five-year releases. DiD needs a defensible comparison group and parallel-trends assumptions. Interrupted series need annual, non-ACS-window data and are validated from 17 points ([below](#methods-accessed-through-manifests-or-python)). [Tract trends](docs/recipes/tract_trend.md), [policy change](docs/recipes/policy_change.md) |
 | How are area characteristics associated? | `build_analysis_frame` → `fit_model` | OLS/WLS or GLMs with ACS replicate information. Replicate refits describe sampling variability; they do not remove predictor measurement-error bias. [Regression](docs/recipes/regression_sampling_error.md) |
 | Are noisy predictors biasing the slope? | `fit_model(method="eiv")` or `method="regression_calibration"` | EIV corrects linear-model measurement error using replicates. Calibration supports selected GLMs; binomial needs `se_method="jackknife"`. Check the reported reliabilities and validated range. [Regression](docs/recipes/regression_sampling_error.md) |
 | Are neighboring areas correlated? | `fit_model(..., spatial="scpc")` for naive slopes; corrected EIV/calibration have separate spatial routes | SCPC is validated for OLS, Poisson and binomial slopes on two geographies (MI/NY and OH/PA); each model has a default benchmark `rho_bar`. Corrected linear EIV uses `spatial="clusters"` or `"error"`; calibrated GLMs use `spatial="clusters"`. These estimate different targets. Reliability and covariate-count gates apply. Manifests reach the same routes through `args.spatial_scpc`, `args.spatial: "clusters"` and `args.spatial: true` (correlations). [Spatial choices](#choosing-uncertainty-and-spatial-inference) |
@@ -321,6 +321,7 @@ Choose the observation unit first. **Area analyses** use one row per county, tra
 | Do two sources measure the same thing? | `check_agreement` | Bias, quintile kappa and Bland–Altman limits of agreement. High correlation alone does not establish agreement; CCC intervals remain exploratory. [Agreement](docs/recipes/agreement.md) |
 | Can estimates be pooled, or considered practically equivalent? | `combine_estimates` | Paule–Mandel/Hartung–Knapp pooling of independent estimates, TOST equivalence and power. Declare the equivalence margin in advance. Pooling regions is a new analysis. [Combining evidence](docs/recipes/combine_estimates.md) |
 | What can a policy or exposure plausibly cause? | `estimate_effect`; `difference_in_differences` for policy timing | AIPW/IPW/regression adjustment, instrumental variables and mediation require explicit identification assumptions. Calibration is available for noisy confounders/mediators; weak instruments need the Anderson–Rubin interval. [Causal designs](docs/recipes/causal.md) |
+| How much of a group gap is explained by composition? | `decompose_gap` (full profile) | Oaxaca–Blinder (numeric outcomes) or Fairlie (0/1 outcomes) on PUMS with replicate-weight intervals (Round 79). Totals validated from 300 records in the smaller group, detailed parts from 1,000. Explained is composition, not causation. [Decomposing a gap](docs/recipes/pums_tests.md#decomposing-a-gap-round-79) |
 | How do individuals or households differ? | `pums_tabulate`, `test_association`, `pums_regression` | Weighted custom tabulations, Rao–Scott tables, mean/median and OR/RR comparisons, and survey regressions. Use all 80 replicate weights. [PUMS](docs/recipes/pums_tests.md) |
 | How unequal are individual or household incomes? | `test_association(kind="inequality")` | Gini, quantile ratios, Gini differences, selected Atkinson measures and top shares with survey intervals. Theil T remains exploratory; some repaired intervals need 7,000+ records. [Income inequality](docs/recipes/pums_tests.md#income-inequality-round-56) |
 | How does health disadvantage vary across the area deprivation gradient? | Manifest method `inequality` | SII, RII and concentration indices across ranked areas with population weights. This describes an area gradient, a different quantity from PUMS income inequality. [Health inequality](docs/recipes/health_inequality.md) |
