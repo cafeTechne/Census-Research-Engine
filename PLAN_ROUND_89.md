@@ -64,5 +64,5 @@ change rule. That rule can recommend adjusting for a collider (M-bias, the book'
 | DAG checks | done | d-separation, backdoor, minimal sets, reasons |
 | Book-figure tests | done | Figures 7.1–7.4, 18.1–18.4; random-DAG cross-checks |
 | Engine, docs | done | recipe `causal`, protocol rule, sources |
-| Goldens, suite | see audit | `round89_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2313 passed, 42 skipped |
 | Exceptions | 3 | see audit |

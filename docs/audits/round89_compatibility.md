@@ -22,3 +22,8 @@ Version 0.85.0. The checks are exact graph algorithms, so there was no simulatio
    `classification_basis` field and the note mark it associational.
 3. **DiD takes no `dag`.** In DiD the design (parallel trends) handles confounding, not covariate adjustment. A DAG
    for time-varying confounders belongs with Round 91 (marginal structural models).
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 88.
+- Full suite: 2313 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.
