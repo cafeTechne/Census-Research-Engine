@@ -15,12 +15,12 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | Path | What |
 | :--- | :--- |
 | `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
-| `mcp_server.py` | MCP server (71 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
+| `mcp_server.py` | MCP server (72 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_76.md` (between-group disparity measures); Rounds 77–81 queued (joinpoint, staggered DiD and synthetic control, decompositions, small-area proportions, spatial scan). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_77.md` (joinpoint and age-adjusted rate ratios; Round 76 merged); Rounds 78–81 queued (staggered DiD and synthetic control, decompositions, small-area proportions, spatial scan). Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -68,6 +68,7 @@ manifests refuse them in confirmatory analyses.
 | Multivariate group tests and count models | **Passed**: multivariate wild score bootstrap (MANOVA/MANCOVA; size .090–.101); NB2 with HC3 (.885–.901, overdispersion and excess zeros). **Poisson HC3 under-covered with strong overdispersion (.808–.867)**; zero-inflated Poisson failed | `manova_counts_validation.md`, criterion `0686bc0` |
 | Combining evidence (`combine_estimates`) | **Passed selected**: Paule–Mandel + Hartung–Knapp pooling for 2–4 estimates (.885–.911; 5–10 with truncation since Round 48); fixed effect only when homogeneity is declared in advance; TOST equivalence; z-test power. DerSimonian–Laird failed with heterogeneity (.82–.84) | `evidence_validation.md`, criterion `3edd5f4` |
 | Agreement between sources (`check_agreement`) | **Passed selected**: bias (.894–.900) and kappa of quintile classes (.883–.912). Failed (estimates only, intervals exploratory): Bland–Altman limits observed (.838) and error-free (.826; both repaired in Round 48), Lin's CCC (.859) and corrected CCC (.38–.77) | `agreement_validation.md`, criterion `e6d4be6` |
+| Between-group disparities and Kitagawa (Round 76) | **Passed selected** (90% coverage ≥ .86 in every cell; 2–6 groups): ACS replicate intervals for the rate difference (.879–.924) and Index of Disparity (.875–.919) up to a largest group-rate CV of .50; log rate ratio, between-group variance, Theil and MLD up to CV .30 (at .50: .50–.84). Counts: Poisson delta rate difference and log ratio from 20 expected events (.888–.911); bootstrap count index measures **failed** (.07–.84: exploratory). Kitagawa rate and composition effects passed everywhere (.887–.927; CV to .50, 20+ events per stratum) | `disparity_validation.md`, criterion `e995978` |
 | Three-level models and published-loading indices (Round 73) | **Passed**: three-level random-intercept fixed-effect intervals with t(G_top − 1) (`multilevel_model(groups=[top, middle])`; .904–.913 with 30 or 49 top units, unbalanced, two share splits); per-area intervals of indices with fixed published loadings (`build_index(method="loadings")`; mean .897–.899, every area ≥ .878). **Screening only** (100 draws, stays exploratory): jackknife variance-share intervals (.88–.98). Parametric bootstrap dropped before the run (too slow) | `methods73_validation.md`, criterion `e97e9fc` (tag `criterion-r73`) |
 | Composite index scores and Cronbach's α (`build_index`) | **Passed**: per-area score intervals (PCA and equal weights; mean coverage .898–.899, every area ≥ .874); Feldt α interval for independent areas (.891–.912; under-covers with spatial dependence, .58–.67; Round 48 effective-n repair). Quintile stability and typologies descriptive | `index_validation.md`, criterion `e86907d` |
 | Replication D (Round 69) | **Replicated**: Monnat 2018 Model 4 (county drug-related mortality 2006–2015 on ACS 2010–2014 economic distress, spatial error, state FE): 9.95 (7.77–12.12) vs 9.62; sample counts match exactly (3,106; 2,484). Spatial error slope coverage on national counties .908/.881 (passes) | `r69_monnat_replication.md`, `r69_county_sem_validation.md`, criterion `20a4c13` |
@@ -145,6 +146,21 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 76 (v0.72.0; merged, release pending owner approval; implemented by the maintainer agent):**
+between-group disparity measures and Kitagawa decomposition (N53).
+- `census/disparity.py` (frozen core `disparity_core.py`): rate difference and log ratio against a declared
+  reference group, Index of Disparity, between-group variance, Theil and MLD over groups, with replicate (ACS) or
+  Poisson (count) intervals; Kitagawa rate/composition decomposition.
+- Validation (`disparity_validation.md`, criterion `e995978`): see the methods table; count index measures failed.
+- Manifest methods `disparity` and `kitagawa`; full-profile tool `disparity_measures` (72 tools); the
+  `health_inequality` recipe gains a between-groups section.
+- Example (`r76_disparity_example.md`, exploratory): MI/NY county family poverty by race/ethnicity (B17010H/I and a
+  derived other non-Hispanic group; B17020 has no VRE file); Wayne minus Oakland poverty gap 13.1 points, of which
+  age composition explains 0.3.
+
+Goldens: run golden byte-identical; schema golden differs only in the supported-method list (intended). Acceptance:
+2223 passed, 42 skipped; 0 failures.
 
 **Round 75 (v0.71.0; merged, released as v0.71.0; implemented by the maintainer agent):** manifest
 support for the Round 73 methods, tract coordinates, recipes and README; no new statistics.
@@ -524,7 +540,8 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N50: context data sources (CBP, ERS, CHR additional) and state-wide tract pulls (72);
 - N51: three-level models, loading-weighted indices, expected counts (73; closed);
 - N52: replication suite (74; closed);
-- N53–N58: disparity measures, joinpoint, staggered DiD/synthetic control, decompositions, small-area proportions, spatial scan (Rounds 76–81, planned 2026-11-22);
+- N53: between-group disparity measures and Kitagawa (76; closed);
+- N54–N58: joinpoint, staggered DiD/synthetic control, decompositions, small-area proportions, spatial scan (Rounds 77–81, planned 2026-11-22);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

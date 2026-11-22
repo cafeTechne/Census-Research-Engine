@@ -87,6 +87,11 @@ REFERENCES = {
     "bonferroni": "Dunn, O.J. (1961). JASA 56, 52-64.",
     "statsmodels": "Seabold, S. & Perktold, J. (2010). statsmodels: Econometric and statistical "
                    "modeling with Python. Proc. 9th Python in Science Conf.",
+    "harper_lynch": "Harper, S. & Lynch, J. (2005). Methods for Measuring Cancer Disparities. NCI Surveillance "
+                    "Monograph Series 6 (NIH Pub. 05-5777).",
+    "pearcy_keppel": "Pearcy, J.N. & Keppel, K.G. (2002). A summary measure of health disparity. Public Health "
+                     "Reports 117:273-280.",
+    "kitagawa": "Kitagawa, E.M. (1955). Components of a difference between two rates. JASA 50:1168-1194.",
 }
 
 

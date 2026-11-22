@@ -103,6 +103,8 @@
    (library: `exclude_tracts=group_quarters_tracts(frame, gq, total, .5)`). This is a
    definitional choice, not a statistical correction; report it with the result.
 
+For differences in outcome rates between groups (for example poverty by race/ethnicity), use the "Between population groups" section of the `health_inequality` recipe (Round 76).
+
 Existing manifest tools execute this recipe; no new MCP tool is needed.
 Python entry points are `census.segregation_indices(counts)` and
 `census.segregation_replicate(frame, groups, replicates)`; the latter retains

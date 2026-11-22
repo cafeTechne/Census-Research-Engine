@@ -30,7 +30,7 @@ RECIPES: Dict[str, str] = {
     "pums_tests": "Survey-correct tests and intervals on PUMS microdata: tables, odds ratios, means, medians (Round 32)",
     "group_comparison": "Compare an area outcome across groups of areas: t-test, ANOVA, ANCOVA, interactions (Round 31)",
     "segregation": "County residential segregation from tract counts with strict ACS replicate uncertainty",
-    "health_inequality": "Area health inequality indices and indirectly standardized ratios with ACS uncertainty",
+    "health_inequality": "Area health inequality indices, indirectly standardized ratios, and disparities between population groups (Kitagawa too) with ACS uncertainty",
     "compare_counties": "Compare a rate between two counties in one release",
     "tract_trend": "Trend in a tract or county rate using non-overlapping releases",
     "regression_sampling_error": "Regression whose SEs include ACS sampling error",

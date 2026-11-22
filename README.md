@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23925301.svg)](https://doi.org/10.5281/zenodo.23925301)
 
-A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **71 MCP tools**, a Python library and a command-line interface.
+A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **72 MCP tools**, a Python library and a command-line interface.
 
 Use it to compare counties or neighborhoods, study associations while accounting for noisy ACS predictors and spatial dependence, construct custom population tabulations, measure segregation or income inequality, and evaluate agreement between sources. Statistical methods have different validated ranges; an available method is not automatically suitable for every research design. Each inference method was checked by a simulation whose pass criterion was fixed in advance (90% intervals must cover at least 86% of the time); methods or settings that failed are still available but are marked exploratory in their results (`validated: false` and a note). [STATUS.md](STATUS.md) records the current release, validation evidence and remaining limitations.
 
@@ -120,7 +120,7 @@ Call `get_recipe()` to list the 25 task guides, then `get_recipe(name="regressio
 
 | Profile | Tools | Use |
 | :--- | ---: | :--- |
-| `full` (default) | 71 | All registered tools; use this for the complete research workflow |
+| `full` (default) | 72 | All registered tools; use this for the complete research workflow |
 | `core` | 16 | A smaller set for discovery, extraction, basic models, group/PUMS tests and outputs; guided results include `summary` and `next_step` |
 | `core_spatial` | 17 | Core plus `spatial_autocorrelation`; advanced tools such as `rank_areas` still require `full` |
 | `review` | 10 | Variable concordance and independent review of overrides |
@@ -153,7 +153,7 @@ python -m census tool minimum_detectable_difference --arg moe1=2.1 --arg moe2=2.
 | [`causal`](docs/recipes/causal.md) | Treatment effects, instrumental variables and mediation with ACS data, and their assumptions (Round 41) |
 | [`pums_tests`](docs/recipes/pums_tests.md) | Survey-correct tests and intervals on PUMS microdata: tables, odds ratios, means, medians (Round 32) |
 | [`small_area`](docs/recipes/small_area.md) | Small-area ACS estimates (Fay-Herriot) and descriptive event-count smoothing (EB) |
-| [`health_inequality`](docs/recipes/health_inequality.md) | Area health inequality indices and indirectly standardized ratios with ACS uncertainty |
+| [`health_inequality`](docs/recipes/health_inequality.md) | Area health inequality indices, indirectly standardized ratios, and disparities between population groups (Kitagawa too) with ACS uncertainty |
 | [`external_health_outcome`](docs/recipes/external_health_outcome.md) | Health outcome from CDC PLACES, USALEEP, County Health Rankings or WONDER, without circularity; binomial counts with denominator trials and robust (HC3) SEs |
 | [`segregation`](docs/recipes/segregation.md) | County residential segregation from tract counts with strict ACS replicate uncertainty |
 | [`context_covariates`](docs/recipes/context_covariates.md) | County covariates from other sources (County Business Patterns, ERS county types and rural-urban codes, CHR additional measures), joined to an ACS frame (Round 72) |
@@ -168,7 +168,7 @@ python -m census tool minimum_detectable_difference --arg moe1=2.1 --arg moe2=2.
 </details>
 
 <details>
-<summary>All 71 MCP tools, grouped by purpose</summary>
+<summary>All 72 MCP tools, grouped by purpose</summary>
 
 The analysis tables below explain which to choose. This inventory also includes discovery, maintenance and review tools.
 
@@ -180,7 +180,7 @@ The analysis tables below explain which to choose. This inventory also includes 
 | Review cross-release meanings | `check_variable_concordance`, `draft_crosswalk_override`, `record_crosswalk_review`, `draft_rule_override`, `record_rule_review`, `validate_crosswalks` |
 | Derive and aggregate | `derive_estimate`, `check_replicate_availability`, `aggregate_geographies`, `median_from_distribution`, `apportion_tracts` |
 | Assess precision and compare estimates | `calculate_cv`, `calculate_significance`, `batch_significance`, `trend_test`, `minimum_detectable_difference`, `reliability_profile` |
-| Analyze area-level relationships | `build_analysis_frame`, `fit_model`, `compare_groups`, `correlation_matrix`, `rank_areas`, `build_index` |
+| Analyze area-level relationships | `build_analysis_frame`, `fit_model`, `compare_groups`, `correlation_matrix`, `rank_areas`, `build_index`, `disparity_measures` |
 | Agreement, evidence and causal designs | `check_agreement`, `combine_estimates`, `estimate_effect` |
 | Geographic analysis and maps | `get_boundaries`, `custom_area_mapping`, `make_map`, `make_web_map`, `spatial_autocorrelation`, `spatial_regression` |
 | Small-area and hierarchical models | `small_area_estimates`, `spatial_small_area_estimates`, `multilevel_model` |
@@ -324,6 +324,7 @@ Choose the observation unit first. **Area analyses** use one row per county, tra
 | How do individuals or households differ? | `pums_tabulate`, `test_association`, `pums_regression` | Weighted custom tabulations, Rao–Scott tables, mean/median and OR/RR comparisons, and survey regressions. Use all 80 replicate weights. [PUMS](docs/recipes/pums_tests.md) |
 | How unequal are individual or household incomes? | `test_association(kind="inequality")` | Gini, quantile ratios, Gini differences, selected Atkinson measures and top shares with survey intervals. Theil T remains exploratory; some repaired intervals need 7,000+ records. [Income inequality](docs/recipes/pums_tests.md#income-inequality-round-56) |
 | How does health disadvantage vary across the area deprivation gradient? | Manifest method `inequality` | SII, RII and concentration indices across ranked areas with population weights. This describes an area gradient, a different quantity from PUMS income inequality. [Health inequality](docs/recipes/health_inequality.md) |
+| How do rates differ between population groups (race/ethnicity, sex) within an area? | `disparity_measures` (full profile) or manifest method `disparity` | Rate difference and ratio against a reference group declared in advance, Index of Disparity, between-group variance, Theil and MLD, reported together (Round 76). Groups must be mutually exclusive. Validated ranges depend on the largest group-rate CV; count-based index measures are exploratory. `kitagawa` splits a crude-rate gap between two areas into rate and composition effects. [Between groups](docs/recipes/health_inequality.md#between-population-groups-round-76) |
 | Is mortality high relative to a reference population? | Manifest method `smr` | Observed deaths versus expected deaths from age/sex reference rates, with period scaling and combined uncertainty. Reference counts and estimated reference populations have explicit options. [SMRs](docs/recipes/health_inequality.md) |
 | How separated are population groups within counties? | Manifest method `segregation` | Dissimilarity, isolation and Theil H (two to six groups) from mutually exclusive tract counts and all 80 replicates. Use the bias-corrected versions (the default); each county is validated or not according to its noise level, and contrasts between releases have their own gates. Counties with negative replicate counts can use `args.negative_replicates: "clip"`; `args.group_quarters` can drop prison and dormitory tracts (a definitional choice to declare). [Segregation](docs/recipes/segregation.md) |
 | Can information be shared across noisy small areas? | `small_area_estimates`, `spatial_small_area_estimates`, `multilevel_model` | Fay–Herriot for direct estimates with known sampling SEs; spatial Fay–Herriot for neighboring areas; mixed models for nested observations such as tracts within counties, and three levels such as tracts in counties in states (`groups=["state", "county"]`). [Small-area recipe](docs/recipes/small_area.md) |
