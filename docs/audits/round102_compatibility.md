@@ -18,3 +18,8 @@ commit (tag `criterion-r102`) is an ancestor of the branch. Version 0.98.0.
    meta-regression or the Egger test. The example pools 12 states' county-level uninsurance–poverty slopes instead.
 3. **The engine uses 999 permutations for meta-regression;** validation used 199. The permutation p-value's size
    held at 199, and more permutations only reduce Monte Carlo error.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 101.
+- Full suite: 2395 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.

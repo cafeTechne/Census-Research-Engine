@@ -174,6 +174,7 @@ meta-analysis completeness (N79; Harrer et al.).
 - `combine_estimates`: validated τ² interval; exploratory prediction interval, leave-one-out, meta-regression and
   Egger test (10+ estimates).
 - Example (`r102_meta_example.md`): 12 state slopes of county uninsurance on poverty.
+- Goldens byte-identical; 2395 passed, 42 skipped; 0 failures.
 
 **Round 101 (v0.97.0; merged, release pending owner approval; implemented by the maintainer agent):**
 demographic estimation tools (N78; IUSSP Tools for Demographic Estimation).
