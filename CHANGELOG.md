@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.93.0 (Round 97): spatial block cross-validation and MAUP sensitivity
+
+- **`spatial_model(kind="cv")`** (`census/model_assessment.py`; frozen core `census/model_assessment_core.py`; N74;
+  Moraga 2023 chapters 11 and 16): spatial-block and random 5-fold cross-validation with MAE, RMSE, coverage and CRPS.
+- **`spatial_model(kind="maup")`:** slopes over random contiguous zonings.
+- **Validation** (`docs/audits/model_assessment_validation.md`, criterion tag `criterion-r97`): **failed**, so block
+  CV is exploratory. With spatial correlation, block CV under-estimated new-region RMSE by 19–23% (random CV by
+  33–43%); both were exact without correlation. MAUP is reported: zone slopes ranged from −0.2 to 1.4 times the
+  tract slope.
+- **Example** (`docs/audits/r97_model_assessment_example.md`, exploratory): Wayne County poverty. Random folds flatter
+  the neighbour model (RMSE 10.2 against 12.1). Aggregating to zones of about 10 tracts raises the
+  poverty–unemployment slope from 1.13 to about 1.9.
+- **Recipe** `spatial_patterns` section; protocol rule; sources (Roberts et al. 2017; Openshaw 1984).
+
 ## 0.92.0 (Round 96): spatial disease mapping with BYM2
 
 - **BYM2 Poisson disease mapping** (`census/disease_mapping.py`; frozen core `census/disease_mapping_core.py`; N73;

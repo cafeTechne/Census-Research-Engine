@@ -50,9 +50,9 @@ Version 0.93.0. Branch `phase97/cv-maup`. Validation first.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r97` |
+| Results | fail (V1); MAUP reported | `model_assessment_validation.md` |
+| Engine, recipe | done | `spatial_model(kind="cv" \| "maup")`; recipe; protocol |
+| Example | done | `r97_model_assessment_example.md` |
+| Goldens, suite | see audit | `round97_compatibility.md` |
+| Exceptions | 3 | see audit |
