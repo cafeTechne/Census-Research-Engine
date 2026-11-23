@@ -59,5 +59,5 @@ the engine.
 | Results | all pass | `surveillance_validation.md` |
 | Engine, figure, recipe | done | `census/surveillance.py`; `joinpoint(aberration=)`; deviation chart |
 | Example | done | `r95_surveillance_example.md` |
-| Goldens, suite | see audit | `round95_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2357 passed, 42 skipped |
 | Exceptions | 3 | see audit |

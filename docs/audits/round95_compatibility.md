@@ -19,3 +19,8 @@ criterion commit (tag `criterion-r95`) is an ancestor of the branch. Version 0.9
    reader reports bounds (each cell at 1 and at 9) instead of failing, and never imputes a value.
 3. **`ears_c2` uses a sample-SD threshold with no floor.** A perfectly flat baseline flags any increase (z = ∞), as
    in EARS.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 94.
+- Full suite: 2357 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.

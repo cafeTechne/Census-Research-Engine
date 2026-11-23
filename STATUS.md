@@ -166,7 +166,8 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 YPLL and aberration detection (N72; CDC SS1000).
 - `census/surveillance.py`: YPLL (WONDER age-group exports, bounds for suppressed cells), historical limits and
   EARS C2 (`joinpoint(aberration=...)`), deviation chart. All validated.
-- Example (`r95_surveillance_example.md`): US YPLL-75 by cause; 2023 state uninsured flags.
+- Example (`r95_surveillance_example.md`): US YPLL-75 by cause; 2023 state uninsured flags. Goldens
+  byte-identical; 2357 passed, 42 skipped; 0 failures.
 
 **Round 94 (v0.90.0; merged, release pending owner approval; implemented by the maintainer agent):**
 WHO health inequality monitoring (N71).
