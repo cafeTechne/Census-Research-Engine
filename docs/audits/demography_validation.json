@@ -1,0 +1,34 @@
+{
+ "rows": [
+  {
+   "population": 50000,
+   "e0": 0.905,
+   "e65": 0.91
+  },
+  {
+   "population": 500000,
+   "e0": 0.9045,
+   "e65": 0.8955
+  },
+  {
+   "population": 5000000,
+   "e0": 0.8995,
+   "e65": 0.898
+  }
+ ],
+ "outcome": {
+  "L1": {
+   "passed": true,
+   "gated": false,
+   "min": 0.8955
+  }
+ },
+ "draws": 2000,
+ "criterion_commit": "edf7242496199d23486787b612f5424d6bc84cbb",
+ "seconds": 5,
+ "frozen_sha256": {
+  "scripts/demography_validation.py": "733bf7cc96decec3cab5a9da296a094ac00b10cc86bc3bdfc1db4dd1e88861a0",
+  "census/demography_core.py": "cbeffea9d27d964b4a6769c68efe5a08191d9679bdf310b784a769e8ee3356d4",
+  "docs/audits/demography_validation_criterion.md": "9958bcb9f8a656bb68d57eaeaca55d14d2d82b013aabe7c927c045c7396c5e3c"
+ }
+}
