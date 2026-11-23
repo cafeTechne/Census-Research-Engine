@@ -170,6 +170,7 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 matching estimators and triple differences (N76; Cunningham).
 - `estimate_effect(kind="matching")`; `difference_in_differences(design="triple")`.
 - Example (`r99_matching_ddd_example.md`): 2014 Medicaid expansion triple difference (−1.76 points); metro matching.
+- Goldens byte-identical; 2378 passed, 42 skipped; 0 failures.
 
 **Round 98 (v0.94.0; merged, release pending owner approval; implemented by the maintainer agent):**
 regression discontinuity (N75; Cunningham).

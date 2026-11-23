@@ -18,3 +18,8 @@ commit (tag `criterion-r99`) is an ancestor of the branch. Version 0.95.0.
    strata by construction.
 3. **The example's triple difference uses B27010** (stable lines 2010–2019) rather than S2701, whose rows change
    across years. Its 18–64 label in 2010–2012 against 19–64 later is noted in the example.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 98.
+- Full suite: 2378 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.

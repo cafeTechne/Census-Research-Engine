@@ -54,5 +54,5 @@ in Gruber 1994). Version 0.95.0. Branch `phase99/matching-ddd`. Validation first
 | Results | NN ATE, CEM, PS, triple pass; NN ATT fails | `matching_validation.md` |
 | Engine, recipe | done | `estimate_effect(kind="matching")`; `difference_in_differences(design="triple")` |
 | Example | done | `r99_matching_ddd_example.md` |
-| Goldens, suite | see audit | `round99_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2378 passed, 42 skipped |
 | Exceptions | 3 | see audit |
