@@ -140,6 +140,16 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "hutwagner2003": _src("paper", "Hutwagner, L., Thompson, W., Seeman, G.M. & Treadwell, T.", 2003, "The bioterrorism "
                           "preparedness and response Early Aberration Reporting System (EARS)", "Journal of Urban Health",
                           volume="80", pages="i89-i96"),
+    "harrer2021": _src("book", "Harrer, M., Cuijpers, P., Furukawa, T.A. & Ebert, D.D.", 2021, "Doing Meta-Analysis "
+                       "with R: A Hands-On Guide", publisher="Chapman & Hall/CRC, Boca Raton",
+                       url="https://doing-meta.guide/", note="guidance for Round 102 (docs/literature/harrer_meta_analysis.md)"),
+    "viechtbauer2007": _src("paper", "Viechtbauer, W.", 2007, "Confidence intervals for the amount of heterogeneity in "
+                            "meta-analysis", "Statistics in Medicine", volume="26", pages="37-52"),
+    "higgins2009": _src("paper", "Higgins, J.P.T., Thompson, S.G. & Spiegelhalter, D.J.", 2009, "A re-evaluation of "
+                        "random-effects meta-analysis", "Journal of the Royal Statistical Society Series A",
+                        volume="172", pages="137-159"),
+    "egger1997": _src("paper", "Egger, M., Davey Smith, G., Schneider, M. & Minder, C.", 1997, "Bias in meta-analysis "
+                      "detected by a simple, graphical test", "BMJ", volume="315", pages="629-634"),
     "iussp2013": _src("book", "Moultrie, T.A., Dorrington, R.E., Hill, A.G., Hill, K., Timæus, I.M. & Zaba, B. (eds)",
                       2013, "Tools for Demographic Estimation", publisher="International Union for the Scientific Study "
                       "of Population, Paris", url="https://demographicestimation.iussp.org/",
@@ -333,7 +343,8 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "build_index": [*REP, ("cronbach1951", "method"), _audit("index_validation.md")],
     "check_agreement": [("bland_altman1986", "method"), ("cohen1960", "method"), _audit("agreement_validation.md")],
     "combine_estimates": [("paule_mandel1982", "method"), ("hartung_knapp2001", "method"), ("schuirmann1987", "method"),
-                          _audit("evidence_validation.md")],
+                          ("viechtbauer2007", "method"), ("higgins2009", "method"), ("egger1997", "method"),
+                          ("harrer2021", "guidance"), _audit("evidence_validation.md"), _audit("meta_validation.md")],
     "estimate_effect": [*CAUSAL, ("pearl2009", "method"), ("lauritzen1990", "method"), ("li_morgan_zaslavsky2018", "method"),
                         ("lunceford_davidian2004", "method"),
                         ("abadie_imbens2006", "method"), ("abadie_imbens2011", "method"), ("iacus2012", "method"), ("anderson_rubin1949", "method"), ("statsmodels", "software"),

@@ -692,6 +692,9 @@ def combine_estimates(
     effect: Optional[float] = None,
     se: Optional[float] = None,
     target_power: float = 0.80,
+    moderators: Optional[List[float]] = None,
+    leave_one_out: bool = False,
+    small_study_test: bool = False,
 ) -> Dict[str, Any]:
     """Combine evidence: pool several estimates of one effect, test whether two estimates are
     equivalent, or compute power / the minimum detectable effect.
@@ -701,6 +704,9 @@ def combine_estimates(
             ses, margin set in advance) or "power" (se, and effect for its power).
         assume_homogeneous: Declared in advance; needed for a validated fixed-effect interval.
     Validated (Round 38): HKSJ pooling for up to 4 estimates; TOST; z-test power.
+    Round 102: the tau^2 Q-profile interval (validated) is always reported; moderators (one value per estimate,
+    10+ estimates) adds an exploratory meta-regression with permutation p; leave_one_out; small_study_test (Egger,
+    10+ estimates; exploratory). The prediction interval is exploratory.
     Example: combine_estimates("pool", estimates=[0.027, 0.035], ses=[0.0055, 0.0048])
     """
     from census import evidence
@@ -708,7 +714,9 @@ def combine_estimates(
     try:
         if kind == "pool":
             out = evidence.combine_estimates(estimates or [], ses or [], method=method,
-                                             assume_homogeneous=assume_homogeneous, labels=labels)
+                                             assume_homogeneous=assume_homogeneous, labels=labels,
+                                             moderators=moderators, leave_one_out=leave_one_out,
+                                             small_study_test=small_study_test)
             p = out["pooled"]
             summary = (f"Pooled {p['estimate']:.4g} (90% CI {p['lower']:.4g} to {p['upper']:.4g}; {method}); "
                        f"I² {out['heterogeneity']['I2']:.0%}; {'validated' if out['validated'] else 'exploratory'}.")

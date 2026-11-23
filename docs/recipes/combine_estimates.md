@@ -14,3 +14,16 @@
 4. **Power:** `combine_estimates("power", se=..., effect=...)` gives the power of a two-sided z test,
    and the minimum detectable effect at 80% power. Use planned SEs from MOEs (SE = MOE/1.645).
 5. Validation: `docs/audits/evidence_validation.md` (Round 38).
+
+## Heterogeneity, prediction, influence and moderators (Round 102; Harrer et al. 2021)
+
+- Every pooled result now reports a **Q-profile interval for τ²** (validated, .889–.953). Report τ², I² and that
+  interval together; the Q test alone says little with few estimates.
+- **Prediction interval** for one more estimate (another state or release) is reported but **exploratory**: it
+  under-covered (.76–.89) at moderate heterogeneity.
+- `leave_one_out=True` re-pools without each estimate. Use it to show whether one state drives the result.
+- `moderators=[...]` (one value per estimate; **10 or more estimates**) adds a meta-regression with Knapp–Hartung
+  intervals and a permutation p-value. It is exploratory: intervals .82–.92; permutation p kept its size (≤ .10).
+- `small_study_test=True` (10 or more estimates) gives Egger's test, which is exploratory (size up to .12 with high
+  heterogeneity). Pooled area estimates are not publications, so read asymmetry as size-related heterogeneity.
+

@@ -21,7 +21,8 @@ HKSJ_VALIDATED_MAX_K = 4
 
 def combine_estimates(estimates: Sequence[float], ses: Sequence[float], *, method: str = "hksj",
                       assume_homogeneous: bool = False, labels: Optional[Sequence[str]] = None,
-                      level: float = 0.90) -> Dict[str, Any]:
+                      level: float = 0.90, moderators: Optional[Sequence[float]] = None,
+                      leave_one_out: bool = False, small_study_test: bool = False) -> Dict[str, Any]:
     """Pool estimates of one effect. ``assume_homogeneous`` must be declared in advance to use the
     fixed-effect interval as validated."""
     if method not in ("hksj", "fixed", "dl"):
@@ -54,7 +55,37 @@ def combine_estimates(estimates: Sequence[float], ses: Sequence[float], *, metho
                      f"(Round 48, {ss.AUDIT}; plain HKSJ under-covered at 8 with heterogeneity in Round 38).")
     if why:
         notes.append("EXPLORATORY: "+why+f" ({AUDIT}).")
-    return dict(pooled=out, heterogeneity=het, k=k, validated=validated,
+    from . import meta_core as mc   # Round 102 (docs/audits/meta_validation.md)
+    v = se**2
+    if k >= 2:
+        lo, hi = mc.q_profile(theta, v, level)
+        het["tau2_interval"] = dict(lower=lo, upper=hi, method="Q-profile", validated=True)
+    if "prediction_interval" in out:
+        out["prediction_interval_note"] = ("exploratory: prediction intervals under-covered (.76-.89) at moderate "
+                                           "heterogeneity in Round 102 validation")
+    extra = {}
+    if leave_one_out and k >= 3:
+        extra["leave_one_out"] = [dict(omitted=(labels[i] if labels else str(i)), estimate=r["estimate"], lower=r["lower"],
+                                       upper=r["upper"]) for i, r in enumerate(mc.leave_one_out(theta, v))]
+    if moderators is not None:
+        x = np.asarray(moderators, float)
+        if len(x) != k:
+            raise ValueError("moderators needs one value per estimate")
+        if k < 10:
+            raise ValueError("meta-regression needs at least 10 estimates (Harrer et al. 2021)")
+        r = mc.meta_regression(theta, v, x, perms=999, rng=np.random.default_rng(20283023), level=level)
+        extra["meta_regression"] = dict(slope=float(r["coef"][1]), se=float(r["se"][1]), lower=float(r["lower"][1]),
+                                        upper=float(r["upper"][1]), p_permutation=float(r["p_permutation"][1]),
+                                        tau2=r["tau2"], validated=False,
+                                        note="exploratory: Knapp-Hartung slope intervals under-covered (.821) with 10 "
+                                             "estimates and heterogeneity; permutation p-values kept their size")
+    if small_study_test:
+        if k < 10:
+            raise ValueError("the small-study (Egger) test needs at least 10 estimates")
+        e = mc.egger(theta, v)
+        extra["small_study_test"] = dict(e, validated=False, note="exploratory: Egger test size up to .12 at k = 10 "
+                                         "with high heterogeneity; asymmetry has causes other than bias")
+    return dict(pooled=out, heterogeneity=het, k=k, validated=validated, **extra,
                 studies=[dict(label=(labels[i] if labels else str(i)), estimate=float(theta[i]), se=float(se[i])) for i in range(k)],
                 notes=notes, audit=AUDIT)
 
