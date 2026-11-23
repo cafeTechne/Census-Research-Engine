@@ -5,6 +5,23 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.94.0 (Round 98): regression discontinuity
+
+- **New full-profile tool `regression_discontinuity`** (80 tools; `census/rdd.py`, frozen core `census/rdd_core.py`;
+  N75; Cunningham, *Mixtape*):
+  - sharp and fuzzy designs; robust bias-corrected intervals at the Imbens–Kalyanaraman bandwidth;
+  - survey replicate SEs;
+  - McCrary density test, covariate jumps and placebo cutoffs.
+- **Validation** (`docs/audits/rdd_validation.md`, criterion tag `criterion-r98`):
+  - discrete ages with replicates pass (.893–.906);
+  - continuous running variables fail under strong curvature with n ≤ 10,000 (.78–.80), so they are exploratory;
+  - the density test's size is .097–.114 (exploratory);
+  - clustering by age fails (.69–.71) and is not offered.
+- **Example** (`docs/audits/r98_rdd_example.md`, exploratory): Michigan PUMS 2019–2023 at age 65. Medicare +58
+  points; any coverage +3.0 points (1.4 to 4.7); placebo cutoffs null.
+- **Recipe** `causal` section; README; protocol rule; sources (CCT 2014; IK 2012; McCrary 2008; Card, Dobkin and
+  Maestas 2008; Cunningham 2021).
+
 ## 0.91.0 (Round 95): years of potential life lost and aberration detection
 
 - **YPLL** (`census/surveillance.py`; frozen core `census/surveillance_core.py`; N72; CDC SS1000 lessons 3–5):

@@ -54,9 +54,9 @@ program thresholds by income-to-poverty ratio, and age-based policies in PUMS. V
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, tool, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r98` |
+| Results | discrete with replicates pass; continuous and density test fail | `rdd_validation.md` |
+| Engine, tool, recipe | done | tool `regression_discontinuity` (80 tools); recipe `causal`; protocol |
+| Example | done | `r98_rdd_example.md` |
+| Goldens, suite | see audit | `round98_compatibility.md` |
+| Exceptions | 3 | see audit |

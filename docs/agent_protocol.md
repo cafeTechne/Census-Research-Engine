@@ -622,6 +622,14 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+## Regression discontinuity (Round 98)
+
+<!-- mcp-rules:A -->
+Round 98: regression_discontinuity (full profile) estimates a jump at a cutoff with the robust bias-corrected local
+quadratic. Validated for discrete running variables (PUMS ages) with weight and replicate_prefix; continuous running
+variables and the density test are exploratory. Report covariate jumps and placebo cutoffs; a causal reading
+requires no other change at the cutoff.
+
 ## YPLL and aberration detection (Round 95)
 
 <!-- mcp-rules:A -->
