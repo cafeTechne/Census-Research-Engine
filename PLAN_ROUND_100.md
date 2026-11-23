@@ -53,9 +53,9 @@ Version 0.96.0. Branch `phase100/mice`. Validation first.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r100` |
+| Results | pass (PMM, norm) | `mice_validation.md` |
+| Engine, recipe | done | `fit_model(impute_method=, impute_delta=)`; recipe; protocol |
+| Example | done | `r100_mice_example.md` |
+| Goldens, suite | see audit | `round100_compatibility.md` |
+| Exceptions | 2 | see audit |

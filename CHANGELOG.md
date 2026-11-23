@@ -5,6 +5,20 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.96.0 (Round 100): multiple imputation by fully conditional specification
+
+- **FCS imputation** (`census/mice.py`; frozen core `census/mice_core.py`; N77; van Buuren 2012) via
+  `fit_model(impute=[...], impute_method="pmm" | "norm", impute_delta=...)`:
+  - any number of incomplete variables, the outcome included;
+  - Rubin's rules with Barnard–Rubin df, and the fraction of missing information;
+  - δ-adjustment MNAR sensitivity.
+- **Validation** (`docs/audits/mice_validation.md`, criterion tag `criterion-r100`): PMM (.885–) and the Bayesian
+  normal method (.887–) pass at 10% and 40% missingness.
+- **Example** (`docs/audits/r100_mice_example.md`, exploratory): Michigan tract log median income (45 withheld
+  values) on poverty and education. Coefficients are stable under a δ shift of 10–20% lower missing incomes.
+- **Recipe** `regression_sampling_error` section; protocol rule; sources (van Buuren 2012; Barnard and Rubin 1999;
+  Little 1988).
+
 ## 0.91.0 (Round 95): years of potential life lost and aberration detection
 
 - **YPLL** (`census/surveillance.py`; frozen core `census/surveillance_core.py`; N72; CDC SS1000 lessons 3–5):

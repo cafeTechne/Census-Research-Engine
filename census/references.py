@@ -140,6 +140,13 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "hutwagner2003": _src("paper", "Hutwagner, L., Thompson, W., Seeman, G.M. & Treadwell, T.", 2003, "The bioterrorism "
                           "preparedness and response Early Aberration Reporting System (EARS)", "Journal of Urban Health",
                           volume="80", pages="i89-i96"),
+    "van_buuren2012": _src("book", "van Buuren, S.", 2012, "Flexible Imputation of Missing Data",
+                           publisher="Chapman & Hall/CRC, Boca Raton",
+                           note="1st edition; guidance for Round 100 (docs/literature/van_buuren_fimd.md)"),
+    "barnard_rubin1999": _src("paper", "Barnard, J. & Rubin, D.B.", 1999, "Small-sample degrees of freedom with multiple "
+                              "imputation", "Biometrika", volume="86", pages="948-955"),
+    "little1988": _src("paper", "Little, R.J.A.", 1988, "Missing-data adjustments in large surveys",
+                       "Journal of Business & Economic Statistics", volume="6", pages="287-296"),
     "muller_watson2022": _src("paper", "Müller, U.K. & Watson, M.W.", 2022, "Spatial correlation robust inference",
                               "Econometrica", volume="90", pages="2901-2935"),
     "prasad_rao1990": _src("paper", "Prasad, N.G.N. & Rao, J.N.K.", 1990, "The estimation of the mean squared error of "
@@ -275,7 +282,8 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     # analysis frames and models
     "build_analysis_frame": [*ACS, *REP, ("cbp_ers", "data"), ("chr", "data"), ("pep", "data"), ("lodes", "data"),
                              ("acs_flows", "data"), ("walker2023", "guidance")],
-    "fit_model": [*REP, ("statsmodels", "software"), ("fuller", "method"), ("carroll", "method"), ("simex", "method"),
+    "fit_model": [*REP, ("statsmodels", "software"), ("rubin1987", "method"), ("barnard_rubin1999", "method"),
+                  ("little1988", "method"), ("van_buuren2012", "guidance"), _audit("mice_validation.md"), ("fuller", "method"), ("carroll", "method"), ("simex", "method"),
                   ("fay_herriot1979", "method"), ("muller_watson2022", "method"), ("cluster_im", "method"),
                   ("bovbjerg2020", "guidance"), _audit("inference_validation.md"), _audit("epi_measures_validation.md")],
     "compare_groups": [*REP, ("statsmodels", "software"), ("holm", "method"), _audit("omnibus_validation.md")],
