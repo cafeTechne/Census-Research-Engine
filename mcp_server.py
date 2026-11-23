@@ -388,6 +388,11 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+Round 94: disparity_measures(who_measures=True) gives population attributable risk against the best or declared
+group (par, par_pct; validated), the SII (validated) and WHO mean differences (mdm, mdb; exploratory, biased upward
+when groups are close). compare_years=[y1, y2] gives changes between non-overlapping releases (validated for par,
+sii, weighted mean differences). Report absolute and relative measures together with the group rates.
+
 Round 93: spatial_model (full profile) kind="gwr" is exploratory (local intervals .71 when slopes vary; report beside
 a global model). kind="classify" (k-means) and "regionalize" (SKATER) are descriptive: fix k in advance, give each
 feature an _se or _moe column, and report per-area stability; do not interpret groups of areas with stability
