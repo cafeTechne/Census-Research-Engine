@@ -809,7 +809,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N76: matching and triple differences (99; closed);
 - N77: FCS imputation (100; closed);
 - N78: demographic tools (101; closed);
-- N79: FCS imputation, demographic tools, meta-analysis (Round 102, planned 2026-11-23 from Cunningham, van Buuren, IUSSP and Harrer et al.);
+- N79: meta-analysis (Round 102, planned 2026-11-23 from Cunningham, van Buuren, IUSSP and Harrer et al.);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.
