@@ -51,4 +51,15 @@ confounders=[...], method=...)`:
   Abadie and Imbens (2008); prefer `"nn"`.
 
 Results include balance before matching. Check positivity first.
+**Regression discontinuity (Round 98; Cunningham, *Mixtape*).** When eligibility switches at a cutoff of a running
+variable (Medicare at 65, a program threshold), compare units just above and just below:
+`regression_discontinuity(input_path, outcome, running, cutoff, treatment=None, weight=..., replicate_prefix=...)`.
+- **Estimate:** the robust bias-corrected jump (local quadratic at the Imbens–Kalyanaraman bandwidth). Fuzzy designs
+  give outcome jump / treatment jump.
+- **Validated:** PUMS ages with survey weights and replicate weights (`weight="PWGTP", replicate_prefix="PWGTP"`).
+  Discrete running variables use a bandwidth of at least 4.
+- **Exploratory:** continuous running variables, which under-covered with strong curvature near the cutoff, and the
+  density (manipulation) test.
+- **Never cluster by age value.** In validation that covered .69–.71.
+- **Always report** covariate jumps and placebo cutoffs. A causal reading needs nothing else to change at the cutoff.
 

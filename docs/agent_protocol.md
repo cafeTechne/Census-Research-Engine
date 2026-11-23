@@ -622,6 +622,30 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+## Regression discontinuity (Round 98)
+
+<!-- mcp-rules:A -->
+Round 98: regression_discontinuity (full profile) estimates a jump at a cutoff with the robust bias-corrected local
+quadratic. Validated for discrete running variables (PUMS ages) with weight and replicate_prefix; continuous running
+variables and the density test are exploratory. Report covariate jumps and placebo cutoffs; a causal reading
+requires no other change at the cutoff.
+
+## Spatial cross-validation and MAUP (Round 97)
+
+<!-- mcp-rules:A -->
+Round 97: spatial_model(kind="cv") reports spatial-block and random cross-validation; random folds are optimistic
+for models using neighbours, and block CV is itself a lower bound on new-region error (exploratory).
+spatial_model(kind="maup") shows how an area-level slope changes over random zonings (descriptive); report it
+when an ecological slope drives a conclusion.
+
+## Spatial disease mapping (Round 96)
+
+<!-- mcp-rules:A -->
+Round 96: spatial_model(kind="disease_map", outcome=observed counts, expected=expected counts) gives BYM2 smoothed
+relative risks with P(RR > threshold). Exceedance probabilities are calibrated (validated); relative-risk intervals
+are exploratory (under-cover with median expected counts near 5 over few areas). Suppressed counts stay missing and
+are predicted from neighbours; never output counts 1-9.
+
 ## YPLL and aberration detection (Round 95)
 
 <!-- mcp-rules:A -->

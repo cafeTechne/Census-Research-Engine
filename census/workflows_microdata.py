@@ -440,6 +440,41 @@ def _with_trial(result, causal_question, treatment):
     return result
 
 
+def regression_discontinuity(
+    input_path: str,
+    outcome: str,
+    running: str,
+    cutoff: float,
+    treatment: Optional[str] = None,
+    weight: Optional[str] = None,
+    replicate_prefix: Optional[str] = None,
+    bandwidth: Optional[float] = None,
+    covariates: Optional[List[str]] = None,
+    placebo_cutoffs: Optional[List[float]] = None,
+) -> Dict[str, Any]:
+    """Regression discontinuity at a cutoff of a running variable (Round 98; e.g. PUMS age 65 for Medicare).
+    Sharp (outcome jump) or fuzzy (treatment= column: outcome jump / treatment jump). Robust bias-corrected
+    interval (local quadratic at the IK bandwidth). Validated for discrete running variables (ages) with survey
+    weights and replicates (weight="PWGTP", replicate_prefix="PWGTP"); continuous running variables and the
+    density (manipulation) test are exploratory. covariates: jumps that should be zero; placebo_cutoffs: fake
+    cutoffs that should show none.
+    Example: regression_discontinuity("pums.parquet", "HICOV", "AGEP", 65, treatment="HINS3", weight="PWGTP",
+    replicate_prefix="PWGTP")
+    """
+    from census.rdd import regression_discontinuity as _rdd
+    try:
+        r = _rdd(_load_frame(input_path), outcome, running, float(cutoff), treatment=treatment, weight=weight,
+                 replicate_prefix=replicate_prefix, bandwidth=bandwidth, covariates=covariates or (),
+                 placebo_cutoffs=placebo_cutoffs or ())
+    except _ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))
+    return _ok(f"{r['design'].capitalize()} RDD at {running} = {cutoff:g}: jump in {outcome} {r['estimate']:.4g} "
+               f"(90% robust CI {r['lower']:.4g} to {r['upper']:.4g}); bandwidth {r['bandwidth']:.3g}; "
+               + ("validated." if r["validated"] else "exploratory (see notes)."),
+               "report the robust estimate and interval with the density test, covariate jumps and placebo cutoffs",
+               **r)
+
+
 def adjust_for_place(
     value: float,
     geography: str,

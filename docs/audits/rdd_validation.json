@@ -1,0 +1,231 @@
+{
+ "continuous": [
+  {
+   "shape": "linear",
+   "tau": 0.0,
+   "n": 2000,
+   "R1": 0.9075,
+   "R0": 0.866,
+   "D1": 0.1085,
+   "fail": 0.0
+  },
+  {
+   "shape": "linear",
+   "tau": 0.0,
+   "n": 10000,
+   "R1": 0.903,
+   "R0": 0.8605,
+   "D1": 0.0985,
+   "fail": 0.0
+  },
+  {
+   "shape": "linear",
+   "tau": 0.0,
+   "n": 50000,
+   "R1": 0.909,
+   "R0": 0.878,
+   "D1": 0.11,
+   "fail": 0.0
+  },
+  {
+   "shape": "linear",
+   "tau": 0.2,
+   "n": 2000,
+   "R1": 0.912,
+   "R0": 0.872,
+   "D1": 0.0985,
+   "fail": 0.0
+  },
+  {
+   "shape": "linear",
+   "tau": 0.2,
+   "n": 10000,
+   "R1": 0.902,
+   "R0": 0.87,
+   "D1": 0.097,
+   "fail": 0.0
+  },
+  {
+   "shape": "linear",
+   "tau": 0.2,
+   "n": 50000,
+   "R1": 0.9035,
+   "R0": 0.87,
+   "D1": 0.1075,
+   "fail": 0.0
+  },
+  {
+   "shape": "quadratic",
+   "tau": 0.0,
+   "n": 2000,
+   "R1": 0.8935,
+   "R0": 0.8715,
+   "D1": 0.0965,
+   "fail": 0.0
+  },
+  {
+   "shape": "quadratic",
+   "tau": 0.0,
+   "n": 10000,
+   "R1": 0.9155,
+   "R0": 0.875,
+   "D1": 0.1035,
+   "fail": 0.0
+  },
+  {
+   "shape": "quadratic",
+   "tau": 0.0,
+   "n": 50000,
+   "R1": 0.899,
+   "R0": 0.856,
+   "D1": 0.114,
+   "fail": 0.0
+  },
+  {
+   "shape": "quadratic",
+   "tau": 0.2,
+   "n": 2000,
+   "R1": 0.8945,
+   "R0": 0.8695,
+   "D1": 0.1025,
+   "fail": 0.0
+  },
+  {
+   "shape": "quadratic",
+   "tau": 0.2,
+   "n": 10000,
+   "R1": 0.906,
+   "R0": 0.868,
+   "D1": 0.109,
+   "fail": 0.0
+  },
+  {
+   "shape": "quadratic",
+   "tau": 0.2,
+   "n": 50000,
+   "R1": 0.906,
+   "R0": 0.8795,
+   "D1": 0.1015,
+   "fail": 0.0
+  },
+  {
+   "shape": "lee",
+   "tau": 0.0,
+   "n": 2000,
+   "R1": 0.7805,
+   "R0": 0.3855,
+   "D1": 0.107,
+   "fail": 0.0
+  },
+  {
+   "shape": "lee",
+   "tau": 0.0,
+   "n": 10000,
+   "R1": 0.791,
+   "R0": 0.3035,
+   "D1": 0.103,
+   "fail": 0.0
+  },
+  {
+   "shape": "lee",
+   "tau": 0.0,
+   "n": 50000,
+   "R1": 0.886,
+   "R0": 0.4825,
+   "D1": 0.107,
+   "fail": 0.0
+  },
+  {
+   "shape": "lee",
+   "tau": 0.2,
+   "n": 2000,
+   "R1": 0.7875,
+   "R0": 0.383,
+   "D1": 0.1055,
+   "fail": 0.0
+  },
+  {
+   "shape": "lee",
+   "tau": 0.2,
+   "n": 10000,
+   "R1": 0.804,
+   "R0": 0.321,
+   "D1": 0.109,
+   "fail": 0.0
+  },
+  {
+   "shape": "lee",
+   "tau": 0.2,
+   "n": 50000,
+   "R1": 0.8935,
+   "R0": 0.493,
+   "D1": 0.1095,
+   "fail": 0.0
+  }
+ ],
+ "discrete": [
+  {
+   "shape": "linear",
+   "tau": 0.0,
+   "R1-rep": 0.9055,
+   "R1-cluster": 0.7085,
+   "R1-hc": 0.9055,
+   "fail": 0.0
+  },
+  {
+   "shape": "linear",
+   "tau": 0.05,
+   "R1-rep": 0.897,
+   "R1-cluster": 0.703,
+   "R1-hc": 0.8975,
+   "fail": 0.0
+  },
+  {
+   "shape": "quadratic",
+   "tau": 0.0,
+   "R1-rep": 0.906,
+   "R1-cluster": 0.7055,
+   "R1-hc": 0.909,
+   "fail": 0.0
+  },
+  {
+   "shape": "quadratic",
+   "tau": 0.05,
+   "R1-rep": 0.893,
+   "R1-cluster": 0.697,
+   "R1-hc": 0.9015,
+   "fail": 0.0
+  },
+  {
+   "shape": "fuzzy",
+   "tau": 0.15,
+   "R1-rep": 0.8985,
+   "R1-cluster": 0.6875,
+   "R1-hc": 0.902,
+   "fail": 0.0
+  }
+ ],
+ "outcome": {
+  "R1": {
+   "passed": false,
+   "min": 0.7805
+  },
+  "R1-rep": {
+   "passed": true,
+   "min": 0.893
+  },
+  "D1": {
+   "passed": false,
+   "max": 0.114
+  }
+ },
+ "draws": 2000,
+ "criterion_commit": "37d68c924766c84bf4f216da5adc544d76f076f7",
+ "seconds": 1682,
+ "frozen_sha256": {
+  "scripts/rdd_validation.py": "a8836c40bb5eb1431165d614d7dc3c26b53ef803ca9cc930df8777452370842d",
+  "census/rdd_core.py": "1a848c1ff02827375d830e3634aa795b8a0bacd94628b280bcae4771824e5a6d",
+  "census/pums_tests.py": "bbd88b8263fff87216b79af19e9cd0fcb549ab82ea7aa42d6c65e0e66f630040",
+  "docs/audits/rdd_validation_criterion.md": "635819cdab830b252beeff7a5eed10eb97712745233a78d49b1d6153a50d8175"
+ }
+}
