@@ -18,3 +18,8 @@ The criterion commit (tag `criterion-r97`) is an ancestor of the branch. Version
    Plain OLS is reported beside it.
 3. **MAUP is descriptive, with tract-level zonings only.** Block-group and county scales are a recipe walkthrough,
    not a tool option.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 96.
+- Full suite: 2368 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.

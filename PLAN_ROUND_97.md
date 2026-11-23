@@ -54,5 +54,5 @@ Version 0.93.0. Branch `phase97/cv-maup`. Validation first.
 | Results | fail (V1); MAUP reported | `model_assessment_validation.md` |
 | Engine, recipe | done | `spatial_model(kind="cv" \| "maup")`; recipe; protocol |
 | Example | done | `r97_model_assessment_example.md` |
-| Goldens, suite | see audit | `round97_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2368 passed, 42 skipped |
 | Exceptions | 3 | see audit |

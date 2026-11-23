@@ -167,7 +167,8 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 **Round 97 (v0.93.0; merged, release pending owner approval; implemented by the maintainer agent):**
 spatial block cross-validation and MAUP sensitivity (N74; Moraga).
 - `spatial_model(kind="cv" | "maup")`; block CV exploratory (a lower bound on new-region error); MAUP descriptive.
-- Example (`r97_model_assessment_example.md`): Wayne County poverty.
+- Example (`r97_model_assessment_example.md`): Wayne County poverty. Goldens byte-identical; 2368 passed,
+  42 skipped; 0 failures.
 
 **Round 96 (v0.92.0; merged, release pending owner approval; implemented by the maintainer agent):**
 spatial disease mapping with BYM2 (N73; Moraga).
