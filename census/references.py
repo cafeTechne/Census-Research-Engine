@@ -149,6 +149,10 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "moraga2023": _src("book", "Moraga, P.", 2023, "Spatial Statistics for Data Science: Theory and Practice with R",
                        publisher="Chapman & Hall/CRC, Boca Raton", url="https://www.paulamoraga.com/book-spatial/",
                        note="guidance for Rounds 96-97 (docs/literature/moraga_spatial_statistics.md)"),
+    "roberts2017": _src("paper", "Roberts, D.R. et al.", 2017, "Cross-validation strategies for data with temporal, "
+                        "spatial, hierarchical, or phylogenetic structure", "Ecography", volume="40", pages="913-929"),
+    "openshaw1984": _src("book", "Openshaw, S.", 1984, "The Modifiable Areal Unit Problem (CATMOG 38)",
+                         publisher="Geo Books, Norwich"),
     "muller_watson2022": _src("paper", "Müller, U.K. & Watson, M.W.", 2022, "Spatial correlation robust inference",
                               "Econometrica", volume="90", pages="2901-2935"),
     "prasad_rao1990": _src("paper", "Prasad, N.G.N. & Rao, J.N.K.", 1990, "The estimation of the mean squared error of "
@@ -335,8 +339,10 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "spatial_autocorrelation": [("moran1950", "method"), ("anselin1995", "method"), ("pysal", "software"), *GEO,
                                 _audit("lisa_validation.md")],
     "spatial_model": [("brunsdon1996", "method"), ("assuncao2006", "method"), ("besag1991", "method"),
-                      ("riebler2016", "method"), ("moraga2023", "guidance"), *GEO, ("scipy", "software"),
-                      _audit("spatial_models_validation.md"), _audit("disease_mapping_validation.md")],
+                      ("riebler2016", "method"), ("roberts2017", "method"), ("openshaw1984", "method"),
+                      ("moraga2023", "guidance"), *GEO, ("scipy", "software"),
+                      _audit("spatial_models_validation.md"), _audit("disease_mapping_validation.md"),
+                      _audit("model_assessment_validation.md")],
     "spatial_regression": [("spatial_lesage2009", "method"), ("pysal", "software"), *GEO,
                            _audit("spatial_regression_validation.md")],
     # health and context sources

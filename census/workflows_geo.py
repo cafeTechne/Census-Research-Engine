@@ -221,15 +221,45 @@ def spatial_model(
     global model.
     kind="disease_map" (Round 96; Moraga 2023 ch. 10): BYM2 Poisson smoothing of event counts (outcome = observed
     count column, expected = expected count column, optional predictors) with relative-risk intervals and
-    P(RR > threshold); suppressed counts may be missing (predicted from neighbours). Example: spatial_model("frame.parquet", "classify", "tract", 2023, features=["pov", "unemp"], k=4)
+    P(RR > threshold); suppressed counts may be missing (predicted from neighbours).
+    kind="cv" (Round 97): spatial-block vs random 5-fold cross-validation of outcome ~ predictors: MAE, RMSE,
+    coverage, CRPS out of sample (exploratory; block CV is a lower bound on new-region error). kind="maup": the
+    outcome-on-predictors[0] slope over 100 random contiguous zonings of ~10 areas (descriptive). Example: spatial_model("frame.parquet", "classify", "tract", 2023, features=["pov", "unemp"], k=4)
     """
     from census import spatial_models as smod
 
-    if kind not in ("gwr", "classify", "regionalize", "disease_map"):
-        return _fail(errors.INVALID_INPUT, "kind must be 'gwr', 'classify', 'regionalize' or 'disease_map'.")
+    if kind not in ("gwr", "classify", "regionalize", "disease_map", "cv", "maup"):
+        return _fail(errors.INVALID_INPUT,
+                     "kind must be 'gwr', 'classify', 'regionalize', 'disease_map', 'cv' or 'maup'.")
     try:
         gdf = _with_boundaries(_load_frame(input_path), level, year)
-        if kind == "disease_map":
+        if kind in ("cv", "maup"):
+            from census import model_assessment as ma
+            if not outcome or not predictors:
+                return _fail(errors.INVALID_INPUT, f"kind='{kind}' needs outcome and predictors.")
+            d = gdf.dropna(subset=[outcome, *predictors]).reset_index(drop=True)
+            if kind == "cv":
+                r = ma.spatial_cv(d, outcome, predictors, model="ols", folds=5)
+                rk = ma.spatial_cv(d, outcome, predictors, model="ols_knn", folds=5)
+                table = pd.DataFrame({"GEOID": d.GEOID.astype(str), "block": r.pop("block_labels")})
+                rk.pop("block_labels")
+                r = dict(r, ols_knn=rk)
+                sp, rn = r["spatial_block"], r["random"]
+                summary = (f"Cross-validation of {outcome} ~ {' + '.join(predictors)} ({r['n']} areas). OLS: spatial-block "
+                           f"RMSE {sp['rmse']:.4g} (coverage {sp['coverage']:.2f}), random-fold {rn['rmse']:.4g}. OLS + "
+                           f"neighbour residuals: spatial-block {rk['spatial_block']['rmse']:.4g}, random-fold "
+                           f"{rk['random']['rmse']:.4g}. Exploratory (block CV is a lower bound on new-region error).")
+            else:
+                _, w = _weights_for(d, "queen")
+                pos = {g: k_ for k_, g in enumerate(w.id_order)}
+                edges = sorted({tuple(sorted((pos[a], pos[b]))) for a, nb in w.neighbors.items() for b in nb})
+                edges, _ = _bridge_components(d, edges)
+                r = ma.maup_sensitivity(d, outcome, predictors[0], edges, size=10, zonings=100)
+                table = pd.DataFrame([r["zone_slopes"]])
+                summary = (f"MAUP sensitivity of the {outcome} on {predictors[0]} slope: area-level {r['area_slope']:.4g}; "
+                           f"over 100 random zonings of ~10 areas {r['zone_slopes']['p05']:.4g} to "
+                           f"{r['zone_slopes']['p95']:.4g} (5th-95th percentile). Descriptive.")
+        elif kind == "disease_map":
             from census.disease_mapping import disease_map
             if not outcome or not expected:
                 return _fail(errors.INVALID_INPUT, "kind='disease_map' needs outcome (observed counts) and expected.")
