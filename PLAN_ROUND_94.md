@@ -60,5 +60,5 @@ Validation first.
 | Results | PAR, SII, T1 pass; MDM/MDB fail | `inequality_monitoring_validation.md` |
 | Engine, reporting | done | `disparity_measures(who_measures, compare_years)`; double disaggregation; quadrants |
 | Example | done | `r94_inequality_monitoring_example.md` |
-| Goldens, suite | see audit | `round94_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2350 passed, 42 skipped |
 | Exceptions | 3 | see audit |
