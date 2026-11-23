@@ -172,7 +172,8 @@ YPLL and aberration detection (N72; CDC SS1000).
 WHO health inequality monitoring (N71).
 - `disparity_measures(who_measures=True, compare_years=...)`; `double_disaggregation`, `priority_quadrants`.
 - Validation: PAR, SII and changes pass; WHO mean differences fail when groups are close (exploratory).
-- Example (`r94_inequality_monitoring_example.md`): Michigan family poverty by race/ethnicity.
+- Example (`r94_inequality_monitoring_example.md`): Michigan family poverty by race/ethnicity. Goldens
+  byte-identical; 2350 passed, 42 skipped; 0 failures.
 
 **Round 93 (v0.89.0; merged, release pending owner approval; implemented by the maintainer agent):**
 GWR, neighbourhood types, regions and diversity (N69; Walker).
