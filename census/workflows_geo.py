@@ -172,6 +172,33 @@ def make_map(
                figure_paths=_paths(fig), caption=getattr(fig, "caption", ""))
 
 
+def _bridge_components(gdf, edges):
+    """Join separate parts of a neighbour graph with one edge each, between the closest pair of representative
+    points (as the validation geometry joins Michigan's peninsulas)."""
+    import numpy as np
+    from scipy.sparse import csr_matrix
+    from scipy.sparse.csgraph import connected_components
+    n = len(gdf)
+    e = np.array(edges, int).reshape(-1, 2)
+    ncomp, lab = connected_components(csr_matrix((np.ones(len(e)), (e[:, 0], e[:, 1])), shape=(n, n)), directed=False)
+    if ncomp == 1:
+        return list(edges), []
+    pts = gdf.to_crs(5070).representative_point()
+    xy = np.column_stack([pts.x.to_numpy(), pts.y.to_numpy()])
+    main = np.bincount(lab).argmax()
+    out, bridges = list(edges), []
+    for c in range(ncomp):
+        if c == main:
+            continue
+        a_idx, b_idx = np.flatnonzero(lab == c), np.flatnonzero(lab == main)
+        D = np.hypot(xy[a_idx, :1]-xy[b_idx, 0], xy[a_idx, 1:]-xy[b_idx, 1])
+        i, j = np.unravel_index(np.argmin(D), D.shape)
+        a, b = int(a_idx[i]), int(b_idx[j])
+        out.append(tuple(sorted((a, b))))
+        bridges.append([str(gdf.GEOID.iloc[a]), str(gdf.GEOID.iloc[b])])
+    return out, bridges
+
+
 def spatial_model(
     input_path: str,
     kind: str,
@@ -183,21 +210,44 @@ def spatial_model(
     k: Optional[int] = None,
     permutations: int = 99,
     output_path: Optional[str] = None,
+    expected: Optional[str] = None,
+    threshold: float = 1.2,
 ) -> Dict[str, Any]:
     """Exploratory spatial models (Round 93; Walker 2023 ch. 8): kind="gwr" (geographically weighted regression of
     outcome on predictors; local slopes + non-stationarity test), "classify" (k-means neighbourhood types on
     features) or "regionalize" (SKATER contiguous regions on features). classify/regionalize need <feature>_se or
     _moe columns and k set in advance; each area gets a stability score (share of 20 sampling-error replicates in
     the same group). GWR local intervals failed validation (.71 with varying slopes): exploratory, report beside a
-    global model. Example: spatial_model("frame.parquet", "classify", "tract", 2023, features=["pov", "unemp"], k=4)
+    global model.
+    kind="disease_map" (Round 96; Moraga 2023 ch. 10): BYM2 Poisson smoothing of event counts (outcome = observed
+    count column, expected = expected count column, optional predictors) with relative-risk intervals and
+    P(RR > threshold); suppressed counts may be missing (predicted from neighbours). Example: spatial_model("frame.parquet", "classify", "tract", 2023, features=["pov", "unemp"], k=4)
     """
     from census import spatial_models as smod
 
-    if kind not in ("gwr", "classify", "regionalize"):
-        return _fail(errors.INVALID_INPUT, "kind must be 'gwr', 'classify' or 'regionalize'.")
+    if kind not in ("gwr", "classify", "regionalize", "disease_map"):
+        return _fail(errors.INVALID_INPUT, "kind must be 'gwr', 'classify', 'regionalize' or 'disease_map'.")
     try:
         gdf = _with_boundaries(_load_frame(input_path), level, year)
-        if kind == "gwr":
+        if kind == "disease_map":
+            from census.disease_mapping import disease_map
+            if not outcome or not expected:
+                return _fail(errors.INVALID_INPUT, "kind='disease_map' needs outcome (observed counts) and expected.")
+            d = gdf.reset_index(drop=True)
+            _, w = _weights_for(d, "queen")
+            pos = {g: k_ for k_, g in enumerate(w.id_order)}
+            edges = sorted({tuple(sorted((pos[a], pos[b]))) for a, nb in w.neighbors.items() for b in nb})
+            edges, bridges = _bridge_components(d, edges)
+            r = disease_map(d, outcome, expected, edges, covariates=predictors or (), threshold=threshold)
+            if bridges:
+                r["notes"].append(f"The contiguity graph had separate parts; {len(bridges)} bridge edge(s) join each "
+                                  f"part to its nearest area: {bridges}.")
+            table = r.pop("table")
+            hi = table.p_exceed >= .8
+            summary = (f"Disease map ({r['method']}) of {outcome} over {len(table)} areas: relative risks "
+                       f"{table.relative_risk.min():.2f} to {table.relative_risk.max():.2f}; {int(hi.sum())} area(s) with "
+                       f"P(RR > {threshold:g}) >= .8." + (" Validated." if r["validated"] else " Exploratory."))
+        elif kind == "gwr":
             if not outcome or not predictors:
                 return _fail(errors.INVALID_INPUT, "kind='gwr' needs outcome and predictors.")
             r = smod.gwr_model(gdf, outcome, predictors, permutations=permutations)

@@ -54,9 +54,9 @@ Laplace-approximate marginal likelihood). Version 0.92.0. Branch `phase96/diseas
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r96` |
+| Results | intervals fail in 1 of 16 cells; exceedance calibrated | `disease_mapping_validation.md` |
+| Engine, recipe | done | `spatial_model(kind="disease_map")`; recipe `small_area`; protocol |
+| Example | done | `r96_disease_mapping_example.md` |
+| Goldens, suite | see audit | `round96_compatibility.md` |
+| Exceptions | 3 | see audit |

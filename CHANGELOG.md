@@ -5,6 +5,25 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.92.0 (Round 96): spatial disease mapping with BYM2
+
+- **BYM2 Poisson disease mapping** (`census/disease_mapping.py`; frozen core `census/disease_mapping_core.py`; N73;
+  Moraga 2023 chapters 9–10; Riebler et al. 2016), as `spatial_model(kind="disease_map")`:
+  - a Laplace approximation with no INLA dependency;
+  - hyperparameters from the grid maximum (B1) or integrated over the grid (B2);
+  - relative risks, 90% intervals and exceedance probabilities;
+  - suppressed counts predicted from neighbours;
+  - bridge edges join separate parts of the contiguity graph.
+- **Validation** (`docs/audits/disease_mapping_validation.md`, criterion tag `criterion-r96`):
+  - exceedance probabilities calibrated in every cell;
+  - intervals covered .84–.90 in 15 of 16 cells but .79–.80 with median expected counts of 5 over 83 counties, so
+    the rule failed and intervals are exploratory;
+  - BYM2 beat Poisson–gamma EB and SMRs on error everywhere.
+- **Example** (`docs/audits/r96_disease_mapping_example.md`, exploratory): drug-overdose relative risks in Michigan
+  counties, 2018–2022. Genesee is highest at 1.92, then Wayne at 1.78. Six counties have P(RR > 1.2) ≥ .8.
+- **Recipe** `small_area` section; protocol rule; sources (Besag, York and Mollié 1991; Riebler et al. 2016; Moraga
+  2023).
+
 ## 0.91.0 (Round 95): years of potential life lost and aberration detection
 
 - **YPLL** (`census/surveillance.py`; frozen core `census/surveillance_core.py`; N72; CDC SS1000 lessons 3–5):

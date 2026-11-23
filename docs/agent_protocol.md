@@ -622,6 +622,14 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+## Spatial disease mapping (Round 96)
+
+<!-- mcp-rules:A -->
+Round 96: spatial_model(kind="disease_map", outcome=observed counts, expected=expected counts) gives BYM2 smoothed
+relative risks with P(RR > threshold). Exceedance probabilities are calibrated (validated); relative-risk intervals
+are exploratory (under-cover with median expected counts near 5 over few areas). Suppressed counts stay missing and
+are predicted from neighbours; never output counts 1-9.
+
 ## YPLL and aberration detection (Round 95)
 
 <!-- mcp-rules:A -->

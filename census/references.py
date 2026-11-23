@@ -140,6 +140,15 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "hutwagner2003": _src("paper", "Hutwagner, L., Thompson, W., Seeman, G.M. & Treadwell, T.", 2003, "The bioterrorism "
                           "preparedness and response Early Aberration Reporting System (EARS)", "Journal of Urban Health",
                           volume="80", pages="i89-i96"),
+    "besag1991": _src("paper", "Besag, J., York, J. & Mollié, A.", 1991, "Bayesian image restoration, with two "
+                      "applications in spatial statistics", "Annals of the Institute of Statistical Mathematics",
+                      volume="43", pages="1-20"),
+    "riebler2016": _src("paper", "Riebler, A., Sørbye, S.H., Simpson, D. & Rue, H.", 2016, "An intuitive Bayesian "
+                        "spatial model for disease mapping that accounts for scaling", "Statistical Methods in Medical "
+                        "Research", volume="25", pages="1145-1165"),
+    "moraga2023": _src("book", "Moraga, P.", 2023, "Spatial Statistics for Data Science: Theory and Practice with R",
+                       publisher="Chapman & Hall/CRC, Boca Raton", url="https://www.paulamoraga.com/book-spatial/",
+                       note="guidance for Rounds 96-97 (docs/literature/moraga_spatial_statistics.md)"),
     "muller_watson2022": _src("paper", "Müller, U.K. & Watson, M.W.", 2022, "Spatial correlation robust inference",
                               "Econometrica", volume="90", pages="2901-2935"),
     "prasad_rao1990": _src("paper", "Prasad, N.G.N. & Rao, J.N.K.", 1990, "The estimation of the mean squared error of "
@@ -325,8 +334,9 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "get_boundaries": GEO, "make_map": GEO, "make_web_map": GEO,
     "spatial_autocorrelation": [("moran1950", "method"), ("anselin1995", "method"), ("pysal", "software"), *GEO,
                                 _audit("lisa_validation.md")],
-    "spatial_model": [("brunsdon1996", "method"), ("assuncao2006", "method"), *GEO, ("scipy", "software"),
-                      _audit("spatial_models_validation.md")],
+    "spatial_model": [("brunsdon1996", "method"), ("assuncao2006", "method"), ("besag1991", "method"),
+                      ("riebler2016", "method"), ("moraga2023", "guidance"), *GEO, ("scipy", "software"),
+                      _audit("spatial_models_validation.md"), _audit("disease_mapping_validation.md")],
     "spatial_regression": [("spatial_lesage2009", "method"), ("pysal", "software"), *GEO,
                            _audit("spatial_regression_validation.md")],
     # health and context sources
