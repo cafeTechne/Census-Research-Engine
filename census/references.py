@@ -128,6 +128,10 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "assuncao2006": _src("paper", "Assunção, R.M., Neves, M.C., Câmara, G. & da Costa Freitas, C.", 2006, "Efficient "
                          "regionalization techniques for socio-economic geographical units using minimum spanning trees",
                          "International Journal of Geographical Information Science", volume="20", pages="797-811"),
+    "who2013": _src("book", "World Health Organization", 2013, "Handbook on Health Inequality Monitoring: With a Special "
+                    "Focus on Low- and Middle-Income Countries", publisher="WHO, Geneva",
+                    url="https://www.who.int/publications/i/item/9789241548632",
+                    note="guidance for Round 94 (docs/literature/who_health_inequality_monitoring.md)"),
     "muller_watson2022": _src("paper", "Müller, U.K. & Watson, M.W.", 2022, "Spatial correlation robust inference",
                               "Econometrica", volume="90", pages="2901-2935"),
     "prasad_rao1990": _src("paper", "Prasad, N.G.N. & Rao, J.N.K.", 1990, "The estimation of the mean squared error of "
@@ -289,7 +293,8 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "joinpoint": [("kim2000", "method"), ("tiwari2006", "method"), ("fay_feuer1997", "method"), *EPI,
                   _audit("joinpoint_validation.md")],
     "disparity_measures": [("harper_lynch", "method"), ("pearcy_keppel", "method"), ("kitagawa", "method"), *EPI,
-                           *REP, _audit("disparity_validation.md")],
+                           ("who2013", "guidance"), *REP, _audit("disparity_validation.md"),
+                           _audit("inequality_monitoring_validation.md")],
     "stratified_analysis": [("mantel_haenszel1959", "method"), ("greenland_robins1985", "method"),
                             ("rbg1986", "method"), ("breslow", "method"), ("tarone1985", "method"),
                             ("rothman1976", "method"), *EPI, *CAUSAL, *PUMS, _audit("stratified_validation.md")],

@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_94.md` (WHO inequality monitoring); Rounds 95–97 queued (YPLL and aberration detection from CDC SS1000; BYM2 disease mapping and spatial cross-validation/MAUP from Moraga); mappings in `docs/literature/`. Earlier: Rounds 88–93 merged (method attribution; Hernán and Robins; Walker). Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_95.md` (YPLL and aberration detection, CDC SS1000); Rounds 96–97 queued (BYM2 disease mapping; spatial cross-validation and MAUP, Moraga); mappings in `docs/literature/`. Earlier: Round 94 merged (WHO inequality monitoring); Rounds 88–93 merged. Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -72,6 +72,7 @@ manifests refuse them in confirmatory analyses.
 | Small-area proportions and several releases (Round 80) | **Passed** (real 2019–2023 S2701 sampling variances, MI/NY counties and tracts): arcsine Fay–Herriot with bias-corrected back-transform and bootstrap MSE, per-area coverage .898–.904, worst decile ≥ .880, relative bias ≤ .078 for p < .10 (quantile interval .892–.895 also passes); Rao–Yu temporal Fay–Herriot for 2–3 releases .897–.898 (MSE gain 3–7% counties, 10–24% tracts) | `sae_extensions_validation.md`, criterion `251dc9d` |
 | PUMS gap decompositions (Round 79) | **Passed with size gates** (Round 32 design, weight CV 1, SDR intervals): Oaxaca–Blinder explained/unexplained totals from 300 records in the smaller group (.862–.894); Oaxaca–Blinder detailed contributions (Yun-normalised) and Fairlie totals and detailed contributions from 1,000 records (.863–.894); at 300 they under-covered (.802–.853) | `decomposition_validation.md`, criterion `9e52bb4` |
 | Staggered adoption and synthetic control (Round 78) | **Passed selected** (51 units, 12/18 annual periods, AR(1) .3/.7, ACS-like error): Sun–Abraham event study and overall ATT (.881–.899); Callaway–Sant'Anna with the ACS variance added (.882–.906). **Failed**: Callaway–Sant'Anna multiplier bootstrap alone (.848–.868), uniform bands (.76–.81), synthetic-control placebo test (size .12–.19 at .10) and conformal intervals (.73–.86 with 9 pre-periods; .87–.95 with 15, not a pre-set gate): exploratory, library only | `policy_validation.md`, criterion `baf934b` |
+| WHO inequality monitoring (Round 94) | **Passed**: PAR vs declared or data-selected best group (.884–), SII (.882–), change between releases (.879–). **Failed**: mean differences from the mean or best group (down to .39 when groups are close): exploratory | `inequality_monitoring_validation.md`, tag `criterion-r94` |
 | Spatial models (Round 93) | **Failed** (exploratory): GWR local intervals (.71 with varying slopes; non-stationarity test size .12–.17); entropy diversity (.847 at 50 respondents per tract, .883 at 200). **Reported**: classification/SKATER stability is informative (unstable areas misclassified 39–50%, stable 3–16%) | `spatial_models_validation.md`, tag `criterion-r93` |
 | Marginal structural models (Round 91) | **Failed** (exploratory): IP-weighted MSM for annual panels with treatment-confounder feedback, .805–.881 (stabilized) and .799–.885 (truncated), 51 units; regression on the current confounder .00–.11 | `msm_validation.md`, tag `criterion-r91` |
 | Positivity and weighting (Round 90) | **Passed**: truncated weights (.864–), overlap weights for the overlap-population effect (.877–), g-formula (.881–), IPW vs g-formula flag (size ≤ .061). **Failed**: stabilized/plain IPW with 5%+ extreme propensities (.807–.863): exploratory there | `positivity_validation.md`, tag `criterion-r90` |
@@ -159,6 +160,12 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 94 (v0.90.0; merged, release pending owner approval; implemented by the maintainer agent):**
+WHO health inequality monitoring (N71).
+- `disparity_measures(who_measures=True, compare_years=...)`; `double_disaggregation`, `priority_quadrants`.
+- Validation: PAR, SII and changes pass; WHO mean differences fail when groups are close (exploratory).
+- Example (`r94_inequality_monitoring_example.md`): Michigan family poverty by race/ethnicity.
 
 **Round 93 (v0.89.0; merged, release pending owner approval; implemented by the maintainer agent):**
 GWR, neighbourhood types, regions and diversity (N69; Walker).
@@ -741,7 +748,8 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N67: marginal structural models (91; closed, exploratory);
 - N68: Population Estimates, LODES, migration flows (92; closed);
 - N69: GWR, classification, regionalization, diversity (93; closed, exploratory);
-- N71–N74: WHO inequality monitoring, YPLL and aberration detection, BYM2 disease mapping, spatial CV and MAUP (Rounds 94–97, planned 2026-11-23 from the WHO handbook, CDC SS1000 and Moraga);
+- N71: WHO inequality monitoring (94; closed);
+- N72–N74: YPLL and aberration detection, BYM2 disease mapping, spatial CV and MAUP (Rounds 95–97, planned 2026-11-23 from the WHO handbook, CDC SS1000 and Moraga);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

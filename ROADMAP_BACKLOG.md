@@ -87,7 +87,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 91 | IP-weighted marginal structural models for annual policy panels | N67 | done (v0.87.0; exploratory) |
 | 92 | Data sources: Population Estimates, LEHD LODES, ACS migration flows | N68 | done (v0.88.0) |
 | 93 | Geographically weighted regression, geodemographic classification, regionalization, diversity index | N69 | done (v0.89.0; exploratory) |
-| 94 | Inequality monitoring (WHO): mean differences, PAR vs best subgroup, trends in inequality, double disaggregation, priority quadrants | N71 | planned |
+| 94 | Inequality monitoring (WHO): mean differences, PAR vs best subgroup, trends in inequality, double disaggregation, priority quadrants | N71 | done (v0.90.0) |
 | 95 | YPLL and surveillance aberration detection (CDC SS1000) | N72 | planned |
 | 96 | Spatial disease mapping: BYM2 Poisson with exceedance probabilities (Moraga) | N73 | planned |
 | 97 | Spatial block cross-validation and MAUP sensitivity (Moraga) | N74 | planned |

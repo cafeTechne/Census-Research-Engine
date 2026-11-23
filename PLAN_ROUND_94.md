@@ -56,9 +56,9 @@ Validation first.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, reporting | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r94` |
+| Results | PAR, SII, T1 pass; MDM/MDB fail | `inequality_monitoring_validation.md` |
+| Engine, reporting | done | `disparity_measures(who_measures, compare_years)`; double disaggregation; quadrants |
+| Example | done | `r94_inequality_monitoring_example.md` |
+| Goldens, suite | see audit | `round94_compatibility.md` |
+| Exceptions | 3 | see audit |

@@ -142,3 +142,24 @@ area** (race/ethnicity, sex, income groups), use `disparity_measures` or the man
    stratum-rate CV up to .50 and for counts averaging 20+ events per stratum.
 
 Segregation (how evenly groups are spread across tracts) is a different question: see the `segregation` recipe.
+
+## WHO inequality monitoring (Round 94; WHO 2013 handbook)
+
+- `disparity_measures(..., who_measures=True, reference="best" or a group)` adds:
+  - population attributable risk against the best (or declared) group, as `par` in points and `par_pct` in percent
+    (validated; with "best", the best group is re-selected in every replicate);
+  - the slope index of inequality over the groups in the given order (validated; groups ordered from most to least
+    advantaged);
+  - WHO's mean differences from the overall mean (`mdm_u`, `mdm_w`) and from the reference (`mdb_u`, `mdb_w`).
+    These are **exploratory**: they are biased upward when the groups' true rates are close relative to their
+    sampling error (coverage down to .39).
+- `compare_years=[y1, y2]` (non-overlapping releases) gives the change in each measure, validated for `par`,
+  `sii`, `mdm_w` and `mdb_w` (declared reference) with group CVs up to .30.
+- Report absolute and relative inequality together (WHO 4.4), and the subgroup rates themselves.
+- Library tools:
+  - `census.inequality_monitoring.double_disaggregation` gives two-stratifier tables (e.g. poverty by race) with CV
+    flags;
+  - `priority_quadrants` gives WHO's level-by-inequality view, marked "uncertain" when an interval spans a cut-off.
+- Mind the data: the 2015–2019 VRE files have no race-iterated tables, so race-group trends need 2020–2024 and later
+  releases.
+

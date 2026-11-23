@@ -1591,6 +1591,8 @@ def disparity_measures(
     omitted_groups: Optional[List[str]] = None,
     decompose_areas: Optional[List[str]] = None,
     confidence_level: float = 0.90,
+    who_measures: bool = False,
+    compare_years: Optional[List[int]] = None,
 ) -> Dict[str, Any]:
     """Disparities BETWEEN POPULATION GROUPS within each area (race/ethnicity, sex, income groups), Round 76.
 
@@ -1606,6 +1608,10 @@ def disparity_measures(
     rate and composition effects; then groups are stratum (e.g. age band) rates or counts and populations the
     stratum populations.
     For differences ACROSS AREAS along a deprivation gradient use the health_inequality recipe instead.
+    who_measures=True (Round 94, WHO 2013): population attributable risk vs the reference or reference="best"
+    (validated), SII over the groups in the given order (validated), mean differences from the overall mean and from
+    the reference (exploratory: biased when groups are close); compare_years=[y1, y2] gives the change between two
+    non-overlapping releases (validated for par, sii, weighted mean differences).
     Example: disparity_measures("frame.csv", ["pov_white", "pov_black", "pov_hisp"], ["pop_white", "pop_black",
     "pop_hisp"], reference="pov_white", replicates_path="reps.parquet")
     """
@@ -1629,6 +1635,18 @@ def disparity_measures(
                        rows=_records(out))
         if reference is None:
             return _fail(errors.INVALID_INPUT, "reference is required: the comparison group, declared in advance.")
+        if who_measures or compare_years:
+            from census.inequality_monitoring import monitoring_measures
+            if counts:
+                return _fail(errors.INVALID_INPUT, "who_measures needs ACS group rates with replicates (counts=False).")
+            out = monitoring_measures(frame, groups, populations, reps, reference=reference, level=confidence_level,
+                                      compare_years=compare_years)
+            n_val = int(out["validated"].sum())
+            kind = f"change {compare_years[0]} to {compare_years[1]}" if compare_years else "WHO measures"
+            return _ok(f"{out['GEOID'].nunique()} area(s), {len(groups)} groups, {kind}: {len(out)} rows, {n_val} "
+                       f"validated, {len(out) - n_val} exploratory.",
+                       "report absolute (par, sii) and relative (par_pct) inequality together; label mean differences "
+                       "and rows with validated=False exploratory", audit=out.attrs["audit"], rows=_records(out))
         out = _dm(frame, groups, reference, populations, replicates=reps, counts=counts, level=confidence_level,
                   omitted_groups=omitted_groups)
     except (ValueError, KeyError, TypeError, FileNotFoundError) as exc:

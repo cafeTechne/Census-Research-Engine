@@ -5,6 +5,22 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.90.0 (Round 94): WHO health inequality monitoring
+
+- **WHO measures** (`census/inequality_monitoring.py`; frozen core `census/inequality_monitoring_core.py`; N71; WHO
+  2013) via `disparity_measures(who_measures=True, reference="best" | group, compare_years=[y1, y2])`:
+  - population attributable risk against the best or declared group, the SII, and mean differences from the
+    overall mean and from the reference;
+  - the change between non-overlapping releases;
+  - library `double_disaggregation` and `priority_quadrants`.
+- **Validation** (`docs/audits/inequality_monitoring_validation.md`, criterion tag `criterion-r94`):
+  - pass: PAR with a declared or data-selected best group (.884–), SII (.882–) and changes between releases (.879–);
+  - **fail**: mean differences (down to .39 when groups are close), which are exploratory.
+- **Example** (`docs/audits/r94_inequality_monitoring_example.md`, exploratory): family poverty by race/ethnicity in
+  Michigan counties, 2020–2024. Wayne County has the largest PAR, 6.7 points. Age-group poverty inequality fell in
+  39 of 80 counties between 2015–2019 and 2020–2024.
+- **Recipe** `health_inequality` section; protocol rule; WHO 2013 registered as a guidance source.
+
 ## 0.89.0 (Round 93): GWR, neighbourhood types, regions and diversity
 
 - **New full-profile tool `spatial_model`** (79 tools; `census/spatial_models.py`, frozen core
