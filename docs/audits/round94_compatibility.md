@@ -19,3 +19,8 @@ criterion commit (tag `criterion-r94`) is an ancestor of the branch. Version 0.9
    as pre-set.
 3. **Count-based (WONDER) group rates are not supported by `who_measures`.** The validation used ACS replicates
    only.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 93.
+- Full suite: 2350 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.

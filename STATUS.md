@@ -172,13 +172,15 @@ spatial disease mapping with BYM2 (N73; Moraga).
 YPLL and aberration detection (N72; CDC SS1000).
 - `census/surveillance.py`: YPLL (WONDER age-group exports, bounds for suppressed cells), historical limits and
   EARS C2 (`joinpoint(aberration=...)`), deviation chart. All validated.
-- Example (`r95_surveillance_example.md`): US YPLL-75 by cause; 2023 state uninsured flags.
+- Example (`r95_surveillance_example.md`): US YPLL-75 by cause; 2023 state uninsured flags. Goldens
+  byte-identical; 2357 passed, 42 skipped; 0 failures.
 
 **Round 94 (v0.90.0; merged, release pending owner approval; implemented by the maintainer agent):**
 WHO health inequality monitoring (N71).
 - `disparity_measures(who_measures=True, compare_years=...)`; `double_disaggregation`, `priority_quadrants`.
 - Validation: PAR, SII and changes pass; WHO mean differences fail when groups are close (exploratory).
-- Example (`r94_inequality_monitoring_example.md`): Michigan family poverty by race/ethnicity.
+- Example (`r94_inequality_monitoring_example.md`): Michigan family poverty by race/ethnicity. Goldens
+  byte-identical; 2350 passed, 42 skipped; 0 failures.
 
 **Round 93 (v0.89.0; merged, release pending owner approval; implemented by the maintainer agent):**
 GWR, neighbourhood types, regions and diversity (N69; Walker).
@@ -765,6 +767,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N72: YPLL and aberration detection (95; closed);
 - N73: BYM2 disease mapping (96; closed);
 - N74: BYM2 disease mapping, spatial CV and MAUP (Round 97, planned 2026-11-23 from the WHO handbook, CDC SS1000 and Moraga);
+- N75–N79: RDD, matching and triple differences, FCS imputation, demographic tools, meta-analysis (Rounds 98–102, planned 2026-11-23 from Cunningham, van Buuren, IUSSP and Harrer et al.);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.
