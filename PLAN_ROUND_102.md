@@ -44,9 +44,9 @@ diagnostics, meta-regression or small-study test. Version 0.98.0. Branch `phase1
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r102` |
+| Results | H1 passes; P1, R1, E1 fail | `meta_validation.md` |
+| Engine, recipe | done | `combine_estimates(moderators, leave_one_out, small_study_test)`; τ² interval |
+| Example | done | `r102_meta_example.md` |
+| Goldens, suite | see audit | `round102_compatibility.md` |
+| Exceptions | 3 | see audit |

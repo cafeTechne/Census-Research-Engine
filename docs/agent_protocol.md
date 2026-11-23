@@ -654,6 +654,13 @@ never mix vintages; a denominator or covariate, never an outcome), lodes (LEHD j
 noise-infused, no MOE) and acs_flows (ACS county-to-county migration 2010-2020 with <name>_moe; later releases give
 state partners only). All are covariates; list them with list_health_sources(kind="context").
 
+## Meta-analysis completeness (Round 102)
+
+<!-- mcp-rules:A -->
+Round 102: combine_estimates("pool") reports a validated Q-profile interval for tau^2; its prediction interval is
+exploratory. leave_one_out, moderators (meta-regression with permutation p; 10+ estimates) and small_study_test
+(Egger; 10+ estimates) are exploratory. Report tau^2 with its interval, not the Q test alone.
+
 ## Marginal structural models (Round 91)
 
 <!-- mcp-rules:A -->

@@ -5,6 +5,25 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.98.0 (Round 102): meta-analysis completeness
+
+- **`combine_estimates`** (`census/meta_core.py`; N79; Harrer et al. 2021):
+  - a Q-profile τ² interval on every pooled result;
+  - `moderators` (meta-regression with Knapp–Hartung and permutation p), `leave_one_out` and `small_study_test`
+    (Egger);
+  - REML τ² in the core.
+- **Validation** (`docs/audits/meta_validation.md`, criterion tag `criterion-r102`):
+  - the τ² interval passes (.889–);
+  - prediction intervals fail (.76–.89 at moderate heterogeneity);
+  - meta-regression fails (.821 at k = 10 with heterogeneity), though permutation p keeps its size;
+  - the Egger test fails (size .12).
+
+  All but the τ² interval are exploratory.
+- **Example** (`docs/audits/r102_meta_example.md`, exploratory): state slopes of county uninsurance on poverty in 12
+  states pool to 0.172 (0.085 to 0.259), I² 72%. The meta-regression on state income has permutation p = .086.
+- **Recipe** `combine_estimates` section; protocol rule; sources (Harrer et al. 2021; Viechtbauer 2007; Higgins et al.
+  2009; Egger et al. 1997).
+
 ## 0.91.0 (Round 95): years of potential life lost and aberration detection
 
 - **YPLL** (`census/surveillance.py`; frozen core `census/surveillance_core.py`; N72; CDC SS1000 lessons 3–5):
