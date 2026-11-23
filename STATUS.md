@@ -15,12 +15,12 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | Path | What |
 | :--- | :--- |
 | `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
-| `mcp_server.py` | MCP server (79 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
+| `mcp_server.py` | MCP server (80 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_96.md` (BYM2 disease mapping, Moraga); Round 97 queued (spatial cross-validation and MAUP), then Rounds 98–102 (RDD; matching and triple differences; FCS imputation; demographic tools; meta-analysis); mappings in `docs/literature/`. Earlier: Rounds 94–95 merged (WHO inequality monitoring; YPLL and aberration detection); Rounds 88–93 merged. Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_102.md` (meta-analysis); mappings in `docs/literature/`. Earlier: Rounds 94–101 merged; Rounds 88–93 merged. Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -72,6 +72,12 @@ manifests refuse them in confirmatory analyses.
 | Small-area proportions and several releases (Round 80) | **Passed** (real 2019–2023 S2701 sampling variances, MI/NY counties and tracts): arcsine Fay–Herriot with bias-corrected back-transform and bootstrap MSE, per-area coverage .898–.904, worst decile ≥ .880, relative bias ≤ .078 for p < .10 (quantile interval .892–.895 also passes); Rao–Yu temporal Fay–Herriot for 2–3 releases .897–.898 (MSE gain 3–7% counties, 10–24% tracts) | `sae_extensions_validation.md`, criterion `251dc9d` |
 | PUMS gap decompositions (Round 79) | **Passed with size gates** (Round 32 design, weight CV 1, SDR intervals): Oaxaca–Blinder explained/unexplained totals from 300 records in the smaller group (.862–.894); Oaxaca–Blinder detailed contributions (Yun-normalised) and Fairlie totals and detailed contributions from 1,000 records (.863–.894); at 300 they under-covered (.802–.853) | `decomposition_validation.md`, criterion `9e52bb4` |
 | Staggered adoption and synthetic control (Round 78) | **Passed selected** (51 units, 12/18 annual periods, AR(1) .3/.7, ACS-like error): Sun–Abraham event study and overall ATT (.881–.899); Callaway–Sant'Anna with the ACS variance added (.882–.906). **Failed**: Callaway–Sant'Anna multiplier bootstrap alone (.848–.868), uniform bands (.76–.81), synthetic-control placebo test (size .12–.19 at .10) and conformal intervals (.73–.86 with 9 pre-periods; .87–.95 with 15, not a pre-set gate): exploratory, library only | `policy_validation.md`, criterion `baf934b` |
+| Life tables (Round 101) | **Passed**: Chiang II e0 and e65 intervals (.895–.910, 50,000 to 5 million person-years). Age-heaping indices, Arriaga decomposition and census-survival migration are exact | `demography_validation.md`, tag `criterion-r101` |
+| FCS imputation (Round 100) | **Passed**: predictive mean matching (.885–) and Bayesian linear imputation (.887–) with three incomplete variables, outcome included, 10–40% MAR missingness | `mice_validation.md`, tag `criterion-r100` |
+| Matching and triple differences (Round 99) | **Passed**: nearest-neighbour ATE (.861–), coarsened exact matching (.951–), propensity caliper matching (.962–, conservative), triple differences (.98–). **Failed**: nearest-neighbour ATT (.852 at 145 areas, limited overlap): exploratory | `matching_validation.md`, tag `criterion-r99` |
+| Regression discontinuity (Round 98) | **Passed**: discrete running variable with survey replicates (PUMS ages; .893–.906, sharp and fuzzy). **Failed** (exploratory): continuous running variable under strong curvature with n ≤ 10,000 (.78–.80); density test size .097–.114; clustering by age value (.69–.71, not offered) | `rdd_validation.md`, tag `criterion-r98` |
+| Spatial CV and MAUP (Round 97) | **Failed** (exploratory): 5-block spatial CV under-estimated new-region RMSE by 19–23% with spatially correlated residuals (random CV 33–43%). MAUP reported: zone slopes −0.2 to 1.4× the tract slope | `model_assessment_validation.md`, tag `criterion-r97` |
+| BYM2 disease mapping (Round 96) | **Exceedance probabilities calibrated** (every cell). **Failed** (exploratory): relative-risk intervals .84–.90 in 15 of 16 cells, .79–.80 with median expected counts of 5 over 83 counties. BYM2 beats Poisson–gamma EB and SMR on error | `disease_mapping_validation.md`, tag `criterion-r96` |
 | YPLL and aberration detection (Round 95) | **Passed**: age-adjusted YPLL-75 Fay–Feuer interval (.888–.963); historical limits and EARS C2 null false alarms (.005, .016). Reported: trends inflate false alarms (.10, .24 at 3%/year) | `surveillance_validation.md`, tag `criterion-r95` |
 | WHO inequality monitoring (Round 94) | **Passed**: PAR vs declared or data-selected best group (.884–), SII (.882–), change between releases (.879–). **Failed**: mean differences from the mean or best group (down to .39 when groups are close): exploratory | `inequality_monitoring_validation.md`, tag `criterion-r94` |
 | Spatial models (Round 93) | **Failed** (exploratory): GWR local intervals (.71 with varying slopes; non-stationarity test size .12–.17); entropy diversity (.847 at 50 respondents per tract, .883 at 200). **Reported**: classification/SKATER stability is informative (unstable areas misclassified 39–50%, stable 3–16%) | `spatial_models_validation.md`, tag `criterion-r93` |
@@ -161,6 +167,45 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 101 (v0.97.0; merged, release pending owner approval; implemented by the maintainer agent):**
+demographic estimation tools (N78; IUSSP Tools for Demographic Estimation).
+- `census.demography`: life tables with Chiang II intervals (validated), Arriaga decomposition by age and cause,
+  Whipple/Myers/UN age-data indices, census-survival migration.
+- Example (`r101_demography_example.md`): US e0 change 2013-2017 to 2018-2022 by age and cause; Michigan age quality.
+- Goldens byte-identical; 2390 passed, 42 skipped; 0 failures.
+
+**Round 100 (v0.96.0; merged, release pending owner approval; implemented by the maintainer agent):**
+multiple imputation by fully conditional specification (N77; van Buuren).
+- `fit_model(impute=[...], impute_method="pmm" | "norm", impute_delta_variable=..., impute_delta_shifts=...)`: any number of incomplete variables, FMI,
+  delta sensitivity. Validated.
+- Example (`r100_mice_example.md`): Michigan tract median income with withheld values.
+- Goldens byte-identical; 2384 passed, 42 skipped; 0 failures.
+
+**Round 99 (v0.95.0; merged, release pending owner approval; implemented by the maintainer agent):**
+matching estimators and triple differences (N76; Cunningham).
+- `estimate_effect(kind="matching")`; `difference_in_differences(design="triple")`.
+- Example (`r99_matching_ddd_example.md`): 2014 Medicaid expansion triple difference (−1.76 points); metro matching.
+- Goldens byte-identical; 2378 passed, 42 skipped; 0 failures.
+
+**Round 98 (v0.94.0; merged, release pending owner approval; implemented by the maintainer agent):**
+regression discontinuity (N75; Cunningham).
+- Tool `regression_discontinuity` (80 tools): robust bias-corrected sharp/fuzzy RDD; validated for PUMS ages with
+  replicates; continuous running variables and the density test exploratory.
+- Example (`r98_rdd_example.md`): Michigan insurance at 65 (+3.0 points any coverage). Goldens byte-identical;
+  2373 passed, 42 skipped; 0 failures.
+
+**Round 97 (v0.93.0; merged, release pending owner approval; implemented by the maintainer agent):**
+spatial block cross-validation and MAUP sensitivity (N74; Moraga).
+- `spatial_model(kind="cv" | "maup")`; block CV exploratory (a lower bound on new-region error); MAUP descriptive.
+- Example (`r97_model_assessment_example.md`): Wayne County poverty. Goldens byte-identical; 2368 passed,
+  42 skipped; 0 failures.
+
+**Round 96 (v0.92.0; merged, release pending owner approval; implemented by the maintainer agent):**
+spatial disease mapping with BYM2 (N73; Moraga).
+- `spatial_model(kind="disease_map")`: Laplace BYM2, exceedance probabilities (calibrated), intervals exploratory.
+- Example (`r96_disease_mapping_example.md`): Michigan county overdose relative risks. Goldens byte-identical;
+  2362 passed, 42 skipped; 0 failures.
 
 **Round 95 (v0.91.0; merged, release pending owner approval; implemented by the maintainer agent):**
 YPLL and aberration detection (N72; CDC SS1000).
@@ -759,8 +804,13 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N69: GWR, classification, regionalization, diversity (93; closed, exploratory);
 - N71: WHO inequality monitoring (94; closed);
 - N72: YPLL and aberration detection (95; closed);
-- N73–N74: BYM2 disease mapping, spatial CV and MAUP (Rounds 96–97, planned 2026-11-23 from the WHO handbook, CDC SS1000 and Moraga);
-- N75–N79: RDD, matching and triple differences, FCS imputation, demographic tools, meta-analysis (Rounds 98–102, planned 2026-11-23 from Cunningham, van Buuren, IUSSP and Harrer et al.);
+- N73: BYM2 disease mapping (96; closed);
+- N74: spatial CV and MAUP (97; closed, exploratory);
+- N75: regression discontinuity (98; closed);
+- N76: matching and triple differences (99; closed);
+- N77: FCS imputation (100; closed);
+- N78: demographic tools (101; closed);
+- N79: meta-analysis (Round 102, planned 2026-11-23 from Cunningham, van Buuren, IUSSP and Harrer et al.);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

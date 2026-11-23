@@ -57,3 +57,15 @@ neighbouring counties with an unusually high rate?"
 - **Diversity:** `census.spatial_models.diversity_index` gives entropy (maximum ln G) with replicate intervals. It
   is exploratory: .847 coverage with about 50 respondents per tract, .883 with 200.
 
+## Out-of-sample checks and the modifiable areal unit problem (Round 97; Moraga 2023 chapters 11 and 16)
+
+- `spatial_model(..., "cv", outcome=..., predictors=[...])` gives 5-fold **spatial-block** and random
+  cross-validation (MAE, RMSE, 90% coverage, CRPS) for OLS and for OLS with neighbour residual smoothing.
+  - Random folds flatter models that borrow from neighbours.
+  - In validation, spatial blocks still under-estimated error in a new region by about 20% (random folds by
+    33–43%), so treat block CV as a **lower bound** (exploratory).
+- `spatial_model(..., "maup", outcome=..., predictors=[x])` recomputes the slope of outcome on x over 100 random
+  contiguous zonings of about 10 areas (descriptive). In validation the zone-level slope ranged from −0.2 to 1.4
+  times the tract-level slope when residuals were spatially correlated. A result that depends on the zoning is a
+  property of the units.
+

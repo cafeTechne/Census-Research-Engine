@@ -1,0 +1,158 @@
+{
+ "matching": [
+  {
+   "N": 145,
+   "a": 0.5,
+   "heterogeneous": false,
+   "M1-ATT": 0.895,
+   "M1-ATE": 0.889,
+   "M2": 0.9545,
+   "M3": 0.988,
+   "fail": 0.0,
+   "share_matched": 0.9201532314752028
+  },
+  {
+   "N": 145,
+   "a": 0.5,
+   "heterogeneous": true,
+   "M1-ATT": 0.896,
+   "M1-ATE": 0.8775,
+   "M2": 0.9665,
+   "M3": 0.9865,
+   "fail": 0.0,
+   "share_matched": 0.9183806690964065
+  },
+  {
+   "N": 145,
+   "a": 1.502,
+   "heterogeneous": false,
+   "M1-ATT": 0.852,
+   "M1-ATE": 0.8775,
+   "M2": 0.9505,
+   "M3": 0.9695,
+   "fail": 0.0,
+   "share_matched": 0.7806948361458379
+  },
+  {
+   "N": 145,
+   "a": 1.502,
+   "heterogeneous": true,
+   "M1-ATT": 0.858,
+   "M1-ATE": 0.861,
+   "M2": 0.973,
+   "M3": 0.9685,
+   "fail": 0.0,
+   "share_matched": 0.7879917678137588
+  },
+  {
+   "N": 600,
+   "a": 0.5,
+   "heterogeneous": false,
+   "M1-ATT": 0.8895,
+   "M1-ATE": 0.8965,
+   "M2": 0.96,
+   "M3": 0.987,
+   "fail": 0.0,
+   "share_matched": 0.9981708619338733
+  },
+  {
+   "N": 600,
+   "a": 0.5,
+   "heterogeneous": true,
+   "M1-ATT": 0.9145,
+   "M1-ATE": 0.903,
+   "M2": 0.974,
+   "M3": 0.9925,
+   "fail": 0.0,
+   "share_matched": 0.9981086834022473
+  },
+  {
+   "N": 600,
+   "a": 1.502,
+   "heterogeneous": false,
+   "M1-ATT": 0.8805,
+   "M1-ATE": 0.896,
+   "M2": 0.9515,
+   "M3": 0.969,
+   "fail": 0.0,
+   "share_matched": 0.9529961613645573
+  },
+  {
+   "N": 600,
+   "a": 1.502,
+   "heterogeneous": true,
+   "M1-ATT": 0.8905,
+   "M1-ATE": 0.8825,
+   "M2": 0.961,
+   "M3": 0.9615,
+   "fail": 0.0,
+   "share_matched": 0.9531121332346794
+  }
+ ],
+ "triple": [
+  {
+   "tau": 0.0,
+   "delta": 0.0,
+   "T3": 0.9805,
+   "D2": 0.9075,
+   "T3_bias": 0.005554703460985834,
+   "D2_bias": 0.0013271059063152907
+  },
+  {
+   "tau": 0.0,
+   "delta": 0.3,
+   "T3": 0.9825,
+   "D2": 0.0,
+   "T3_bias": -0.005090541910569761,
+   "D2_bias": 1.502059784445116
+  },
+  {
+   "tau": -2.0,
+   "delta": 0.0,
+   "T3": 0.9855,
+   "D2": 0.92,
+   "T3_bias": 0.0034932641473459257,
+   "D2_bias": -0.000433849405667829
+  },
+  {
+   "tau": -2.0,
+   "delta": 0.3,
+   "T3": 0.9795,
+   "D2": 0.0,
+   "T3_bias": -0.006601924325700033,
+   "D2_bias": 1.4961869439504685
+  }
+ ],
+ "outcome": {
+  "M1-ATT": {
+   "passed": false,
+   "min": 0.852
+  },
+  "M1-ATE": {
+   "passed": true,
+   "min": 0.861
+  },
+  "M2": {
+   "passed": true,
+   "min": 0.9505
+  },
+  "M3": {
+   "passed": true,
+   "min": 0.9615
+  },
+  "T3": {
+   "passed": true,
+   "min": 0.9795
+  }
+ },
+ "draws": 2000,
+ "criterion_commit": "0e75ba5d21233b616065f96c37c407aa53db9683",
+ "seconds": 1445,
+ "frozen_sha256": {
+  "scripts/matching_validation.py": "5cac46f8f3b24698bd2a86d158b802c44b66e63f4a35e6286add7cb72288a47c",
+  "census/matching_core.py": "9baec609bab764af1d5141b07f61351fc32897163ea12e381bbada8731bb7d3d",
+  "census/positivity_core.py": "7c1dbdff1c8677b3a9b28cf44c8ae78ae7387bdc2f59723160498ad00360a414",
+  "scripts/positivity_validation.py": "cd9086e27dc7bbac028ca62bac21903132bbf9ae55c660db916e815550c2145f",
+  "docs/audits/matching_validation_criterion.md": "5e0fa14c06e4b208e09d377fff9231d2a2ddf13084e7b4c11eea8d6cc1c18497"
+ }
+}
