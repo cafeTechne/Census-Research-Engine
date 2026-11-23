@@ -1668,6 +1668,7 @@ def joinpoint(
     max_joinpoints: int = 3,
     product: str = "annual",
     rate_ratio: Optional[Dict[str, List[float]]] = None,
+    aberration: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Joinpoint regression of an ANNUAL rate series (Round 77): where did the trend change, and the annual percent
     change (APC) of each segment plus the average APC (AAPC), as NCI Joinpoint reports them.
@@ -1695,15 +1696,26 @@ def joinpoint(
             return _fail(errors.INVALID_INPUT, "years (or input_path with a year column) are required.")
         r = jp.joinpoint(years, counts=counts, population=population, rates=rates, se=se,
                          max_joinpoints=max_joinpoints, product=product)
+        flag = None
+        if aberration is not None:  # Round 95: flag the latest year against its history (CDC SS1000 lesson 5)
+            from census.surveillance import aberration as _ab
+            if counts is not None and population is not None:
+                rr = [1e5*c/p for c, p in zip(counts, population)]
+                ss = [1e5*np.sqrt(c)/p for c, p in zip(counts, population)]
+            else:
+                rr, ss = rates, se
+            flag = _ab(years, rr, ss, method=aberration)
     except (ValueError, KeyError, TypeError, FileNotFoundError) as exc:
         return _fail(errors.INVALID_INPUT, str(exc))
     seg = r["segments"]
     parts = "; ".join(f"{s.start}-{s.end}: APC {s.apc:.2f}% ({s.ci_lower:.2f} to {s.ci_upper:.2f})" for s in seg.itertuples())
     ok = all(r["validated"].values())
+    extra = {"aberration": flag} if flag is not None else {}
+    msg = (f" Latest year {flag['year']}: {flag['method']} flag '{flag['flag']}'." if flag is not None else "")
     return _ok(f"{r['n_joinpoints']} joinpoint(s) {r['joinpoints']}; {parts}; AAPC {r['aapc']['aapc']:.2f}%; "
-               + ("validated." if ok else "partly exploratory (see validated and notes)."),
+               + ("validated." if ok else "partly exploratory (see validated and notes).") + msg,
                "report each segment's APC and the AAPC with intervals; say that joinpoint locations are estimated",
-               **{**r, "segments": seg.to_dict("records")})
+               **{**r, "segments": seg.to_dict("records"), **extra})
 
 
 def spatial_scan(

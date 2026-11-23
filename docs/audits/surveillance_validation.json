@@ -1,0 +1,252 @@
+{
+ "ypll": [
+  {
+   "population": 30000,
+   "cause": "all_cause",
+   "Y1": 0.9395
+  },
+  {
+   "population": 30000,
+   "cause": "overdose",
+   "Y1": 0.963
+  },
+  {
+   "population": 200000,
+   "cause": "all_cause",
+   "Y1": 0.909
+  },
+  {
+   "population": 200000,
+   "cause": "overdose",
+   "Y1": 0.9295
+  },
+  {
+   "population": 5000000,
+   "cause": "all_cause",
+   "Y1": 0.888
+  },
+  {
+   "population": 5000000,
+   "cause": "overdose",
+   "Y1": 0.896
+  }
+ ],
+ "aberration": [
+  {
+   "population": 100000,
+   "trend": 0.0,
+   "overdispersion": 0.0,
+   "multiplier": 1.0,
+   "A1": 0.005,
+   "A2": 0.016
+  },
+  {
+   "population": 100000,
+   "trend": 0.0,
+   "overdispersion": 0.0,
+   "multiplier": 1.5,
+   "A1": 0.228,
+   "A2": 0.339
+  },
+  {
+   "population": 100000,
+   "trend": 0.0,
+   "overdispersion": 0.0,
+   "multiplier": 2.0,
+   "A1": 0.7705,
+   "A2": 0.8265
+  },
+  {
+   "population": 100000,
+   "trend": 0.0,
+   "overdispersion": 0.1,
+   "multiplier": 1.0,
+   "A1": 0.0085,
+   "A2": 0.021
+  },
+  {
+   "population": 100000,
+   "trend": 0.0,
+   "overdispersion": 0.1,
+   "multiplier": 1.5,
+   "A1": 0.227,
+   "A2": 0.2985
+  },
+  {
+   "population": 100000,
+   "trend": 0.0,
+   "overdispersion": 0.1,
+   "multiplier": 2.0,
+   "A1": 0.7115,
+   "A2": 0.74
+  },
+  {
+   "population": 100000,
+   "trend": 0.03,
+   "overdispersion": 0.0,
+   "multiplier": 1.0,
+   "A1": 0.013,
+   "A2": 0.084
+  },
+  {
+   "population": 100000,
+   "trend": 0.03,
+   "overdispersion": 0.0,
+   "multiplier": 1.5,
+   "A1": 0.5265,
+   "A2": 0.7165
+  },
+  {
+   "population": 100000,
+   "trend": 0.03,
+   "overdispersion": 0.0,
+   "multiplier": 2.0,
+   "A1": 0.9665,
+   "A2": 0.9855
+  },
+  {
+   "population": 100000,
+   "trend": 0.03,
+   "overdispersion": 0.1,
+   "multiplier": 1.0,
+   "A1": 0.0205,
+   "A2": 0.0795
+  },
+  {
+   "population": 100000,
+   "trend": 0.03,
+   "overdispersion": 0.1,
+   "multiplier": 1.5,
+   "A1": 0.4585,
+   "A2": 0.613
+  },
+  {
+   "population": 100000,
+   "trend": 0.03,
+   "overdispersion": 0.1,
+   "multiplier": 2.0,
+   "A1": 0.9135,
+   "A2": 0.948
+  },
+  {
+   "population": 1000000,
+   "trend": 0.0,
+   "overdispersion": 0.0,
+   "multiplier": 1.0,
+   "A1": 0.0055,
+   "A2": 0.012
+  },
+  {
+   "population": 1000000,
+   "trend": 0.0,
+   "overdispersion": 0.0,
+   "multiplier": 1.5,
+   "A1": 0.999,
+   "A2": 0.9975
+  },
+  {
+   "population": 1000000,
+   "trend": 0.0,
+   "overdispersion": 0.0,
+   "multiplier": 2.0,
+   "A1": 1.0,
+   "A2": 1.0
+  },
+  {
+   "population": 1000000,
+   "trend": 0.0,
+   "overdispersion": 0.1,
+   "multiplier": 1.0,
+   "A1": 0.0375,
+   "A2": 0.0145
+  },
+  {
+   "population": 1000000,
+   "trend": 0.0,
+   "overdispersion": 0.1,
+   "multiplier": 1.5,
+   "A1": 0.868,
+   "A2": 0.7605
+  },
+  {
+   "population": 1000000,
+   "trend": 0.0,
+   "overdispersion": 0.1,
+   "multiplier": 2.0,
+   "A1": 0.999,
+   "A2": 0.995
+  },
+  {
+   "population": 1000000,
+   "trend": 0.03,
+   "overdispersion": 0.0,
+   "multiplier": 1.0,
+   "A1": 0.098,
+   "A2": 0.2445
+  },
+  {
+   "population": 1000000,
+   "trend": 0.03,
+   "overdispersion": 0.0,
+   "multiplier": 1.5,
+   "A1": 1.0,
+   "A2": 1.0
+  },
+  {
+   "population": 1000000,
+   "trend": 0.03,
+   "overdispersion": 0.0,
+   "multiplier": 2.0,
+   "A1": 1.0,
+   "A2": 1.0
+  },
+  {
+   "population": 1000000,
+   "trend": 0.03,
+   "overdispersion": 0.1,
+   "multiplier": 1.0,
+   "A1": 0.1345,
+   "A2": 0.1545
+  },
+  {
+   "population": 1000000,
+   "trend": 0.03,
+   "overdispersion": 0.1,
+   "multiplier": 1.5,
+   "A1": 0.964,
+   "A2": 0.9585
+  },
+  {
+   "population": 1000000,
+   "trend": 0.03,
+   "overdispersion": 0.1,
+   "multiplier": 2.0,
+   "A1": 1.0,
+   "A2": 0.9995
+  }
+ ],
+ "outcome": {
+  "Y1": {
+   "passed": true,
+   "gated": false,
+   "min": 0.888
+  },
+  "A1": {
+   "passed": true,
+   "max_null": 0.0055
+  },
+  "A2": {
+   "passed": true,
+   "max_null": 0.016
+  }
+ },
+ "draws": 2000,
+ "criterion_commit": "d5b4b303ccb79178bc0e259e32d1629eb2815180",
+ "seconds": 1,
+ "frozen_sha256": {
+  "scripts/surveillance_validation.py": "67bb20fe8bb622b6458dc0143e29a5b87735553d72f12490e7c967b74ebb4dee",
+  "census/surveillance_core.py": "c586df5d0d86ca955f0afc758e16e1c8fa8c46f1cdfd7b425a53cb5dcd1163dd",
+  "census/standardize.py": "4e7a01214263a6d18f4bf12a30d176ac8de99f936849e15f453b17dd65362002",
+  "docs/audits/surveillance_validation_criterion.md": "b0c55f4e29a65c3296e9d67799de536e0c28f666e93e89d2ba139eeec1a5288c"
+ }
+}
