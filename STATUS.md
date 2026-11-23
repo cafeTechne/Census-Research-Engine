@@ -172,6 +172,7 @@ multiple imputation by fully conditional specification (N77; van Buuren).
 - `fit_model(impute=[...], impute_method="pmm" | "norm", impute_delta_variable=..., impute_delta_shifts=...)`: any number of incomplete variables, FMI,
   delta sensitivity. Validated.
 - Example (`r100_mice_example.md`): Michigan tract median income with withheld values.
+- Goldens byte-identical; 2384 passed, 42 skipped; 0 failures.
 
 **Round 99 (v0.95.0; merged, release pending owner approval; implemented by the maintainer agent):**
 matching estimators and triple differences (N76; Cunningham).

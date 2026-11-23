@@ -17,3 +17,8 @@ Author self-review, not independent. Worktree `/tmp/census-round100`, branch `ph
    variables in formulas (e.g. `np.log(x)`) are refused by the FCS route; create the column first.
 2. **Pooling on transformed scales** (Fisher z for correlations, log for ratios) is left to the callers that compute
    those quantities. `impute_fcs` pools OLS coefficients.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 99.
+- Full suite: 2384 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.

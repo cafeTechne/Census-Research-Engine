@@ -57,5 +57,5 @@ Version 0.96.0. Branch `phase100/mice`. Validation first.
 | Results | pass (PMM, norm) | `mice_validation.md` |
 | Engine, recipe | done | `fit_model(impute_method=, impute_delta=)`; recipe; protocol |
 | Example | done | `r100_mice_example.md` |
-| Goldens, suite | see audit | `round100_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2384 passed, 42 skipped |
 | Exceptions | 2 | see audit |
