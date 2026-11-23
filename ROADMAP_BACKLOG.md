@@ -47,6 +47,11 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N72 | No YPLL from mortality exports and no aberration detection (historical limits, EARS) for the latest period of an annual series (CDC SS1000 lessons 3–5) | owner, 2026-11-23 (book) | missing method | 95 |
 | N73 | No count-scale spatial disease mapping (Besag/BYM2 Poisson) and no exceedance probabilities (Moraga chapters 9–10) | owner, 2026-11-23 (book) | missing method | 96 |
 | N74 | Model checks are in-sample: no spatial block cross-validation (MAE, RMSE, coverage, CRPS) and no MAUP scale/zoning sensitivity (Moraga chapters 11, 16) | owner, 2026-11-23 (book) | validation gap | 97 |
+| N75 | No regression discontinuity design (sharp/fuzzy, robust bias-corrected intervals, density test) for age or threshold cutoffs (Cunningham, Mixtape) | owner, 2026-11-23 (book) | missing method | 98 |
+| N76 | No matching estimators (bias-corrected nearest neighbour, coarsened exact matching) and no triple-difference design (Mixtape) | owner, 2026-11-23 (book) | missing method | 99 |
+| N77 | Multiple imputation covers at most two covariates under a normal model: no predictive mean matching, general FCS, passive derived variables, δ-adjustment MNAR sensitivity or FMI reporting (van Buuren, FIMD) | owner, 2026-11-23 (book) | missing method | 100 |
+| N78 | No demographic data assessment (age heaping, age-sex accuracy), life tables, life-expectancy decomposition or census-survival migration (IUSSP Tools for Demographic Estimation) | owner, 2026-11-23 (book) | missing method | 101 |
+| N79 | Meta-analysis gaps: unvalidated prediction interval, no I² interval, influence diagnostics, meta-regression or small-study test (Harrer et al.) | owner, 2026-11-23 (book) | validation gap | 102 |
 
 ## 2. Recorded limits (not scheduled; reopen only with a new idea)
 
@@ -91,9 +96,17 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 95 | YPLL and surveillance aberration detection (CDC SS1000) | N72 | done (v0.91.0) |
 | 96 | Spatial disease mapping: BYM2 Poisson with exceedance probabilities (Moraga) | N73 | planned |
 | 97 | Spatial block cross-validation and MAUP sensitivity (Moraga) | N74 | planned |
+| 98 | Regression discontinuity: robust bias-corrected local polynomial, density and placebo tests; PUMS age-65 example | N75 | planned |
+| 99 | Matching (bias-corrected nearest neighbour, coarsened exact) and triple differences | N76 | planned |
+| 100 | Multiple imputation: FCS with predictive mean matching, passive variables, δ-adjustment, FMI | N77 | planned |
+| 101 | Demographic estimation: age-data quality indices, life tables with SEs, Arriaga decomposition, census-survival migration | N78 | planned |
+| 102 | Meta-analysis completeness: validated prediction interval, I² interval, leave-one-out, meta-regression, Egger test | N79 | planned |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 
 Order rationale:
+- **Rounds 98–102** (added 2026-11-23 from Cunningham's Mixtape, van Buuren's FIMD, IUSSP Tools for Demographic
+  Estimation and Harrer et al.; mappings in `docs/literature/`): causal designs first (98–99), then missing data
+  (100), demographic tools (101) and meta-analysis (102).
 - **Rounds 94–97** (added 2026-11-23 from the WHO inequality-monitoring handbook, CDC SS1000 and Moraga; mappings in
   `docs/literature/`): 94 extends the existing inequality tools; 95 adds mortality measures and surveillance; 96 adds
   count-scale spatial models; 97 assesses models out of sample, including 96's.
