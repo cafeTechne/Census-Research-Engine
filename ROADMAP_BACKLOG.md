@@ -98,7 +98,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 97 | Spatial block cross-validation and MAUP sensitivity (Moraga) | N74 | done (v0.93.0; exploratory) |
 | 98 | Regression discontinuity: robust bias-corrected local polynomial, density and placebo tests; PUMS age-65 example | N75 | done (v0.94.0) |
 | 99 | Matching (bias-corrected nearest neighbour, coarsened exact) and triple differences | N76 | done (v0.95.0) |
-| 100 | Multiple imputation: FCS with predictive mean matching, passive variables, δ-adjustment, FMI | N77 | planned |
+| 100 | Multiple imputation: FCS with predictive mean matching, passive variables, δ-adjustment, FMI | N77 | done (v0.96.0) |
 | 101 | Demographic estimation: age-data quality indices, life tables with SEs, Arriaga decomposition, census-survival migration | N78 | planned |
 | 102 | Meta-analysis completeness: validated prediction interval, I² interval, leave-one-out, meta-regression, Egger test | N79 | planned |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
