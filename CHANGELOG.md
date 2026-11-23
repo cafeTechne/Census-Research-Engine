@@ -5,6 +5,23 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.91.0 (Round 95): years of potential life lost and aberration detection
+
+- **YPLL** (`census/surveillance.py`; frozen core `census/surveillance_core.py`; N72; CDC SS1000 lessons 3–5):
+  - CDC grouped-data YPLL to 65 or 75, crude and age-adjusted rates with Fay–Feuer intervals;
+  - `ypll_from_wonder` for national age-group exports, which reports bounds when cells are suppressed;
+  - `ypll_table` for area tables, with bounds only for suppressed bands.
+- **Aberration flags:** historical limits and EARS C2 for the latest year of an annual series, as
+  `joinpoint(aberration=...)` and `census.surveillance.aberration`; plus `deviation_chart`.
+- **Validation** (`docs/audits/surveillance_validation.md`, criterion tag `criterion-r95`): all pass.
+  - YPLL interval coverage .888–.963.
+  - Null false-alarm rates .005 (historical limits) and .016 (EARS C2).
+  - Under a 3% trend false alarms reach .10 and .24 (reported).
+- **Example** (`docs/audits/r95_surveillance_example.md`, exploratory):
+  - US age-adjusted YPLL-75 rose 14% from 2013–2017 to 2018–2022 (overdose +56%, unintentional injury +33%);
+  - 2023 state uninsured rates: 10 low flags, 0 high.
+- **Recipe** `external_health_outcome` section; protocol rule; sources CDC SS1000 and Hutwagner et al. 2003.
+
 ## 0.90.0 (Round 94): WHO health inequality monitoring
 
 - **WHO measures** (`census/inequality_monitoring.py`; frozen core `census/inequality_monitoring_core.py`; N71; WHO

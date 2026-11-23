@@ -64,3 +64,22 @@ hidden as 1–9; it never estimates or reports a hidden value. For spatially cor
 `fit_model(model="negbin", exposure=..., spatial="clusters")` gives IM-8 slopes (validated on MI/NY; for
 adjacent states use `within_states=True` in the library). Holding ACS-based expected counts fixed is fine
 for NB2 (validated); Poisson HC3 under-covers.
+
+## Years of potential life lost and unusual years (Round 95; CDC SS1000 lessons 3-5)
+
+- **YPLL from a national WONDER export** grouped by ten-year age groups and sex:
+  `census.surveillance.ypll_from_wonder(path, end=75)` gives the annual YPLL, the crude rate and the age-adjusted
+  YPLL rate per 100,000 person-years (2000 US standard over ages below the end point), with a Fay–Feuer interval
+  (validated, .888–.963).
+  - The end point must be a band boundary (65 or 75).
+  - Infants (<1) and ages 1–4 are kept apart.
+  - Exports with suppressed cells (1–9 deaths) give bounds only.
+- **Area tables:** `ypll_table(...)` takes band death and population columns. Areas with suppressed bands get bounds,
+  never imputed counts.
+- **Is the latest year unusual?**
+  - `joinpoint(..., aberration="historical_limits")` compares it with the previous 5 years (mean ± 2 SD, adding the
+    current year's sampling error). `"ears_c2"` uses a 7-year baseline with a 2-year guard.
+  - Both keep false alarms at .005–.016 on flat series (validated).
+  - A trend inflates false alarms (to .10 and .24 at 3% a year), so look at the joinpoint segments first.
+  - `deviation_chart(...)` draws the CDC-style deviation chart.
+

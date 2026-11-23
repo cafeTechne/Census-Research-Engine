@@ -132,6 +132,14 @@ SOURCES: Dict[str, Dict[str, Any]] = {
                     "Focus on Low- and Middle-Income Countries", publisher="WHO, Geneva",
                     url="https://www.who.int/publications/i/item/9789241548632",
                     note="guidance for Round 94 (docs/literature/who_health_inequality_monitoring.md)"),
+    "cdc_ss1000": _src("book", "Centers for Disease Control and Prevention", 2012, "Principles of Epidemiology in Public "
+                       "Health Practice: An Introduction to Applied Epidemiology and Biostatistics (3rd ed., SS1000)",
+                       publisher="U.S. Department of Health and Human Services, Atlanta",
+                       url="https://archive.cdc.gov/www_cdc_gov/csels/dsepd/ss1978/index.html", verified=False,
+                       note="guidance for Round 95 (docs/literature/cdc_principles_of_epidemiology.md); URL to verify"),
+    "hutwagner2003": _src("paper", "Hutwagner, L., Thompson, W., Seeman, G.M. & Treadwell, T.", 2003, "The bioterrorism "
+                          "preparedness and response Early Aberration Reporting System (EARS)", "Journal of Urban Health",
+                          volume="80", pages="i89-i96"),
     "muller_watson2022": _src("paper", "Müller, U.K. & Watson, M.W.", 2022, "Spatial correlation robust inference",
                               "Econometrica", volume="90", pages="2901-2935"),
     "prasad_rao1990": _src("paper", "Prasad, N.G.N. & Rao, J.N.K.", 1990, "The estimation of the mean squared error of "
@@ -291,7 +299,8 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
                                   _audit("msm_validation.md")],
     "interrupted_series": [("bootstrap_efron1993", "method"), _audit("missing_censored_its_validation.md")],
     "joinpoint": [("kim2000", "method"), ("tiwari2006", "method"), ("fay_feuer1997", "method"), *EPI,
-                  _audit("joinpoint_validation.md")],
+                  ("cdc_ss1000", "guidance"), ("hutwagner2003", "method"), _audit("joinpoint_validation.md"),
+                  _audit("surveillance_validation.md")],
     "disparity_measures": [("harper_lynch", "method"), ("pearcy_keppel", "method"), ("kitagawa", "method"), *EPI,
                            ("who2013", "guidance"), *REP, _audit("disparity_validation.md"),
                            _audit("inequality_monitoring_validation.md")],

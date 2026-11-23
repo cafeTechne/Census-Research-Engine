@@ -55,9 +55,9 @@ the engine.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, figure, recipe | | |
-| Example | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r95` |
+| Results | all pass | `surveillance_validation.md` |
+| Engine, figure, recipe | done | `census/surveillance.py`; `joinpoint(aberration=)`; deviation chart |
+| Example | done | `r95_surveillance_example.md` |
+| Goldens, suite | see audit | `round95_compatibility.md` |
+| Exceptions | 3 | see audit |
