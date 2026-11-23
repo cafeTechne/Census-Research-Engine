@@ -173,6 +173,7 @@ demographic estimation tools (N78; IUSSP Tools for Demographic Estimation).
 - `census.demography`: life tables with Chiang II intervals (validated), Arriaga decomposition by age and cause,
   Whipple/Myers/UN age-data indices, census-survival migration.
 - Example (`r101_demography_example.md`): US e0 change 2013-2017 to 2018-2022 by age and cause; Michigan age quality.
+- Goldens byte-identical; 2390 passed, 42 skipped; 0 failures.
 
 **Round 100 (v0.96.0; merged, release pending owner approval; implemented by the maintainer agent):**
 multiple imputation by fully conditional specification (N77; van Buuren).

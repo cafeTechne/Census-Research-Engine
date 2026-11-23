@@ -17,3 +17,8 @@ commit (tag `criterion-r101`) is an ancestor of the branch. Version 0.97.0.
    count as 0, with a note.
 3. **Census-survival migration is a library function only, with an identity test.** The example does not run it,
    because two decennial single-year-age extractions by county would add network-heavy steps outside the plan's core.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 100.
+- Full suite: 2390 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.

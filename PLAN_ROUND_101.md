@@ -54,5 +54,5 @@ first for the life-table intervals; the indices are exact computations.
 | Results | pass | `demography_validation.md` |
 | Engine, recipe | done | `census/demography.py`; `external_health_outcome` section; protocol |
 | Examples | done | `r101_demography_example.md` |
-| Goldens, suite | see audit | `round101_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2390 passed, 42 skipped |
 | Exceptions | 3 | see audit |
