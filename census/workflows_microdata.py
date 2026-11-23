@@ -336,6 +336,8 @@ def difference_in_differences(
     causal_question: Optional[Dict[str, Any]] = None,
     time_varying_confounders: Optional[List[str]] = None,
     truncate_weights: bool = False,
+    group: Optional[str] = None,
+    affected_group: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Difference-in-differences on area-level ACS estimates across NON-overlapping
     periods (e.g. 2013, 2018, 2023 releases); overlapping releases are refused.
@@ -353,6 +355,8 @@ def difference_in_differences(
     With 3+ pre-periods a parallel-trends test is reported. Validated: coverage 0.90-0.91.
     Round 89: causal_question (target trial: eligibility, intervention, comparator, time_zero, outcome, follow_up,
     contrast, target) is checked; without it the result is labelled associational.
+    design="triple" (Round 99): triple differences with group (e.g. age group column) and affected_group: the
+    affected group's DiD minus the comparison groups' DiD within units (validated with 51 units).
     design="msm" (Round 91): annual panel with time_varying_confounders (e.g. unemployment) that past policy may
     affect: IP-weighted marginal structural model (first_treated column; effects of the 1st, 2nd, 3rd treated year
     vs never; truncate_weights clips weights at the 1st/99th percentiles). Units treated in the first period refused.
@@ -377,6 +381,21 @@ def difference_in_differences(
                    "report the overall ATT and the event study with intervals; check the pre-trend result",
                    **{k: (v.to_dict("records") if isinstance(v, pd.DataFrame) else v) for k, v in r.items()}),
                    causal_question, first_treated)
+    if design == "triple":   # Round 99
+        from census.matching import triple_difference
+        if not group or affected_group is None or treatment_period is None:
+            return _fail(errors.INVALID_INPUT, "design='triple' needs group, affected_group and treatment_period.")
+        try:
+            frame = _load_frame(input_path)
+            ag = type(frame[group].dropna().iloc[0])(affected_group) if len(frame) else affected_group
+            r = triple_difference(frame, outcome, unit, group, ag, period, treated, int(treatment_period))
+        except _ERRORS as exc:
+            return _fail(errors.INVALID_INPUT, str(exc))
+        e = r["effect"]
+        return _with_trial(_ok(f"Triple difference ({group} = {affected_group} vs other groups): {e['estimate']:.4g} "
+                               f"(90% CI {e['lower']:.4g} to {e['upper']:.4g}; {e['clusters']} units clustered); "
+                               + ("validated." if r["validated"] else "exploratory (see notes)."),
+                               "report the estimate with the triple-difference assumption", **r), causal_question, treated)
     if design == "msm":
         from census.msm import marginal_structural_model
         try:

@@ -744,6 +744,8 @@ def estimate_effect(
     Round 90: kind="treatment" reports propensity diagnostics ('positivity'); weights="overlap" (overlap-population
     effect) or "truncated" (validated), "stabilized" (exploratory under limited overlap) adds the g-formula and an
     agreement flag. With >=5% of propensities outside [.05, .95] prefer weights="overlap" or method="ra".
+    Round 99: kind="matching" with method "nn" (bias-corrected nearest neighbour, ATE; validated), "cem" (coarsened
+    exact matching, ATT among matched; validated) or "ps" (propensity caliper matching, ATT).
     Round 89: causal_question (target trial: eligibility, intervention, comparator, time_zero, outcome, follow_up,
     contrast, target) and dag ({edges: ["L -> A", ...], outcome[, treatment]}) are checked (backdoor criterion);
     without causal_question the result is labelled associational. See get_recipe("causal").
@@ -751,10 +753,26 @@ def estimate_effect(
     """
     from census import causal
 
+    if kind == "matching":   # Round 99
+        from census.matching import matching_effect
+        if not treatment or not confounders:
+            return _fail(errors.INVALID_INPUT, "kind='matching' needs treatment and confounders.")
+        try:
+            r = matching_effect(_load_frame(input_path), outcome, treatment, confounders, method=method or "nn",
+                                estimand="ATT" if (method or "nn") in ("cem", "ps") else "ATE")
+        except _INPUT_ERRORS as exc:
+            return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}")
+        e = r["effect"]
+        summary = (f"Matching ({r['method']}, {e['estimand']}): {e['estimate']:.4g} (90% CI {e['lower']:.4g} to "
+                   f"{e['upper']:.4g}). " + ("Validated." if r["validated"] else "Exploratory: see notes."))
+        assessment, summary = _causal_assessment(summary, causal_question, dag, treatment, confounders)
+        from census.results import _jsonable
+        return _ok(summary, "report the estimate with its estimand, balance and the no-unmeasured-confounding assumption",
+                   causal_assessment=assessment, **_jsonable(r))
     needs = {"treatment": {"treatment": treatment, "confounders": confounders},
              "iv": {"x": x, "instrument": instrument}, "mediation": {"x": x, "mediator": mediator}}
     if kind not in needs:
-        return _fail(errors.INVALID_INPUT, "kind must be 'treatment', 'iv' or 'mediation'.")
+        return _fail(errors.INVALID_INPUT, "kind must be 'treatment', 'iv', 'mediation' or 'matching'.")
     missing = [k for k, v in needs[kind].items() if not v]
     if missing:
         return _fail(errors.INVALID_INPUT, f"kind={kind!r} needs {missing}.", f"pass {', '.join(missing)}, then retry")

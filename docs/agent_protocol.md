@@ -654,6 +654,14 @@ never mix vintages; a denominator or covariate, never an outcome), lodes (LEHD j
 noise-infused, no MOE) and acs_flows (ACS county-to-county migration 2010-2020 with <name>_moe; later releases give
 state partners only). All are covariates; list them with list_health_sources(kind="context").
 
+## Matching and triple differences (Round 99)
+
+<!-- mcp-rules:A -->
+Round 99: estimate_effect(kind="matching", method="nn" | "cem" | "ps"): bias-corrected nearest-neighbour ATE
+(validated), coarsened exact matching ATT among matched (validated; report the share matched), propensity caliper
+matching. difference_in_differences(design="triple", group, affected_group) uses a within-unit unaffected group
+(validated with 51 units).
+
 ## Marginal structural models (Round 91)
 
 <!-- mcp-rules:A -->

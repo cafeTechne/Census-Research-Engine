@@ -40,3 +40,15 @@ flag disagreement (a sign of model misspecification).
 4. Synthetic worked example: with x observed at reliability 0.7, OLS gave slope 0.35 for a true 0.5,
    and 2SLS with a second measurement gave 0.50 (Round 41 validation, `docs/audits/causal_validation.md`).
 5. The difference-in-differences tool remains the default for policy timing.
+
+**Matching (Round 99; Cunningham, *Mixtape*).** `estimate_effect(..., "matching", outcome, treatment=...,
+confounders=[...], method=...)`:
+- `"nn"`: nearest-neighbour matching with 4 matches, bias correction and the Abadie–Imbens variance. The ATE is
+  validated (.861–.903). The ATT under-covered with 145 areas and limited overlap.
+- `"cem"`: coarsened exact matching at quintiles, giving the ATT among matched treated areas (validated, conservative).
+  Report the share matched, because unmatched treated areas change the estimand.
+- `"ps"`: propensity-score caliper matching with a bootstrap. It covered conservatively in this design, contrary to
+  Abadie and Imbens (2008); prefer `"nn"`.
+
+Results include balance before matching. Check positivity first.
+
