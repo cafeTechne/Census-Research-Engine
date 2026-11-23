@@ -89,7 +89,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 93 | Geographically weighted regression, geodemographic classification, regionalization, diversity index | N69 | done (v0.89.0; exploratory) |
 | 94 | Inequality monitoring (WHO): mean differences, PAR vs best subgroup, trends in inequality, double disaggregation, priority quadrants | N71 | done (v0.90.0) |
 | 95 | YPLL and surveillance aberration detection (CDC SS1000) | N72 | done (v0.91.0) |
-| 96 | Spatial disease mapping: BYM2 Poisson with exceedance probabilities (Moraga) | N73 | planned |
+| 96 | Spatial disease mapping: BYM2 Poisson with exceedance probabilities (Moraga) | N73 | done (v0.92.0) |
 | 97 | Spatial block cross-validation and MAUP sensitivity (Moraga) | N74 | planned |
 | — | ACS 2021–2025 refresh | N39 | about 2026-12-20 |
 
