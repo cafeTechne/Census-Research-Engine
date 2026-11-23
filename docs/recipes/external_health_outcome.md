@@ -83,3 +83,18 @@ for NB2 (validated); Poisson HC3 under-covers.
   - A trend inflates false alarms (to .10 and .24 at 3% a year), so look at the joinpoint segments first.
   - `deviation_chart(...)` draws the CDC-style deviation chart.
 
+## Life tables, life-expectancy decomposition and age-data quality (Round 101; IUSSP Tools for Demographic Estimation)
+
+- **Life tables:** `census.demography.life_table_from_wonder(path)` builds an abridged life table from a national
+  WONDER all-cause export (ten-year bands; <1 and 1–4 separate; 85+ open).
+  - e₀ and eₓ come with Chiang II 90% intervals, validated (.895–.910) from 50,000 person-years.
+  - `census.demography_core.life_table(starts, deaths, person_years)` takes any banded data.
+- **Why life expectancy changed:** `arriaga_from_wonder(all1, all2, causes1, causes2)` splits the e₀ change into
+  age-band and cause contributions (Arriaga 1984); they add up exactly.
+  - Use mutually exclusive underlying causes. Overdose, firearm and alcohol-induced overlap other categories.
+  - Suppressed national cells count as 0, and the notes say so.
+- **Age-data quality:** `age_quality` (counts) and `age_quality_pums` (PUMS, with replicate SEs) give Whipple's and
+  Myers' indices and the UN age-sex accuracy index. Uneven birth cohorts raise the UN index without any data error.
+- **Census-survival net migration by age** between two censuses: `census_survival_net_migration(p1, p2, L)`
+  (descriptive).
+

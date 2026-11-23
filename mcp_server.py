@@ -388,6 +388,10 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+Round 101 (library): census.demography gives abridged life tables from WONDER age-group exports with Chiang II
+intervals (validated), Arriaga decomposition of a life-expectancy change by age and cause (exact; use mutually
+exclusive causes), age-heaping indices (Whipple, Myers, UN accuracy) and census-survival net migration.
+
 Round 95: YPLL comes from WONDER age-group exports (census.surveillance.ypll_from_wonder; end point 65 or 75 on a
 band boundary; age-adjusted rate validated). Suppressed cells give bounds only. joinpoint(aberration=
 "historical_limits" | "ears_c2") flags the latest year (validated on flat series); a trend inflates false alarms,

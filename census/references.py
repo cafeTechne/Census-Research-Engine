@@ -140,6 +140,13 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "hutwagner2003": _src("paper", "Hutwagner, L., Thompson, W., Seeman, G.M. & Treadwell, T.", 2003, "The bioterrorism "
                           "preparedness and response Early Aberration Reporting System (EARS)", "Journal of Urban Health",
                           volume="80", pages="i89-i96"),
+    "iussp2013": _src("book", "Moultrie, T.A., Dorrington, R.E., Hill, A.G., Hill, K., Timæus, I.M. & Zaba, B. (eds)",
+                      2013, "Tools for Demographic Estimation", publisher="International Union for the Scientific Study "
+                      "of Population, Paris", url="https://demographicestimation.iussp.org/",
+                      note="CC BY-NC-SA 3.0; guidance for Round 101 (docs/literature/iussp_tools_demographic_estimation.md)"),
+    "chiang1984": _src("book", "Chiang, C.L.", 1984, "The Life Table and Its Applications", publisher="Krieger, Malabar"),
+    "arriaga1984": _src("paper", "Arriaga, E.E.", 1984, "Measuring and explaining the change in life expectancies",
+                        "Demography", volume="21", pages="83-96"),
     "muller_watson2022": _src("paper", "Müller, U.K. & Watson, M.W.", 2022, "Spatial correlation robust inference",
                               "Econometrica", volume="90", pages="2901-2935"),
     "prasad_rao1990": _src("paper", "Prasad, N.G.N. & Rao, J.N.K.", 1990, "The estimation of the mean squared error of "

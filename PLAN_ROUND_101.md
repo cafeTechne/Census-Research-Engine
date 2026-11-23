@@ -50,9 +50,9 @@ first for the life-table intervals; the indices are exact computations.
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| Core, script, criterion | | |
-| Results | | |
-| Engine, recipe | | |
-| Examples | | |
-| Goldens, suite | | |
-| Exceptions | | |
+| Core, script, criterion | done | tag `criterion-r101` |
+| Results | pass | `demography_validation.md` |
+| Engine, recipe | done | `census/demography.py`; `external_health_outcome` section; protocol |
+| Examples | done | `r101_demography_example.md` |
+| Goldens, suite | see audit | `round101_compatibility.md` |
+| Exceptions | 3 | see audit |

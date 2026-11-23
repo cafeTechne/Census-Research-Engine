@@ -5,6 +5,22 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.97.0 (Round 101): demographic estimation tools
+
+- **`census/demography.py`** (frozen core `census/demography_core.py`; N78; IUSSP *Tools for Demographic
+  Estimation* 2013):
+  - Whipple, Myers and UN age-sex accuracy indices, from counts or PUMS with replicate SEs;
+  - abridged life tables with Chiang II intervals, from banded data or national WONDER exports;
+  - Arriaga decomposition of a life-expectancy change by age and cause;
+  - census-survival net migration.
+- **Validation** (`docs/audits/demography_validation.md`, criterion tag `criterion-r101`): e₀ and e₆₅ intervals pass
+  (.895–.910, 50,000 to 5 million person-years). The indices and the decomposition are exact.
+- **Example** (`docs/audits/r101_demography_example.md`, exploratory):
+  - US e₀ fell 1.23 years from 2013–2017 to 2018–2022, mostly in "other" causes, which include COVID-19.
+    Unintentional injury −0.32 years; cancer +0.23.
+  - Michigan ages show no heaping (Whipple 104 in the 2020 Census, 99 in PUMS).
+- **Recipe** `external_health_outcome` section; protocol rule; sources (IUSSP 2013; Chiang 1984; Arriaga 1984).
+
 ## 0.91.0 (Round 95): years of potential life lost and aberration detection
 
 - **YPLL** (`census/surveillance.py`; frozen core `census/surveillance_core.py`; N72; CDC SS1000 lessons 3–5):
