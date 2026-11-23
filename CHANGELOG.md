@@ -5,6 +5,22 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.95.0 (Round 99): matching estimators and triple differences
+
+- **Matching** (`census/matching.py`; frozen core `census/matching_core.py`; N76; Cunningham, *Mixtape*): bias-corrected
+  nearest-neighbour matching (Abadie–Imbens), coarsened exact matching and propensity caliper matching, as
+  `estimate_effect(kind="matching")`.
+- **Triple differences:** `difference_in_differences(design="triple")`.
+- **Validation** (`docs/audits/matching_validation.md`, criterion tag `criterion-r99`):
+  - pass: nearest-neighbour ATE (.861–), CEM (.951–), propensity matching (.962–, conservative) and triple
+    differences (.98–);
+  - fail: nearest-neighbour ATT (.852 at 145 areas with limited overlap), which is exploratory;
+  - the simple DiD with a treated-unit trend covered 0.
+- **Example** (`docs/audits/r99_matching_ddd_example.md`, exploratory):
+  - 2014 Medicaid expansion, adults 19–64 against 65+: −1.76 points (−3.75 to 0.22);
+  - metro status and county uninsured rates: nearest-neighbour ATE −1.33, CEM ATT −2.14.
+- **Recipes** `causal` and `policy_change`; protocol rule; sources (Abadie and Imbens 2006, 2011; Iacus, King and
+  Porro 2012; Gruber 1994).
 ## 0.94.0 (Round 98): regression discontinuity
 
 - **New full-profile tool `regression_discontinuity`** (80 tools; `census/rdd.py`, frozen core `census/rdd_core.py`;

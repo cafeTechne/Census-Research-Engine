@@ -41,6 +41,16 @@ flag disagreement (a sign of model misspecification).
    and 2SLS with a second measurement gave 0.50 (Round 41 validation, `docs/audits/causal_validation.md`).
 5. The difference-in-differences tool remains the default for policy timing.
 
+**Matching (Round 99; Cunningham, *Mixtape*).** `estimate_effect(..., "matching", outcome, treatment=...,
+confounders=[...], method=...)`:
+- `"nn"`: nearest-neighbour matching with 4 matches, bias correction and the Abadie–Imbens variance. The ATE is
+  validated (.861–.903). The ATT under-covered with 145 areas and limited overlap.
+- `"cem"`: coarsened exact matching at quintiles, giving the ATT among matched treated areas (validated, conservative).
+  Report the share matched, because unmatched treated areas change the estimand.
+- `"ps"`: propensity-score caliper matching with a bootstrap. It covered conservatively in this design, contrary to
+  Abadie and Imbens (2008); prefer `"nn"`.
+
+Results include balance before matching. Check positivity first.
 **Regression discontinuity (Round 98; Cunningham, *Mixtape*).** When eligibility switches at a cutoff of a running
 variable (Medicare at 65, a program threshold), compare units just above and just below:
 `regression_discontinuity(input_path, outcome, running, cutoff, treatment=None, weight=..., replicate_prefix=...)`.

@@ -140,6 +140,15 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "hutwagner2003": _src("paper", "Hutwagner, L., Thompson, W., Seeman, G.M. & Treadwell, T.", 2003, "The bioterrorism "
                           "preparedness and response Early Aberration Reporting System (EARS)", "Journal of Urban Health",
                           volume="80", pages="i89-i96"),
+    "abadie_imbens2006": _src("paper", "Abadie, A. & Imbens, G.W.", 2006, "Large sample properties of matching "
+                              "estimators for average treatment effects", "Econometrica", volume="74", pages="235-267"),
+    "abadie_imbens2011": _src("paper", "Abadie, A. & Imbens, G.W.", 2011, "Bias-corrected matching estimators for "
+                              "average treatment effects", "Journal of Business & Economic Statistics", volume="29",
+                              pages="1-11"),
+    "iacus2012": _src("paper", "Iacus, S.M., King, G. & Porro, G.", 2012, "Causal inference without balance checking: "
+                      "coarsened exact matching", "Political Analysis", volume="20", pages="1-24"),
+    "gruber1994": _src("paper", "Gruber, J.", 1994, "The incidence of mandated maternity benefits",
+                       "American Economic Review", volume="84", pages="622-641"),
     "besag1991": _src("paper", "Besag, J., York, J. & Mollié, A.", 1991, "Bayesian image restoration, with two "
                       "applications in spatial statistics", "Annals of the Institute of Statistical Mathematics",
                       volume="43", pages="1-20"),
@@ -311,16 +320,18 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "combine_estimates": [("paule_mandel1982", "method"), ("hartung_knapp2001", "method"), ("schuirmann1987", "method"),
                           _audit("evidence_validation.md")],
     "estimate_effect": [*CAUSAL, ("pearl2009", "method"), ("lauritzen1990", "method"), ("li_morgan_zaslavsky2018", "method"),
-                        ("lunceford_davidian2004", "method"), ("anderson_rubin1949", "method"), ("statsmodels", "software"),
+                        ("lunceford_davidian2004", "method"),
+                        ("abadie_imbens2006", "method"), ("abadie_imbens2011", "method"), ("iacus2012", "method"), ("anderson_rubin1949", "method"), ("statsmodels", "software"),
                         _audit("causal_validation.md"), _audit("causal_robustness_validation.md"),
-                        _audit("positivity_validation.md")],
+                        _audit("positivity_validation.md"),
+                        _audit("matching_validation.md")],
     "small_area_estimates": [("rao_yu1994", "method"), ("hadam2020", "method"),
                              _audit("sae_extensions_validation.md")],
     "spatial_small_area_estimates": [("pysal", "software"), *GEO],
     "multilevel_model": [("kenward_roger1997", "method"), ("statsmodels", "software"), _audit("methods73_validation.md")],
     "difference_in_differences": [*CAUSAL, ("callaway_santanna2021", "method"), ("sun_abraham2021", "method"),
                                   ("goodman_bacon2021", "method"), ("robins_hernan_brumback2000", "method"),
-                                  ("cole_hernan2008", "method"), _audit("policy_validation.md"),
+                                  ("cole_hernan2008", "method"), ("gruber1994", "method"), _audit("policy_validation.md"),
                                   _audit("msm_validation.md")],
     "interrupted_series": [("bootstrap_efron1993", "method"), _audit("missing_censored_its_validation.md")],
     "joinpoint": [("kim2000", "method"), ("tiwari2006", "method"), ("fay_feuer1997", "method"), *EPI,
