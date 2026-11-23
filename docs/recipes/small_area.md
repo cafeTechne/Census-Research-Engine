@@ -106,3 +106,20 @@ as empirical Bayes. Do not invent a `_se` column from these limits. Smoothed
 ratios are for maps/tables, never confirmatory outcomes or hypothesis tests.
 Do not publish raw suppressed counts or interpret smoothing as recovering them;
 WONDER disclosure checks for study outputs remain a separate requirement.
+
+## Spatial disease mapping of counts (Round 96; Moraga 2023 chapters 9-10)
+
+- `spatial_model(input_path, "disease_map", level, year, outcome=<observed count column>, expected=<expected count
+  column>, predictors=[...], threshold=1.2)` fits a BYM2 Poisson model by Laplace approximation: a scaled ICAR
+  spatial effect plus an unstructured effect, with no INLA dependency. It writes smoothed relative risks, 90%
+  intervals and P(RR > threshold).
+- **Exceedance probabilities are calibrated** (validated in every cell). The **intervals are exploratory**: they
+  covered .84–.90 except with very small expected counts (median 5) over few areas (.79–.80).
+- **Expected counts:** use `expected_counts` (Round 73) from a national WONDER reference and ACS age bands.
+- **Suppressed WONDER counts (1–9)** may be left missing. Those areas are predicted from their neighbours, labelled,
+  and nothing is derived from the hidden counts.
+- **Separate parts of the contiguity graph** (islands, peninsulas) are joined by one nearest bridge edge each,
+  reported in the notes.
+- BYM2 had lower error than Poisson–gamma EB (`eb_poisson_gamma`) and raw SMRs in every validation cell, so prefer
+  it for maps.
+

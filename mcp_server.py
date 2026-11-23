@@ -393,6 +393,16 @@ quadratic. Validated for discrete running variables (PUMS ages) with weight and 
 variables and the density test are exploratory. Report covariate jumps and placebo cutoffs; a causal reading
 requires no other change at the cutoff.
 
+Round 97: spatial_model(kind="cv") reports spatial-block and random cross-validation; random folds are optimistic
+for models using neighbours, and block CV is itself a lower bound on new-region error (exploratory).
+spatial_model(kind="maup") shows how an area-level slope changes over random zonings (descriptive); report it
+when an ecological slope drives a conclusion.
+
+Round 96: spatial_model(kind="disease_map", outcome=observed counts, expected=expected counts) gives BYM2 smoothed
+relative risks with P(RR > threshold). Exceedance probabilities are calibrated (validated); relative-risk intervals
+are exploratory (under-cover with median expected counts near 5 over few areas). Suppressed counts stay missing and
+are predicted from neighbours; never output counts 1-9.
+
 Round 95: YPLL comes from WONDER age-group exports (census.surveillance.ypll_from_wonder; end point 65 or 75 on a
 band boundary; age-adjusted rate validated). Suppressed cells give bounds only. joinpoint(aberration=
 "historical_limits" | "ears_c2") flags the latest year (validated on flat series); a trend inflates false alarms,

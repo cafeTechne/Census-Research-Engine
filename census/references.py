@@ -140,6 +140,19 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "hutwagner2003": _src("paper", "Hutwagner, L., Thompson, W., Seeman, G.M. & Treadwell, T.", 2003, "The bioterrorism "
                           "preparedness and response Early Aberration Reporting System (EARS)", "Journal of Urban Health",
                           volume="80", pages="i89-i96"),
+    "besag1991": _src("paper", "Besag, J., York, J. & Mollié, A.", 1991, "Bayesian image restoration, with two "
+                      "applications in spatial statistics", "Annals of the Institute of Statistical Mathematics",
+                      volume="43", pages="1-20"),
+    "riebler2016": _src("paper", "Riebler, A., Sørbye, S.H., Simpson, D. & Rue, H.", 2016, "An intuitive Bayesian "
+                        "spatial model for disease mapping that accounts for scaling", "Statistical Methods in Medical "
+                        "Research", volume="25", pages="1145-1165"),
+    "moraga2023": _src("book", "Moraga, P.", 2023, "Spatial Statistics for Data Science: Theory and Practice with R",
+                       publisher="Chapman & Hall/CRC, Boca Raton", url="https://www.paulamoraga.com/book-spatial/",
+                       note="guidance for Rounds 96-97 (docs/literature/moraga_spatial_statistics.md)"),
+    "roberts2017": _src("paper", "Roberts, D.R. et al.", 2017, "Cross-validation strategies for data with temporal, "
+                        "spatial, hierarchical, or phylogenetic structure", "Ecography", volume="40", pages="913-929"),
+    "openshaw1984": _src("book", "Openshaw, S.", 1984, "The Modifiable Areal Unit Problem (CATMOG 38)",
+                         publisher="Geo Books, Norwich"),
     "cct2014": _src("paper", "Calonico, S., Cattaneo, M.D. & Titiunik, R.", 2014, "Robust nonparametric confidence "
                     "intervals for regression-discontinuity designs", "Econometrica", volume="82", pages="2295-2326"),
     "ik2012": _src("paper", "Imbens, G. & Kalyanaraman, K.", 2012, "Optimal bandwidth choice for the regression "
@@ -337,8 +350,11 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "get_boundaries": GEO, "make_map": GEO, "make_web_map": GEO,
     "spatial_autocorrelation": [("moran1950", "method"), ("anselin1995", "method"), ("pysal", "software"), *GEO,
                                 _audit("lisa_validation.md")],
-    "spatial_model": [("brunsdon1996", "method"), ("assuncao2006", "method"), *GEO, ("scipy", "software"),
-                      _audit("spatial_models_validation.md")],
+    "spatial_model": [("brunsdon1996", "method"), ("assuncao2006", "method"), ("besag1991", "method"),
+                      ("riebler2016", "method"), ("roberts2017", "method"), ("openshaw1984", "method"),
+                      ("moraga2023", "guidance"), *GEO, ("scipy", "software"),
+                      _audit("spatial_models_validation.md"), _audit("disease_mapping_validation.md"),
+                      _audit("model_assessment_validation.md")],
     "regression_discontinuity": [("cct2014", "method"), ("ik2012", "method"), ("mccrary2008", "method"),
                                  ("card_dobkin_maestas2008", "method"), ("cunningham2021", "guidance"), *PUMS,
                                  _audit("rdd_validation.md")],
