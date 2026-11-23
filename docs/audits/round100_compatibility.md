@@ -5,7 +5,7 @@ Author self-review, not independent. Worktree `/tmp/census-round100`, branch `ph
 
 ## Behaviour changes
 
-- **`fit_model`** gains `impute_method` and `impute_delta`. The new FCS route is used when either is given, when
+- **`fit_model`** gains `impute_method` and `impute_delta_variable` and `impute_delta_shifts`. The new FCS route is used when either is given, when
   more than two variables are listed, or when the outcome is listed. Earlier calls (one or two covariates, no
   method) keep the Round 42/47 routines unchanged.
 - **New modules** `census/mice.py` and the frozen core `census/mice_core.py`.

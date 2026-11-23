@@ -169,7 +169,7 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 
 **Round 100 (v0.96.0; merged, release pending owner approval; implemented by the maintainer agent):**
 multiple imputation by fully conditional specification (N77; van Buuren).
-- `fit_model(impute=[...], impute_method="pmm" | "norm", impute_delta=...)`: any number of incomplete variables, FMI,
+- `fit_model(impute=[...], impute_method="pmm" | "norm", impute_delta_variable=..., impute_delta_shifts=...)`: any number of incomplete variables, FMI,
   delta sensitivity. Validated.
 - Example (`r100_mice_example.md`): Michigan tract median income with withheld values.
 

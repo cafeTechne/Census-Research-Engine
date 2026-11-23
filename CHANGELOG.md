@@ -8,7 +8,7 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 ## 0.96.0 (Round 100): multiple imputation by fully conditional specification
 
 - **FCS imputation** (`census/mice.py`; frozen core `census/mice_core.py`; N77; van Buuren 2012) via
-  `fit_model(impute=[...], impute_method="pmm" | "norm", impute_delta=...)`:
+  `fit_model(impute=[...], impute_method="pmm" | "norm", impute_delta_variable=..., impute_delta_shifts=...)`:
   - any number of incomplete variables, the outcome included;
   - Rubin's rules with Barnard–Rubin df, and the fraction of missing information;
   - δ-adjustment MNAR sensitivity.

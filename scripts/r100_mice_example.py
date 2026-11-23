@@ -44,7 +44,8 @@ def main(out):
     p = od/"tracts.csv"; f.to_csv(p, index=False)
     miss = f[["log_income", "pov", "ba"]].isna().sum().to_dict()
     r = fit_model(str(p), "log_income ~ pov + ba", method="replicate", impute=["log_income", "pov", "ba"],
-                  impute_method="pmm", impute_delta={"log_income": [np.log(.8), np.log(.9), 0.0]})
+                  impute_method="pmm", impute_delta_variable="log_income",
+                  impute_delta_shifts=[np.log(.8), np.log(.9), 0.0])
     if not r["success"]:
         raise SystemExit(r["error"])
     cc = pd.read_csv(p).dropna()

@@ -95,7 +95,7 @@ covariates.
   Barnard–Rubin df. Validated: PMM .885–.912; `"norm"` .887–.915.
   - Predictive mean matching imputes observed values, so rates stay within bounds.
   - Report the **fraction of missing information** (`fmi`) for each coefficient.
-- **MNAR sensitivity:** `impute_delta={"variable": [shifts]}` re-runs the analysis with the imputations shifted
+- **MNAR sensitivity:** `impute_delta_variable="<variable>", impute_delta_shifts=[...]` re-runs the analysis with the imputations shifted
   (e.g. missing incomes 10% or 20% lower on the log scale). Show how far the conclusions move.
 - One or two incomplete covariates without `impute_method` keep the Round 42/47 routines.
 
