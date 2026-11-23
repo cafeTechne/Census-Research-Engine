@@ -423,6 +423,11 @@ never mix vintages; a denominator or covariate, never an outcome), lodes (LEHD j
 noise-infused, no MOE) and acs_flows (ACS county-to-county migration 2010-2020 with <name>_moe; later releases give
 state partners only). All are covariates; list them with list_health_sources(kind="context").
 
+Round 100: fit_model(method="replicate", impute=[...], impute_method="pmm" | "norm") imputes any number of
+incomplete variables, outcome included, by fully conditional specification (validated); report the fraction of
+missing information and, when missingness may depend on the missing values, impute_delta sensitivity rows.
+## Matching and triple differences (Round 99)
+
 Round 99: estimate_effect(kind="matching", method="nn" | "cem" | "ps"): bias-corrected nearest-neighbour ATE
 (validated), coarsened exact matching ATT among matched (validated; report the share matched), propensity caliper
 matching. difference_in_differences(design="triple", group, affected_group) uses a within-unit unaffected group

@@ -209,6 +209,9 @@ def fit_model(
     trials: Optional[str] = None,
     spatial: Optional[str] = None,
     impute: Optional[Union[str, List[str]]] = None,
+    impute_method: Optional[str] = None,
+    impute_delta_variable: Optional[str] = None,
+    impute_delta_shifts: Optional[List[float]] = None,
     se_method: Optional[str] = None,
     censored: Optional[str] = None,
     spatial_check: str = "auto",
@@ -247,6 +250,10 @@ def fit_model(
 
         impute: A covariate with missing values to multiply impute (OLS; Round 42; validated), or a
             list of two (chained equations; Round 47; validated).
+        impute_method: Round 100: "pmm" (predictive mean matching) or "norm" with any number of incomplete
+            variables in impute, the outcome included (fully conditional specification; validated); reports the
+            fraction of missing information. impute_delta_variable + impute_delta_shifts: MNAR sensitivity
+            (coefficients re-pooled with that variable's imputations shifted by each value).
         spatial: method="eiv": "clusters" (8 fixed spatial clusters, pooled correction) or
             "error" (spatial-error whitening) for corrected slopes when areas are spatially
             correlated (Rounds 35, 46 and 53; linear; validated with up to five error-prone covariates).
@@ -285,6 +292,7 @@ def fit_model(
         return _fail(errors.INVALID_INPUT, "censored needs method='replicate' and model='negbin' (interval-censored NB2).",
                      "call fit_model again with model='negbin', exposure and censored")
     extra = {"weights": weights, "exposure": exposure, "trials": trials}
+    impute_delta = {impute_delta_variable: list(impute_delta_shifts or [])} if impute_delta_variable else None
     try:
         frame = _load_frame(input_path)
         if method == "eiv" and spatial:
@@ -309,6 +317,18 @@ def fit_model(
                              "call fit_model again with model='ols' (or 'wls' and weights)")
             result = models.fit_eiv(formula, frame, _read_replicates(replicates_path), model=model,
                                     weights=weights, confidence_level=confidence_level)
+        elif method == "replicate" and impute and (impute_method or impute_delta or
+                                                   (not isinstance(impute, str) and len(impute) > 2) or
+                                                   formula.split("~", 1)[0].strip() in ([impute] if isinstance(impute, str) else impute)):
+            from census.mice import impute_fcs   # Round 100
+            res = impute_fcs(formula, frame, [impute] if isinstance(impute, str) else list(impute),
+                             method=impute_method or "pmm", delta=impute_delta)
+            from census.results import _jsonable
+            res["table"] = res["table"].to_dict("records")
+            return _ok(f"OLS with {sum(res['missing'].values())} missing values in {list(res['missing'])} multiply imputed "
+                       f"({res['method']}, FCS); validated (Round 100).",
+                       "report coefficients with intervals, the FMI and the missing-at-random assumption"
+                       + ("; show the delta sensitivity" if res["delta_sensitivity"] else ""), **_jsonable(res))
         elif method == "replicate" and impute:
             from census.missing_censored_its import impute_and_fit
             res = impute_and_fit(formula, frame, impute)
