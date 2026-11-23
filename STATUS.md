@@ -20,7 +20,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_101.md` (demographic tools); Round 102 queued (meta-analysis); mappings in `docs/literature/`. Earlier: Rounds 94–100 merged; Rounds 88–93 merged. Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_102.md` (meta-analysis); mappings in `docs/literature/`. Earlier: Rounds 94–101 merged; Rounds 88–93 merged. Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -72,6 +72,7 @@ manifests refuse them in confirmatory analyses.
 | Small-area proportions and several releases (Round 80) | **Passed** (real 2019–2023 S2701 sampling variances, MI/NY counties and tracts): arcsine Fay–Herriot with bias-corrected back-transform and bootstrap MSE, per-area coverage .898–.904, worst decile ≥ .880, relative bias ≤ .078 for p < .10 (quantile interval .892–.895 also passes); Rao–Yu temporal Fay–Herriot for 2–3 releases .897–.898 (MSE gain 3–7% counties, 10–24% tracts) | `sae_extensions_validation.md`, criterion `251dc9d` |
 | PUMS gap decompositions (Round 79) | **Passed with size gates** (Round 32 design, weight CV 1, SDR intervals): Oaxaca–Blinder explained/unexplained totals from 300 records in the smaller group (.862–.894); Oaxaca–Blinder detailed contributions (Yun-normalised) and Fairlie totals and detailed contributions from 1,000 records (.863–.894); at 300 they under-covered (.802–.853) | `decomposition_validation.md`, criterion `9e52bb4` |
 | Staggered adoption and synthetic control (Round 78) | **Passed selected** (51 units, 12/18 annual periods, AR(1) .3/.7, ACS-like error): Sun–Abraham event study and overall ATT (.881–.899); Callaway–Sant'Anna with the ACS variance added (.882–.906). **Failed**: Callaway–Sant'Anna multiplier bootstrap alone (.848–.868), uniform bands (.76–.81), synthetic-control placebo test (size .12–.19 at .10) and conformal intervals (.73–.86 with 9 pre-periods; .87–.95 with 15, not a pre-set gate): exploratory, library only | `policy_validation.md`, criterion `baf934b` |
+| Life tables (Round 101) | **Passed**: Chiang II e0 and e65 intervals (.895–.910, 50,000 to 5 million person-years). Age-heaping indices, Arriaga decomposition and census-survival migration are exact | `demography_validation.md`, tag `criterion-r101` |
 | FCS imputation (Round 100) | **Passed**: predictive mean matching (.885–) and Bayesian linear imputation (.887–) with three incomplete variables, outcome included, 10–40% MAR missingness | `mice_validation.md`, tag `criterion-r100` |
 | Matching and triple differences (Round 99) | **Passed**: nearest-neighbour ATE (.861–), coarsened exact matching (.951–), propensity caliper matching (.962–, conservative), triple differences (.98–). **Failed**: nearest-neighbour ATT (.852 at 145 areas, limited overlap): exploratory | `matching_validation.md`, tag `criterion-r99` |
 | Regression discontinuity (Round 98) | **Passed**: discrete running variable with survey replicates (PUMS ages; .893–.906, sharp and fuzzy). **Failed** (exploratory): continuous running variable under strong curvature with n ≤ 10,000 (.78–.80); density test size .097–.114; clustering by age value (.69–.71, not offered) | `rdd_validation.md`, tag `criterion-r98` |
@@ -166,6 +167,13 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 101 (v0.97.0; merged, release pending owner approval; implemented by the maintainer agent):**
+demographic estimation tools (N78; IUSSP Tools for Demographic Estimation).
+- `census.demography`: life tables with Chiang II intervals (validated), Arriaga decomposition by age and cause,
+  Whipple/Myers/UN age-data indices, census-survival migration.
+- Example (`r101_demography_example.md`): US e0 change 2013-2017 to 2018-2022 by age and cause; Michigan age quality.
+- Goldens byte-identical; 2390 passed, 42 skipped; 0 failures.
 
 **Round 100 (v0.96.0; merged, release pending owner approval; implemented by the maintainer agent):**
 multiple imputation by fully conditional specification (N77; van Buuren).
@@ -801,7 +809,8 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N75: regression discontinuity (98; closed);
 - N76: matching and triple differences (99; closed);
 - N77: FCS imputation (100; closed);
-- N78–N79: FCS imputation, demographic tools, meta-analysis (Rounds 101–102, planned 2026-11-23 from Cunningham, van Buuren, IUSSP and Harrer et al.);
+- N78: demographic tools (101; closed);
+- N79: meta-analysis (Round 102, planned 2026-11-23 from Cunningham, van Buuren, IUSSP and Harrer et al.);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

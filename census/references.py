@@ -140,6 +140,13 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "hutwagner2003": _src("paper", "Hutwagner, L., Thompson, W., Seeman, G.M. & Treadwell, T.", 2003, "The bioterrorism "
                           "preparedness and response Early Aberration Reporting System (EARS)", "Journal of Urban Health",
                           volume="80", pages="i89-i96"),
+    "iussp2013": _src("book", "Moultrie, T.A., Dorrington, R.E., Hill, A.G., Hill, K., Timæus, I.M. & Zaba, B. (eds)",
+                      2013, "Tools for Demographic Estimation", publisher="International Union for the Scientific Study "
+                      "of Population, Paris", url="https://demographicestimation.iussp.org/",
+                      note="CC BY-NC-SA 3.0; guidance for Round 101 (docs/literature/iussp_tools_demographic_estimation.md)"),
+    "chiang1984": _src("book", "Chiang, C.L.", 1984, "The Life Table and Its Applications", publisher="Krieger, Malabar"),
+    "arriaga1984": _src("paper", "Arriaga, E.E.", 1984, "Measuring and explaining the change in life expectancies",
+                        "Demography", volume="21", pages="83-96"),
     "van_buuren2012": _src("book", "van Buuren, S.", 2012, "Flexible Imputation of Missing Data",
                            publisher="Chapman & Hall/CRC, Boca Raton",
                            note="1st edition; guidance for Round 100 (docs/literature/van_buuren_fimd.md)"),
