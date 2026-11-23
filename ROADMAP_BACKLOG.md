@@ -96,7 +96,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | 95 | YPLL and surveillance aberration detection (CDC SS1000) | N72 | done (v0.91.0) |
 | 96 | Spatial disease mapping: BYM2 Poisson with exceedance probabilities (Moraga) | N73 | done (v0.92.0) |
 | 97 | Spatial block cross-validation and MAUP sensitivity (Moraga) | N74 | done (v0.93.0; exploratory) |
-| 98 | Regression discontinuity: robust bias-corrected local polynomial, density and placebo tests; PUMS age-65 example | N75 | planned |
+| 98 | Regression discontinuity: robust bias-corrected local polynomial, density and placebo tests; PUMS age-65 example | N75 | done (v0.94.0) |
 | 99 | Matching (bias-corrected nearest neighbour, coarsened exact) and triple differences | N76 | planned |
 | 100 | Multiple imputation: FCS with predictive mean matching, passive variables, δ-adjustment, FMI | N77 | planned |
 | 101 | Demographic estimation: age-data quality indices, life tables with SEs, Arriaga decomposition, census-survival migration | N78 | planned |

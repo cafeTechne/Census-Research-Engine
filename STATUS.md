@@ -15,12 +15,12 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | Path | What |
 | :--- | :--- |
 | `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
-| `mcp_server.py` | MCP server (79 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
+| `mcp_server.py` | MCP server (80 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_98.md` (regression discontinuity); Rounds 99–102 queued (matching and triple differences; FCS imputation; demographic tools; meta-analysis); mappings in `docs/literature/`. Earlier: Rounds 94–97 merged; Rounds 88–93 merged. Implement only the lowest-numbered plan. Merged plans are archived (below) |
+| `PLAN_ROUND_<n>.md` | `PLAN_ROUND_99.md` (matching and triple differences); Rounds 100–102 queued (FCS imputation; demographic tools; meta-analysis); mappings in `docs/literature/`. Earlier: Rounds 94–98 merged; Rounds 88–93 merged. Implement only the lowest-numbered plan. Merged plans are archived (below) |
 | `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
@@ -72,6 +72,7 @@ manifests refuse them in confirmatory analyses.
 | Small-area proportions and several releases (Round 80) | **Passed** (real 2019–2023 S2701 sampling variances, MI/NY counties and tracts): arcsine Fay–Herriot with bias-corrected back-transform and bootstrap MSE, per-area coverage .898–.904, worst decile ≥ .880, relative bias ≤ .078 for p < .10 (quantile interval .892–.895 also passes); Rao–Yu temporal Fay–Herriot for 2–3 releases .897–.898 (MSE gain 3–7% counties, 10–24% tracts) | `sae_extensions_validation.md`, criterion `251dc9d` |
 | PUMS gap decompositions (Round 79) | **Passed with size gates** (Round 32 design, weight CV 1, SDR intervals): Oaxaca–Blinder explained/unexplained totals from 300 records in the smaller group (.862–.894); Oaxaca–Blinder detailed contributions (Yun-normalised) and Fairlie totals and detailed contributions from 1,000 records (.863–.894); at 300 they under-covered (.802–.853) | `decomposition_validation.md`, criterion `9e52bb4` |
 | Staggered adoption and synthetic control (Round 78) | **Passed selected** (51 units, 12/18 annual periods, AR(1) .3/.7, ACS-like error): Sun–Abraham event study and overall ATT (.881–.899); Callaway–Sant'Anna with the ACS variance added (.882–.906). **Failed**: Callaway–Sant'Anna multiplier bootstrap alone (.848–.868), uniform bands (.76–.81), synthetic-control placebo test (size .12–.19 at .10) and conformal intervals (.73–.86 with 9 pre-periods; .87–.95 with 15, not a pre-set gate): exploratory, library only | `policy_validation.md`, criterion `baf934b` |
+| Regression discontinuity (Round 98) | **Passed**: discrete running variable with survey replicates (PUMS ages; .893–.906, sharp and fuzzy). **Failed** (exploratory): continuous running variable under strong curvature with n ≤ 10,000 (.78–.80); density test size .097–.114; clustering by age value (.69–.71, not offered) | `rdd_validation.md`, tag `criterion-r98` |
 | Spatial CV and MAUP (Round 97) | **Failed** (exploratory): 5-block spatial CV under-estimated new-region RMSE by 19–23% with spatially correlated residuals (random CV 33–43%). MAUP reported: zone slopes −0.2 to 1.4× the tract slope | `model_assessment_validation.md`, tag `criterion-r97` |
 | BYM2 disease mapping (Round 96) | **Exceedance probabilities calibrated** (every cell). **Failed** (exploratory): relative-risk intervals .84–.90 in 15 of 16 cells, .79–.80 with median expected counts of 5 over 83 counties. BYM2 beats Poisson–gamma EB and SMR on error | `disease_mapping_validation.md`, tag `criterion-r96` |
 | YPLL and aberration detection (Round 95) | **Passed**: age-adjusted YPLL-75 Fay–Feuer interval (.888–.963); historical limits and EARS C2 null false alarms (.005, .016). Reported: trends inflate false alarms (.10, .24 at 3%/year) | `surveillance_validation.md`, tag `criterion-r95` |
@@ -163,6 +164,13 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 98 (v0.94.0; merged, release pending owner approval; implemented by the maintainer agent):**
+regression discontinuity (N75; Cunningham).
+- Tool `regression_discontinuity` (80 tools): robust bias-corrected sharp/fuzzy RDD; validated for PUMS ages with
+  replicates; continuous running variables and the density test exploratory.
+- Example (`r98_rdd_example.md`): Michigan insurance at 65 (+3.0 points any coverage). Goldens byte-identical;
+  2373 passed, 42 skipped; 0 failures.
 
 **Round 97 (v0.93.0; merged, release pending owner approval; implemented by the maintainer agent):**
 spatial block cross-validation and MAUP sensitivity (N74; Moraga).
@@ -775,7 +783,8 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N72: YPLL and aberration detection (95; closed);
 - N73: BYM2 disease mapping (96; closed);
 - N74: spatial CV and MAUP (97; closed, exploratory);
-- N75–N79: RDD, matching and triple differences, FCS imputation, demographic tools, meta-analysis (Rounds 98–102, planned 2026-11-23 from Cunningham, van Buuren, IUSSP and Harrer et al.);
+- N75: regression discontinuity (98; closed);
+- N76–N79: matching and triple differences, FCS imputation, demographic tools, meta-analysis (Rounds 99–102, planned 2026-11-23 from Cunningham, van Buuren, IUSSP and Harrer et al.);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

@@ -388,6 +388,11 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
+Round 98: regression_discontinuity (full profile) estimates a jump at a cutoff with the robust bias-corrected local
+quadratic. Validated for discrete running variables (PUMS ages) with weight and replicate_prefix; continuous running
+variables and the density test are exploratory. Report covariate jumps and placebo cutoffs; a causal reading
+requires no other change at the cutoff.
+
 Round 97: spatial_model(kind="cv") reports spatial-block and random cross-validation; random folds are optimistic
 for models using neighbours, and block CV is itself a lower bound on new-region error (exploratory).
 spatial_model(kind="maup") shows how an area-level slope changes over random zonings (descriptive); report it
@@ -1580,6 +1585,7 @@ for _fn in (
     workflows_microdata.pums_regression,
     workflows_microdata.multilevel_model,
     workflows_microdata.difference_in_differences,
+    workflows_microdata.regression_discontinuity,
     workflows_microdata.adjust_for_place,
     workflows_microdata.place_adjust_frame,
     workflows_microdata.make_web_map,
@@ -1616,6 +1622,7 @@ interrupted_series = workflows_inference.interrupted_series
 designation_accuracy = workflows_inference.designation_accuracy
 bias_analysis = workflows_inference.bias_analysis
 spatial_scan = workflows_inference.spatial_scan
+regression_discontinuity = workflows_microdata.regression_discontinuity
 spatial_model = workflows_geo.spatial_model
 disparity_measures = workflows_inference.disparity_measures
 joinpoint = workflows_inference.joinpoint

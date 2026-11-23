@@ -153,6 +153,18 @@ SOURCES: Dict[str, Dict[str, Any]] = {
                         "spatial, hierarchical, or phylogenetic structure", "Ecography", volume="40", pages="913-929"),
     "openshaw1984": _src("book", "Openshaw, S.", 1984, "The Modifiable Areal Unit Problem (CATMOG 38)",
                          publisher="Geo Books, Norwich"),
+    "cct2014": _src("paper", "Calonico, S., Cattaneo, M.D. & Titiunik, R.", 2014, "Robust nonparametric confidence "
+                    "intervals for regression-discontinuity designs", "Econometrica", volume="82", pages="2295-2326"),
+    "ik2012": _src("paper", "Imbens, G. & Kalyanaraman, K.", 2012, "Optimal bandwidth choice for the regression "
+                   "discontinuity estimator", "Review of Economic Studies", volume="79", pages="933-959"),
+    "mccrary2008": _src("paper", "McCrary, J.", 2008, "Manipulation of the running variable in the regression "
+                        "discontinuity design: a density test", "Journal of Econometrics", volume="142", pages="698-714"),
+    "card_dobkin_maestas2008": _src("paper", "Card, D., Dobkin, C. & Maestas, N.", 2008, "The impact of nearly universal "
+                                    "insurance coverage on health care utilization: evidence from Medicare",
+                                    "American Economic Review", volume="98", pages="2242-2258"),
+    "cunningham2021": _src("book", "Cunningham, S.", 2021, "Causal Inference: The Mixtape",
+                           publisher="Yale University Press, New Haven", url="https://mixtape.scunning.com/",
+                           note="2018 draft used; guidance for Rounds 98-99 (docs/literature/cunningham_mixtape.md)"),
     "muller_watson2022": _src("paper", "Müller, U.K. & Watson, M.W.", 2022, "Spatial correlation robust inference",
                               "Econometrica", volume="90", pages="2901-2935"),
     "prasad_rao1990": _src("paper", "Prasad, N.G.N. & Rao, J.N.K.", 1990, "The estimation of the mean squared error of "
@@ -343,6 +355,9 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
                       ("moraga2023", "guidance"), *GEO, ("scipy", "software"),
                       _audit("spatial_models_validation.md"), _audit("disease_mapping_validation.md"),
                       _audit("model_assessment_validation.md")],
+    "regression_discontinuity": [("cct2014", "method"), ("ik2012", "method"), ("mccrary2008", "method"),
+                                 ("card_dobkin_maestas2008", "method"), ("cunningham2021", "guidance"), *PUMS,
+                                 _audit("rdd_validation.md")],
     "spatial_regression": [("spatial_lesage2009", "method"), ("pysal", "software"), *GEO,
                            _audit("spatial_regression_validation.md")],
     # health and context sources
