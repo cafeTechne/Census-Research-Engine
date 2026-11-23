@@ -336,6 +336,8 @@ def difference_in_differences(
     causal_question: Optional[Dict[str, Any]] = None,
     time_varying_confounders: Optional[List[str]] = None,
     truncate_weights: bool = False,
+    group: Optional[str] = None,
+    affected_group: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Difference-in-differences on area-level ACS estimates across NON-overlapping
     periods (e.g. 2013, 2018, 2023 releases); overlapping releases are refused.
@@ -353,6 +355,8 @@ def difference_in_differences(
     With 3+ pre-periods a parallel-trends test is reported. Validated: coverage 0.90-0.91.
     Round 89: causal_question (target trial: eligibility, intervention, comparator, time_zero, outcome, follow_up,
     contrast, target) is checked; without it the result is labelled associational.
+    design="triple" (Round 99): triple differences with group (e.g. age group column) and affected_group: the
+    affected group's DiD minus the comparison groups' DiD within units (validated with 51 units).
     design="msm" (Round 91): annual panel with time_varying_confounders (e.g. unemployment) that past policy may
     affect: IP-weighted marginal structural model (first_treated column; effects of the 1st, 2nd, 3rd treated year
     vs never; truncate_weights clips weights at the 1st/99th percentiles). Units treated in the first period refused.
@@ -377,6 +381,21 @@ def difference_in_differences(
                    "report the overall ATT and the event study with intervals; check the pre-trend result",
                    **{k: (v.to_dict("records") if isinstance(v, pd.DataFrame) else v) for k, v in r.items()}),
                    causal_question, first_treated)
+    if design == "triple":   # Round 99
+        from census.matching import triple_difference
+        if not group or affected_group is None or treatment_period is None:
+            return _fail(errors.INVALID_INPUT, "design='triple' needs group, affected_group and treatment_period.")
+        try:
+            frame = _load_frame(input_path)
+            ag = type(frame[group].dropna().iloc[0])(affected_group) if len(frame) else affected_group
+            r = triple_difference(frame, outcome, unit, group, ag, period, treated, int(treatment_period))
+        except _ERRORS as exc:
+            return _fail(errors.INVALID_INPUT, str(exc))
+        e = r["effect"]
+        return _with_trial(_ok(f"Triple difference ({group} = {affected_group} vs other groups): {e['estimate']:.4g} "
+                               f"(90% CI {e['lower']:.4g} to {e['upper']:.4g}; {e['clusters']} units clustered); "
+                               + ("validated." if r["validated"] else "exploratory (see notes)."),
+                               "report the estimate with the triple-difference assumption", **r), causal_question, treated)
     if design == "msm":
         from census.msm import marginal_structural_model
         try:
@@ -419,6 +438,41 @@ def _with_trial(result, causal_question, treatment):
     elif not causal_question:
         result["summary"] += " Label: associational (no causal question specified)."
     return result
+
+
+def regression_discontinuity(
+    input_path: str,
+    outcome: str,
+    running: str,
+    cutoff: float,
+    treatment: Optional[str] = None,
+    weight: Optional[str] = None,
+    replicate_prefix: Optional[str] = None,
+    bandwidth: Optional[float] = None,
+    covariates: Optional[List[str]] = None,
+    placebo_cutoffs: Optional[List[float]] = None,
+) -> Dict[str, Any]:
+    """Regression discontinuity at a cutoff of a running variable (Round 98; e.g. PUMS age 65 for Medicare).
+    Sharp (outcome jump) or fuzzy (treatment= column: outcome jump / treatment jump). Robust bias-corrected
+    interval (local quadratic at the IK bandwidth). Validated for discrete running variables (ages) with survey
+    weights and replicates (weight="PWGTP", replicate_prefix="PWGTP"); continuous running variables and the
+    density (manipulation) test are exploratory. covariates: jumps that should be zero; placebo_cutoffs: fake
+    cutoffs that should show none.
+    Example: regression_discontinuity("pums.parquet", "HICOV", "AGEP", 65, treatment="HINS3", weight="PWGTP",
+    replicate_prefix="PWGTP")
+    """
+    from census.rdd import regression_discontinuity as _rdd
+    try:
+        r = _rdd(_load_frame(input_path), outcome, running, float(cutoff), treatment=treatment, weight=weight,
+                 replicate_prefix=replicate_prefix, bandwidth=bandwidth, covariates=covariates or (),
+                 placebo_cutoffs=placebo_cutoffs or ())
+    except _ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))
+    return _ok(f"{r['design'].capitalize()} RDD at {running} = {cutoff:g}: jump in {outcome} {r['estimate']:.4g} "
+               f"(90% robust CI {r['lower']:.4g} to {r['upper']:.4g}); bandwidth {r['bandwidth']:.3g}; "
+               + ("validated." if r["validated"] else "exploratory (see notes)."),
+               "report the robust estimate and interval with the density test, covariate jumps and placebo cutoffs",
+               **r)
 
 
 def adjust_for_place(

@@ -1,0 +1,116 @@
+{
+ "cv": [
+  {
+   "range_km": 0,
+   "truth": {
+    "rmse": 1.222789911246367,
+    "coverage": 0.898273187183811
+   },
+   "V1": {
+    "rmse": 1.223168828449793,
+    "coverage": 0.8988383999999999,
+    "rmse_ratio": 1.0003098792359515,
+    "coverage_diff": 0.0005652128161889314
+   },
+   "V1_10": {
+    "rmse": 1.2211980999534662,
+    "coverage": 0.8989887999999998,
+    "rmse_ratio": 0.9986982135866019,
+    "coverage_diff": 0.0007156128161888153
+   },
+   "V0": {
+    "rmse": 1.2222606869153652,
+    "coverage": 0.8990752,
+    "rmse_ratio": 0.9995671992988049,
+    "coverage_diff": 0.0008020128161889684
+   }
+  },
+  {
+   "range_km": 20,
+   "truth": {
+    "rmse": 1.0862980034042393,
+    "coverage": 0.6569443507588533
+   },
+   "V1": {
+    "rmse": 0.8414856117830692,
+    "coverage": 0.778048,
+    "rmse_ratio": 0.774636065928523,
+    "coverage_diff": 0.1211036492411467
+   },
+   "V1_10": {
+    "rmse": 0.7670192008164558,
+    "coverage": 0.8152031999999999,
+    "rmse_ratio": 0.706085437341109,
+    "coverage_diff": 0.15825884924114664
+   },
+   "V0": {
+    "rmse": 0.6164891937695876,
+    "coverage": 0.8981343999999999,
+    "rmse_ratio": 0.5675138790991372,
+    "coverage_diff": 0.24119004924114662
+   }
+  },
+  {
+   "range_km": 50,
+   "truth": {
+    "rmse": 0.8659020541692203,
+    "coverage": 0.7333220910623945
+   },
+   "V1": {
+    "rmse": 0.7008254531361483,
+    "coverage": 0.8261823999999999,
+    "rmse_ratio": 0.8093588065321627,
+    "coverage_diff": 0.09286030893760533
+   },
+   "V1_10": {
+    "rmse": 0.6540996975010764,
+    "coverage": 0.8539968000000001,
+    "rmse_ratio": 0.7553968654441464,
+    "coverage_diff": 0.12067470893760557
+   },
+   "V0": {
+    "rmse": 0.5780192874206316,
+    "coverage": 0.899248,
+    "rmse_ratio": 0.667534260529276,
+    "coverage_diff": 0.1659259089376055
+   }
+  }
+ ],
+ "maup": [
+  {
+   "range_km": 0,
+   "mean_ratio": 0.9801153320323424,
+   "sd_within_draw": 0.06370399192442545,
+   "p05": 0.7832834688297873,
+   "p95": 1.1670330657756427
+  },
+  {
+   "range_km": 20,
+   "mean_ratio": 0.8720880589025897,
+   "sd_within_draw": 0.06579220578900506,
+   "p05": -0.2107867807189081,
+   "p95": 1.4493713854847796
+  },
+  {
+   "range_km": 50,
+   "mean_ratio": 0.929441915434508,
+   "sd_within_draw": 0.05116909363165578,
+   "p05": 0.2306114041129906,
+   "p95": 1.3337810460831938
+  }
+ ],
+ "outcome": {
+  "V1": {
+   "passed": false
+  }
+ },
+ "criterion_commit": "36671c15485748f60b079898841034af012ab3a1",
+ "seconds": 53,
+ "frozen_sha256": {
+  "scripts/model_assessment_validation.py": "a3ab86305712b9919a00391873e7ec89807eea035b69319323507e56cbdd3424",
+  "census/model_assessment_core.py": "99c2643ddff02a383997626d1956672761674502506c3e5e66ab86bcedb02005",
+  "scripts/spatial_models_validation.py": "57fdde929a82bf25546eeb10572bf5fb2886741f817f84dc028a652b98bb8403",
+  "docs/audits/mi_tract_geometry.json": "1755293430b5c371d73167df75f11f239eeff3938524529558c7e5263d0cdca8",
+  "docs/audits/model_assessment_validation_criterion.md": "5557cd346f32ee3c97692af1fbaebb648d63962391c2e116831829874e2cbca2"
+ }
+}

@@ -31,6 +31,10 @@ Goal: estimate the effect of a policy or event that began at a known time.
    `difference_in_differences(design="msm", first_treated=..., time_varying_confounders=["unemp"], product="1-year")`:
    an IP-weighted marginal structural model giving effects of the 1st, 2nd and 3rd treated year. It is
    **exploratory** (coverage .80-.88 with 51 units, slightly too narrow); report it beside the staggered DiD.
+   **A within-unit comparison group (triple differences; Round 99):** when an unaffected group in the same units
+   (e.g. adults 65+ for a Medicaid change) absorbs unit-specific shocks, use
+   `difference_in_differences(design="triple", group="<group column>", affected_group="19-64", treatment_period=...)`.
+   It is validated with 51 units (.98, conservative). In validation a simple DiD with a treated-unit trend covered 0.
 4. **One annual series with a break:** call
    `interrupted_series(values=[...], years=[...], interruption_year=2014)`.
    - It reports the level and slope changes, with AR(1) errors.

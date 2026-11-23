@@ -20,6 +20,84 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
     Unintentional injury −0.32 years; cancer +0.23.
   - Michigan ages show no heaping (Whipple 104 in the 2020 Census, 99 in PUMS).
 - **Recipe** `external_health_outcome` section; protocol rule; sources (IUSSP 2013; Chiang 1984; Arriaga 1984).
+## 0.96.0 (Round 100): multiple imputation by fully conditional specification
+
+- **FCS imputation** (`census/mice.py`; frozen core `census/mice_core.py`; N77; van Buuren 2012) via
+  `fit_model(impute=[...], impute_method="pmm" | "norm", impute_delta_variable=..., impute_delta_shifts=...)`:
+  - any number of incomplete variables, the outcome included;
+  - Rubin's rules with Barnard–Rubin df, and the fraction of missing information;
+  - δ-adjustment MNAR sensitivity.
+- **Validation** (`docs/audits/mice_validation.md`, criterion tag `criterion-r100`): PMM (.885–) and the Bayesian
+  normal method (.887–) pass at 10% and 40% missingness.
+- **Example** (`docs/audits/r100_mice_example.md`, exploratory): Michigan tract log median income (45 withheld
+  values) on poverty and education. Coefficients are stable under a δ shift of 10–20% lower missing incomes.
+- **Recipe** `regression_sampling_error` section; protocol rule; sources (van Buuren 2012; Barnard and Rubin 1999;
+  Little 1988).
+## 0.95.0 (Round 99): matching estimators and triple differences
+
+- **Matching** (`census/matching.py`; frozen core `census/matching_core.py`; N76; Cunningham, *Mixtape*): bias-corrected
+  nearest-neighbour matching (Abadie–Imbens), coarsened exact matching and propensity caliper matching, as
+  `estimate_effect(kind="matching")`.
+- **Triple differences:** `difference_in_differences(design="triple")`.
+- **Validation** (`docs/audits/matching_validation.md`, criterion tag `criterion-r99`):
+  - pass: nearest-neighbour ATE (.861–), CEM (.951–), propensity matching (.962–, conservative) and triple
+    differences (.98–);
+  - fail: nearest-neighbour ATT (.852 at 145 areas with limited overlap), which is exploratory;
+  - the simple DiD with a treated-unit trend covered 0.
+- **Example** (`docs/audits/r99_matching_ddd_example.md`, exploratory):
+  - 2014 Medicaid expansion, adults 19–64 against 65+: −1.76 points (−3.75 to 0.22);
+  - metro status and county uninsured rates: nearest-neighbour ATE −1.33, CEM ATT −2.14.
+- **Recipes** `causal` and `policy_change`; protocol rule; sources (Abadie and Imbens 2006, 2011; Iacus, King and
+  Porro 2012; Gruber 1994).
+## 0.94.0 (Round 98): regression discontinuity
+
+- **New full-profile tool `regression_discontinuity`** (80 tools; `census/rdd.py`, frozen core `census/rdd_core.py`;
+  N75; Cunningham, *Mixtape*):
+  - sharp and fuzzy designs; robust bias-corrected intervals at the Imbens–Kalyanaraman bandwidth;
+  - survey replicate SEs;
+  - McCrary density test, covariate jumps and placebo cutoffs.
+- **Validation** (`docs/audits/rdd_validation.md`, criterion tag `criterion-r98`):
+  - discrete ages with replicates pass (.893–.906);
+  - continuous running variables fail under strong curvature with n ≤ 10,000 (.78–.80), so they are exploratory;
+  - the density test's size is .097–.114 (exploratory);
+  - clustering by age fails (.69–.71) and is not offered.
+- **Example** (`docs/audits/r98_rdd_example.md`, exploratory): Michigan PUMS 2019–2023 at age 65. Medicare +58
+  points; any coverage +3.0 points (1.4 to 4.7); placebo cutoffs null.
+- **Recipe** `causal` section; README; protocol rule; sources (CCT 2014; IK 2012; McCrary 2008; Card, Dobkin and
+  Maestas 2008; Cunningham 2021).
+
+## 0.93.0 (Round 97): spatial block cross-validation and MAUP sensitivity
+
+- **`spatial_model(kind="cv")`** (`census/model_assessment.py`; frozen core `census/model_assessment_core.py`; N74;
+  Moraga 2023 chapters 11 and 16): spatial-block and random 5-fold cross-validation with MAE, RMSE, coverage and CRPS.
+- **`spatial_model(kind="maup")`:** slopes over random contiguous zonings.
+- **Validation** (`docs/audits/model_assessment_validation.md`, criterion tag `criterion-r97`): **failed**, so block
+  CV is exploratory. With spatial correlation, block CV under-estimated new-region RMSE by 19–23% (random CV by
+  33–43%); both were exact without correlation. MAUP is reported: zone slopes ranged from −0.2 to 1.4 times the
+  tract slope.
+- **Example** (`docs/audits/r97_model_assessment_example.md`, exploratory): Wayne County poverty. Random folds flatter
+  the neighbour model (RMSE 10.2 against 12.1). Aggregating to zones of about 10 tracts raises the
+  poverty–unemployment slope from 1.13 to about 1.9.
+- **Recipe** `spatial_patterns` section; protocol rule; sources (Roberts et al. 2017; Openshaw 1984).
+
+## 0.92.0 (Round 96): spatial disease mapping with BYM2
+
+- **BYM2 Poisson disease mapping** (`census/disease_mapping.py`; frozen core `census/disease_mapping_core.py`; N73;
+  Moraga 2023 chapters 9–10; Riebler et al. 2016), as `spatial_model(kind="disease_map")`:
+  - a Laplace approximation with no INLA dependency;
+  - hyperparameters from the grid maximum (B1) or integrated over the grid (B2);
+  - relative risks, 90% intervals and exceedance probabilities;
+  - suppressed counts predicted from neighbours;
+  - bridge edges join separate parts of the contiguity graph.
+- **Validation** (`docs/audits/disease_mapping_validation.md`, criterion tag `criterion-r96`):
+  - exceedance probabilities calibrated in every cell;
+  - intervals covered .84–.90 in 15 of 16 cells but .79–.80 with median expected counts of 5 over 83 counties, so
+    the rule failed and intervals are exploratory;
+  - BYM2 beat Poisson–gamma EB and SMRs on error everywhere.
+- **Example** (`docs/audits/r96_disease_mapping_example.md`, exploratory): drug-overdose relative risks in Michigan
+  counties, 2018–2022. Genesee is highest at 1.92, then Wayne at 1.78. Six counties have P(RR > 1.2) ≥ .8.
+- **Recipe** `small_area` section; protocol rule; sources (Besag, York and Mollié 1991; Riebler et al. 2016; Moraga
+  2023).
 
 ## 0.91.0 (Round 95): years of potential life lost and aberration detection
 

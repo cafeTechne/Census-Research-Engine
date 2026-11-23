@@ -147,6 +147,47 @@ SOURCES: Dict[str, Dict[str, Any]] = {
     "chiang1984": _src("book", "Chiang, C.L.", 1984, "The Life Table and Its Applications", publisher="Krieger, Malabar"),
     "arriaga1984": _src("paper", "Arriaga, E.E.", 1984, "Measuring and explaining the change in life expectancies",
                         "Demography", volume="21", pages="83-96"),
+    "van_buuren2012": _src("book", "van Buuren, S.", 2012, "Flexible Imputation of Missing Data",
+                           publisher="Chapman & Hall/CRC, Boca Raton",
+                           note="1st edition; guidance for Round 100 (docs/literature/van_buuren_fimd.md)"),
+    "barnard_rubin1999": _src("paper", "Barnard, J. & Rubin, D.B.", 1999, "Small-sample degrees of freedom with multiple "
+                              "imputation", "Biometrika", volume="86", pages="948-955"),
+    "little1988": _src("paper", "Little, R.J.A.", 1988, "Missing-data adjustments in large surveys",
+                       "Journal of Business & Economic Statistics", volume="6", pages="287-296"),
+    "abadie_imbens2006": _src("paper", "Abadie, A. & Imbens, G.W.", 2006, "Large sample properties of matching "
+                              "estimators for average treatment effects", "Econometrica", volume="74", pages="235-267"),
+    "abadie_imbens2011": _src("paper", "Abadie, A. & Imbens, G.W.", 2011, "Bias-corrected matching estimators for "
+                              "average treatment effects", "Journal of Business & Economic Statistics", volume="29",
+                              pages="1-11"),
+    "iacus2012": _src("paper", "Iacus, S.M., King, G. & Porro, G.", 2012, "Causal inference without balance checking: "
+                      "coarsened exact matching", "Political Analysis", volume="20", pages="1-24"),
+    "gruber1994": _src("paper", "Gruber, J.", 1994, "The incidence of mandated maternity benefits",
+                       "American Economic Review", volume="84", pages="622-641"),
+    "besag1991": _src("paper", "Besag, J., York, J. & Mollié, A.", 1991, "Bayesian image restoration, with two "
+                      "applications in spatial statistics", "Annals of the Institute of Statistical Mathematics",
+                      volume="43", pages="1-20"),
+    "riebler2016": _src("paper", "Riebler, A., Sørbye, S.H., Simpson, D. & Rue, H.", 2016, "An intuitive Bayesian "
+                        "spatial model for disease mapping that accounts for scaling", "Statistical Methods in Medical "
+                        "Research", volume="25", pages="1145-1165"),
+    "moraga2023": _src("book", "Moraga, P.", 2023, "Spatial Statistics for Data Science: Theory and Practice with R",
+                       publisher="Chapman & Hall/CRC, Boca Raton", url="https://www.paulamoraga.com/book-spatial/",
+                       note="guidance for Rounds 96-97 (docs/literature/moraga_spatial_statistics.md)"),
+    "roberts2017": _src("paper", "Roberts, D.R. et al.", 2017, "Cross-validation strategies for data with temporal, "
+                        "spatial, hierarchical, or phylogenetic structure", "Ecography", volume="40", pages="913-929"),
+    "openshaw1984": _src("book", "Openshaw, S.", 1984, "The Modifiable Areal Unit Problem (CATMOG 38)",
+                         publisher="Geo Books, Norwich"),
+    "cct2014": _src("paper", "Calonico, S., Cattaneo, M.D. & Titiunik, R.", 2014, "Robust nonparametric confidence "
+                    "intervals for regression-discontinuity designs", "Econometrica", volume="82", pages="2295-2326"),
+    "ik2012": _src("paper", "Imbens, G. & Kalyanaraman, K.", 2012, "Optimal bandwidth choice for the regression "
+                   "discontinuity estimator", "Review of Economic Studies", volume="79", pages="933-959"),
+    "mccrary2008": _src("paper", "McCrary, J.", 2008, "Manipulation of the running variable in the regression "
+                        "discontinuity design: a density test", "Journal of Econometrics", volume="142", pages="698-714"),
+    "card_dobkin_maestas2008": _src("paper", "Card, D., Dobkin, C. & Maestas, N.", 2008, "The impact of nearly universal "
+                                    "insurance coverage on health care utilization: evidence from Medicare",
+                                    "American Economic Review", volume="98", pages="2242-2258"),
+    "cunningham2021": _src("book", "Cunningham, S.", 2021, "Causal Inference: The Mixtape",
+                           publisher="Yale University Press, New Haven", url="https://mixtape.scunning.com/",
+                           note="2018 draft used; guidance for Rounds 98-99 (docs/literature/cunningham_mixtape.md)"),
     "muller_watson2022": _src("paper", "Müller, U.K. & Watson, M.W.", 2022, "Spatial correlation robust inference",
                               "Econometrica", volume="90", pages="2901-2935"),
     "prasad_rao1990": _src("paper", "Prasad, N.G.N. & Rao, J.N.K.", 1990, "The estimation of the mean squared error of "
@@ -282,7 +323,8 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     # analysis frames and models
     "build_analysis_frame": [*ACS, *REP, ("cbp_ers", "data"), ("chr", "data"), ("pep", "data"), ("lodes", "data"),
                              ("acs_flows", "data"), ("walker2023", "guidance")],
-    "fit_model": [*REP, ("statsmodels", "software"), ("fuller", "method"), ("carroll", "method"), ("simex", "method"),
+    "fit_model": [*REP, ("statsmodels", "software"), ("rubin1987", "method"), ("barnard_rubin1999", "method"),
+                  ("little1988", "method"), ("van_buuren2012", "guidance"), _audit("mice_validation.md"), ("fuller", "method"), ("carroll", "method"), ("simex", "method"),
                   ("fay_herriot1979", "method"), ("muller_watson2022", "method"), ("cluster_im", "method"),
                   ("bovbjerg2020", "guidance"), _audit("inference_validation.md"), _audit("epi_measures_validation.md")],
     "compare_groups": [*REP, ("statsmodels", "software"), ("holm", "method"), _audit("omnibus_validation.md")],
@@ -293,16 +335,18 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "combine_estimates": [("paule_mandel1982", "method"), ("hartung_knapp2001", "method"), ("schuirmann1987", "method"),
                           _audit("evidence_validation.md")],
     "estimate_effect": [*CAUSAL, ("pearl2009", "method"), ("lauritzen1990", "method"), ("li_morgan_zaslavsky2018", "method"),
-                        ("lunceford_davidian2004", "method"), ("anderson_rubin1949", "method"), ("statsmodels", "software"),
+                        ("lunceford_davidian2004", "method"),
+                        ("abadie_imbens2006", "method"), ("abadie_imbens2011", "method"), ("iacus2012", "method"), ("anderson_rubin1949", "method"), ("statsmodels", "software"),
                         _audit("causal_validation.md"), _audit("causal_robustness_validation.md"),
-                        _audit("positivity_validation.md")],
+                        _audit("positivity_validation.md"),
+                        _audit("matching_validation.md")],
     "small_area_estimates": [("rao_yu1994", "method"), ("hadam2020", "method"),
                              _audit("sae_extensions_validation.md")],
     "spatial_small_area_estimates": [("pysal", "software"), *GEO],
     "multilevel_model": [("kenward_roger1997", "method"), ("statsmodels", "software"), _audit("methods73_validation.md")],
     "difference_in_differences": [*CAUSAL, ("callaway_santanna2021", "method"), ("sun_abraham2021", "method"),
                                   ("goodman_bacon2021", "method"), ("robins_hernan_brumback2000", "method"),
-                                  ("cole_hernan2008", "method"), _audit("policy_validation.md"),
+                                  ("cole_hernan2008", "method"), ("gruber1994", "method"), _audit("policy_validation.md"),
                                   _audit("msm_validation.md")],
     "interrupted_series": [("bootstrap_efron1993", "method"), _audit("missing_censored_its_validation.md")],
     "joinpoint": [("kim2000", "method"), ("tiwari2006", "method"), ("fay_feuer1997", "method"), *EPI,
@@ -332,8 +376,14 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "get_boundaries": GEO, "make_map": GEO, "make_web_map": GEO,
     "spatial_autocorrelation": [("moran1950", "method"), ("anselin1995", "method"), ("pysal", "software"), *GEO,
                                 _audit("lisa_validation.md")],
-    "spatial_model": [("brunsdon1996", "method"), ("assuncao2006", "method"), *GEO, ("scipy", "software"),
-                      _audit("spatial_models_validation.md")],
+    "spatial_model": [("brunsdon1996", "method"), ("assuncao2006", "method"), ("besag1991", "method"),
+                      ("riebler2016", "method"), ("roberts2017", "method"), ("openshaw1984", "method"),
+                      ("moraga2023", "guidance"), *GEO, ("scipy", "software"),
+                      _audit("spatial_models_validation.md"), _audit("disease_mapping_validation.md"),
+                      _audit("model_assessment_validation.md")],
+    "regression_discontinuity": [("cct2014", "method"), ("ik2012", "method"), ("mccrary2008", "method"),
+                                 ("card_dobkin_maestas2008", "method"), ("cunningham2021", "guidance"), *PUMS,
+                                 _audit("rdd_validation.md")],
     "spatial_regression": [("spatial_lesage2009", "method"), ("pysal", "software"), *GEO,
                            _audit("spatial_regression_validation.md")],
     # health and context sources

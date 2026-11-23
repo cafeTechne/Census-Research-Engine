@@ -83,3 +83,19 @@ marginal_values=[10, 16], dose_levels=5)` adds the standardized (marginal) risk 
 two exposure values, the attributable fraction (every area at the low value) and a dose-response test over exposure
 quintiles, all validated (`docs/audits/epi_measures_validation.md`; HC3 delta SEs, population target). Report the risk
 ratio and the risk difference together, and say that the result describes areas.
+
+## Missing values in area frames (Round 100; van Buuren, *Flexible Imputation of Missing Data*)
+
+ACS withholds some estimates (for example "jam" values for medians in small tracts), and external measures are
+missing for small counties. Dropping those areas is only safe when missingness is unrelated to the outcome given the
+covariates.
+
+- `fit_model(..., method="replicate", impute=[...], impute_method="pmm")` imputes any number of incomplete variables,
+  the outcome included, by fully conditional specification (m = 20, 10 cycles). It pools with Rubin's rules and
+  Barnard–Rubin df. Validated: PMM .885–.912; `"norm"` .887–.915.
+  - Predictive mean matching imputes observed values, so rates stay within bounds.
+  - Report the **fraction of missing information** (`fmi`) for each coefficient.
+- **MNAR sensitivity:** `impute_delta_variable="<variable>", impute_delta_shifts=[...]` re-runs the analysis with the imputations shifted
+  (e.g. missing incomes 10% or 20% lower on the log scale). Show how far the conclusions move.
+- One or two incomplete covariates without `impute_method` keep the Round 42/47 routines.
+
