@@ -166,7 +166,8 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 **Round 96 (v0.92.0; merged, release pending owner approval; implemented by the maintainer agent):**
 spatial disease mapping with BYM2 (N73; Moraga).
 - `spatial_model(kind="disease_map")`: Laplace BYM2, exceedance probabilities (calibrated), intervals exploratory.
-- Example (`r96_disease_mapping_example.md`): Michigan county overdose relative risks.
+- Example (`r96_disease_mapping_example.md`): Michigan county overdose relative risks. Goldens byte-identical;
+  2362 passed, 42 skipped; 0 failures.
 
 **Round 95 (v0.91.0; merged, release pending owner approval; implemented by the maintainer agent):**
 YPLL and aberration detection (N72; CDC SS1000).

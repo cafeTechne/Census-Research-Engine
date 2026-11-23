@@ -19,3 +19,8 @@ commit (tag `criterion-r96`) is an ancestor of the branch. Version 0.92.0.
    20 s to 5 s.
 3. **The plan named an interval-censored likelihood for suppressed counts.** Missing counts contribute no likelihood
    instead. Their areas are predicted from neighbours, labelled, and not validated.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 95.
+- Full suite: 2362 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.

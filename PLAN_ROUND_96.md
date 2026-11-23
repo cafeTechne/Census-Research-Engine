@@ -58,5 +58,5 @@ Laplace-approximate marginal likelihood). Version 0.92.0. Branch `phase96/diseas
 | Results | intervals fail in 1 of 16 cells; exceedance calibrated | `disease_mapping_validation.md` |
 | Engine, recipe | done | `spatial_model(kind="disease_map")`; recipe `small_area`; protocol |
 | Example | done | `r96_disease_mapping_example.md` |
-| Goldens, suite | see audit | `round96_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2362 passed, 42 skipped |
 | Exceptions | 3 | see audit |
