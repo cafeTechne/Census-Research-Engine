@@ -58,5 +58,5 @@ program thresholds by income-to-poverty ratio, and age-based policies in PUMS. V
 | Results | discrete with replicates pass; continuous and density test fail | `rdd_validation.md` |
 | Engine, tool, recipe | done | tool `regression_discontinuity` (80 tools); recipe `causal`; protocol |
 | Example | done | `r98_rdd_example.md` |
-| Goldens, suite | see audit | `round98_compatibility.md` |
+| Goldens, suite | pass | goldens byte-identical; 2373 passed, 42 skipped |
 | Exceptions | 3 | see audit |

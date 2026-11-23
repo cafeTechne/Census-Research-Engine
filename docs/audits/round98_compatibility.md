@@ -18,3 +18,8 @@ Author self-review, not independent. Worktree `/tmp/census-round98`, branch `pha
 2. **The density test jitters ages uniformly within each year when the running variable is discrete.** The validation
    ran the test on continuous data only, and the test is exploratory anyway.
 3. **Clustering by running-variable value is not offered.** It failed validation badly.
+
+## Acceptance
+
+- Goldens: run and schema snapshots byte-identical to Round 97.
+- Full suite: 2373 passed, 42 skipped, 13 warnings, 72 subtests; 0 failures.

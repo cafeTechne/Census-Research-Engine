@@ -169,7 +169,8 @@ snapshots unchanged; execution golden differs only for the intended WONDER fix (
 regression discontinuity (N75; Cunningham).
 - Tool `regression_discontinuity` (80 tools): robust bias-corrected sharp/fuzzy RDD; validated for PUMS ages with
   replicates; continuous running variables and the density test exploratory.
-- Example (`r98_rdd_example.md`): Michigan insurance at 65 (+3.0 points any coverage).
+- Example (`r98_rdd_example.md`): Michigan insurance at 65 (+3.0 points any coverage). Goldens byte-identical;
+  2373 passed, 42 skipped; 0 failures.
 
 **Round 97 (v0.93.0; merged, release pending owner approval; implemented by the maintainer agent):**
 spatial block cross-validation and MAUP sensitivity (N74; Moraga).
