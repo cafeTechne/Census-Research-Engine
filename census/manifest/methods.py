@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 @dataclass(frozen=True)
 class MethodSpec:
@@ -33,14 +34,36 @@ def _run_fit_replicate(a, args, frame, level, replicates, correction, ctx):
     fixed_vars = list(held_external)
     if a.get("replicate_scope") == "covariates_only":  # pre-registered: the outcome is held fixed
         fixed_vars += [v for v in _formula_names(a["formula"].split("~")[0]) if v not in fixed_vars]
-    if args.get("spatial_scpc") is not None:  # Round 61: SCPC naive slopes (Round 58)
+    if args.get("impute") is not None:  # Round 104: FCS multiple imputation (Round 100)
+        from ..mice import impute_fcs, AUDIT as _MICE_AUDIT
+        delta = ({args["impute_delta_variable"]: args["impute_delta_shifts"]}
+                 if args.get("impute_delta_variable") and args.get("impute_delta_shifts") else None)
+        out = impute_fcs(a["formula"], frame, args["impute"], method=args.get("impute_method", "pmm"),
+                         delta=delta, level=level)
+        wrapped_in = {**out, "table": out["table"].rename(columns={"ci_lower": "lower", "ci_upper": "upper"})}
+        result = _wrap_table(wrapped_in, f"OLS with FCS imputation ({out['method']})", a["formula"], "fit_replicate",
+                             list(out.get("notes", [])),
+                             {"fcs_imputation": {"method": out["method"], "imputations": out.get("imputations", 20),
+                                                 "incomplete": list(args["impute"]),
+                                                 "validated": out["validated"], "audit": _MICE_AUDIT,
+                                                 "delta": out.get("delta")}})
+        result.confidence_level = level
+    elif args.get("spatial_scpc") is not None:  # Round 61: SCPC naive slopes (Round 58)
         result = _scpc_result(a["formula"], frame, args, level, ctx.get("coords"))
     elif args.get("model") == "negbin":  # Round 43 M2: NB2-HC3 (Round 39), model SE, naive target
         result = _negbin_result(a["formula"], frame, args["exposure"], level)
     else:
+        fit_args = {k: v for k, v in args.items() if k not in ("marginal", "impute", "impute_method",
+                                                               "impute_delta_variable", "impute_delta_shifts")}
         if fixed_vars:
-            args["fixed_variables"] = fixed_vars
-        result = models.fit_replicate(a["formula"], frame, replicates=replicates, confidence_level=level, **args)
+            fit_args["fixed_variables"] = fixed_vars
+        result = models.fit_replicate(a["formula"], frame, replicates=replicates, confidence_level=level, **fit_args)
+    if args.get("marginal") is not None:  # Round 104: marginal binomial RR/RD/AF (Round 84)
+        from ..epi_measures import area_marginal_measures
+        m_cfg = args["marginal"]
+        m_out = area_marginal_measures(frame, a["formula"], args["trials"], m_cfg["exposure"],
+                                       values=m_cfg.get("contrast"), level=level)
+        result.diagnostics["marginal"] = m_out
     outcome = str(a["formula"]).split("~")[0].strip()
     parent = next((n for n in ctx.get("wonder_names",()) if outcome in (n,n+"_numerator")),None)
     if parent:
@@ -417,10 +440,25 @@ def _check_fit_replicate(stage, ctx):
     count_outcome = ctx.get("count_outcome")
     if stage == "before_spatial":
         allowed = {"model", "weights", "exposure", "trials", "cv_threshold", "max_failed_replicates",
-                   "target", "scale", "spatial_se", "spatial_clusters", "spatial_scpc"}
+                   "target", "scale", "spatial_se", "spatial_clusters", "spatial_scpc",
+                   "marginal", "impute", "impute_method", "impute_delta_variable", "impute_delta_shifts"}
         unknown = sorted(set(aargs) - allowed)
         if unknown:
             errors.append(f"fit_replicate does not take args {unknown}")
+        if aargs.get("marginal") is not None:
+            m_cfg = aargs["marginal"]
+            if aargs.get("model") != "binomial" or not aargs.get("trials"):
+                errors.append("fit_replicate args.marginal requires model 'binomial' and args.trials")
+            elif not isinstance(m_cfg, dict) or not isinstance(m_cfg.get("exposure"), str) or m_cfg["exposure"] not in names:
+                errors.append("fit_replicate args.marginal must be {exposure: <manifest variable>[, contrast: [lo, hi]]}")
+        if aargs.get("impute") is not None:
+            imp = aargs["impute"]
+            if not isinstance(imp, list) or not imp or not all(isinstance(v, str) and v in names for v in imp):
+                errors.append("fit_replicate args.impute must be a non-empty list of manifest variables")
+            if aargs.get("impute_method", "pmm") not in ("pmm", "norm"):
+                errors.append("fit_replicate args.impute_method must be 'pmm' or 'norm'")
+            if aargs.get("model", "ols") != "ols":
+                errors.append("fit_replicate args.impute is validated for OLS only")
         glm = aargs.get("model", "ols")
         scpc = aargs.get("spatial_scpc")
         if scpc is not None:  # Round 61: SCPC naive slopes (Round 58)
@@ -963,7 +1001,8 @@ def _text_segregation(a, text):
 
 METHODS: Dict[str, MethodSpec] = {
     'fit_replicate': MethodSpec(
-        'fit_replicate', ('formula',), ('coefficient', 'joint_wald', 'joint_test'), _run_fit_replicate,
+        'fit_replicate', ('formula',), ('coefficient', 'joint_wald', 'joint_test',
+                                        'marginal_rr', 'marginal_rd', 'attributable_fraction'), _run_fit_replicate,
         replicate=True,
         external_outcome=True,
         check=_check_fit_replicate,
@@ -1193,6 +1232,10 @@ METHODS["multilevel"] = MethodSpec(
 
 # ---------------------------------------------------------------- Round 76: disparity, kitagawa
 def _run_disparity(a, args, frame, level, replicates, correction, ctx):
+    if args.get("who_measures") or args.get("compare_years"):
+        from ..inequality_monitoring import monitoring_measures
+        return monitoring_measures(frame, a["groups"], a["populations"], replicates, reference=a["reference"],
+                                   level=level, compare_years=args.get("compare_years"))
     from ..disparity import disparity_measures
     return disparity_measures(frame, a["groups"], a["reference"], a["populations"], replicates=replicates,
                               level=level, omitted_groups=args.get("omitted_groups"), total=args.get("total"))
@@ -1231,16 +1274,24 @@ def _refusal(row, what):
 def _stat_disparity(h, res):
     from ..disparity import index_test
     stat = h["statistic"]
-    mask = (res["GEOID"].astype(str) == str(h["geoid"])) & (res["measure"] == stat)
+    measure_name = "sii" if stat == "who_sii" else stat
+    mask = (res["GEOID"].astype(str) == str(h["geoid"])) & (res["measure"] == measure_name)
     if stat in ("rd", "log_rr"):
         mask &= res["group"] == h["group"]
     row = _release_row(res, h, mask)
-    if not (np.isfinite(row["estimate"]) and np.isfinite(row["se"])):
+    est_col = "change" if "change" in row.index and "estimate" not in row.index else "estimate"
+    if not (np.isfinite(row[est_col]) and np.isfinite(row["se"])):
         raise ValueError(f"{stat} or its uncertainty is undefined; see analysis notes")
-    out = {"estimate": float(row["estimate"]), "se": float(row["se"]), "se_basis": f"{row['basis']} ({row['se_scale']} scale)",
+    basis = row["basis"] if "basis" in row.index else "replicate"
+    scale = row["se_scale"] if "se_scale" in row.index else "identity"
+    out = {"estimate": float(row[est_col]), "se": float(row["se"]), "se_basis": f"{basis} ({scale} scale)",
            "ci_lower": float(row["ci_lower"]), "ci_upper": float(row["ci_upper"])}
     if stat in ("rd", "log_rr"):
         out["p_two_sided"] = float(row["p_value"])
+    elif stat in ("par", "par_pct", "who_sii"):
+        null_v = float(h.get("null_value", 0.0))
+        z = abs(out["estimate"] - null_v) / out["se"] if out["se"] > 0 else np.inf
+        out["p_two_sided"] = float(2.0 * stats.norm.sf(z))
     else:
         out.update(index_test(row, h["null_value"]))
     out.update(_refusal(row, f"disparity {stat} for {h['geoid']}"))
@@ -1283,14 +1334,15 @@ def _check_disparity(stage, ctx):
     if stage == "before_spatial":
         a, errors, names = ctx["a"], ctx["errors"], ctx["names"]
         ok = _check_var_list(a, "groups", names, errors, label)
+        args = a.get("args") or {}
         if ok:
             _check_var_list(a, "populations", names, errors, label, len(a["groups"]))
-            if a.get("reference") not in a["groups"]:
+            allow_best = bool(args.get("who_measures") or args.get("compare_years"))
+            if a.get("reference") not in a["groups"] and not (allow_best and a.get("reference") == "best"):
                 errors.append(f"{label}: reference must be one of the groups, declared in advance")
-        args = a.get("args") or {}
-        bad = set(args)-{"omitted_groups", "total"}
+        bad = set(args)-{"omitted_groups", "total", "who_measures", "compare_years"}
         if bad:
-            errors.append(f"{label}: takes args omitted_groups and total only, not {sorted(bad)}")
+            errors.append(f"{label}: takes args omitted_groups, total, who_measures and compare_years only, not {sorted(bad)}")
         og = args.get("omitted_groups")
         if og is not None and (not isinstance(og, list) or not all(isinstance(x, str) for x in og)):
             errors.append(f"{label}: omitted_groups must be a list of group names")
@@ -1311,6 +1363,11 @@ def _check_disparity(stage, ctx):
             errors.append(f"{label}: {stat} hypotheses name a non-reference group from the analysis")
         if h.get("null_value", 0) != 0:
             errors.append(f"{label}: {stat} is tested against zero (no difference)")
+    elif stat in ("par", "par_pct", "who_sii"):
+        if not ((a.get("args") or {}).get("who_measures") or (a.get("args") or {}).get("compare_years")):
+            errors.append(f"{label}: {stat} requires args.who_measures=true or args.compare_years")
+        if "group" in h:
+            errors.append(f"{label}: {stat} summarises all groups; it takes no group")
     else:
         nv = h.get("null_value")
         if type(nv) not in (int, float) or not np.isfinite(nv) or nv <= 0:
@@ -1341,7 +1398,8 @@ def _check_kitagawa(stage, ctx):
 
 
 METHODS["disparity"] = MethodSpec(
-    "disparity", ("groups", "populations", "reference"), ("rd", "log_rr", "idisp", "bgv", "theil", "mld"),
+    "disparity", ("groups", "populations", "reference"),
+    ("rd", "log_rr", "idisp", "bgv", "theil", "mld", "par", "par_pct", "who_sii"),
     _run_disparity, replicate=True, check=_check_disparity, default_target="these_areas",
     text=(
         "Between-group disparities compare mutually exclusive population groups within each area against a "
@@ -1369,10 +1427,954 @@ METHODS["kitagawa"] = MethodSpec(
 )
 
 
+# ---------------------------------------------------------------- Round 104: marginal, estimate_effect, spatial_scan, stratified
+def _stat_marginal(h, res):
+    m = (getattr(res, "diagnostics", None) or {}).get("marginal")
+    if not m:
+        raise ValueError("marginal statistics require args.marginal on fit_replicate")
+    stat = h["statistic"]
+    key = {"marginal_rr": "rr", "marginal_rd": "rd", "attributable_fraction": "af"}[stat]
+    part = m[key]
+    est = float(part["estimate"]); lo = float(part["lower"]); hi = float(part["upper"])
+    se = float(part.get("se", (hi - lo) / (2.0 * stats.norm.ppf(0.5 + getattr(res, "confidence_level", 0.90) / 2.0))))
+    null_v = float(h.get("null_value", 1.0 if stat == "marginal_rr" else 0.0))
+    if stat == "marginal_rr":
+        se_log = (np.log(hi) - np.log(lo)) / (2.0 * stats.norm.ppf(0.95)) if lo > 0 and hi > 0 else np.nan
+        z = abs(np.log(est) - np.log(null_v)) / se_log if np.isfinite(se_log) and se_log > 0 else np.inf
+    else:
+        z = abs(est - null_v) / se if se > 0 else np.inf
+    out = {"estimate": est, "se": se, "se_basis": "g-computation HC3 delta", "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z))}
+    if not m.get("validated", True):
+        out["confirmatory_refusal"] = f"marginal {stat} was not validated"
+    return out
+
+
+def _run_estimate_effect(a, args, frame, level, replicates, correction, ctx):
+    kind = a["kind"]
+    if kind == "treatment":
+        from ..causal import estimate_effect
+        r = estimate_effect(frame, a["outcome"], a["treatment"], a["confounders"],
+                            method=args.get("method", "aipw"), replicates=replicates,
+                            calibrate=bool(args.get("calibrate", False)), weights=args.get("weights"))
+        eff = r["effect"] if "effect" in r else r
+        return dict(kind=kind, estimate=float(eff["estimate"]), se=float(eff["se"]),
+                    ci_lower=float(eff["lower"]), ci_upper=float(eff["upper"]),
+                    validated=bool(r["validated"]), se_basis=f"causal treatment ({args.get('method', 'aipw')})",
+                    notes=list(r.get("notes", [])), audit=r.get("audit", ""), raw=r)
+    if kind == "matching":
+        from ..matching import matching_effect
+        m = args.get("method", "nn")
+        est_arg = args.get("estimand", "ATT" if m in ("cem", "ps") else "ATE")
+        r = matching_effect(frame, a["outcome"], a["treatment"], a["confounders"], method=m, estimand=est_arg)
+        eff = r["effect"]
+        return dict(kind=kind, estimate=float(eff["estimate"]), se=float(eff["se"]),
+                    ci_lower=float(eff["lower"]), ci_upper=float(eff["upper"]),
+                    validated=bool(r["validated"]), se_basis=f"matching ({m}, {est_arg})",
+                    notes=list(r.get("notes", [])), audit=r.get("audit", ""), raw=r)
+    if kind == "iv":
+        from ..causal import iv_slope
+        r = iv_slope(frame, a["outcome"], a["x"], a["instrument"], controls=args.get("controls", ()))
+        ar = r.get("anderson_rubin", {})
+        lo = float(ar.get("lower", r["lower"])); hi = float(ar.get("upper", r["upper"]))
+        return dict(kind=kind, estimate=float(r["estimate"]), se=float(r["se"]),
+                    ci_lower=lo, ci_upper=hi, validated=bool(r["validated"]),
+                    se_basis="2SLS (Anderson-Rubin interval)", notes=list(r.get("notes", [])),
+                    audit=r.get("audit", ""), raw=r)
+    if kind == "mediation":
+        from ..causal import mediation
+        r = mediation(frame, a["x"], a["mediator"], a["outcome"], controls=args.get("controls", ()),
+                      replicates=replicates, calibrate=bool(args.get("calibrate", False)))
+        part = r["indirect"]
+        return dict(kind=kind, estimate=float(part["estimate"]), se=float(part["se"]),
+                    ci_lower=float(part["lower"]), ci_upper=float(part["upper"]),
+                    validated=bool(r["validated"]), se_basis="mediation indirect effect",
+                    notes=list(r.get("notes", [])), audit=r.get("audit", ""), raw=r)
+    raise ValueError(f"unsupported estimate_effect kind {kind!r}")
+
+
+def _stat_estimate_effect(h, res):
+    est = float(res["estimate"]); se = float(res["se"])
+    null_v = float(h.get("null_value", 0.0))
+    z = abs(est - null_v) / se if np.isfinite(se) and se > 0 else np.inf
+    out = {"estimate": est, "se": se, "se_basis": res["se_basis"],
+           "ci_lower": float(res["ci_lower"]), "ci_upper": float(res["ci_upper"]),
+           "p_two_sided": float(2.0 * stats.norm.sf(z))}
+    if not res.get("validated", False):
+        out["confirmatory_refusal"] = f"estimate_effect ({res['kind']}) was not validated ({res.get('audit', '')})"
+    return out
+
+
+def _check_estimate_effect(stage, ctx):
+    if stage != "before_spatial":
+        return
+    a, manifest, names, errors = ctx["a"], ctx["manifest"], ctx["names"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) estimate_effect"
+    kind = a.get("kind")
+    if kind not in ("treatment", "matching", "iv", "mediation"):
+        errors.append(f"{label}: kind must be 'treatment', 'matching', 'iv' or 'mediation'")
+        return
+    if a.get("outcome") not in names:
+        errors.append(f"{label}: outcome {a.get('outcome')!r} is not a manifest variable")
+    if not manifest.get("exploratory", False) and not manifest.get("causal_question"):
+        errors.append(f"{label}: confirmatory causal analyses require a manifest-level causal_question block (Round 89)")
+    args = a.get("args") or {}
+    adj = []
+    trt = None
+    if kind in ("treatment", "matching"):
+        trt = a.get("treatment")
+        if trt not in names:
+            errors.append(f"{label}: treatment {trt!r} is not a manifest variable")
+        confs = a.get("confounders")
+        if not isinstance(confs, list) or not confs or not all(isinstance(c, str) and c in names for c in confs):
+            errors.append(f"{label}: confounders must be a non-empty list of manifest variables")
+        else:
+            adj = list(confs)
+            if a.get("outcome") in confs:
+                errors.append(f"{label}: circularity (R1/R2): outcome cannot appear in confounders")
+        if kind == "treatment":
+            bad = set(args) - {"method", "weights", "calibrate"}
+            if bad:
+                errors.append(f"{label}: treatment takes args method, weights, calibrate only, not {sorted(bad)}")
+            if args.get("method", "aipw") not in ("aipw", "ipw", "ra"):
+                errors.append(f"{label}: treatment method must be 'aipw', 'ipw' or 'ra'")
+            if args.get("weights") not in (None, "stabilized", "truncated", "overlap"):
+                errors.append(f"{label}: weights must be 'stabilized', 'truncated' or 'overlap'")
+        else:
+            bad = set(args) - {"method", "estimand"}
+            if bad:
+                errors.append(f"{label}: matching takes args method, estimand only, not {sorted(bad)}")
+            if args.get("method", "nn") not in ("nn", "cem", "ps"):
+                errors.append(f"{label}: matching method must be 'nn', 'cem' or 'ps'")
+            if args.get("estimand") not in (None, "ATE", "ATT"):
+                errors.append(f"{label}: estimand must be 'ATE' or 'ATT'")
+    elif kind == "iv":
+        trt = a.get("x")
+        if trt not in names or a.get("instrument") not in names:
+            errors.append(f"{label}: iv requires manifest variables x and instrument")
+        bad = set(args) - {"controls"}
+        if bad:
+            errors.append(f"{label}: iv takes args controls only, not {sorted(bad)}")
+        adj = list(args.get("controls") or [])
+    elif kind == "mediation":
+        trt = a.get("x")
+        if trt not in names or a.get("mediator") not in names:
+            errors.append(f"{label}: mediation requires manifest variables x and mediator")
+        if a.get("mediator") == a.get("outcome"):
+            errors.append(f"{label}: circularity (R1/R2): mediator cannot equal outcome")
+        bad = set(args) - {"controls", "calibrate"}
+        if bad:
+            errors.append(f"{label}: mediation takes args controls, calibrate only, not {sorted(bad)}")
+        adj = list(args.get("controls") or [])
+    if manifest.get("dag") and trt and adj and not manifest.get("exploratory", False):
+        from ..causal_spec import DagError, dag_report
+        dag_cfg = {**manifest["dag"], "treatment": trt, "outcome": a.get("outcome")}
+        try:
+            chk = dag_report(dag_cfg, adj)["check"]
+        except DagError as exc:
+            errors.append(f"{label}: DAG error: {exc}")
+        else:
+            if not chk.get("sufficient", True):
+                reasons = chk.get("reasons") or [k for k in ("colliders_opened", "mediators", "treatment_descendants",
+                                                             "open_backdoor_paths") if chk.get(k)]
+                errors.append(f"{label}: DAG backdoor check failed: {'; '.join(map(str, reasons))}")
+
+
+def _run_spatial_scan(a, args, frame, level, replicates, correction, ctx):
+    from ..scan import spatial_scan
+    return spatial_scan(frame, a["cases"], population=a.get("population"), expected=a.get("expected"),
+                        year=args.get("year"), max_share=float(args.get("max_share", 0.5)),
+                        exclude=args.get("exclude"), exclude_rule=args.get("exclude_rule"), prespecified=True)
+
+
+def _stat_spatial_scan(h, res):
+    p = res.get("primary")
+    if p is None:
+        return {"estimate": 1.0, "se": float("nan"), "se_basis": "Kulldorff Poisson Monte Carlo",
+                "ci_lower": float("nan"), "ci_upper": float("nan"), "p_two_sided": 1.0,
+                "confirmatory_refusal": "spatial_scan found no high-rate window"}
+    out = {"estimate": float(p["relative_risk"]), "se": float("nan"),
+           "se_basis": "Kulldorff Poisson Monte Carlo (999 replicates)",
+           "ci_lower": float("nan"), "ci_upper": float("nan"), "p_two_sided": float(p["p_value"])}
+    if not res.get("validated", False):
+        out["confirmatory_refusal"] = f"spatial_scan was not validated ({res.get('audit', '')})"
+    return out
+
+
+def _check_spatial_scan(stage, ctx):
+    if stage != "before_spatial":
+        return
+    a, manifest, names, errors = ctx["a"], ctx["manifest"], ctx["names"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) spatial_scan"
+    if manifest.get("geography", {}).get("level") not in (None, "county"):
+        errors.append(f"{label}: spatial_scan is validated at county level only (Round 81)")
+    if a.get("cases") not in names:
+        errors.append(f"{label}: cases {a.get('cases')!r} is not a manifest variable")
+    if a.get("population") is None and a.get("expected") is None:
+        errors.append(f"{label}: requires population or expected")
+    for col in ("population", "expected"):
+        if a.get(col) is not None and a[col] not in names:
+            errors.append(f"{label}: {col} {a[col]!r} is not a manifest variable")
+    args = a.get("args") or {}
+    bad = set(args) - {"max_share", "exclude", "exclude_rule", "year"}
+    if bad:
+        errors.append(f"{label}: takes args max_share, exclude, exclude_rule, year only, not {sorted(bad)}")
+    if not manifest.get("exploratory", False) and float(args.get("max_share", 0.5)) != 0.5:
+        errors.append(f"{label}: confirmatory spatial_scan requires max_share=0.5 (Round 81)")
+
+
+def _run_stratified(a, args, frame, level, replicates, correction, ctx):
+    from ..stratified import stratified_counts
+    return stratified_counts(frame, a["stratum"], a["cases_exposed"], a["total_exposed"],
+                             a["cases_unexposed"], a["total_unexposed"],
+                             person_time=bool(args.get("person_time", False)), level=level)
+
+
+def _stat_stratified(h, res):
+    stat = h["statistic"]
+    if stat == "homogeneity":
+        bd = res["homogeneity"].get("breslow_day_tarone") or res["homogeneity"].get("breslow_day")
+        return {"estimate": float(bd["statistic"]), "se": float("nan"), "se_basis": "Breslow-Day-Tarone",
+                "ci_lower": float("nan"), "ci_upper": float("nan"), "p_two_sided": float(bd["p_value"])}
+    if stat == "reri":
+        r = res["additive_interaction"]
+        est = float(r["reri"]); lo = float(r["lower"]); hi = float(r["upper"])
+        se = float(r.get("se", (hi - lo) / (2.0 * stats.norm.ppf(0.95))))
+        z = abs(est - float(h.get("null_value", 0.0))) / se if se > 0 else np.inf
+        return {"estimate": est, "se": se, "se_basis": "RERI delta/bootstrap", "ci_lower": lo, "ci_upper": hi,
+                "p_two_sided": float(2.0 * stats.norm.sf(z))}
+    key = stat[3:]  # rr, or, rd, irr
+    m = res["pooled"][key]
+    est = float(m["estimate"]); lo = float(m["lower"]); hi = float(m["upper"])
+    se = float(m.get("se", (hi - lo) / (2.0 * stats.norm.ppf(0.95))))
+    null_v = float(h.get("null_value", 0.0 if key == "rd" else 1.0))
+    if key == "rd":
+        z = abs(est - null_v) / se if se > 0 else np.inf
+    else:
+        se_log = (np.log(hi) - np.log(lo)) / (2.0 * stats.norm.ppf(0.95)) if lo > 0 and hi > 0 else np.nan
+        z = abs(np.log(est) - np.log(null_v)) / se_log if np.isfinite(se_log) and se_log > 0 else np.inf
+    out = {"estimate": est, "se": se, "se_basis": f"Mantel-Haenszel ({key})", "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z))}
+    if not res.get("validated", True):
+        out["confirmatory_refusal"] = f"stratified {stat} was not validated"
+    return out
+
+
+def _check_stratified(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) stratified"
+    if stage == "before_spatial":
+        names = ctx["names"]
+        for k in ("stratum", "cases_exposed", "total_exposed", "cases_unexposed", "total_unexposed"):
+            if a.get(k) not in names:
+                errors.append(f"{label}: {k} {a.get(k)!r} is not a manifest variable")
+        args = a.get("args") or {}
+        bad = set(args) - {"person_time"}
+        if bad:
+            errors.append(f"{label}: takes args person_time only, not {sorted(bad)}")
+        return
+    if stage == "hypothesis":
+        if ctx["h"].get("statistic") == "mh_irr" and not (a.get("args") or {}).get("person_time"):
+            errors.append(f"{label}: mh_irr requires args.person_time=true")
+
+
+METHODS["estimate_effect"] = MethodSpec(
+    "estimate_effect", ("kind", "outcome"), ("effect",), _run_estimate_effect,
+    replicate=True, external_outcome=True, check=_check_estimate_effect,
+    text=(
+        "Causal effect estimation followed the pre-registered causal question and DAG adjustment checks (Round 89), "
+        "using validated treatment-effect (AIPW/IPW/RA with positivity diagnostics and overlap/truncated weights), "
+        "matching (bias-corrected nearest-neighbour ATE/ATT, CEM or caliper), 2SLS with Anderson-Rubin intervals, "
+        "or mediation estimators (Rounds 41, 47, 90, 99, 104).",
+        ["hernan_robins2020", "abadie_imbens2006"],
+    ),
+)
+
+METHODS["spatial_scan"] = MethodSpec(
+    "spatial_scan", ("cases",), ("primary_rr",), _run_spatial_scan,
+    external_outcome=True, check=_check_spatial_scan, required_alternatives=(("population", "expected"),),
+    text=(
+        "County cluster detection used the pre-specified Kulldorff Poisson spatial scan (50% maximum window share, "
+        "999 Monte Carlo replicates; Round 81) on exact denominators, with any WONDER-suppressed counties excluded "
+        "under the declared rule.",
+        ["kulldorff1997"],
+    ),
+)
+
+METHODS["stratified"] = MethodSpec(
+    "stratified", ("stratum", "cases_exposed", "total_exposed", "cases_unexposed", "total_unexposed"),
+    ("mh_rr", "mh_or", "mh_rd", "mh_irr", "reri", "homogeneity"), _run_stratified,
+    external_outcome=True, check=_check_stratified,
+    text=(
+        "Stratified count tables were pooled with Mantel-Haenszel risk/odds/rate ratios and risk differences, "
+        "Breslow-Day-Tarone homogeneity tests, and additive interaction (RERI) (Round 83).",
+        ["mantel_haenszel1959", "breslow"],
+    ),
+)
+
+
+def _run_designation(a, args, frame, level, replicates, correction, ctx):
+    from ..designation import designation_accuracy
+    rule = str(args.get("rule", "prob80"))
+    col = a["outcome"]
+    se_col = args.get("se_col") or (f"{col}_se" if f"{col}_se" in frame.columns else None)
+    n_col = args.get("n_col")
+    res = designation_accuracy(frame, col, float(a["threshold"]), se_col=se_col, n_col=n_col,
+                               covariates=args.get("covariates") or (), percent=args.get("percent"),
+                               rules=(rule,), ppv_intervals=True,
+                               ppv_bootstrap=int(args.get("ppv_bootstrap", 150)))
+    res["selected_rule"] = rule
+    return res
+
+
+def _stat_designation(h, res):
+    rule = res.get("selected_rule", "prob80")
+    row = res["rules"].set_index("rule").loc[rule]
+    est = float(row["ppv"])
+    lo = float(row.get("ppv_lower", float("nan")))
+    hi = float(row.get("ppv_upper", float("nan")))
+    se = (hi - lo) / (2.0 * stats.norm.ppf(0.95)) if np.isfinite(lo) and np.isfinite(hi) else float("nan")
+    null_v = float(h.get("null_value", 0.5))
+    z = abs(est - null_v) / se if np.isfinite(se) and se > 0 else float("nan")
+    out = {"estimate": est, "se": se, "se_basis": f"FH parametric bootstrap PPV ({rule})",
+           "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z)) if np.isfinite(z) else float("nan")}
+    if not bool(row.get("ppv_validated", False)):
+        out["confirmatory_refusal"] = f"designation PPV interval for rule={rule!r} is exploratory (validated for 'prob80' and 'point')"
+    return out
+
+
+def _check_designation(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) designation"
+    if stage == "before_spatial":
+        names = ctx["names"]
+        if a.get("outcome") not in names:
+            errors.append(f"{label}: outcome {a.get('outcome')!r} is not a manifest variable")
+        args = a.get("args") or {}
+        bad = set(args) - {"covariates", "rule", "percent", "ppv_bootstrap", "se_col", "n_col"}
+        if bad:
+            errors.append(f"{label}: unsupported args {sorted(bad)}")
+        rule = args.get("rule", "prob80")
+        if rule not in ("point", "lower", "prob50", "prob80"):
+            errors.append(f"{label}: rule must be one of point, lower, prob50, prob80")
+        if not ctx.get("exploratory") and rule not in ("prob80", "point", "lower"):
+            errors.append(f"{label}: confirmatory designation requires rule 'prob80', 'point', or 'lower' (Rounds 107/112)")
+        for cov in args.get("covariates") or ():
+            if cov not in names:
+                errors.append(f"{label}: covariate {cov!r} is not a manifest variable")
+
+
+def _run_agreement(a, args, frame, level, replicates, correction, ctx):
+    from ..agreement import check_agreement
+    return check_agreement(frame, a["first"], a["second"], level=level)
+
+
+def _stat_agreement(h, res):
+    stat = h["statistic"]
+    m = res[stat]
+    est = float(m["estimate"])
+    lo = float(m["lower"])
+    hi = float(m["upper"])
+    se = float(m.get("se", (hi - lo) / (2.0 * stats.norm.ppf(0.95))))
+    null_v = float(h.get("null_value", 0.0))
+    z = abs(est - null_v) / se if np.isfinite(se) and se > 0 else float("nan")
+    out = {"estimate": est, "se": se, "se_basis": f"agreement ({stat})",
+           "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z)) if np.isfinite(z) else float("nan")}
+    if not bool(m.get("validated", True)):
+        out["confirmatory_refusal"] = f"agreement statistic {stat!r} is exploratory"
+    return out
+
+
+def _check_agreement(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) agreement"
+    if stage == "before_spatial":
+        names = ctx["names"]
+        for k in ("first", "second"):
+            if a.get(k) not in names:
+                errors.append(f"{label}: {k} {a.get(k)!r} is not a manifest variable")
+        args = a.get("args") or {}
+        if args:
+            errors.append(f"{label}: takes no args, got {sorted(args)}")
+
+
+METHODS["designation"] = MethodSpec(
+    "designation", ("outcome", "threshold"), ("ppv",), _run_designation,
+    check=_check_designation,
+    text=(
+        "Area threshold designation probabilities used arcsine Fay-Herriot posterior probabilities (Round 85), with "
+        "positive predictive value (PPV) predictive intervals from the validated Round 107 FH parametric bootstrap "
+        "(rules 'prob80' and 'point').",
+        ["fay_herriot1979"],
+    ),
+)
+
+METHODS["agreement"] = MethodSpec(
+    "agreement", ("first", "second"), ("bias", "ccc", "kappa_quintiles"), _run_agreement,
+    external_outcome=True, check=_check_agreement,
+    text=(
+        "Source-to-source agreement reported mean bias, observed Bland-Altman limits (Round 48), quintile weighted "
+        "kappa (Round 37), and observed Lin's concordance correlation coefficient with delete-one-area Fisher-z "
+        "jackknife intervals (Round 106).",
+        ["lin1989", "bland_altman1986"],
+    ),
+)
+
+
+def _run_rdd(a, args, frame, level, replicates, correction, ctx):
+    from ..rdd import regression_discontinuity
+    return regression_discontinuity(
+        frame, a["outcome"], a["running"], float(a["cutoff"]),
+        treatment=args.get("treatment"), weight=args.get("weight"),
+        replicate_prefix=args.get("replicate_prefix"), bandwidth=args.get("bandwidth"),
+        covariates=args.get("covariates") or (), placebo_cutoffs=args.get("placebo_cutoffs") or (),
+        level=level,
+    )
+
+
+def _stat_rdd(h, res):
+    est = float(res["estimate"])
+    se = float(res["se"])
+    lo = float(res["lower"])
+    hi = float(res["upper"])
+    null_v = float(h.get("null_value", 0.0))
+    z = abs(est - null_v) / se if np.isfinite(se) and se > 0 else float("nan")
+    out = {"estimate": est, "se": se, "se_basis": f"RDD robust bias-corrected ({res.get('variance', 'hc')})",
+           "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z)) if np.isfinite(z) else float("nan")}
+    if not bool(res.get("validated", False)):
+        out["confirmatory_refusal"] = "RDD configuration is exploratory (use automatic CCT CER bandwidth for continuous or survey replicates for discrete)"
+    return out
+
+
+def _check_rdd(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) rdd"
+    if stage == "before_spatial":
+        names = ctx["names"]
+        for k in ("outcome", "running"):
+            if a.get(k) not in names:
+                errors.append(f"{label}: {k} {a.get(k)!r} is not a manifest variable")
+        args = a.get("args") or {}
+        bad = set(args) - {"treatment", "weight", "replicate_prefix", "bandwidth", "covariates", "placebo_cutoffs"}
+        if bad:
+            errors.append(f"{label}: unsupported args {sorted(bad)}")
+        if not ctx.get("exploratory") and args.get("bandwidth") is not None:
+            errors.append(f"{label}: confirmatory RDD requires automatic bandwidth (no custom args.bandwidth)")
+
+
+def _run_disease_map(a, args, frame, level, replicates, correction, ctx):
+    from ..disease_mapping import disease_map
+    edges = args.get("edges")
+    if edges is None:
+        # Derive connected edges from spatial neighbours in ctx if provided, else build from frame order
+        if ctx.get("edges") is not None:
+            edges = ctx["edges"]
+        else:
+            raise ValueError("disease_map requires neighbour edges (args.edges or spatial boundary context)")
+    return disease_map(
+        frame, a["observed"], a["expected"], edges=edges,
+        covariates=args.get("covariates") or (), threshold=float(args.get("threshold", 1.2)),
+        method=str(args.get("method", "B3")),
+    )
+
+
+def _stat_disease_map(h, res):
+    geoid = str(h.get("geoid") or h.get("area") or "")
+    tbl = res["table"]
+    row = tbl[tbl["GEOID"].astype(str) == geoid]
+    if row.empty:
+        raise KeyError(f"disease_map: GEOID {geoid!r} not in result table")
+    r = row.iloc[0]
+    est = float(r["relative_risk"])
+    lo = float(r["ci_lower"])
+    hi = float(r["ci_upper"])
+    se_log = (np.log(hi) - np.log(lo)) / (2.0 * stats.norm.ppf(0.95)) if lo > 0 and hi > 0 else float("nan")
+    null_v = float(h.get("null_value", 1.0))
+    z = abs(np.log(est) - np.log(null_v)) / se_log if np.isfinite(se_log) and se_log > 0 else float("nan")
+    out = {"estimate": est, "se": se_log, "se_basis": f"BYM2 {res.get('method', 'B3')} log-RR",
+           "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z)) if np.isfinite(z) else float("nan"),
+           "p_exceed": float(r["p_exceed"])}
+    if not bool(res.get("validated", False)):
+        out["confirmatory_refusal"] = "disease_map relative-risk intervals are exploratory (requires method='B3', median E >= 30, no suppressed counts)"
+    return out
+
+
+def _check_disease_map(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) disease_map"
+    if stage == "before_spatial":
+        names = ctx["names"]
+        for k in ("observed", "expected"):
+            if a.get(k) not in names:
+                errors.append(f"{label}: {k} {a.get(k)!r} is not a manifest variable")
+        args = a.get("args") or {}
+        bad = set(args) - {"covariates", "threshold", "method", "edges"}
+        if bad:
+            errors.append(f"{label}: unsupported args {sorted(bad)}")
+        method = str(args.get("method", "B3"))
+        if method not in ("B1", "B2", "B3"):
+            errors.append(f"{label}: method must be one of B1, B2, B3")
+        if not ctx.get("exploratory") and method != "B3":
+            errors.append(f"{label}: confirmatory disease_map requires args.method='B3' (Round 104)")
+    elif stage == "hypothesis":
+        h = ctx["h"]
+        if not (h.get("geoid") or h.get("area")):
+            errors.append(f"{label}: relative_risk hypothesis requires geoid")
+
+
+METHODS["rdd"] = MethodSpec(
+    "rdd", ("outcome", "running", "cutoff"), ("jump",), _run_rdd,
+    check=_check_rdd,
+    text=(
+        "Regression discontinuity used robust bias-corrected local-quadratic estimation with automatic CCT CER "
+        "bandwidth for continuous running variables (Round 105) or survey replicate weights for discrete running "
+        "variables (Round 98).",
+        ["calonico2014", "imbens_kalyanaraman2012"],
+    ),
+)
+
+METHODS["disease_map"] = MethodSpec(
+    "disease_map", ("observed", "expected"), ("relative_risk",), _run_disease_map,
+    external_outcome=True, check=_check_disease_map,
+    text=(
+        "Count-scale spatial disease mapping used the BYM2 Poisson model with Riebler et al. PC prior and log-grid "
+        "Jacobian (method B3, validated for median expected count >= 30 without suppressed counts; Rounds 96, 104).",
+        ["riebler2016", "moraga2023"],
+    ),
+)
+
+
+def _run_joinpoint(a, args, frame, level, replicates, correction, ctx):
+    from ..joinpoint import joinpoint
+    yr_col = a["year"]
+    f = frame.sort_values(yr_col)
+    years = pd.to_numeric(f[yr_col]).astype(int).tolist()
+    kw = dict(max_joinpoints=int(args.get("max_joinpoints", 3)),
+              permutations=int(args.get("permutations", 499)),
+              bootstrap=int(args.get("bootstrap", 200)),
+              level=level, product=str(args.get("product", "annual")))
+    if "counts" in a and "population" in a:
+        return joinpoint(years, counts=f[a["counts"]].to_numpy(float),
+                         population=f[a["population"]].to_numpy(float), **kw)
+    r_col = a["rates"]
+    se_col = args.get("se_col") or f"{r_col}_se"
+    return joinpoint(years, rates=f[r_col].to_numpy(float), se=f[se_col].to_numpy(float), **kw)
+
+
+def _stat_joinpoint(h, res):
+    stat = h["statistic"]
+    if stat == "n_joinpoints":
+        k = int(res["n_joinpoints"])
+        pvals = res.get("permutation_p") or []
+        p_val = float(pvals[0]) if pvals else float("nan")
+        out = {"estimate": float(k), "se": float("nan"), "se_basis": "Kim et al. permutation test",
+               "ci_lower": float("nan"), "ci_upper": float("nan"), "p_two_sided": p_val}
+        if not bool(res.get("validated", {}).get("selection", False)):
+            out["confirmatory_refusal"] = "joinpoint selection outside validated range (15+ annual points, 50+ events/year)"
+        return out
+    bt = res["aapc_bootstrap_t"]
+    est = float(bt["aapc"]); lo = float(bt["lower"]); hi = float(bt["upper"])
+    se = (hi - lo) / (2.0 * stats.norm.ppf(0.95)) if np.isfinite(lo) and np.isfinite(hi) else float("nan")
+    null_v = float(h.get("null_value", 0.0))
+    z = abs(est - null_v) / se if np.isfinite(se) and se > 0 else float("nan")
+    out = {"estimate": est, "se": se, "se_basis": "Joinpoint AAPC bootstrap-t (Round 109)",
+           "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z)) if np.isfinite(z) else float("nan")}
+    if not bool(bt.get("validated", False)):
+        out["confirmatory_refusal"] = "joinpoint AAPC bootstrap-t outside validated range (15+ points, 200+ events/year, k <= 1)"
+    return out
+
+
+def _check_joinpoint(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) joinpoint"
+    if stage == "before_spatial":
+        names = ctx["names"]
+        if a.get("year") not in names:
+            errors.append(f"{label}: year {a.get('year')!r} is not a manifest variable")
+        has_cp = ("counts" in a and "population" in a)
+        has_r = ("rates" in a)
+        if not (has_cp or has_r):
+            errors.append(f"{label}: requires (counts, population) or rates")
+        args = a.get("args") or {}
+        bad = set(args) - {"max_joinpoints", "permutations", "bootstrap", "product", "se_col"}
+        if bad:
+            errors.append(f"{label}: unsupported args {sorted(bad)}")
+
+
+def _run_demography(a, args, frame, level, replicates, correction, ctx):
+    from .. import demography_core as dc
+    f = frame.sort_values(a["age_start"])
+    ages = pd.to_numeric(f[a["age_start"]]).to_numpy(float)
+    deaths = pd.to_numeric(f[a["deaths"]]).to_numpy(float)
+    pop = pd.to_numeric(f[a["population"]]).to_numpy(float)
+    lt = dc.life_table(ages, deaths, pop, level=level)
+    return dict(ages=ages.tolist(), e=lt["e"].tolist(), se_e=lt["se_e"].tolist(),
+                lower=lt["lower"].tolist(), upper=lt["upper"].tolist(),
+                total_pop=float(np.sum(pop)), validated=bool(np.sum(pop) >= 50000))
+
+
+def _stat_demography(h, res):
+    stat = h["statistic"]
+    ages = res["ages"]
+    idx = 0 if stat == "e0" else (ages.index(65.0) if 65.0 in ages else -1)
+    if idx < 0:
+        raise KeyError("demography: age_start=65 not found for e65")
+    est = float(res["e"][idx]); se = float(res["se_e"][idx])
+    lo = float(res["lower"][idx]); hi = float(res["upper"][idx])
+    null_v = float(h.get("null_value", 0.0))
+    z = abs(est - null_v) / se if np.isfinite(se) and se > 0 else float("nan")
+    out = {"estimate": est, "se": se, "se_basis": "Chiang II life table SE",
+           "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z)) if np.isfinite(z) else float("nan")}
+    if not bool(res.get("validated", False)):
+        out["confirmatory_refusal"] = "life table person-years below validated threshold (50,000)"
+    return out
+
+
+def _check_demography(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) demography"
+    if stage == "before_spatial":
+        names = ctx["names"]
+        for k in ("age_start", "deaths", "population"):
+            if a.get(k) not in names:
+                errors.append(f"{label}: {k} {a.get(k)!r} is not a manifest variable")
+        args = a.get("args") or {}
+        if args:
+            errors.append(f"{label}: takes no args, got {sorted(args)}")
+
+
+METHODS["joinpoint"] = MethodSpec(
+    "joinpoint", ("year",), ("n_joinpoints", "aapc"), _run_joinpoint,
+    external_outcome=True, check=_check_joinpoint,
+    text=(
+        "Annual rate trend changes used log-linear joinpoint regression with Kim et al. permutation selection (Round 77) "
+        "and parametric residual bootstrap-t AAPC intervals re-estimating joinpoint locations (Round 109).",
+        ["kim2000"],
+    ),
+)
+
+METHODS["demography"] = MethodSpec(
+    "demography", ("age_start", "deaths", "population"), ("e0", "e65"), _run_demography,
+    external_outcome=True, check=_check_demography,
+    text=(
+        "Abridged life tables and life-expectancy intervals (e0, e65) used Chiang II standard errors (validated for "
+        "50,000+ person-years; Round 101).",
+        ["chiang1984"],
+    ),
+)
+
+
+def _run_did(a, args, frame, level, replicates, correction, ctx):
+    design = str(args.get("design", "two_group"))
+    period = str(args.get("period", "Year"))
+    unit = str(args.get("unit", "GEOID"))
+    product = str(args.get("product", "5-year"))
+    if design == "staggered":
+        from ..staggered import staggered_did
+        return dict(design="staggered",
+                    result=staggered_did(frame, a["outcome"], a["first_treated"], period=period, unit=unit,
+                                         se=args.get("se"), method=str(args.get("method", "sun_abraham")),
+                                         product=product))
+    if design == "triple":
+        from ..matching import triple_difference
+        return dict(design="triple",
+                    result=triple_difference(frame, a["outcome"], unit, args["group"], args["affected_group"],
+                                             period, a["treated"], int(a["treatment_period"])))
+    if design == "msm":
+        from ..msm import marginal_structural_model
+        return dict(design="msm",
+                    result=marginal_structural_model(frame, a["outcome"], a["first_treated"],
+                                                     args.get("time_varying_confounders") or [],
+                                                     period=period, unit=unit, product=product,
+                                                     method=str(args.get("method", "gformula"))))
+    from ..did import difference_in_differences
+    res = difference_in_differences(frame, a["outcome"], a["treated"], int(a["treatment_period"]),
+                                    period=period, se=args.get("se"), design=design,
+                                    reference=args.get("reference"), replicates=replicates,
+                                    target=str(args.get("target", "population")),
+                                    period_years=1 if product in ("1-year", "annual") else 5)
+    return dict(design=design, result=res.to_dict())
+
+
+def _stat_did(h, res):
+    design = res["design"]
+    r = res["result"]
+    if design == "staggered":
+        o = r["overall"]
+        est, lo, hi = float(o["estimate"]), float(o["ci_lower"]), float(o["ci_upper"])
+        se = float(o.get("se", (hi - lo) / (2.0 * stats.norm.ppf(0.95))))
+        valid = bool(r.get("validated", False))
+        basis = f"staggered DiD ({r.get('method', 'sun_abraham')})"
+    elif design == "triple":
+        e = r["effect"]
+        est, lo, hi, se = float(e["estimate"]), float(e["lower"]), float(e["upper"]), float(e["se"])
+        valid = bool(r.get("validated", False))
+        basis = "triple difference (clustered)"
+    elif design == "msm":
+        dur = int(h.get("duration", 1))
+        e = next(x for x in r["effects"] if int(x["duration"]) == dur)
+        est, lo, hi, se = float(e["estimate"]), float(e["lower"]), float(e["upper"]), float(e["se"])
+        valid = bool(r.get("validated", False))
+        basis = f"MSM ({r.get('method', 'gformula_jackknife')}, d={dur})"
+    else:
+        tbl = r.get("table") or []
+        row = tbl[0] if tbl else r
+        est = float(row.get("estimate", float("nan")))
+        se = float(row.get("se", float("nan")))
+        lo = float(row.get("ci_lower", row.get("lower", float("nan"))))
+        hi = float(row.get("ci_upper", row.get("upper", float("nan"))))
+        valid = True
+        basis = f"DiD ({design})"
+    null_v = float(h.get("null_value", 0.0))
+    z = abs(est - null_v) / se if np.isfinite(se) and se > 0 else float("nan")
+    out = {"estimate": est, "se": se, "se_basis": basis, "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z)) if np.isfinite(z) else float("nan")}
+    if not valid:
+        out["confirmatory_refusal"] = f"difference_in_differences design={design!r} is exploratory"
+    return out
+
+
+def _check_did(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) difference_in_differences"
+    if stage == "before_spatial":
+        names = ctx["names"]
+        if a.get("outcome") not in names:
+            errors.append(f"{label}: outcome {a.get('outcome')!r} is not a manifest variable")
+        args = a.get("args") or {}
+        design = str(args.get("design", "two_group"))
+        if design not in ("two_group", "event", "staggered", "triple", "msm"):
+            errors.append(f"{label}: design must be one of two_group, event, staggered, triple, msm")
+        if design == "msm" and not ctx.get("exploratory") and str(args.get("method", "gformula")) != "gformula":
+            errors.append(f"{label}: confirmatory design='msm' requires args.method='gformula' (Rounds 106/108)")
+
+
+def _run_its(a, args, frame, level, replicates, correction, ctx):
+    from ..missing_censored_its import interrupted_series
+    yr_col = a["year"]
+    f = frame.sort_values(yr_col)
+    years = pd.to_numeric(f[yr_col]).astype(int).tolist()
+    if any(b - x != 1 for x, b in zip(years, years[1:])):
+        raise ValueError("interrupted_series requires consecutive annual years (overlapping 5-year series refused)")
+    idx = years.index(int(a["interruption_year"]))
+    return interrupted_series(f[a["outcome"]].to_numpy(float), idx,
+                              method=str(args.get("method", "bootstrap_t_cons")))
+
+
+def _stat_its(h, res):
+    stat = h["statistic"]
+    key = "level_change" if stat == "its_level" else "slope_change"
+    m = res[key]
+    est, lo, hi = float(m["estimate"]), float(m["lower"]), float(m["upper"])
+    se = float(m.get("se", (hi - lo) / (2.0 * stats.norm.ppf(0.95))))
+    null_v = float(h.get("null_value", 0.0))
+    z = abs(est - null_v) / se if np.isfinite(se) and se > 0 else float("nan")
+    out = {"estimate": est, "se": se, "se_basis": f"ITS ({res.get('method', 'bootstrap_t_cons')})",
+           "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z)) if np.isfinite(z) else float("nan")}
+    if not bool(res.get("validated", False)):
+        out["confirmatory_refusal"] = "interrupted_series configuration is exploratory (validated from 17+ annual points with bootstrap_t_cons)"
+    return out
+
+
+def _check_its(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) interrupted_series"
+    if stage == "before_spatial":
+        names = ctx["names"]
+        for k in ("outcome", "year"):
+            if a.get(k) not in names:
+                errors.append(f"{label}: {k} {a.get(k)!r} is not a manifest variable")
+        args = a.get("args") or {}
+        bad = set(args) - {"method"}
+        if bad:
+            errors.append(f"{label}: unsupported args {sorted(bad)}")
+        method = str(args.get("method", "bootstrap_t_cons"))
+        if not ctx.get("exploratory") and method not in ("bootstrap_t_cons", "bootstrap_t_bb", "bootstrap_t_bc", "bootstrap_t"):
+            errors.append(f"{label}: confirmatory interrupted_series requires a validated bootstrap_t method")
+
+
+def _run_combine_estimates(a, args, frame, level, replicates, correction, ctx):
+    from ..evidence import combine_estimates
+    est = pd.to_numeric(frame[a["estimate"]]).to_numpy(float).tolist()
+    ses = pd.to_numeric(frame[a["se"]]).to_numpy(float).tolist()
+    mod = pd.to_numeric(frame[args["moderator"]]).to_numpy(float).tolist() if args.get("moderator") else None
+    return combine_estimates(est, ses, method=str(args.get("method", "hksj")),
+                             assume_homogeneous=bool(args.get("assume_homogeneous", False)),
+                             moderators=mod, small_study_test=bool(args.get("small_study_test", len(est) >= 10)),
+                             level=level)
+
+
+def _stat_combine_estimates(h, res):
+    stat = h["statistic"]
+    if stat == "pooled_effect":
+        p = res["pooled"]
+        est, lo, hi = float(p["estimate"]), float(p["lower"]), float(p["upper"])
+        se = float(p.get("se", (hi - lo) / (2.0 * stats.norm.ppf(0.95))))
+        valid = bool(res.get("validated", False))
+        basis = f"meta-analysis ({p.get('method', 'hksj')})"
+    elif stat == "prediction_interval":
+        p = res["pooled"]
+        pi = p.get("prediction_interval")
+        if not pi:
+            raise KeyError("combine_estimates: prediction_interval not present")
+        est, lo, hi = float(p["estimate"]), float(pi[0]), float(pi[1])
+        se = (hi - lo) / (2.0 * stats.norm.ppf(0.95))
+        valid = bool(p.get("prediction_interval_validated", False))
+        basis = "NNF prediction interval (Round 104)"
+    elif stat == "meta_regression":
+        mr = res["meta_regression"]
+        est, lo, hi, se = float(mr["slope"]), float(mr["lower"]), float(mr["upper"]), float(mr["se"])
+        valid = bool(mr.get("validated", False))
+        basis = "truncated Knapp-Hartung meta-regression (Round 104)"
+    else:  # egger_test
+        eg = res["small_study_test"]
+        est = float(eg.get("intercept", eg.get("slope", eg.get("t", 0.0))))
+        se = float(eg.get("se", float("nan")))
+        lo = hi = float("nan")
+        valid = bool(eg.get("validated", False))
+        out = {"estimate": est, "se": se, "se_basis": "Thompson-Sharp RE Egger (Round 104)",
+               "ci_lower": lo, "ci_upper": hi, "p_two_sided": float(eg["p"])}
+        if not valid:
+            out["confirmatory_refusal"] = "egger_test requires k >= 10 estimates"
+        return out
+    null_v = float(h.get("null_value", 0.0))
+    z = abs(est - null_v) / se if np.isfinite(se) and se > 0 else float("nan")
+    out = {"estimate": est, "se": se, "se_basis": basis, "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z)) if np.isfinite(z) else float("nan")}
+    if not valid:
+        out["confirmatory_refusal"] = f"combine_estimates statistic {stat!r} is exploratory (check k gate)"
+    return out
+
+
+def _check_combine_estimates(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) combine_estimates"
+    if stage == "before_spatial":
+        names = ctx["names"]
+        for k in ("estimate", "se"):
+            if a.get(k) not in names:
+                errors.append(f"{label}: {k} {a.get(k)!r} is not a manifest variable")
+        args = a.get("args") or {}
+        bad = set(args) - {"method", "assume_homogeneous", "moderator", "small_study_test"}
+        if bad:
+            errors.append(f"{label}: unsupported args {sorted(bad)}")
+        if args.get("moderator") and args["moderator"] not in names:
+            errors.append(f"{label}: moderator {args['moderator']!r} is not a manifest variable")
+
+
+def _run_bias_analysis(a, args, frame, level, replicates, correction, ctx):
+    from .. import bias_analysis as ba
+    kind = str(a["kind"])
+    if kind == "e_value":
+        return dict(kind="e_value",
+                    result=ba.e_value(float(args["estimate"]), args.get("lower"), args.get("upper"),
+                                      measure=str(args.get("measure", "rr")), prevalence=args.get("prevalence")))
+    tbl = args["table"]
+    return dict(kind="misclassification",
+                result=ba.misclassification(*map(float, tbl), args["sensitivity"], args["specificity"],
+                                            kind=str(args.get("misclassified", "outcome")),
+                                            sd=args.get("prior_sd")))
+
+
+def _stat_bias_analysis(h, res):
+    stat = h["statistic"]
+    r = res["result"]
+    if stat == "e_value":
+        return {"estimate": float(r["e_value"]), "se": float("nan"), "se_basis": "VanderWeele-Ding deterministic E-value",
+                "ci_lower": float(r.get("e_value_limit", float("nan"))), "ci_upper": float("nan"),
+                "p_two_sided": float("nan")}
+    key = "rr" if stat == "corrected_rr" else "or"
+    prob = r.get("probabilistic") or {}
+    m = prob.get(key)
+    if not m:
+        return {"estimate": float(r["corrected"][key]), "se": float("nan"), "se_basis": "simple misclassification",
+                "ci_lower": float("nan"), "ci_upper": float("nan"), "p_two_sided": float("nan"),
+                "confirmatory_refusal": "probabilistic misclassification (args.prior_sd) is required for confirmatory intervals"}
+    est = float(m["median"]); lo = float(m["lower"]); hi = float(m["upper"])
+    se_log = (np.log(hi) - np.log(lo)) / (2.0 * stats.norm.ppf(0.95)) if lo > 0 and hi > 0 else float("nan")
+    null_v = float(h.get("null_value", 1.0))
+    z = abs(np.log(est) - np.log(null_v)) / se_log if np.isfinite(se_log) and se_log > 0 else float("nan")
+    out = {"estimate": est, "se": se_log, "se_basis": "probabilistic misclassification (Round 105)",
+           "ci_lower": lo, "ci_upper": hi,
+           "p_two_sided": float(2.0 * stats.norm.sf(z)) if np.isfinite(z) else float("nan")}
+    if not bool(r.get("validated", False)):
+        out["confirmatory_refusal"] = "misclassification interval not validated"
+    return out
+
+
+def _check_bias_analysis(stage, ctx):
+    a, errors = ctx["a"], ctx["errors"]
+    label = f"analyses ({a.get('id')}) bias_analysis"
+    if stage == "before_spatial":
+        kind = a.get("kind")
+        if kind not in ("e_value", "misclassification"):
+            errors.append(f"{label}: kind must be 'e_value' or 'misclassification'")
+        args = a.get("args") or {}
+        if kind == "e_value" and "estimate" not in args:
+            errors.append(f"{label}: kind='e_value' requires args.estimate")
+        if kind == "misclassification":
+            for k in ("table", "sensitivity", "specificity"):
+                if k not in args:
+                    errors.append(f"{label}: kind='misclassification' requires args.{k}")
+
+
+METHODS["difference_in_differences"] = MethodSpec(
+    "difference_in_differences", ("outcome",), ("did_effect",), _run_did,
+    replicate=True, external_outcome=True, check=_check_did,
+    text=(
+        "Policy evaluation used validated difference-in-differences (two-group/event, staggered Sun-Abraham or "
+        "Callaway-Sant'Anna with ACS SEs, triple-difference, or multi-confounder parametric g-formula MSM; "
+        "Rounds 10, 78, 99, 106, 108).",
+        ["sun_abraham2021", "hernan_robins2020"],
+    ),
+)
+
+METHODS["interrupted_series"] = MethodSpec(
+    "interrupted_series", ("outcome", "year", "interruption_year"), ("its_level", "its_slope"), _run_its,
+    external_outcome=True, check=_check_its,
+    text=(
+        "Interrupted time-series evaluation on consecutive annual rates used AR(1) bootstrap-t intervals "
+        "(bootstrap_t_cons validated from 17+ annual points; Rounds 48, 55, 63).",
+        ["bernal2017"],
+    ),
+)
+
+METHODS["combine_estimates"] = MethodSpec(
+    "combine_estimates", ("estimate", "se"), ("pooled_effect", "prediction_interval", "meta_regression", "egger_test"),
+    _run_combine_estimates, external_outcome=True, check=_check_combine_estimates,
+    text=(
+        "Evidence synthesis used Paule-Mandel / Hartung-Knapp pooling (truncated from k >= 5; Rounds 38, 48) and, "
+        "for k >= 10 estimates, validated Nagashima-Noma-Furukawa prediction intervals, truncated Knapp-Hartung "
+        "meta-regression, and Thompson-Sharp random-effects Egger tests (Round 104).",
+        ["harrer2021", "nagashima2019"],
+    ),
+)
+
+METHODS["bias_analysis"] = MethodSpec(
+    "bias_analysis", ("kind",), ("e_value", "corrected_rr", "corrected_or"), _run_bias_analysis,
+    check=_check_bias_analysis,
+    text=(
+        "Quantitative bias analysis reported VanderWeele-Ding E-values (Round 86) and probabilistic misclassification "
+        "intervals propagating observed-table sampling variance through Rogan-Gladen inversion (Round 105).",
+        ["vanderweele_ding2017", "lash2009"],
+    ),
+)
+
+
 STATISTIC_EXTRACTORS = {
     'coefficient': _stat_coefficient,
     'joint_wald': _stat_joint_wald,
     'joint_test': _stat_joint_test,
+    'marginal_rr': _stat_marginal,
+    'marginal_rd': _stat_marginal,
+    'attributable_fraction': _stat_marginal,
     'correlation': _stat_correlation,
     'trend_slope': _stat_trend_slope,
     'z_difference': _stat_z_difference,
@@ -1383,8 +2385,24 @@ STATISTIC_EXTRACTORS = {
     "dissimilarity": _stat_segregation,
     "isolation": _stat_segregation,
     "theil_h": _stat_segregation,
-    **{k: _stat_disparity for k in ("rd", "log_rr", "idisp", "bgv", "theil", "mld")},
+    **{k: _stat_disparity for k in ("rd", "log_rr", "idisp", "bgv", "theil", "mld", "par", "par_pct", "who_sii")},
     **{k: _stat_kitagawa for k in ("crude_difference", "rate_effect", "composition_effect")},
+    "effect": _stat_estimate_effect,
+    "primary_rr": _stat_spatial_scan,
+    **{k: _stat_stratified for k in ("mh_rr", "mh_or", "mh_rd", "mh_irr", "reri", "homogeneity")},
+    "ppv": _stat_designation,
+    **{k: _stat_agreement for k in ("bias", "ccc", "kappa_quintiles")},
+    "jump": _stat_rdd,
+    "relative_risk": _stat_disease_map,
+    "n_joinpoints": _stat_joinpoint,
+    "aapc": _stat_joinpoint,
+    "e0": _stat_demography,
+    "e65": _stat_demography,
+    "did_effect": _stat_did,
+    "its_level": _stat_its,
+    "its_slope": _stat_its,
+    **{k: _stat_combine_estimates for k in ("pooled_effect", "prediction_interval", "meta_regression", "egger_test")},
+    **{k: _stat_bias_analysis for k in ("e_value", "corrected_rr", "corrected_or")},
 }
 
 ANALYSIS_METHODS = {name: (spec.required, spec.statistics) for name, spec in METHODS.items()}

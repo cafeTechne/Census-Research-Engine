@@ -388,40 +388,45 @@ Round 79: decompose_gap (full profile) splits a PUMS gap between two mutually ex
 SDR replicate-weight intervals. Validated: Oaxaca-Blinder totals from 300 records in the smaller group; detailed
 contributions and all Fairlie quantities from 1,000 (.80-.85 at 300). "Explained" is composition, not a causal effect.
 
-Round 101 (library): census.demography gives abridged life tables from WONDER age-group exports with Chiang II
-intervals (validated), Arriaga decomposition of a life-expectancy change by age and cause (exact; use mutually
-exclusive causes), age-heaping indices (Whipple, Myers, UN accuracy) and census-survival net migration.
-## Regression discontinuity (Round 98)
+Round 101/103: demography_analysis (full profile; library census.demography) gives abridged life tables from WONDER
+age-group exports with Chiang II intervals (kind="life_table", validated), Arriaga decomposition of a life-expectancy
+change by age and cause (kind="arriaga", exact; use mutually exclusive causes), age-heaping indices (kind="age_quality":
+Whipple, Myers, UN accuracy from counts or PUMS with SDR SEs) and census-survival net migration (kind="survival_migration",
+descriptive).
+## Regression discontinuity (Round 98; repaired Round 105)
 
-Round 98: regression_discontinuity (full profile) estimates a jump at a cutoff with the robust bias-corrected local
-quadratic. Validated for discrete running variables (PUMS ages) with weight and replicate_prefix; continuous running
-variables and the density test are exploratory. Report covariate jumps and placebo cutoffs; a causal reading
-requires no other change at the cutoff.
+Round 98/105: regression_discontinuity (full profile) estimates a jump at a cutoff with the robust bias-corrected local
+quadratic. Validated for discrete running variables (PUMS ages) with weight and replicate_prefix, and for continuous
+running variables with automatic CCT CER bandwidth h_ik * n^(-1/20) (Round 105). The density test remains exploratory.
+Report covariate jumps and placebo cutoffs; a causal reading requires no other change at the cutoff.
 
 Round 97: spatial_model(kind="cv") reports spatial-block and random cross-validation; random folds are optimistic
 for models using neighbours, and block CV is itself a lower bound on new-region error (exploratory).
 spatial_model(kind="maup") shows how an area-level slope changes over random zonings (descriptive); report it
 when an ecological slope drives a conclusion.
 
-Round 96: spatial_model(kind="disease_map", outcome=observed counts, expected=expected counts) gives BYM2 smoothed
-relative risks with P(RR > threshold). Exceedance probabilities are calibrated (validated); relative-risk intervals
-are exploratory (under-cover with median expected counts near 5 over few areas). Suppressed counts stay missing and
-are predicted from neighbours; never output counts 1-9.
+Round 96/104: spatial_model(kind="disease_map", outcome=observed counts, expected=expected counts) gives BYM2 smoothed
+relative risks with P(RR > threshold). Exceedance probabilities are calibrated (validated). method="B3" (PC prior +
+log-grid Jacobian) is validated for relative-risk intervals when median expected count >= 30 without suppressed counts;
+B1/B2 and sparse counts (median E < 30) remain exploratory. Suppressed counts stay missing and are predicted from
+neighbours; never output counts 1-9.
 
-Round 95: YPLL comes from WONDER age-group exports (census.surveillance.ypll_from_wonder; end point 65 or 75 on a
-band boundary; age-adjusted rate validated). Suppressed cells give bounds only. joinpoint(aberration=
-"historical_limits" | "ears_c2") flags the latest year (validated on flat series); a trend inflates false alarms,
-so read a flag as a prompt to look, after checking the trend.
+Round 95/103: demography_analysis(kind="ypll") (library census.surveillance.ypll_from_wonder) computes YPLL from
+WONDER age-group exports (end point 65 or 75 on a band boundary; age-adjusted rate validated). Suppressed cells give
+bounds only. joinpoint(aberration="historical_limits" | "ears_c2") flags the latest year (validated on flat series);
+a trend inflates false alarms, so read a flag as a prompt to look, after checking the trend.
 
 Round 94: disparity_measures(who_measures=True) gives population attributable risk against the best or declared
 group (par, par_pct; validated), the SII (validated) and WHO mean differences (mdm, mdb; exploratory, biased upward
 when groups are close). compare_years=[y1, y2] gives changes between non-overlapping releases (validated for par,
-sii, weighted mean differences). Report absolute and relative measures together with the group rates.
+sii, weighted mean differences). kind="double_disaggregation" and kind="priority_quadrants" give descriptive WHO
+tables with reliability and uncertainty flags. Report absolute and relative measures together with the group rates.
 
 Round 93: spatial_model (full profile) kind="gwr" is exploratory (local intervals .71 when slopes vary; report beside
 a global model). kind="classify" (k-means) and "regionalize" (SKATER) are descriptive: fix k in advance, give each
 feature an _se or _moe column, and report per-area stability; do not interpret groups of areas with stability
-below .8 (misclassified 39-50% in validation).
+below .8 (misclassified 39-50% in validation). kind="diversity" gives entropy diversity with replicate intervals
+(exploratory: .847 at small tract n).
 
 Round 92 context sources: pep (Population Estimates, July 1 county population; vintage 2019 or 2024; no MOE;
 never mix vintages; a denominator or covariate, never an outcome), lodes (LEHD jobs by workplace or residence;
@@ -465,6 +470,23 @@ Round 88: successful results of method tools carry method_sources (role method, 
 validation; each with its citation or audit path). Cite the method papers and guidance texts a reported result rests
 on; make_results_bundle writes them to references.md and references.bib. CLI: python -m census cite --tool NAME.
 Entries marked [details to verify] were recorded without checking the publication.
+
+<!-- mcp-rules:A -->
+Rounds 104-107 validated repairs (previously exploratory):
+- combine_estimates (k >= 10): Nagashima-Noma-Furukawa prediction interval, truncated Knapp-Hartung meta-regression, and random-effects Egger / Thompson-Sharp test are validated (Round 104).
+- estimate_effect(kind="matching", method="nn_att"): bias-corrected nearest-neighbour ATT with Kish effective-df t interval is validated (Round 104).
+- spatial_model(kind="disease_map", method="B3"): BYM2 with PC prior and log-grid Jacobian is validated when median expected count >= 30 (sparse areas stay exploratory; Round 104).
+- regression_discontinuity: continuous running variables (CCT CER bandwidth h_ik * n^(-1/20)) are validated alongside discrete PUMS ages (Round 105); the density/manipulation test is validated for continuous running variables with n >= 1,000 (Round 112).
+- bias_analysis(kind="misclassification", prior_sd=...): observed-table sampling error propagated through corrected_table is validated (Round 105).
+- check_agreement: observed Lin's CCC (delete-one-area Fisher-z jackknife) is validated; error-free CCC stays exploratory (Round 106).
+- difference_in_differences(design="msm", method="gformula"): Hernán & Robins ch. 21 parametric g-formula + delete-one-unit cluster jackknife is validated for annual panels with 1+ time-varying confounders (VAR(1) transition); IP-weighted MSM stays exploratory (Rounds 106-108).
+- designation_accuracy(ppv_intervals=True): FH parametric bootstrap PPV predictive intervals are validated for rules 'prob80', 'point', and 'lower' (Rounds 107/112; also manifest method 'designation').
+- disparity_measures(counts=True): count-scale index measures (idisp, bgv, theil, mld) are validated when every group has >= 100 events (Round 112; rd and log_rr remain validated from >= 20 events).
+- stratified_pums(homogeneity_method="hotelling_f"): Korn-Graubard Hotelling F homogeneity test is validated when every stratum has >= 500 records (Round 107).
+- diversity_index(method="sdr_bc", sample_sizes=...): exact SDR replicate bias-corrected Shannon entropy is validated for areas with >= 150 respondents (Round 108).
+- ecologic_check(...): `ecologic_fuller` (Fuller 1987 alpha=4 reliability-corrected ecologic/between-area slope + jackknife) is validated when areas >= 50 and median_area_n >= 80 (Round 109).
+- joinpoint(...): `aapc_bootstrap_t` (parametric residual bootstrap with location re-estimation + t(n-2k-2)) is validated for 15+ annual points, 200+ events/year, and k <= 1 (Round 109).
+- Manifest methods (28 total): 'designation', 'agreement' (Round 108), 'rdd', 'disease_map' (Round 109), 'joinpoint', 'demography' (Round 110), 'difference_in_differences', 'interrupted_series', 'combine_estimates', and 'bias_analysis' (Round 114; confirmatory manifests accept only validated configurations).
 
 Round 78: policies adopted in different years (staggered adoption) in an ANNUAL panel (ACS 1-year with
 product="1-year", 2020 refused, or another annual source): difference_in_differences(design="staggered",
@@ -1583,6 +1605,7 @@ for _fn in (
     workflows_inference.spatial_scan,
     workflows_inference.disparity_measures,
     workflows_inference.joinpoint,
+    workflows_inference.demography_analysis,
     workflows_microdata.decompose_gap,
     workflows_microdata.stratified_analysis,
     workflows_inference.make_figure,
@@ -1646,6 +1669,7 @@ regression_discontinuity = workflows_microdata.regression_discontinuity
 spatial_model = workflows_geo.spatial_model
 disparity_measures = workflows_inference.disparity_measures
 joinpoint = workflows_inference.joinpoint
+demography_analysis = workflows_inference.demography_analysis
 decompose_gap = workflows_microdata.decompose_gap
 stratified_analysis = workflows_microdata.stratified_analysis
 make_figure = workflows_inference.make_figure

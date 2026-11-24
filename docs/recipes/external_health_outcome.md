@@ -68,13 +68,15 @@ for NB2 (validated); Poisson HC3 under-covers.
 ## Years of potential life lost and unusual years (Round 95; CDC SS1000 lessons 3-5)
 
 - **YPLL from a national WONDER export** grouped by ten-year age groups and sex:
-  `census.surveillance.ypll_from_wonder(path, end=75)` gives the annual YPLL, the crude rate and the age-adjusted
+  `demography_analysis(kind="ypll", input_path=path, end_age=75)` (full profile; library
+  `census.surveillance.ypll_from_wonder(path, end=75)`) gives the annual YPLL, the crude rate and the age-adjusted
   YPLL rate per 100,000 person-years (2000 US standard over ages below the end point), with a Fay–Feuer interval
   (validated, .888–.963).
   - The end point must be a band boundary (65 or 75).
   - Infants (<1) and ages 1–4 are kept apart.
   - Exports with suppressed cells (1–9 deaths) give bounds only.
-- **Area tables:** `ypll_table(...)` takes band death and population columns. Areas with suppressed bands get bounds,
+- **Area tables:** `demography_analysis(kind="ypll", input_path=..., death_columns=..., population_columns=..., bands=...)`
+  (or `ypll_table(...)`) takes band death and population columns. Areas with suppressed bands get bounds,
   never imputed counts.
 - **Is the latest year unusual?**
   - `joinpoint(..., aberration="historical_limits")` compares it with the previous 5 years (mean ± 2 SD, adding the
@@ -85,16 +87,19 @@ for NB2 (validated); Poisson HC3 under-covers.
 
 ## Life tables, life-expectancy decomposition and age-data quality (Round 101; IUSSP Tools for Demographic Estimation)
 
-- **Life tables:** `census.demography.life_table_from_wonder(path)` builds an abridged life table from a national
+- **Life tables:** `demography_analysis(kind="life_table", input_path=path)` (full profile; library
+  `census.demography.life_table_from_wonder(path)`) builds an abridged life table from a national
   WONDER all-cause export (ten-year bands; <1 and 1–4 separate; 85+ open).
   - e₀ and eₓ come with Chiang II 90% intervals, validated (.895–.910) from 50,000 person-years.
   - `census.demography_core.life_table(starts, deaths, person_years)` takes any banded data.
-- **Why life expectancy changed:** `arriaga_from_wonder(all1, all2, causes1, causes2)` splits the e₀ change into
+- **Why life expectancy changed:** `demography_analysis(kind="arriaga", input_path=all1, comparison_path=all2,
+  causes=causes1, comparison_causes=causes2)` (library `arriaga_from_wonder`) splits the e₀ change into
   age-band and cause contributions (Arriaga 1984); they add up exactly.
   - Use mutually exclusive underlying causes. Overdose, firearm and alcohol-induced overlap other categories.
   - Suppressed national cells count as 0, and the notes say so.
-- **Age-data quality:** `age_quality` (counts) and `age_quality_pums` (PUMS, with replicate SEs) give Whipple's and
+- **Age-data quality:** `demography_analysis(kind="age_quality", pop_by_age=...)` (or `input_path=...` for PUMS
+  with replicate SEs; library `age_quality` / `age_quality_pums`) gives Whipple's and
   Myers' indices and the UN age-sex accuracy index. Uneven birth cohorts raise the UN index without any data error.
-- **Census-survival net migration by age** between two censuses: `census_survival_net_migration(p1, p2, L)`
-  (descriptive).
+- **Census-survival net migration by age** between two censuses: `demography_analysis(kind="survival_migration",
+  pop1=..., pop2=..., life_table_L=...)` (library `census_survival_net_migration`, descriptive).
 

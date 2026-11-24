@@ -104,12 +104,30 @@ def classify(frame: pd.DataFrame, features: Sequence[str], k: int, method: str =
                        "k was fixed in advance; report how it was chosen."], audit=AUDIT)
 
 
-def diversity_index(shares: pd.DataFrame, replicate_shares: Sequence[pd.DataFrame], bias_correct: bool = True
-                    ) -> pd.DataFrame:
+DIVERSITY_REPAIRS_AUDIT = "docs/audits/repairs108_validation.md"
+DIVERSITY_SDR_BC_MIN_N = 150
+DIVERSITY_SDR_BC_VALIDATED = True
+
+
+def diversity_index(shares: pd.DataFrame, replicate_shares: Sequence[pd.DataFrame], bias_correct: bool = True,
+                    method: str = "default", sample_sizes: Optional[Sequence[float]] = None) -> pd.DataFrame:
     """Entropy diversity per area from group shares (rows areas, columns groups; each row sums to 1) and replicate
-    shares (same shape, SDR replicates). Returns estimate, SE and 90% limits; maximum is ln(number of groups)."""
+    shares (same shape, SDR replicates). Returns estimate, SE and 90% limits; maximum is ln(number of groups).
+    Pass ``method='sdr_bc'`` (with ``sample_sizes``) for Round 108's validated exact SDR replicate bias correction
+    (gated at ``n >= 150`` respondents per area; ``docs/audits/repairs108_validation.md``)."""
     P = shares.to_numpy(float)
     R = np.stack([r.loc[shares.index, shares.columns].to_numpy(float) for r in replicate_shares])
+    if method == "sdr_bc":
+        from . import repairs108_core as r108
+        out = r108.diversity_sdr_bc(P, R)
+        df = pd.DataFrame({"entropy": out["estimate"], "se": out["se"], "lower": out["lower"], "upper": out["upper"],
+                           "max": np.log(P.shape[1])}, index=shares.index)
+        if sample_sizes is not None:
+            ns = np.asarray(sample_sizes, float)
+            df["validated"] = bool(DIVERSITY_SDR_BC_VALIDATED) & (ns >= DIVERSITY_SDR_BC_MIN_N)
+        else:
+            df["validated"] = False
+        return df
     out = sm.diversity(P, R, bias_correct)
     return pd.DataFrame({"entropy": out["estimate"], "se": out["se"], "lower": out["lower"], "upper": out["upper"],
                          "max": np.log(P.shape[1])}, index=shares.index)

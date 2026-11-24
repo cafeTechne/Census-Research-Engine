@@ -19,6 +19,12 @@ def _checks(manifest: Mapping[str, Any]) -> List[Dict[str, Any]]:
     out = []
     g = cs.parse_dag(dag["edges"], dag.get("nodes") or ())
     for a in manifest.get("analyses") or []:
+        if a.get("method") == "estimate_effect":
+            trt = a.get("treatment") or a.get("x")
+            if a.get("outcome") == dag["outcome"] and trt == dag["treatment"]:
+                adjust = list(a.get("confounders") or (a.get("args") or {}).get("controls") or [])
+                out.append({"analysis": a.get("id"), **cs.check_adjustment(g, dag["treatment"], dag["outcome"], adjust)})
+            continue
         f = str(a.get("formula", ""))
         if "~" not in f:
             continue

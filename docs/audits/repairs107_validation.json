@@ -1,0 +1,213 @@
+{
+  "elapsed_seconds": 300.63,
+  "verdicts": {
+    "Q2d-prob80": true,
+    "Q2d-point": true,
+    "E3b": false,
+    "H2d": true,
+    "S2_all": false,
+    "S2_n100": false
+  },
+  "Q2d-prob80": [
+    {
+      "N": 200,
+      "A": 0.02,
+      "n_eval": 400,
+      "coverage": 0.875
+    },
+    {
+      "N": 200,
+      "A": 0.08,
+      "n_eval": 400,
+      "coverage": 0.915
+    },
+    {
+      "N": 1000,
+      "A": 0.02,
+      "n_eval": 400,
+      "coverage": 0.8925
+    },
+    {
+      "N": 1000,
+      "A": 0.08,
+      "n_eval": 400,
+      "coverage": 0.89
+    }
+  ],
+  "Q2d-point": [
+    {
+      "N": 200,
+      "A": 0.02,
+      "n_eval": 400,
+      "coverage": 0.895
+    },
+    {
+      "N": 200,
+      "A": 0.08,
+      "n_eval": 400,
+      "coverage": 0.9225
+    },
+    {
+      "N": 1000,
+      "A": 0.02,
+      "n_eval": 400,
+      "coverage": 0.8725
+    },
+    {
+      "N": 1000,
+      "A": 0.08,
+      "n_eval": 400,
+      "coverage": 0.9125
+    }
+  ],
+  "E3b": [
+    {
+      "J": 50,
+      "n_j": 40,
+      "coverage": 0.87,
+      "bias": 0.1394344110567873
+    },
+    {
+      "J": 50,
+      "n_j": 80,
+      "coverage": 0.88,
+      "bias": 0.06552321721761749
+    },
+    {
+      "J": 50,
+      "n_j": 150,
+      "coverage": 0.905,
+      "bias": 0.030517890137221334
+    },
+    {
+      "J": 150,
+      "n_j": 40,
+      "coverage": 0.825,
+      "bias": 0.12638305872622996
+    },
+    {
+      "J": 150,
+      "n_j": 80,
+      "coverage": 0.9,
+      "bias": 0.052471894487614336
+    },
+    {
+      "J": 150,
+      "n_j": 150,
+      "coverage": 0.89,
+      "bias": 0.048017899959066156
+    }
+  ],
+  "H2d": [
+    {
+      "measure": "rr",
+      "K": 3,
+      "n_per_stratum": 500,
+      "size": 0.1125
+    },
+    {
+      "measure": "rr",
+      "K": 3,
+      "n_per_stratum": 800,
+      "size": 0.1025
+    },
+    {
+      "measure": "rr",
+      "K": 5,
+      "n_per_stratum": 500,
+      "size": 0.07
+    },
+    {
+      "measure": "rr",
+      "K": 5,
+      "n_per_stratum": 800,
+      "size": 0.095
+    },
+    {
+      "measure": "or",
+      "K": 3,
+      "n_per_stratum": 500,
+      "size": 0.09
+    },
+    {
+      "measure": "or",
+      "K": 3,
+      "n_per_stratum": 800,
+      "size": 0.09
+    },
+    {
+      "measure": "or",
+      "K": 5,
+      "n_per_stratum": 500,
+      "size": 0.085
+    },
+    {
+      "measure": "or",
+      "K": 5,
+      "n_per_stratum": 800,
+      "size": 0.0975
+    },
+    {
+      "measure": "rd",
+      "K": 3,
+      "n_per_stratum": 500,
+      "size": 0.0725
+    },
+    {
+      "measure": "rd",
+      "K": 3,
+      "n_per_stratum": 800,
+      "size": 0.1075
+    },
+    {
+      "measure": "rd",
+      "K": 5,
+      "n_per_stratum": 500,
+      "size": 0.1275
+    },
+    {
+      "measure": "rd",
+      "K": 5,
+      "n_per_stratum": 800,
+      "size": 0.0675
+    }
+  ],
+  "S2": [
+    {
+      "G": 4,
+      "n_resp": 50,
+      "coverage": 0.866,
+      "bias": 0.00412555408173261
+    },
+    {
+      "G": 4,
+      "n_resp": 100,
+      "coverage": 0.878,
+      "bias": -0.008057008634847675
+    },
+    {
+      "G": 4,
+      "n_resp": 200,
+      "coverage": 0.886,
+      "bias": -0.002093577777595648
+    },
+    {
+      "G": 6,
+      "n_resp": 50,
+      "coverage": 0.868,
+      "bias": 0.0025391744813340125
+    },
+    {
+      "G": 6,
+      "n_resp": 100,
+      "coverage": 0.856,
+      "bias": 0.0013483743586273592
+    },
+    {
+      "G": 6,
+      "n_resp": 200,
+      "coverage": 0.904,
+      "bias": -0.0004264013086981766
+    }
+  ]
+}

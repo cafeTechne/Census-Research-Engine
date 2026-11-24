@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "title": "Template: Pre-registered area threshold designation PPV (prob80)",
+  "authors": ["human:example-researcher"],
+  "created": "2026-11-24T00:00:00Z",
+  "releases": [2024],
+  "geography": {"level": "county", "state": "26"},
+  "variables": [
+    {"name": "poverty_num", "ref": "2024:B17001_002"},
+    {"name": "poverty_den", "ref": "2024:B17001_001"}
+  ],
+  "derivations": [
+    {"name": "poverty_rate", "kind": "proportion", "numerator": "poverty_num", "denominator": "poverty_den"}
+  ],
+  "missing": "complete_case",
+  "confidence_level": 0.90,
+  "correction": {"method": "holm", "family": "all"},
+  "analyses": [
+    {
+      "id": "des1",
+      "method": "designation",
+      "outcome": "poverty_rate",
+      "threshold": 0.20,
+      "args": {"rule": "prob80", "ppv_bootstrap": 150}
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "The prob80 rule achieves positive predictive value above 0.50 for 20% county poverty.",
+      "analysis": "des1",
+      "statistic": "ppv",
+      "null_value": 0.50,
+      "direction": "greater"
+    }
+  ]
+}

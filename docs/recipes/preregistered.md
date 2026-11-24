@@ -26,3 +26,10 @@ Worked example (synthetic, offline, executable): docs/reference_workflow.md runs
 **Validated options added in Round 43.** `correlation_matrix` `"interval": "validated"`,
 `fit_replicate` `"model": "negbin"` and `fit_eiv` `"spatial": "clusters" | "error"`; see the
 `rank_methods` and `regression_sampling_error` recipes.
+
+**Added in Rounds 104–114 (28 pre-registered manifest methods total).**
+- `estimate_effect` (causal question + DAG checks; AIPW/IPW/RA, overlap/truncated weights, matching ATE/ATT, 2SLS/AR, mediation), `spatial_scan` (Kulldorff Poisson), `stratified` (Mantel–Haenszel RR/OR/RD/IRR, Breslow–Day–Tarone, RERI), plus opt-in `fit_replicate` `args.marginal` and `args.impute` (FCS PMM/norm) and `disparity` `args.who_measures` / `args.compare_years`.
+- `designation` (FH posterior + validated `'prob80'`, `'point'`, `'lower'` PPV intervals) and `agreement` (bias, observed Bland–Altman limits, quintile kappa, validated observed Lin's CCC).
+- `rdd` (robust bias-corrected sharp/fuzzy RDD; automatic CCT CER bandwidth for continuous or survey replicates for discrete) and `disease_map` (BYM2 `method="B3"` gated at `median E ≥ 30` without suppressed counts).
+- `joinpoint` (Kim et al. permutation selection + Round 109 validated `aapc_bootstrap_t`) and `demography` (Chiang II `e0`/`e65` life-expectancy intervals).
+- `difference_in_differences` (two-group, event, staggered Sun–Abraham / Callaway–Sant'Anna, triple-difference, and Rounds 106/108 validated parametric `gformula` MSM), `interrupted_series` (`bootstrap_t_cons`, 17+ annual points), `combine_estimates` (HKSJ/truncated-KH pooling + Round 104 `k ≥ 10` PI, meta-regression, and RE Egger), and `bias_analysis` (E-value + Round 105 probabilistic misclassification).

@@ -1,0 +1,76 @@
+{
+  "elapsed_seconds": 5.7,
+  "seed": 20291111,
+  "results": [
+    {
+      "method": "P2_meta_PI",
+      "stress": "t3_random_effects_k12",
+      "metric": "coverage",
+      "value": 0.88,
+      "holds": true
+    },
+    {
+      "method": "R2_meta_reg",
+      "stress": "t3_random_effects_k12",
+      "metric": "coverage",
+      "value": 0.9,
+      "holds": true
+    },
+    {
+      "method": "E2_egger_re",
+      "stress": "t3_random_effects_k12",
+      "metric": "size",
+      "value": 0.1,
+      "holds": true
+    },
+    {
+      "method": "M5_gformula",
+      "stress": "t3_errors",
+      "metric": "min_coverage_d1_3",
+      "value": 0.892,
+      "holds": true
+    },
+    {
+      "method": "M5_gformula",
+      "stress": "mild_quadratic_L",
+      "metric": "min_coverage_d1_3",
+      "value": 0.884,
+      "holds": true
+    },
+    {
+      "method": "R1b_rdd_continuous",
+      "stress": "t3_and_3x_heteroscedastic_jump",
+      "metric": "coverage",
+      "value": 0.9,
+      "holds": true
+    },
+    {
+      "method": "C2_lin_ccc",
+      "stress": "skewed_lognormal_n80",
+      "metric": "coverage",
+      "value": 0.8666666666666667,
+      "holds": true
+    },
+    {
+      "method": "E3d_ecologic_fuller",
+      "stress": "unbalanced_nj_50_200_and_t3",
+      "metric": "coverage",
+      "value": 0.8733333333333333,
+      "holds": true
+    },
+    {
+      "method": "J3c_joinpoint_aapc",
+      "stress": "negbin_overdispersed_2.5x",
+      "metric": "coverage",
+      "value": 0.916,
+      "holds": true
+    },
+    {
+      "method": "H2d_pums_hotelling_f",
+      "stress": "extreme_weight_cv_1.2",
+      "metric": "size",
+      "value": 0.09666666666666666,
+      "holds": true
+    }
+  ]
+}

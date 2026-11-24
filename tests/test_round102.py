@@ -45,7 +45,8 @@ def test_combine_estimates_options_and_refusals():
     y, v = _data(k=12)
     r = combine_estimates(y, np.sqrt(v), moderators=np.arange(12.), leave_one_out=True, small_study_test=True)
     assert r["heterogeneity"]["tau2_interval"]["validated"] and len(r["leave_one_out"]) == 12
-    assert not r["meta_regression"]["validated"] and not r["small_study_test"]["validated"]
+    assert r["meta_regression"]["validated"] and r["small_study_test"]["validated"]
+    assert r["pooled"]["prediction_interval_validated"]
     y4, v4 = _data(k=4)
     with pytest.raises(ValueError, match="10"):
         combine_estimates(y4, np.sqrt(v4), small_study_test=True)

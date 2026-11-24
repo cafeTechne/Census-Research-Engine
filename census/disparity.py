@@ -21,9 +21,12 @@ from scipy import stats
 from . import disparity_core as dc
 
 AUDIT = "docs/audits/disparity_validation.md"
+REPAIRS_AUDIT = "docs/audits/repairs112_validation.md"
 MEASURES = dc.GROUP_MEASURES+dc.INDEX_MEASURES
 ACS_MAX_CV = {"rd": .50, "idisp": .50, "log_rr": .30, "bgv": .30, "theil": .30, "mld": .30}
 COUNT_VALIDATED = ("rd", "log_rr")
+COUNT_INDEX_VALIDATED = ("idisp", "bgv", "theil", "mld")
+COUNT_INDEX_MIN_COUNT = 100
 MIN_COUNT = 20
 MAX_GROUPS = 6
 KITAGAWA_ACS_MAX_CV = .50
@@ -102,7 +105,11 @@ def disparity_measures(frame: pd.DataFrame, groups: Sequence[str], reference: st
         res = dc.poisson_intervals(est, pops, ref, level=level, B=bootstrap, rng=np.random.default_rng(seed))
         gate = est.min(axis=1)
         basis = {m: ("poisson_delta" if m in dc.GROUP_MEASURES else "poisson_bootstrap") for m in MEASURES}
-        ok = {m: (m in COUNT_VALIDATED) & (gate >= MIN_COUNT) & (G <= MAX_GROUPS) for m in MEASURES}
+        ok = {
+            m: (((m in COUNT_VALIDATED) & (gate >= MIN_COUNT)) |
+                ((m in COUNT_INDEX_VALIDATED) & (gate >= COUNT_INDEX_MIN_COUNT))) & (G <= MAX_GROUPS)
+            for m in MEASURES
+        }
         gate_col = "min_group_count"
         notes.append("Count measures: rates are events / population with populations treated as known.")
     else:

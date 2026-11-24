@@ -13,7 +13,9 @@ AUDIT = json.loads((ROOT/"docs/audits/bias_analysis_validation.json").read_text(
 
 
 def test_flags_equal_the_audit():
-    assert ba.VALIDATED["probabilistic_misclassification"] == AUDIT["passed"]["P1"] is False
+    r105 = json.loads((ROOT/"docs/audits/repairs105_validation.json").read_text())["outcomes"]
+    assert ba.VALIDATED["probabilistic_misclassification"] == r105["M1b_all"] is True
+    assert AUDIT["passed"]["P1"] is False
     assert ba.VALIDATED["e_value"] is True
     assert "Committed before the full run" in (ROOT/"docs/audits/bias_analysis_validation_criterion.md").read_text()
 
@@ -36,7 +38,7 @@ def test_simple_correction_inverts_misclassification():
     assert A == pytest.approx(a_t) and C == pytest.approx(c_t)
     r = ba.misclassification(a, n-a, c, n-c, .8, .9, sd=.02, draws=4000)
     assert r["corrected"]["rr"] == pytest.approx(2.0) and r["observed"]["rr"] < 2.0
-    assert "probabilistic" in r and r["validated"] is False
+    assert "probabilistic" in r and r["validated"] is True
     with pytest.raises(ValueError, match="impossible"):
         ba.misclassification(10, 1990, 10, 1990, .8, .9)
 

@@ -5,6 +5,164 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.115.0 (Round 119): citation integrity, E2E manifest integration, templates & static hygiene
+
+- Registered 10 missing citation keys in `census/references.py` (`bernal2017`, `calonico2014`, `fh`, `fuller1987`,
+  `imbens_kalyanaraman2012`, `korn_graubard1990`, `lash2009`, `lin1989`, `nagashima2019`, `thompson_sharp1999`)
+  and added an invariant check in `scripts/release_hygiene_check.py` (N125).
+- Added 4 schema-validated manifest templates (`examples/manifests/templates/`) and end-to-end `run_manifest`
+  integration tests (`tests/test_round119.py`; N126).
+
+## 0.114.0 (Round 118): pre-commit release hygiene audit & Rounds 103–118 verification
+
+- Added `scripts/release_hygiene_check.py`, `docs/audits/round103_118_release_summary.md`, and `tests/test_round118.py`
+  verifying version parity, rule-text sync, CSV SHA-256 integrity, plan/audit completeness, and full-repository tests (N124).
+
+## 0.113.0 (Round 117): N39 ACS 2021–2025 release-refresh preflight tooling
+
+- Added offline preflight script `scripts/acs_release_preflight.py`, runbook `docs/audits/n39_preflight_checklist.md`,
+  and `tests/test_round117.py` to prepare a turnkey ACS 2021–2025 refresh when the release lands (N123).
+
+## 0.112.0 (Round 116): recipes and README discoverability refresh
+
+- Refreshed `README.md` and `docs/recipes/preregistered.md` to reflect all 81 MCP tools, 28 pre-registered manifest
+  methods, 40 offline-tested routing rows, and Rounds 104–114 validated options (`tests/test_round116.py`; N122).
+
+## 0.111.0 (Round 115): published textbook & reference benchmark suite
+
+- Added 8 offline textbook/closed-form reference benchmarks (`tests/test_reference_benchmarks.py`,
+  `docs/replications/reference_benchmarks.md`; N121): VanderWeele & Ding E-values, Rogan–Gladen misclassification,
+  Foundations of Epidemiology MH/Table 8-5, Chiang/Arriaga life tables, Harrer meta-analysis, Lin's CCC, Kitagawa
+  decomposition, and Mixtape RDD / triple-difference.
+
+## 0.110.0 (Round 114): final 4 pre-registered manifest methods (28 total)
+
+- Added `difference_in_differences` (two-group, event, staggered, triple, g-formula MSM), `interrupted_series`,
+  `combine_estimates` (pooling, NNF prediction interval, meta-regression, RE Egger), and `bias_analysis` (E-value,
+  probabilistic misclassification) to `census/manifest/methods.py` (24 → 28 manifest methods; N120).
+
+## 0.109.0 (Round 113): national-domain `M3c` audit (stays exploratory) & full-suite verification
+
+- **Kept exploratory** (`docs/audits/repairs113_validation.md`; N119): pre-specified `G_top ∈ {49, 51}` validation
+  of three-level variance-share jackknife intervals covered `.865–.960` in 11/12 cells and `.850` in `G_top = 49,
+  50/25/25, mid`; `census/multilevel3.py` retains `SHARES_VALIDATED = False`.
+- Full-repository `pytest` verification across all Rounds 103–113 changes (`round113_compatibility.md`).
+
+## 0.108.0 (Round 112): final repairable exploratory wave (`Q2e-lower`, count disparity indices, RDD density)
+
+- **Passed and wired** (`census/repairs112_core.py`; `docs/audits/repairs112_validation.md`; N115–N118):
+  - **Designation PPV (`rule="lower"`)** (`census/designation.py`, `census/manifest/methods.py`): `.890–.917` across all 4 cells.
+  - **Count-scale disparity indices (`idisp`, `bgv`, `theil`, `mld`)** (`census/disparity.py`, gated at `min_events ≥ 100`):
+    `.863–.920` across all 32 cells.
+  - **RDD density/manipulation test** (`census/rdd.py`, continuous `n ≥ 1,000`): size `.083–.122` across all 6 cells.
+- **Kept exploratory:** 3-level variance shares (`M3b`), `rule="prob50"` PPV (`Q2e-prob50`), and Woolf RR homogeneity (`W3_rr`).
+
+## 0.107.0 (Round 111): confirmed-method hardening, reference cross-checks & adversarial stress audit
+
+- **Edge-case hardening** (`tests/test_round111.py`; N113): fixed `ZeroDivisionError` on constant `x` in
+  `ecologic_fuller_slope`/`ecologic_corrected_slope` (`census/repairs109_core.py`, `census/repairs106_core.py`)
+  and identical-series crash in `census/agreement.py` (`check_agreement`).
+- **Independent reference cross-checks & adversarial stress audit** (`scripts/confirmed_stress_audit.py`;
+  `docs/audits/confirmed_stress_audit.md`; N114): verified analytical/invariance identities across Rounds 104–110
+  methods; 10/10 out-of-DGP stress tests held (`.867–.916` coverage; `.097–.100` size).
+
+## 0.106.0 (Round 110): `joinpoint`/`demography` manifests, routing R38–R40 & validation audit of `S3`/`W2`
+
+- **Manifest & routing parity** (N110–N112):
+  - Added `joinpoint` (Round 77/109 Kim et al. selection + AAPC bootstrap-$t$) and `demography` (Round 101 Chiang II
+    `e0`/`e65`) to `census/manifest/methods.py` (24 manifest methods total).
+  - Expanded `docs/agent_routing.md` and `tests/test_agent_routing.py` to 40 offline-tested rows (`R1–R40`).
+- **Kept exploratory after validation** (`census/repairs110_core.py`; `docs/audits/repairs110_validation.md`):
+  - Synthetic-control conformal (`S3`, `T_pre ≥ 15`): 11/12 cells `.860–.940`, `T_pre=20 ρ=0.7` at `.856`.
+  - WHO `mdm_w` / `mdb_w` SNR gate (`W2`): `.843–.907` / `.795–.863`.
+
+## 0.105.0 (Round 109): Fuller ecologic slope & Joinpoint AAPC repairs + `rdd`/`disease_map` manifests
+
+- **Passed and wired** (`census/repairs109_core.py`; `docs/audits/repairs109_validation.md`; N107–N109):
+  - **Fuller (1987, $\alpha = 4$) ecologic slope** (`census/ecologic.py`, `out["ecologic_fuller"]`): modified
+    denominator removes $O(1/J)$ ratio bias; passed all 12 cells (`.873–.920`, gated at `areas ≥ 50, median_area_n ≥ 80`).
+  - **Joinpoint AAPC bootstrap-$t$** (`census/joinpoint.py`, `out["aapc_bootstrap_t"]`): parametric residual bootstrap
+    with joinpoint-location re-estimation + `t(n - 2k - 2)` passed all 8 cells (`.887–.950`, gated at `T ≥ 15`,
+    `events ≥ 200`, `k ≤ 1`).
+- **Manifest parity:** added `rdd` and `disease_map` to `census/manifest/methods.py` (22 manifest methods total).
+
+## 0.104.0 (Round 108): multi-confounder parametric g-formula, entropy diversity repair & manifest parity
+
+- **Passed and wired** (`census/repairs108_core.py`; `docs/audits/repairs108_validation.md`; N103–N106):
+  - **Vector parametric g-formula** (`census/msm.py`, `method="gformula"`): extended from `p = 1` to any `p >= 1`
+    correlated time-varying confounders via multivariate VAR(1) transition + delete-one-unit cluster jackknife
+    `t(G - 1)` (`.880–.922` across all 48 cells for `p ∈ {2, 3}`, max |bias| `0.0206`).
+  - **Shannon entropy diversity** (`census/spatial_models.py`, `diversity_index(..., method="sdr_bc", sample_sizes=...)`):
+    exact SDR replicate bias correction `E_bc = E - 4 * (mean(Er) - E)` with `t(R - 1)` passed all 6 cells at
+    `n_resp >= 150` (`.866–.906`).
+- **Kept exploratory:** Croon/Fuller ecologic slope (`E3c`: 11/12 cells `.870–.905`, `ICC=0.05 J=150 n_j=80` at `.853`).
+- **Manifest parity:** added `designation` and `agreement` to `census/manifest/methods.py` (20 manifest methods total;
+  confirmatory manifests refuse exploratory rules/statistics).
+
+## 0.103.0 (Round 107): final-wave gated repairs and full MCP/routing parity
+
+- **Passed and wired** (`census/repairs107_core.py`; `docs/audits/repairs107_validation.md`; N99–N102):
+  - **Designation PPV predictive intervals** (`census/designation.py`, `ppv_intervals=True`): FH parametric bootstrap
+    with rule re-selection passed for `rule="prob80"` (`.875–.915`) and with a Li–Lahiri positive-$A$ floor for
+    `rule="point"` (`.873–.922`).
+  - **PUMS Hotelling `F` homogeneity** (`census/stratified.py`, `homogeneity_method="hotelling_f"`): Korn–Graubard
+    Hotelling `F(K - 1, R - K + 1)` gated at `min_stratum_n ≥ 500` passed all 12 cells (size `.068–.128`).
+- **Kept exploratory:** Croon/Fuller ecologic slope (`E3b`, `.825` at `J=150 n_j=40`) and SDR bias-corrected Shannon
+  entropy (`S2`, `.856` at `G=6 n=100`).
+- **Agent & routing parity:** wired `method="gformula"` into `difference_in_differences(design="msm")`, documented all
+  12 validated Rounds 104–107 repairs in `docs/agent_protocol.md` (synced to `mcp_server.py`), and expanded
+  `docs/agent_routing.md` / `tests/test_agent_routing.py` to 37 offline-tested rows (`R1–R37`).
+
+## 0.102.0 (Round 106): third wave of exploratory-measure repairs
+
+- **Passed and wired** (`census/repairs106_core.py`; `docs/audits/repairs106_validation.md`; N94–N98):
+  - **Lin's CCC** (`census/agreement.py`): delete-one-area jackknife on Fisher-z(CCC) with `t(n - 2)` passed all
+    6 cells (`.886–.901`; was `.859`). Error-free CCC remains exploratory.
+  - **Parametric g-formula** (`census/msm.py`, `method="gformula"`): Hernán & Robins ch. 21 sequential g-formula
+    with delete-one-unit cluster jackknife `t(G - 1)` passed all 36 cells (`.883–.920`, bias within `±0.035`;
+    IP-weighted MSM remains exploratory).
+- **Kept exploratory:** PUMS Hotelling `F` homogeneity (`H2c`), FH bootstrap PPV with rule re-selection (`Q2c`),
+  and Croon/Fuller ecologic slope (`E3`).
+## 0.101.0 (Round 105): second wave of exploratory-measure repairs
+
+- **Passed and wired** (`census/repairs105_core.py`; `docs/audits/repairs105_validation.md`; N89–N93):
+  - **Continuous RDD** (`census/rdd.py`): automatic CCT CER bandwidth `h_ik * n^(-1/20)` passed all 8 cells
+    (`.877–.920` including strong curvature, `n = 2,000` and `10,000`; was `.78–.80`).
+  - **Probabilistic misclassification** (`census/bias_analysis.py`): propagating binomial/multinomial sampling draws
+    of the observed 2×2 table through `corrected_table` (preserving the `1/(Se + Sp - 1)^2` variance inflation)
+    passed all 5 cells (`.890–.908` for RR and OR, outcome & exposure, nondifferential & differential; was
+    `.76–1.00`).
+- **Kept exploratory:** PUMS Hotelling `F` homogeneity (`H2b`), FH parametric bootstrap PPV (`Q2b`), and
+  Firth-logit + L0 + cluster-jackknife MSM (`M4`).
+## 0.100.0 (Round 104): exploratory-measure repairs and manifest support for validated methods
+
+- **Exploratory-measure repairs** (`census/repairs104_core.py`; `docs/audits/repairs104_validation.md`; N83–N87):
+  - **Passed and wired:** Nagashima–Noma–Furukawa prediction interval (`combine_estimates`, `k ≥ 10`, `.869–.985`),
+    truncated Knapp–Hartung meta-regression (`k ≥ 10`, `.891–.951`), random-effects Egger / Thompson–Sharp test
+    (`k ≥ 10`, size `.056–.116`), Kish `t(df_eff)` nearest-neighbour matching ATT (`matching_effect`, `.871–.918`),
+    and BYM2 PC-prior + log-grid Jacobian (`disease_map(method="B3")`, `.887–.894`, gated at `median E ≥ 30`).
+  - **Failed and kept exploratory:** baseline-L0-stabilized cluster-jackknife MSM (`M3`, `.850–.918`, 34/36 cells
+    ≥ `.86`) and replicate bias-corrected WHO mean differences (`MD2`, `.429–.752` at `G = 8`, small spread).
+- **Manifest support** (`census/manifest/methods.py`; N88):
+  - new manifest methods `estimate_effect` (enforcing `causal_question`, `dag`, R1/R2), `spatial_scan` (mechanical
+    `prespecified=True`, `max_share=0.5`), and `stratified` (Mantel–Haenszel, RERI, Breslow–Day–Tarone);
+  - opt-in `args.marginal` (Round 84) and `args.impute` / `impute_method` (Round 100 FCS) on `fit_replicate`, and
+    `args.who_measures` / `args.compare_years` (Round 94) on `disparity`.
+## 0.99.0 (Round 103): agent access, routing contract and release hygiene (no new statistics)
+
+- **New full-profile umbrella tool `demography_analysis`** (81 tools; CLI `tool demography_analysis`;
+  `TOOL_SOURCES` registered; N80): exposes Round 101's `census.demography` (`kind="life_table" | "arriaga" |
+  "age_quality" | "survival_migration"`) and Round 95's `census.surveillance.ypll_from_wonder` / `ypll_table`
+  (`kind="ypll"`), preserving all validated/exploratory labels and WONDER suppression bounds.
+- **Tool extensions** (N80):
+  - `disparity_measures` gains `kind="double_disaggregation"` and `kind="priority_quadrants"` (Round 94, WHO 2013);
+  - `spatial_model` gains `kind="diversity"` for the entropy diversity index with replicate intervals (Round 93,
+    exploratory).
+- **Agent routing contract** (N81): `docs/agent_routing.md` and `tests/test_agent_routing.py` extended from 15 to 30
+  offline-tested rows (R16–R30) covering Rounds 76–102.
+- **Documentation and backlog hygiene** (N82): rule text synced (`docs/agent_protocol.md` → `mcp_server.py`), recipes
+  updated (`external_health_outcome`, `health_inequality`, `spatial_patterns`), `README.md` refreshed (tool/recipe
+  counts and Inference table), and `ROADMAP_BACKLOG.md` / `STATUS.md` closed-item markers updated.
 ## 0.98.0 (Round 102): meta-analysis completeness
 
 - **`combine_estimates`** (`census/meta_core.py`; N79; Harrer et al. 2021):

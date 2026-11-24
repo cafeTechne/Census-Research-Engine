@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "title": "Template: Pre-registered source agreement with validated observed Lin's CCC",
+  "authors": ["human:example-researcher"],
+  "created": "2026-11-24T00:00:00Z",
+  "releases": [2024],
+  "geography": {"level": "county", "state": "26"},
+  "variables": [
+    {"name": "income", "ref": "2024:B19013_001"},
+    {"name": "pop", "ref": "2024:B01003_001"}
+  ],
+  "missing": "complete_case",
+  "confidence_level": 0.90,
+  "correction": {"method": "holm", "family": "all"},
+  "analyses": [
+    {"id": "ag1", "method": "agreement", "first": "income", "second": "pop"}
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "Two area measures exhibit non-zero Lin's concordance correlation.",
+      "analysis": "ag1",
+      "statistic": "ccc",
+      "null_value": 0.0,
+      "direction": "two-sided"
+    }
+  ]
+}

@@ -781,13 +781,19 @@ def estimate_effect(
     """
     from census import causal
 
-    if kind == "matching":   # Round 99
+    if kind == "matching":   # Round 99 (nn ATT repaired Round 104)
         from census.matching import matching_effect
         if not treatment or not confounders:
             return _fail(errors.INVALID_INPUT, "kind='matching' needs treatment and confounders.")
         try:
-            r = matching_effect(_load_frame(input_path), outcome, treatment, confounders, method=method or "nn",
-                                estimand="ATT" if (method or "nn") in ("cem", "ps") else "ATE")
+            m_req = method or "nn"
+            if m_req == "nn_att":
+                m_arg, est_arg = "nn", "ATT"
+            else:
+                m_arg = m_req
+                est_arg = "ATT" if m_req in ("cem", "ps") else "ATE"
+            r = matching_effect(_load_frame(input_path), outcome, treatment, confounders, method=m_arg,
+                                estimand=est_arg)
         except _INPUT_ERRORS as exc:
             return _fail(errors.INVALID_INPUT, f"{type(exc).__name__}: {exc}")
         e = r["effect"]
@@ -1629,8 +1635,8 @@ def interrupted_series(
 
 def disparity_measures(
     input_path: str,
-    groups: List[str],
-    populations: List[str],
+    groups: Optional[List[str]] = None,
+    populations: Optional[List[str]] = None,
     reference: Optional[str] = None,
     replicates_path: Optional[str] = None,
     counts: bool = False,
@@ -1639,6 +1645,13 @@ def disparity_measures(
     confidence_level: float = 0.90,
     who_measures: bool = False,
     compare_years: Optional[List[int]] = None,
+    kind: str = "disparity",
+    cells: Optional[Dict[str, Dict[str, str]]] = None,
+    max_cv: float = 0.30,
+    level_col: Optional[str] = None,
+    inequality_col: Optional[str] = None,
+    benchmark: Optional[float] = None,
+    higher_is_worse: bool = True,
 ) -> Dict[str, Any]:
     """Disparities BETWEEN POPULATION GROUPS within each area (race/ethnicity, sex, income groups), Round 76.
 
@@ -1658,12 +1671,45 @@ def disparity_measures(
     (validated), SII over the groups in the given order (validated), mean differences from the overall mean and from
     the reference (exploratory: biased when groups are close); compare_years=[y1, y2] gives the change between two
     non-overlapping releases (validated for par, sii, weighted mean differences).
+    kind="double_disaggregation" (WHO ch. 5): two-stratifier reliability table using cells={row: {col: est_col}}
+    (each column needs _se or _moe; flags CV > max_cv).
+    kind="priority_quadrants" (WHO ch. 4.7): four-quadrant priority view by level_col and inequality_col (each needs
+    _lower and _upper columns; areas whose interval spans a cutoff are marked uncertain).
     Example: disparity_measures("frame.csv", ["pov_white", "pov_black", "pov_hisp"], ["pop_white", "pop_black",
     "pop_hisp"], reference="pov_white", replicates_path="reps.parquet")
     """
     from census.disparity import disparity_measures as _dm, kitagawa_decomposition as _kd
     try:
         frame = _load_frames(input_path)
+        if kind == "double_disaggregation":
+            from census.inequality_monitoring import AUDIT as _IM_AUDIT, double_disaggregation as _dd
+            if not cells:
+                return _fail(errors.INVALID_INPUT, "kind='double_disaggregation' needs cells={row: {col: est_col}}.")
+            out = _dd(frame, cells, max_cv=max_cv)
+            n_rel = int(out["reliable"].sum())
+            return _ok(f"Double disaggregation: {len(out)} area-cells, {n_rel} reliable (CV <= {max_cv:.0%}), "
+                       f"{len(out) - n_rel} unreliable. Descriptive.",
+                       "flag or suppress unreliable cells (CV > max_cv) before comparing subgroups",
+                       validated=False, audit=_IM_AUDIT, rows=_records(out))
+        if kind == "priority_quadrants":
+            from census.inequality_monitoring import AUDIT as _IM_AUDIT, priority_quadrants as _pq
+            if not level_col or not inequality_col:
+                return _fail(errors.INVALID_INPUT, "kind='priority_quadrants' needs level_col and inequality_col.")
+            out = _pq(frame, level_col, inequality_col, benchmark=benchmark, higher_is_worse=higher_is_worse)
+            n_hi = int((out["priority"] == "high: worse level and larger inequality").sum())
+            n_unc = int((out["priority"] == "uncertain").sum())
+            return _ok(f"Priority quadrants ({len(out)} areas): {n_hi} high-priority, {n_unc} uncertain "
+                       f"(level cutoff {out.attrs['level_cutoff']:.4g}, inequality cutoff "
+                       f"{out.attrs['inequality_cutoff']:.4g}). Descriptive.",
+                       "report uncertain areas explicitly rather than forcing them into a quadrant",
+                       validated=False, audit=_IM_AUDIT,
+                       level_cutoff=float(out.attrs["level_cutoff"]),
+                       inequality_cutoff=float(out.attrs["inequality_cutoff"]),
+                       rows=_records(out))
+        if kind != "disparity":
+            return _fail(errors.INVALID_INPUT, "kind must be 'disparity', 'double_disaggregation' or 'priority_quadrants'.")
+        if not groups or not populations:
+            return _fail(errors.INVALID_INPUT, "groups and populations are required.")
         reps = _read_replicates(replicates_path)
         if decompose_areas is not None:
             if len(decompose_areas) != 2:
@@ -1869,3 +1915,133 @@ def bias_analysis(
     except (ValueError, TypeError) as exc:
         return _fail(errors.INVALID_INPUT, str(exc))
     return _fail(errors.INVALID_INPUT, "kind must be 'e_value' or 'misclassification'.")
+
+
+def demography_analysis(
+    kind: str,
+    input_path: Optional[str] = None,
+    comparison_path: Optional[str] = None,
+    causes: Optional[Dict[str, str]] = None,
+    comparison_causes: Optional[Dict[str, str]] = None,
+    pop_by_age: Optional[Dict[str, float]] = None,
+    males5: Optional[List[float]] = None,
+    females5: Optional[List[float]] = None,
+    age_col: str = "AGEP",
+    sex_col: str = "SEX",
+    weight_col: str = "PWGTP",
+    pop1: Optional[List[float]] = None,
+    pop2: Optional[List[float]] = None,
+    life_table_L: Optional[List[float]] = None,
+    end_age: int = 75,
+    expected_sha256: Optional[str] = None,
+    death_columns: Optional[List[str]] = None,
+    population_columns: Optional[List[str]] = None,
+    bands: Optional[List[List[Any]]] = None,
+    suppressed_columns: Optional[List[str]] = None,
+    confidence_level: float = 0.90,
+    output_path: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Demographic estimation and mortality burden (Rounds 95, 101; IUSSP 2013, CDC SS1000).
+
+    kind="life_table": abridged life table with validated Chiang II e0/e65 intervals from a national WONDER
+    age x sex export (input_path). Suppressed all-cause cells are refused.
+    kind="arriaga": exact Arriaga (1984) decomposition of e0 change from input_path (period 1) to comparison_path
+    (period 2) by age band and cause (causes={name: path1}, comparison_causes={name: path2}).
+    kind="age_quality": Whipple, Myers and UN age-sex accuracy indices from single-year counts (pop_by_age, optional
+    males5/females5) or from PUMS person records (input_path with age_col, sex_col, weight_col + SDR replicates).
+    kind="survival_migration": descriptive net migration by cohort from two census age distributions (pop1, pop2)
+    and matching life-table nLx (life_table_L).
+    kind="ypll": age-adjusted YPLL to end_age (default 75) with validated Fay-Feuer intervals from a national WONDER
+    export (input_path; suppressed cells return bounds only with validated=False) or per-area frame (input_path with
+    death_columns, population_columns, bands, optional suppressed_columns).
+    Example: demography_analysis("life_table", input_path="external_data/wonder/us_all_2018_2022.txt")
+    """
+    from census import demography as dm, surveillance as sv
+    try:
+        if kind == "life_table":
+            if not input_path:
+                return _fail(errors.INVALID_INPUT, "kind='life_table' needs input_path (a national WONDER age x sex export).")
+            r = dm.life_table_from_wonder(input_path, level=confidence_level)
+            tbl = r["table"]
+            path = str(_write_frame(tbl, output_path, "life_table.csv")) if output_path else None
+            payload = dict(e0=r["e0"], e0_lower=r["e0_lower"], e0_upper=r["e0_upper"],
+                           validated=bool(r["validated"]), audit=r["audit"], table=_records(tbl))
+            if path:
+                payload["output_path"] = path
+            return _ok(f"Abridged life table: e0 = {r['e0']:.2f} ({r['e0_lower']:.2f} to {r['e0_upper']:.2f}, "
+                       f"{int(round(confidence_level * 100))}% Chiang II); validated.",
+                       "report e0 (and e65) with their Chiang II intervals and the WONDER export provenance",
+                       **payload)
+        if kind == "arriaga":
+            if not input_path or not comparison_path or not causes or not comparison_causes:
+                return _fail(errors.INVALID_INPUT,
+                             "kind='arriaga' needs input_path, comparison_path, causes and comparison_causes.")
+            r = dm.arriaga_from_wonder(input_path, comparison_path, causes, comparison_causes)
+            cause_totals = {c: float(r["by_age_cause"][c].sum()) for c in r["by_age_cause"].columns}
+            tbl = r["by_age_cause"].reset_index(names="age")
+            path = str(_write_frame(tbl, output_path, "arriaga_by_age_cause.csv")) if output_path else None
+            payload = dict(e0_1=float(r["e0_1"]), e0_2=float(r["e0_2"]), difference=float(r["difference"]),
+                           by_age={str(k): float(v) for k, v in r["by_age"].items()},
+                           by_cause=cause_totals, by_age_cause=_records(tbl),
+                           validated=True, notes=r["notes"], audit=r["audit"])
+            if path:
+                payload["output_path"] = path
+            return _ok(f"Arriaga decomposition: e0 changed by {r['difference']:+.2f} years "
+                       f"({r['e0_1']:.2f} -> {r['e0_2']:.2f}); exact decomposition.",
+                       "report age-band and cause contributions and note whether listed causes are mutually exclusive",
+                       **payload)
+        if kind == "age_quality":
+            if input_path:
+                df = _load_frame(input_path)
+                r = dm.age_quality_pums(df, age=age_col, sex=sex_col, weight=weight_col)
+                return _ok(f"PUMS age quality: Whipple {r['whipple']:.1f}, Myers {r['myers']:.1f}, "
+                           f"UN {r['un_age_sex_accuracy']:.1f} (with SDR SEs).",
+                           "flag Whipple > 105 or UN > 20 as age-reporting distortion",
+                           validated=True, audit=dm.AUDIT, **_jsonable(r))
+            if pop_by_age is not None:
+                pba = {int(k): float(v) for k, v in pop_by_age.items()}
+                r = dm.age_quality(pba, males5=males5, females5=females5)
+                return _ok(f"Age quality: Whipple {r['whipple']:.1f}, Myers {r['myers']:.1f}.",
+                           "flag Whipple > 105 or UN > 20 as age-reporting distortion",
+                           validated=True, audit=dm.AUDIT, **_jsonable(r))
+            return _fail(errors.INVALID_INPUT, "kind='age_quality' needs input_path (PUMS) or pop_by_age.")
+        if kind == "survival_migration":
+            if pop1 is None or pop2 is None or life_table_L is None:
+                return _fail(errors.INVALID_INPUT, "kind='survival_migration' needs pop1, pop2 and life_table_L.")
+            net = dm.census_survival_net_migration(pop1, pop2, life_table_L)
+            return _ok(f"Census-survival net migration across {len(net)} cohorts (total {float(np.sum(net)):+,.0f}). "
+                       "Descriptive.",
+                       "report as descriptive residual net migration assuming uniform mortality and coverage",
+                       net_migration=[float(v) for v in net], total_net_migration=float(np.sum(net)),
+                       validated=False, audit=dm.AUDIT,
+                       notes=["Descriptive: census-survival residual includes any differential census coverage error."])
+        if kind == "ypll":
+            if not input_path:
+                return _fail(errors.INVALID_INPUT, "kind='ypll' needs input_path (WONDER export or area frame).")
+            if death_columns and population_columns and bands:
+                df = _load_frame(input_path)
+                tbl = sv.ypll_table(df, death_columns, population_columns, bands, end=end_age,
+                                    suppressed_columns=suppressed_columns, level=confidence_level)
+                path = str(_write_frame(tbl, output_path, f"ypll_{end_age}.csv")) if output_path else None
+                n_val = int(tbl["validated"].sum())
+                payload = dict(rows=_records(tbl), validated=bool(tbl["validated"].all()), audit=sv.AUDIT)
+                if path:
+                    payload["output_path"] = path
+                return _ok(f"YPLL-{end_age} table: {len(tbl)} areas, {n_val} validated, "
+                           f"{len(tbl) - n_val} bounds-only (suppressed bands).",
+                           "report bounds only for areas with suppressed bands; never impute 1-9 counts",
+                           **payload)
+            r = sv.ypll_from_wonder(input_path, end=end_age, expected_sha256=expected_sha256, level=confidence_level)
+            if r["validated"]:
+                msg = (f"YPLL-{end_age}: adjusted rate {r['adjusted_rate']:.1f} per 100,000 "
+                       f"({r['lower']:.1f} to {r['upper']:.1f}, Fay-Feuer); validated.")
+                nxt = "report the age-adjusted YPLL rate with its Fay-Feuer interval and end age"
+            else:
+                msg = (f"YPLL-{end_age}: suppressed cells ({r['suppressed_cells']}); bounds only "
+                       f"[{r['adjusted_rate_lower']:.1f}, {r['adjusted_rate_upper']:.1f}] per 100,000.")
+                nxt = "report only the suppression bounds; never publish a point estimate for suppressed counts"
+            return _ok(msg, nxt, **_jsonable(r))
+        return _fail(errors.INVALID_INPUT,
+                     "kind must be 'life_table', 'arriaga', 'age_quality', 'survival_migration' or 'ypll'.")
+    except (ValueError, KeyError, TypeError, FileNotFoundError) as exc:
+        return _fail(errors.INVALID_INPUT, str(exc))

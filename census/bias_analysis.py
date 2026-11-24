@@ -16,7 +16,8 @@ import numpy as np
 from . import bias_analysis_core as bc
 
 AUDIT = "docs/audits/bias_analysis_validation.md"
-VALIDATED = {"e_value": True, "probabilistic_misclassification": False}
+REPAIRS_AUDIT = "docs/audits/repairs105_validation.md"
+VALIDATED = {"e_value": True, "probabilistic_misclassification": True}
 E_NOTE = ("E-value: the minimum strength of association (risk-ratio scale) an unmeasured confounder would need with "
           "both the exposure and the outcome to explain away the estimate (and, for the limit, to move the interval "
           "to include the null). Large values mean robust to unmeasured confounding; it is not a test.")
@@ -50,13 +51,17 @@ def misclassification(a: float, b: float, c: float, d: float, sensitivity: Any, 
                notes=["Bias analysis shows how much plausible misclassification could move the estimate; it is a "
                       "sensitivity analysis, not a corrected confirmatory result."])
     if sd:
+        from . import repairs105_core as r105
         prior_se = tuple((float(s), sd) for s in se2) if diff else (float(se[0]), sd)
         prior_sp = tuple((float(s), sd) for s in sp2) if diff else (float(sp[0]), sd)
-        pr = bc.probabilistic(a, b, c, d, prior_se, prior_sp, kind, draws, rng=np.random.default_rng(seed),
-                              differential=diff)
+        pr = r105.probabilistic_propagated(a, b, c, d, prior_se, prior_sp, kind, draws,
+                                           rng=np.random.default_rng(seed), differential=diff)
         out["probabilistic"] = pr
-        out["notes"].append("The probabilistic interval failed validation (coverage .76-1.00 depending on the design); "
-                            "report it as exploratory.")
+        out["validated"] = bool(VALIDATED["probabilistic_misclassification"])
+        out["audit"] = REPAIRS_AUDIT
+        out["notes"].append(f"Probabilistic interval propagates observed-table sampling error through the "
+                            f"misclassification inversion (validated under correctly specified priors in Round 105, "
+                            f"{REPAIRS_AUDIT}).")
     return out
 
 

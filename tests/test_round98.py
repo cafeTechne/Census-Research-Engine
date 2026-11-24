@@ -54,5 +54,7 @@ def test_discrete_replicates_and_tool(tmp_path):
 
 def test_validated_flags_match_audit():
     out = json.loads((ROOT/"docs/audits/rdd_validation.json").read_text())["outcome"]
-    assert rd.VALIDATED == {"discrete_replicate": out["R1-rep"]["passed"], "continuous": out["R1"]["passed"],
-                            "density": out["D1"]["passed"]}
+    r105 = json.loads((ROOT/"docs/audits/repairs105_validation.json").read_text())["outcomes"]
+    r112 = json.loads((ROOT/"docs/audits/repairs112_validation.json").read_text())["verdicts"]
+    assert rd.VALIDATED == {"discrete_replicate": out["R1-rep"]["passed"], "continuous": r105["R1b_all"],
+                            "density": r112["R2_dens"]}

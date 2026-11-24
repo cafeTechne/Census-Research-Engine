@@ -45,10 +45,18 @@ def check_agreement(frame: pd.DataFrame, a: str, b: str, *, a_se: Optional[str] 
     out["kappa_quintiles"] = dict(ag.kappa_quintiles(x, y, level), validated=True)
     from . import small_spatial as ss
     from . import small_spatial_core as ssc
-    out["limits_observed"] = dict(ssc.limits_robust(x, y, level=level), validated=ss.LIMITS_ROBUST_VALIDATED)
-    out["ccc"] = dict(ag.ccc(x, y, level=level), validated=False)
-    notes = ["Areas assumed independent. Validated: bias, kappa and (Round 48) limits of agreement with "
-             f"moment-based SEs ({ss.AUDIT}). Concordance intervals failed validation (exploratory)."]
+    from . import repairs106_core as r106
+    try:
+        out["limits_observed"] = dict(ssc.limits_robust(x, y, level=level), validated=ss.LIMITS_ROBUST_VALIDATED)
+    except ValueError:
+        m0 = float(np.mean(y - x))
+        out["limits_observed"] = dict(mean=m0, sd=0.0, lower=m0, upper=m0, lower_ci=(m0, m0), upper_ci=(m0, m0),
+                                      method="identical_series", validated=False)
+    out["ccc"] = dict(r106.ccc_jackknife(x, y, level=level), validated=True,
+                      audit="docs/audits/repairs106_validation.md")
+    notes = ["Areas assumed independent. Validated: bias, kappa, limits of agreement with moment-based SEs "
+             f"(Round 48, {ss.AUDIT}), and observed Lin's CCC via Fisher-z jackknife (Round 106, "
+             "docs/audits/repairs106_validation.md). Error-free CCC remains exploratory."]
     if sa is not None:
         try:
             out["limits_error_free"] = dict(ssc.limits_robust(x, y, sa, sb, level), validated=ss.LIMITS_ROBUST_VALIDATED)

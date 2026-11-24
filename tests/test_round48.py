@@ -101,7 +101,7 @@ def test_engine_correlations_alpha_pooling_and_agreement_flags():
     k7 = evidence.combine_estimates(rng.normal(size=7).tolist(), [.5]*7)
     assert k7["validated"] and k7["pooled"]["method"] == "hksj_truncated"
     out = check_agreement(f, "a", "b")
-    assert out["limits_observed"]["validated"] and not out["ccc"]["validated"]
+    assert out["limits_observed"]["validated"] and out["ccc"]["validated"]  # Round 106 validated observed CCC
 
 
 def test_mcp_correlation_matrix_spatial(tmp_path):

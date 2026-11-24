@@ -21,8 +21,10 @@ import pandas as pd
 from . import stratified_core as sc
 
 AUDIT = "docs/audits/stratified_validation.md"
+REPAIRS_AUDIT = "docs/audits/repairs107_validation.md"
+PUMS_HOMOGENEITY_MIN_N = 500
 VALIDATED = {"mh_counts": True, "mh_pums": True, "reri_counts": True, "reri_pums": True,
-             "breslow_day": True, "woolf": False, "pums_wald": False}
+             "breslow_day": True, "woolf": False, "pums_wald": False, "pums_hotelling_f": True}
 ROLE_NOTE = ("Classification follows Foundations of Epidemiology Table 8-5: stratum measures that differ "
              "(homogeneity p <= .10) with the crude between them indicate an effect modifier (report each stratum); "
              "otherwise a crude-to-adjusted change above 10% indicates a confounder (report the adjusted measure). "
@@ -82,20 +84,41 @@ def stratified_counts(frame: pd.DataFrame, stratum: str, cases_exposed: str, tot
 
 
 def stratified_pums(y: np.ndarray, e: np.ndarray, s: np.ndarray, W: np.ndarray, strata: Sequence[Any],
-                    level: float = .90) -> Dict[str, Any]:
-    """PUMS records (0/1 outcome y, 0/1 exposure e, stratum codes s, weight matrix W = full then 80 replicates)."""
-    est, hom, sm, cr = sc.mh_replicate(np.asarray(y), np.asarray(e), np.asarray(s), np.asarray(W, float), list(strata), level)
-    labels = {m: _label(cr[m], est[m]["estimate"], sm[m], hom[m]["p"], m) for m in ("rr", "or", "rd")}
-    counts = {str(k): int((np.asarray(s) == k).sum()) for k in strata}
-    notes = [ROLE_NOTE, "Homogeneity tests on PUMS (replicate Wald) are exploratory: they rejected too often with four "
-             "strata (size up to .151 at .10); the classification label is therefore exploratory."]
-    if min(counts.values()) < 300:
-        notes.append(f"A stratum has fewer than 300 records ({min(counts.values())}); validation started at 300.")
+                    level: float = .90, homogeneity_method: str = "wald") -> Dict[str, Any]:
+    """PUMS records (0/1 outcome y, 0/1 exposure e, stratum codes s, weight matrix W = full then 80 replicates).
+    Pass ``homogeneity_method='hotelling_f'`` for Round 107's validated Korn-Graubard Hotelling F homogeneity test
+    (gated at ``min_stratum_n >= 500``; ``docs/audits/repairs107_validation.md``)."""
+    y_arr, e_arr, s_arr, W_arr = np.asarray(y), np.asarray(e), np.asarray(s), np.asarray(W, float)
+    st_list = list(strata)
+    est, hom, sm, cr = sc.mh_replicate(y_arr, e_arr, s_arr, W_arr, st_list, level)
+    counts = {str(k): int((s_arr == k).sum()) for k in st_list}
+    min_n = min(counts.values()) if counts else 0
+    if homogeneity_method == "hotelling_f":
+        from . import repairs107_core as r107
+        hf = r107.mh_replicate_homogeneity_f(y_arr, e_arr, s_arr, W_arr, st_list)
+        ok_hom = bool(VALIDATED["pums_hotelling_f"] and min_n >= PUMS_HOMOGENEITY_MIN_N and len(st_list) >= 2)
+        hom_out = {m: dict(statistic=float(hf[m]["statistic"]), p=float(hf[m]["p_value"]),
+                           df1=int(hf[m]["df1"]), df2=int(hf[m]["df2"]),
+                           test="Hotelling F", validated=ok_hom) for m in ("rr", "or", "rd")}
+        labels = {m: _label(cr[m], est[m]["estimate"], sm[m], hom_out[m]["p"], m) for m in ("rr", "or", "rd")}
+        notes = [ROLE_NOTE,
+                 f"Homogeneity tests on PUMS use Hotelling F(K-1, R-K+1) (Round 107, {REPAIRS_AUDIT}): "
+                 + ("validated (min stratum n >= 500)." if ok_hom else
+                    f"exploratory (min stratum n = {min_n} < {PUMS_HOMOGENEITY_MIN_N}).")]
+    else:
+        labels = {m: _label(cr[m], est[m]["estimate"], sm[m], hom[m]["p"], m) for m in ("rr", "or", "rd")}
+        hom_out = {m: dict(h, test="replicate Wald", validated=False) for m, h in hom.items()}
+        notes = [ROLE_NOTE, "Homogeneity tests on PUMS (replicate Wald) are exploratory: they rejected too often with "
+                 "four strata (size up to .151 at .10); pass homogeneity_method='hotelling_f' when every stratum has "
+                 f"at least {PUMS_HOMOGENEITY_MIN_N} records (validated in Round 107, {REPAIRS_AUDIT})."]
+    if min_n < 300:
+        notes.append(f"A stratum has fewer than 300 records ({min_n}); validation started at 300.")
     return dict(pooled=est, crude={k: float(v) for k, v in cr.items()},
-                strata={m: dict(zip(map(str, strata), map(float, v))) for m, v in sm.items()},
-                homogeneity={m: dict(h, test="replicate Wald", validated=False) for m, h in hom.items()},
+                strata={m: dict(zip(map(str, st_list), map(float, v))) for m, v in sm.items()},
+                homogeneity=hom_out,
                 classification=labels, classification_basis="associational (10% rule)", records=counts,
-                validated=VALIDATED["mh_pums"] and min(counts.values()) >= 300, notes=notes, audit=AUDIT)
+                validated=VALIDATED["mh_pums"] and min_n >= 300, notes=notes, audit=AUDIT,
+                repairs_audit=REPAIRS_AUDIT)
 
 
 def additive_interaction(cases: Optional[Sequence[float]] = None, totals: Optional[Sequence[float]] = None,

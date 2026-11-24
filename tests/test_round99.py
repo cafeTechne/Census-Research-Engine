@@ -40,7 +40,8 @@ def test_triple_difference_removes_unit_trend():
 
 def test_validated_flags_match_audit():
     out = json.loads((ROOT/"docs/audits/matching_validation.json").read_text())["outcome"]
-    assert mt.VALIDATED == {"nn_ATE": out["M1-ATE"]["passed"], "nn_ATT": out["M1-ATT"]["passed"], "cem": out["M2"]["passed"],
+    r104 = json.loads((ROOT/"docs/audits/repairs104_validation.json").read_text())["outcomes"]
+    assert mt.VALIDATED == {"nn_ATE": out["M1-ATE"]["passed"], "nn_ATT": r104["M1b_ATT"], "cem": out["M2"]["passed"],
                             "ps": out["M3"]["passed"], "triple": out["T3"]["passed"]}
 
 

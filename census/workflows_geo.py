@@ -202,8 +202,8 @@ def _bridge_components(gdf, edges):
 def spatial_model(
     input_path: str,
     kind: str,
-    level: str,
-    year: int,
+    level: Optional[str] = None,
+    year: Optional[int] = None,
     outcome: Optional[str] = None,
     predictors: Optional[List[str]] = None,
     features: Optional[List[str]] = None,
@@ -212,13 +212,18 @@ def spatial_model(
     output_path: Optional[str] = None,
     expected: Optional[str] = None,
     threshold: float = 1.2,
+    groups: Optional[List[str]] = None,
+    replicates_path: Optional[str] = None,
+    bias_correct: bool = True,
+    method: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Exploratory spatial models (Round 93; Walker 2023 ch. 8): kind="gwr" (geographically weighted regression of
     outcome on predictors; local slopes + non-stationarity test), "classify" (k-means neighbourhood types on
-    features) or "regionalize" (SKATER contiguous regions on features). classify/regionalize need <feature>_se or
-    _moe columns and k set in advance; each area gets a stability score (share of 20 sampling-error replicates in
-    the same group). GWR local intervals failed validation (.71 with varying slopes): exploratory, report beside a
-    global model.
+    features), "regionalize" (SKATER contiguous regions on features), or "diversity" (entropy diversity index
+    from group share columns in groups and replicates_path; exploratory, failed validation narrowly at small n).
+    classify/regionalize need <feature>_se or _moe columns and k set in advance; each area gets a stability score
+    (share of 20 sampling-error replicates in the same group). GWR local intervals failed validation (.71 with
+    varying slopes): exploratory, report beside a global model.
     kind="disease_map" (Round 96; Moraga 2023 ch. 10): BYM2 Poisson smoothing of event counts (outcome = observed
     count column, expected = expected count column, optional predictors) with relative-risk intervals and
     P(RR > threshold); suppressed counts may be missing (predicted from neighbours).
@@ -228,10 +233,38 @@ def spatial_model(
     """
     from census import spatial_models as smod
 
-    if kind not in ("gwr", "classify", "regionalize", "disease_map", "cv", "maup"):
+    if kind not in ("gwr", "classify", "regionalize", "disease_map", "cv", "maup", "diversity"):
         return _fail(errors.INVALID_INPUT,
-                     "kind must be 'gwr', 'classify', 'regionalize', 'disease_map', 'cv' or 'maup'.")
+                     "kind must be 'gwr', 'classify', 'regionalize', 'disease_map', 'cv', 'maup' or 'diversity'.")
     try:
+        if kind == "diversity":
+            from census.disparity import _rep_mats
+            from census.workflows_inference import _read_replicates
+            if not groups or len(groups) < 2 or not replicates_path:
+                return _fail(errors.INVALID_INPUT,
+                             "kind='diversity' needs groups (at least two share columns) and replicates_path.")
+            df = _load_frame(input_path).dropna(subset=list(groups)).reset_index(drop=True)
+            reps = _read_replicates(replicates_path)
+            mats = _rep_mats(df, reps, list(groups))
+            absent = [g for g in groups if g not in mats]
+            if absent:
+                return _fail(errors.INVALID_INPUT, f"replicate shares missing for {absent}.")
+            geoids = df["GEOID"].astype(str)
+            shares = df[list(groups)].astype(float).set_index(geoids)
+            rep_shares = [pd.DataFrame({g: mats[g][:, r_i] for g in groups}, index=geoids) for r_i in range(80)]
+            tbl = smod.diversity_index(shares, rep_shares, bias_correct=bias_correct).reset_index(names="GEOID")
+            path = _write_frame(tbl, output_path, "spatial_model_diversity.csv")
+            import math
+            return _ok(f"Entropy diversity index ({len(tbl)} areas, {len(groups)} groups, max {math.log(len(groups)):.2f}): "
+                       f"median {float(tbl['entropy'].median()):.3f}. Exploratory.",
+                       "label entropy diversity intervals exploratory (failed narrowly at small tract n)",
+                       output_path=str(path), validated=bool(smod.VALIDATED["diversity"]),
+                       audit=smod.AUDIT,
+                       notes=["Exploratory: entropy diversity intervals failed validation narrowly at 50 effective "
+                              "respondents per tract (.847; .883 at 200)."],
+                       preview=_records(tbl, 10))
+        if not level or year is None:
+            return _fail(errors.INVALID_INPUT, f"kind='{kind}' needs level and year.")
         gdf = _with_boundaries(_load_frame(input_path), level, year)
         if kind in ("cv", "maup"):
             from census import model_assessment as ma
@@ -268,7 +301,8 @@ def spatial_model(
             pos = {g: k_ for k_, g in enumerate(w.id_order)}
             edges = sorted({tuple(sorted((pos[a], pos[b]))) for a, nb in w.neighbors.items() for b in nb})
             edges, bridges = _bridge_components(d, edges)
-            r = disease_map(d, outcome, expected, edges, covariates=predictors or (), threshold=threshold)
+            r = disease_map(d, outcome, expected, edges, covariates=predictors or (), threshold=threshold,
+                            method=method or "B2")
             if bridges:
                 r["notes"].append(f"The contiguity graph had separate parts; {len(bridges)} bridge edge(s) join each "
                                   f"part to its nearest area: {bridges}.")

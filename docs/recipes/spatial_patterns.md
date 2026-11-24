@@ -54,7 +54,8 @@ neighbouring counties with an unusually high rate?"
   - Each area gets a **stability** score: the share of 20 sampling-error replicates that put it in the same group.
   - In validation, areas below .8 were misclassified 39–50% of the time, against 3–16% above it. Map stability with
     the groups, and do not interpret unstable areas' labels.
-- **Diversity:** `census.spatial_models.diversity_index` gives entropy (maximum ln G) with replicate intervals. It
+- **Diversity:** `spatial_model(input_path, "diversity", groups=[...], replicates_path=...)` (library
+  `census.spatial_models.diversity_index`) gives entropy (maximum ln G) with replicate intervals. It
   is exploratory: .847 coverage with about 50 respondents per tract, .883 with 200.
 
 ## Out-of-sample checks and the modifiable areal unit problem (Round 97; Moraga 2023 chapters 11 and 16)

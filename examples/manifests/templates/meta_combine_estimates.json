@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "title": "Template: Pre-registered random-effects meta-analysis with NNF prediction interval",
+  "authors": ["human:example-researcher"],
+  "created": "2026-11-24T00:00:00Z",
+  "releases": [2024],
+  "geography": {"level": "county", "state": "26"},
+  "variables": [
+    {"name": "income", "ref": "2024:B19013_001"},
+    {"name": "pop", "ref": "2024:B01003_001"}
+  ],
+  "missing": "complete_case",
+  "confidence_level": 0.90,
+  "correction": {"method": "holm", "family": "all"},
+  "analyses": [
+    {"id": "meta1", "method": "combine_estimates", "estimate": "income", "se": "pop"}
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "The pooled effect differs from zero.",
+      "analysis": "meta1",
+      "statistic": "pooled_effect",
+      "direction": "two-sided"
+    }
+  ]
+}

@@ -18,11 +18,13 @@ import pandas as pd
 from . import matching_core as mc
 
 AUDIT = "docs/audits/matching_validation.md"
-VALIDATED = {"nn_ATE": True, "nn_ATT": False, "cem": True, "ps": True, "triple": True}
+REPAIRS_AUDIT = "docs/audits/repairs104_validation.md"
+VALIDATED = {"nn_ATE": True, "nn_ATT": True, "cem": True, "ps": True, "triple": True}
 
 
 def matching_effect(frame: pd.DataFrame, outcome: str, treatment: str, covariates: Sequence[str], method: str = "nn",
                     estimand: str = "ATE", matches: int = 4, seed: int = 20282991) -> Dict[str, Any]:
+    from . import repairs104_core as r104
     d = frame.dropna(subset=[outcome, treatment, *covariates]).reset_index(drop=True)
     y = d[outcome].astype(float).to_numpy(); T = d[treatment].astype(int).to_numpy()
     if set(np.unique(T)) - {0, 1}:
@@ -33,7 +35,11 @@ def matching_effect(frame: pd.DataFrame, outcome: str, treatment: str, covariate
     if method == "nn":
         if estimand not in ("ATE", "ATT"):
             raise ValueError("estimand must be 'ATE' or 'ATT'")
-        r = mc.nn_match(y, T, X, matches, estimand); key = f"nn_{estimand}"
+        if estimand == "ATT":
+            r = r104.nn_match_att_t(y, T, X, matches)
+        else:
+            r = mc.nn_match(y, T, X, matches, estimand)
+        key = f"nn_{estimand}"
     elif method == "cem":
         r = mc.cem(y, T, X); key = "cem"; r.pop("matched")
     elif method == "ps":
@@ -48,9 +54,10 @@ def matching_effect(frame: pd.DataFrame, outcome: str, treatment: str, covariate
         notes.append(f"Estimand: the effect among the {r['share_treated_matched']:.0%} of treated areas matched in a "
                      "coarsened stratum (quintiles); unmatched treated areas are dropped.")
     if key == "nn_ATT":
-        notes.append("Nearest-neighbour ATT intervals under-covered (.852) with 145 areas and limited overlap: exploratory.")
+        notes.append(f"Nearest-neighbour ATT uses Kish effective-control-sample-size t(df_eff={r['df_eff']:.1f}) "
+                     f"intervals (validated in Round 104, {REPAIRS_AUDIT}).")
     return dict(method=method, n=len(y), n_treated=int(T.sum()), effect=r, balance_before=balance,
-                validated=validated, notes=notes, audit=AUDIT)
+                validated=validated, notes=notes, audit=REPAIRS_AUDIT if key == "nn_ATT" else AUDIT)
 
 
 def triple_difference(frame: pd.DataFrame, outcome: str, unit: str, group: str, affected_group: Any, period: str,

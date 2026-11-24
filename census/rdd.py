@@ -19,7 +19,10 @@ import pandas as pd
 from . import rdd_core as rc
 
 AUDIT = "docs/audits/rdd_validation.md"
-VALIDATED = {"discrete_replicate": True, "continuous": False, "density": False}
+REPAIRS_AUDIT = "docs/audits/repairs105_validation.md"
+REPAIRS_AUDIT_112 = "docs/audits/repairs112_validation.md"
+VALIDATED = {"discrete_replicate": True, "continuous": True, "density": True}
+DENSITY_MIN_N = 1000
 
 
 def regression_discontinuity(frame: pd.DataFrame, outcome: str, running: str, cutoff: float,
@@ -40,24 +43,40 @@ def regression_discontinuity(frame: pd.DataFrame, outcome: str, running: str, cu
             raise ValueError(f"replicate weights {miss[:3]}... not in the frame")
         R = d[rcols].astype(float).to_numpy()
     discrete = len(np.unique(x)) <= 100
-    h = bandwidth or rc.ik_bandwidth(x, y, cutoff)
-    if discrete:
-        h = max(h, 4.0)   # 3+ support points per side for the local quadratic (validation bandwidths were all >= 4)
+    if bandwidth is not None:
+        h = float(bandwidth)
+    elif discrete:
+        h = max(rc.ik_bandwidth(x, y, cutoff), 4.0)   # 3+ support points per side for the local quadratic
+    else:
+        h = float(rc.ik_bandwidth(x, y, cutoff) * (len(x) ** (-1.0 / 20.0)))   # Round 105: CCT CER bandwidth
     res = rc.rdd(x, y, cutoff, h=h, d=t, weights=w, replicate_weights=R, level=level)
-    validated = bool(discrete and R is not None and VALIDATED["discrete_replicate"])
+    if discrete:
+        validated = bool(R is not None and VALIDATED["discrete_replicate"])
+    else:
+        validated = bool(bandwidth is None and VALIDATED["continuous"])
     notes = []
     if discrete and R is None:
         notes.append("Discrete running variable without replicate weights: HC intervals are exploratory (validation "
                      "used survey replicates).")
     if not discrete:
-        notes.append("Continuous running variable: the robust interval under-covered (.78-.80) when the regression "
-                     f"function curves strongly near the cutoff with n <= 10,000 ({AUDIT}); exploratory.")
+        if validated:
+            notes.append(f"Continuous running variable uses CCT CER-optimal bandwidth h_ik * n^(-1/20) "
+                         f"(validated in Round 105, {REPAIRS_AUDIT}).")
+        else:
+            notes.append("Custom bandwidth on a continuous running variable is exploratory (validation used automatic "
+                         f"CER bandwidth; {REPAIRS_AUDIT}).")
     out = dict(design=res["design"], estimate=res["robust_estimate"], se=res["robust_se"], lower=res["robust_lower"],
                upper=res["robust_upper"], conventional=dict(estimate=res["estimate"], lower=res["lower"], upper=res["upper"]),
                bandwidth=res["bandwidth"], n_within=res["n_within"], variance=res["variance"], validated=validated)
     dt = rc.density_test(x if not discrete else x+np.random.default_rng(0).uniform(-.5, .5, len(x)), cutoff)
-    out["density_test"] = dict(dt, validated=False, note="Manipulation (density) test: exploratory (size up to .114). "
-                               + ("Ages were jittered within each year for the test." if discrete else ""))
+    dens_ok = bool(not discrete and len(x) >= DENSITY_MIN_N and VALIDATED["density"])
+    out["density_test"] = dict(
+        dt, validated=dens_ok,
+        note=(f"Manipulation (density) test: validated for continuous running variables with n >= {DENSITY_MIN_N} "
+              f"(Round 112, {REPAIRS_AUDIT_112})." if dens_ok else
+              "Manipulation (density) test: exploratory (validated for continuous running variables with "
+              f"n >= {DENSITY_MIN_N}; " + ("ages were jittered within each year for the test)." if discrete else f"n = {len(x)}).")),
+    )
     out["covariate_jumps"] = {c: _jump(x, d[c].astype(float).to_numpy(), cutoff, h, w, R, level) for c in covariates}
     out["placebo"] = {str(c0): _jump(x, y, c0, h, w, R, level) for c0 in placebo_cutoffs}
     notes.append("The estimate is the robust bias-corrected (local quadratic) jump; the conventional local linear "

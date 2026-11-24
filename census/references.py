@@ -237,6 +237,32 @@ SOURCES: Dict[str, Dict[str, Any]] = {
                            "Journal of Pharmacokinetics and Biopharmaceutics", volume="15", pages="657-680"),
     "bland_altman1986": _src("paper", "Bland, J.M. & Altman, D.G.", 1986, "Statistical methods for assessing agreement "
                              "between two methods of clinical measurement", "The Lancet", volume="327", pages="307-310"),
+    "lin1989": _src("paper", "Lin, L.I.-K.", 1989, "A concordance correlation coefficient to evaluate reproducibility",
+                    "Biometrics", volume="45", pages="255-268"),
+    "fh": _src("paper", "Fay, R.E. & Herriot, R.A.", 1979, "Estimates of income for small places: an application of "
+               "James-Stein procedures to census data", "Journal of the American Statistical Association",
+               volume="74", pages="269-277"),
+    "calonico2014": _src("paper", "Calonico, S., Cattaneo, M.D. & Titiunik, R.", 2014, "Robust nonparametric "
+                         "confidence intervals for regression-discontinuity designs", "Econometrica",
+                         volume="82", pages="2295-2326"),
+    "imbens_kalyanaraman2012": _src("paper", "Imbens, G. & Kalyanaraman, K.", 2012, "Optimal bandwidth choice for the "
+                                    "regression discontinuity estimator", "Review of Economic Studies",
+                                    volume="79", pages="933-959"),
+    "bernal2017": _src("paper", "Bernal, J.L., Cummins, S. & Gasparrini, A.", 2017, "Interrupted time series "
+                       "regression for the evaluation of public health interventions: a tutorial",
+                       "International Journal of Epidemiology", volume="46", pages="348-355"),
+    "nagashima2019": _src("paper", "Nagashima, K., Noma, H. & Furukawa, T.A.", 2019, "Prediction intervals for "
+                          "random-effects meta-analysis: a confidence distribution approach",
+                          "Statistical Methods in Medical Research", volume="28", pages="1689-1702"),
+    "thompson_sharp1999": _src("paper", "Thompson, S.G. & Sharp, S.J.", 1999, "Explaining heterogeneity in "
+                               "meta-analysis: a comparison of methods", "Statistics in Medicine",
+                               volume="18", pages="2693-2708"),
+    "lash2009": _src("book", "Lash, T.L., Fox, M.P. & Fink, A.K.", 2009, "Applying Quantitative Bias Analysis to "
+                     "Epidemiologic Data", publisher="Springer, New York"),
+    "fuller1987": _src("book", "Fuller, W.A.", 1987, "Measurement Error Models", publisher="Wiley, New York"),
+    "korn_graubard1990": _src("paper", "Korn, E.L. & Graubard, B.I.", 1990, "Simultaneous testing of regression "
+                              "coefficients with complex survey data: use of Bonferroni t statistics",
+                              "The American Statistician", volume="44", pages="270-276"),
     "cohen1960": _src("paper", "Cohen, J.", 1960, "A coefficient of agreement for nominal scales",
                       "Educational and Psychological Measurement", volume="20", pages="37-46"),
     "cronbach1951": _src("paper", "Cronbach, L.J.", 1951, "Coefficient alpha and the internal structure of tests",
@@ -363,6 +389,9 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "joinpoint": [("kim2000", "method"), ("tiwari2006", "method"), ("fay_feuer1997", "method"), *EPI,
                   ("cdc_ss1000", "guidance"), ("hutwagner2003", "method"), _audit("joinpoint_validation.md"),
                   _audit("surveillance_validation.md")],
+    "demography_analysis": [("iussp2013", "guidance"), ("chiang1984", "method"), ("arriaga1984", "method"),
+                            ("cdc_ss1000", "guidance"), ("fay_feuer1997", "method"), ("cdc_wonder", "data"), *PUMS,
+                            _audit("demography_validation.md"), _audit("surveillance_validation.md")],
     "disparity_measures": [("harper_lynch", "method"), ("pearcy_keppel", "method"), ("kitagawa", "method"), *EPI,
                            ("who2013", "guidance"), *REP, _audit("disparity_validation.md"),
                            _audit("inequality_monitoring_validation.md")],

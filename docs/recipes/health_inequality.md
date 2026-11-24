@@ -156,10 +156,11 @@ Segregation (how evenly groups are spread across tracts) is a different question
 - `compare_years=[y1, y2]` (non-overlapping releases) gives the change in each measure, validated for `par`,
   `sii`, `mdm_w` and `mdb_w` (declared reference) with group CVs up to .30.
 - Report absolute and relative inequality together (WHO 4.4), and the subgroup rates themselves.
-- Library tools:
-  - `census.inequality_monitoring.double_disaggregation` gives two-stratifier tables (e.g. poverty by race) with CV
-    flags;
-  - `priority_quadrants` gives WHO's level-by-inequality view, marked "uncertain" when an interval spans a cut-off.
+- Additional WHO views (also in `census.inequality_monitoring`):
+  - `disparity_measures(input_path, kind="double_disaggregation", cells=...)` gives two-stratifier tables (e.g.
+    poverty by race) with CV flags;
+  - `disparity_measures(input_path, kind="priority_quadrants", level_col=..., inequality_col=...)` gives WHO's
+    level-by-inequality view, marked "uncertain" when an interval spans a cut-off.
 - Mind the data: the 2015–2019 VRE files have no race-iterated tables, so race-group trends need 2020–2024 and later
   releases.
 

@@ -357,9 +357,11 @@ def difference_in_differences(
     contrast, target) is checked; without it the result is labelled associational.
     design="triple" (Round 99): triple differences with group (e.g. age group column) and affected_group: the
     affected group's DiD minus the comparison groups' DiD within units (validated with 51 units).
-    design="msm" (Round 91): annual panel with time_varying_confounders (e.g. unemployment) that past policy may
-    affect: IP-weighted marginal structural model (first_treated column; effects of the 1st, 2nd, 3rd treated year
-    vs never; truncate_weights clips weights at the 1st/99th percentiles). Units treated in the first period refused.
+    design="msm" (Round 91 / Round 106): annual panel with time_varying_confounders (e.g. unemployment) that past
+    policy may affect (first_treated column; effects of the 1st, 2nd, 3rd treated year vs never). Pass
+    method="gformula" (Round 106, validated .883-.920 for one time-varying confounder via Hernán & Robins ch. 21
+    parametric g-formula + delete-one-unit cluster jackknife) or leave default for the exploratory IP-weighted MSM
+    (truncate_weights clips weights at the 1st/99th percentiles). Units treated in the first period refused.
     Example: difference_in_differences("panel.csv", "poverty_rate", "treated", 2023, se="poverty_rate_se")
     """
     from census.api import PRODUCT_PERIOD_YEARS, normalize_product
@@ -401,8 +403,10 @@ def difference_in_differences(
         try:
             if not first_treated:
                 return _fail(errors.INVALID_INPUT, "design='msm' needs first_treated (each unit's first treated year).")
+            msm_method = "gformula" if method in ("gformula", "gformula_jackknife") else "ipw"
             r = marginal_structural_model(_load_frame(input_path), outcome, first_treated, time_varying_confounders or [],
-                                          period=period, unit=unit, truncate=truncate_weights, product=product)
+                                          period=period, unit=unit, truncate=truncate_weights, product=product,
+                                          method=msm_method)
         except _ERRORS as exc:
             return _fail(errors.INVALID_INPUT, str(exc))
         e = r["effects"]
@@ -452,12 +456,12 @@ def regression_discontinuity(
     covariates: Optional[List[str]] = None,
     placebo_cutoffs: Optional[List[float]] = None,
 ) -> Dict[str, Any]:
-    """Regression discontinuity at a cutoff of a running variable (Round 98; e.g. PUMS age 65 for Medicare).
+    """Regression discontinuity at a cutoff of a running variable (Round 98 / Round 105; e.g. PUMS age 65 for Medicare).
     Sharp (outcome jump) or fuzzy (treatment= column: outcome jump / treatment jump). Robust bias-corrected
-    interval (local quadratic at the IK bandwidth). Validated for discrete running variables (ages) with survey
-    weights and replicates (weight="PWGTP", replicate_prefix="PWGTP"); continuous running variables and the
-    density (manipulation) test are exploratory. covariates: jumps that should be zero; placebo_cutoffs: fake
-    cutoffs that should show none.
+    interval: discrete running variables with survey weights/replicates (weight="PWGTP", replicate_prefix="PWGTP")
+    and continuous running variables (Round 105 CCT CER bandwidth h_ik * n^(-1/20)) are both validated; the density
+    (manipulation) test stays exploratory. covariates: jumps that should be zero; placebo_cutoffs: fake cutoffs that
+    should show none.
     Example: regression_discontinuity("pums.parquet", "HICOV", "AGEP", 65, treatment="HINS3", weight="PWGTP",
     replicate_prefix="PWGTP")
     """

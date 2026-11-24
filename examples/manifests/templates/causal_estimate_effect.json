@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "title": "Template: Pre-registered causal treatment effect with DAG checks",
+  "authors": ["human:example-researcher"],
+  "created": "2026-11-24T00:00:00Z",
+  "releases": [2024],
+  "geography": {"level": "county", "state": "26"},
+  "variables": [
+    {"name": "income", "ref": "2024:B19013_001"},
+    {"name": "pop", "ref": "2024:B01003_001"},
+    {"name": "poverty_num", "ref": "2024:B17001_002"},
+    {"name": "poverty_den", "ref": "2024:B17001_001"}
+  ],
+  "derivations": [
+    {"name": "poverty_rate", "kind": "proportion", "numerator": "poverty_num", "denominator": "poverty_den"}
+  ],
+  "causal_question": {
+    "eligibility": "Michigan counties in ACS 2020-2024",
+    "intervention": "High poverty indicator",
+    "comparator": "Low poverty indicator",
+    "time_zero": "2024",
+    "outcome": "income",
+    "follow_up": "Cross-sectional",
+    "contrast": "average_effect",
+    "target": "super_population"
+  },
+  "dag": {
+    "treatment": "poverty_rate",
+    "outcome": "income",
+    "edges": [["pop", "poverty_rate"], ["pop", "income"], ["poverty_rate", "income"]]
+  },
+  "missing": "complete_case",
+  "confidence_level": 0.90,
+  "correction": {"method": "holm", "family": "all"},
+  "analyses": [
+    {
+      "id": "eff1",
+      "method": "estimate_effect",
+      "kind": "treatment",
+      "outcome": "income",
+      "treatment": "poverty_rate",
+      "confounders": ["pop"],
+      "args": {"method": "aipw", "weights": "overlap"}
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "Higher poverty status is associated with lower median household income after adjusting for population.",
+      "analysis": "eff1",
+      "statistic": "effect",
+      "direction": "two-sided"
+    }
+  ]
+}

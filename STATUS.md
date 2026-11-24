@@ -15,13 +15,13 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | Path | What |
 | :--- | :--- |
 | `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
-| `mcp_server.py` | MCP server (80 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
+| `mcp_server.py` | MCP server (81 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | None queued. Rounds 88–102 merged (attribution; Hernán and Robins; Walker; WHO; CDC SS1000; Moraga; Cunningham; van Buuren; IUSSP; Harrer et al.); mappings in `docs/literature/`. Merged plans are archived (below) |
-| `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 and N47–N52, Rounds 70–74 |
+| `PLAN_ROUND_<n>.md` | Round 103 (`phase103/agent-access-hygiene`). Rounds 88–102 merged (attribution; Hernán and Robins; Walker; WHO; CDC SS1000; Moraga; Cunningham; van Buuren; IUSSP; Harrer et al.); mappings in `docs/literature/`. Merged plans are archived (below) |
+| `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 (ACS 2021–2025 refresh, ~2026-12-20); N47–N82 closed through Round 103 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
@@ -168,6 +168,165 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Round 119 (v0.115.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+citation integrity (`census/references.py`: 10 missing citation keys registered + hygiene invariant), 4 modern
+manifest templates (`examples/manifests/templates/`), end-to-end `run_manifest` integration tests (`tests/test_round119.py`),
+and AST static-hygiene check (N125–N126).
+
+**Round 118 (v0.114.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+pre-commit release hygiene & packaging audit (`scripts/release_hygiene_check.py`, `docs/audits/round103_118_release_summary.md`,
+`tests/test_round118.py`; N124) and full-repository verification across Rounds 103–118.
+
+**Round 117 (v0.113.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+turnkey offline preflight tooling & runbook for Backlog N39 (`scripts/acs_release_preflight.py`,
+`docs/audits/n39_preflight_checklist.md`, `tests/test_round117.py`; N123).
+
+**Round 116 (v0.112.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+recipes & README discoverability refresh (`README.md`, `docs/recipes/preregistered.md`, `tests/test_round116.py`;
+81 MCP tools, 28 manifest methods, 40 routing rows; N122).
+
+**Round 115 (v0.111.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+published textbook & closed-form reference benchmark suite (`tests/test_reference_benchmarks.py`,
+`docs/replications/reference_benchmarks.md`; 8 benchmarks locking Rounds 76–112 modules to exact published values; N121).
+
+**Round 114 (v0.110.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+final 4 pre-registered manifest methods (`difference_in_differences`, `interrupted_series`, `combine_estimates`,
+`bias_analysis` → 28 manifest methods total; N120). Run golden byte-identical (`round114_compatibility.md`).
+
+**Round 113 (v0.109.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+pre-specified national-domain check for three-level variance-share jackknife intervals (`M3c`, `G_top ∈ {49, 51}`;
+`docs/audits/repairs113_validation.md`; N119) and full-repository regression verification across Rounds 103–113.
+- **Kept exploratory:** `M3c` covered `.865–.960` in 11/12 cells and dipped to `.850` in `G_top = 49, 50/25/25, mid`;
+  `census/multilevel3.py` keeps `SHARES_VALIDATED = False` (no post-hoc promotion).
+- Run golden byte-identical (`round113_compatibility.md`).
+
+**Round 112 (v0.108.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+final repairable exploratory wave (`docs/audits/repairs112_validation.md`; N115–N118; 22 total exploratory measures
+repaired and validated across Rounds 104–112).
+- **Passed and wired (`census/repairs112_core.py`):**
+  - `Q2e-lower` (FH parametric bootstrap PPV with Li–Lahiri floor for `rule="lower"`): `.890–.917` across all 4 cells;
+    wired into `census/designation.py` (`ppv_intervals=True`) and `designation` manifest check.
+  - `D2` (count-scale disparity indices gated at `min_events ≥ 100`): `idisp` (`.880–.920`), `bgv` (`.870–.907`),
+    `theil` (`.863–.903`), and `mld` (`.870–.913`) all passed; wired into `census/disparity.py`.
+  - `R2_dens` (RDD density/manipulation test, continuous `n ≥ 1,000`): size `.083–.122` across Uniform, Normal, and
+    Beta(2,2); wired into `census/rdd.py`.
+- **Kept exploratory:** `M3b` (3-level variance-share jackknife: 11/12 cells `.880–.930`, `G_top=30 50/25/25 bottom` at `.850`),
+  `Q2e-prob50` (`.847` at `N=200 A=0.02`), and `W3_rr` (Woolf RR homogeneity: `.065–.135`).
+- Run golden byte-identical (`round112_compatibility.md`).
+
+**Round 111 (v0.107.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+confirmed-method correctness, edge-case hardening & out-of-DGP adversarial stress-test audit (`docs/audits/confirmed_stress_audit.md`; N113–N114).
+- **Edge-case bugs found & fixed (`tests/test_round111.py`):**
+  - `census/repairs109_core.py` & `census/repairs106_core.py`: guarded `ZeroDivisionError` in `ecologic_fuller_slope` / `ecologic_corrected_slope` when `x` is constant (`den == 0`).
+  - `census/agreement.py`: guarded `limits_observed` on identical series (`x == y`) so `check_agreement` returns finite `ccc = 1.0` and `limits_observed = (0, 0)` instead of crashing with a misleading sampling-error message.
+- **Independent mathematical cross-checks:** verified exact analytical Lin's CCC, scale/shift invariance and `p=1` scalar-vs-vector equivalence for `gformula`, Rogan–Gladen perfect-Se/Sp identity, Fuller zero-noise OLS limit, uniform-share `ln(G)` diversity, PUMS weight-scaling invariance, and `k = 0` joinpoint WLS identity.
+- **Out-of-DGP adversarial stress audit (`scripts/confirmed_stress_audit.py`):** 10/10 confirmed-method stress tests held under $t_3$ heavy tails, 3× heteroscedasticity, skewed lognormal data, unbalanced clusters, 2.5× negative-binomial overdispersion, extreme survey weight CV (`1.2`), and mild quadratic nonlinearity (`.867–.916` coverage; `.097–.100` size).
+- Run golden byte-identical (`round111_compatibility.md`).
+
+**Round 110 (v0.106.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+manifest parity (`joinpoint`, `demography`; 24 manifest methods total), routing contract expansion (`R38–R40`; 40
+offline-tested rows), and validation checks for synthetic-control conformal (`S3`) and WHO mean-difference SNR gates
+(`W2`; `docs/audits/repairs110_validation.md`; N110–N112).
+- **Kept exploratory after validation (`census/repairs110_core.py`):**
+  - `S3` (synthetic-control conformal at `T_pre ≥ 15`): 11/12 cells `.860–.940`, `T_pre=20, ρ=0.7, effect=0` at `.856`
+    (circular block-shift under strong AR(1) persistence).
+  - `W2-mdm` / `W2-mdb` (WHO `mdm_w`/`mdb_w` at `SNR ≥ 4.0, max_cv ≤ 0.15`): `.843–.907` (`mdm_w`, middle groups near
+    mean fold across zero) and `.795–.863` (`mdb_w`, winner's-curse bias in data-selected best group).
+- **Manifest & routing parity:** added `joinpoint` (Round 77/109) and `demography` (Round 101 Chiang II `e0`/`e65`)
+  to `census/manifest/methods.py` (24 manifest methods total), and expanded `docs/agent_routing.md` /
+  `tests/test_agent_routing.py` to 40 offline-tested rows (`R1–R40`).
+- Run golden byte-identical (`round110_compatibility.md`).
+
+**Round 109 (v0.105.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+Fuller (1987) ecologic slope repair (`E3d`), Joinpoint AAPC bootstrap-$t$ repair (`J3c`), and manifest parity (`rdd`,
+`disease_map`; 22 manifest methods total; `docs/audits/repairs109_validation.md`; N107–N109).
+- **Passed and wired (`census/repairs109_core.py`):**
+  - `E3d` (Fuller $\alpha = 4$ modified-denominator ecologic/between-area slope + delete-one-area jackknife `t(J - 2)`,
+    gated at `areas ≥ 50, median_area_n ≥ 80`): `.873–.920` across all 12 cells; wired into `census/ecologic.py`
+    (`out["ecologic_fuller"]`).
+  - `J3c` (Joinpoint AAPC parametric residual bootstrap with location re-estimation + `t(n - 2k - 2)`): `.887–.950`
+    across all 8 cells (`T ∈ {15, 20}`, `k ∈ {0, 1}`, `events ∈ {200, 1000}`); wired into `census/joinpoint.py`
+    (`out["aapc_bootstrap_t"]`).
+- **Manifest parity:** added `rdd` (Round 98/105) and `disease_map` (Round 96/104 `method="B3"`) to
+  `census/manifest/methods.py` (22 manifest methods total).
+- Run golden byte-identical (`round109_compatibility.md`).
+
+**Round 108 (v0.104.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+vector multi-confounder parametric g-formula (`M5b`), realistic-regime Shannon entropy diversity (`S2b`), and
+manifest parity (`designation`, `agreement`; 20 manifest methods total; `docs/audits/repairs108_validation.md`; N103–N106).
+- **Passed and wired (`census/repairs108_core.py`):**
+  - `M5b` (vector VAR(1) parametric g-formula + delete-one-unit cluster jackknife `t(G - 1)` for `p = 2, 3` correlated
+    time-varying confounders): `.880–.922` across all 48 cells (max |bias| `0.0206`); wired into `census/msm.py`
+    (`method="gformula"` now accepts any `p >= 1` time-varying confounders).
+  - `S2b` (exact SDR replicate bias-corrected Shannon entropy gated at `n_resp >= 150`): `.866–.906` across all 6 cells;
+    wired into `census/spatial_models.py` (`diversity_index(..., method="sdr_bc", sample_sizes=...)`).
+- **Kept exploratory:** Croon/Fuller ecologic slope (`E3c`: 11/12 cells `.870–.905`, `ICC=0.05 J=150 n_j=80` at `.853`).
+- **Manifest parity:** added `designation` (Round 85/107 FH posterior + validated `prob80`/`point` PPV intervals) and
+  `agreement` (Round 37/48/106 bias, observed Bland–Altman limits, quintile kappa, validated observed Lin's CCC) to
+  `census/manifest/methods.py` (20 manifest methods total).
+- Run golden byte-identical (`round108_compatibility.md`).
+
+**Round 107 (v0.103.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+final-wave gated exploratory-measure repairs (`docs/audits/repairs107_validation.md`; N99–N102) and full agent/workflow
+integration of Rounds 104–107 (12 total exploratory measures repaired and validated across Rounds 104–107).
+- **Passed and wired (`census/repairs107_core.py`):** FH parametric bootstrap PPV predictive intervals for `rule="prob80"`
+  (`Q2d-prob80`, `.875–.915`) and `rule="point"` with Li–Lahiri positive-$A$ floor (`Q2d-point`, `.873–.922`; wired into
+  `census/designation.py` via `ppv_intervals=True`), and PUMS Hotelling `F` homogeneity gated at `min_stratum_n ≥ 500`
+  (`H2d`, size `.068–.128` across all 12 cells; wired into `census/stratified.py` via `homogeneity_method="hotelling_f"`).
+- **Kept exploratory:** Croon/Fuller ecologic slope (`E3b`, `.870–.905` at `n_j ≥ 80`, `.825` at `J=150, n_j=40`) and
+  SDR bias-corrected Shannon entropy (`S2`, 5/6 cells `.866–.904`, `G=6 n=100` at `.856`).
+- **Agent & routing parity:** wired `method="gformula"` into `difference_in_differences(design="msm")`, documented all
+  12 Rounds 104–107 repairs in `docs/agent_protocol.md` (synced to `mcp_server.py`), and expanded `docs/agent_routing.md`
+  and `tests/test_agent_routing.py` from 30 to 37 offline-tested rows (`R1–R37`).
+- Run golden byte-identical (`round107_compatibility.md`).
+
+**Round 106 (v0.102.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+third wave of exploratory-measure repairs (validation-first; `docs/audits/repairs106_validation.md`; N94–N98).
+- **Passed and wired (`census/repairs106_core.py`):** Lin's CCC delete-one-area Fisher-z jackknife (`C2`,
+  `.886–.901` across all 6 cells; wired into `census/agreement.py`; error-free CCC stays exploratory) and
+  Hernán & Robins ch. 21 parametric g-formula with delete-one-unit cluster jackknife (`M5`, `.883–.920` across
+  all 36 cells; wired into `census/msm.py` as `method="gformula"`).
+- **Kept exploratory:** PUMS Hotelling `F` homogeneity (`H2c`, 11/12 cells ≤ `.13`), FH bootstrap PPV with rule
+  re-selection (`Q2c`, 7/8 cells ≥ `.86`), and Croon/Fuller ecologic slope (`E3`, `.883–.888` at `n_j = 40`,
+  `.810–.825` at `n_j = 20`).
+- Run golden byte-identical (`round106_compatibility.md`).
+
+**Round 105 (v0.101.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+second wave of exploratory-measure repairs (validation-first; `docs/audits/repairs105_validation.md`; N89–N93).
+- **Passed and wired (`census/repairs105_core.py`):** continuous RDD with CCT CER bandwidth `h_ik * n^(-1/20)`
+  (`R1b`, `.877–.920` across all 8 cells including strong curvature; wired into `census/rdd.py`) and probabilistic
+  misclassification propagating observed-table sampling error through `corrected_table` (`M1b`, `.890–.908` across
+  all 5 cells; wired into `census/bias_analysis.py`).
+- **Kept exploratory:** PUMS Hotelling `F` homogeneity (`H2b`), FH parametric bootstrap PPV (`Q2b`: `prob80`
+  `.963–.975`, `point` `.843–.858`), and Firth-logit MSM (`M4`: 34/36 cells ≥ `.86`, 2 `K = 18` d1 cells `.832`/`.852`).
+- Run golden byte-identical (`round105_compatibility.md`).
+
+**Round 104 (v0.100.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+exploratory-measure repairs (validation-first; `docs/audits/repairs104_validation.md`) and manifest support for
+validated methods (N83–N88).
+- **Part 1 repairs passed and wired (`census/repairs104_core.py`):** Nagashima–Noma–Furukawa meta-analysis prediction
+  intervals (`P2`, `.869–.985`, `k ≥ 10`), truncated Knapp–Hartung meta-regression (`R2`, `.891–.951`, `k ≥ 10`),
+  random-effects Egger / Thompson–Sharp test (`E2`, size `.056–.116`, `k ≥ 10`), Kish `t(df_eff)` nearest-neighbour
+  matching ATT (`M1b-ATT`, `.871–.918`), and BYM2 PC-prior + log-grid Jacobian (`B3`, `.887–.894`, `median E ≥ 30`).
+- **Part 1 kept exploratory:** baseline-L0-stabilized cluster-jackknife MSM (`M3`: `.850–.918`, 34/36 cells ≥ `.86`,
+  2 duration-1 cells at `.850`/`.854`) and replicate bias-corrected WHO mean differences (`MD2`: `.429–.752` at
+  `G = 8`, small spread).
+- **Part 2 manifest support:** added `estimate_effect`, `spatial_scan`, and `stratified` to `METHODS` (18 manifest
+  methods), plus opt-in `args.marginal` and `args.impute` (FCS) on `fit_replicate` and `args.who_measures` /
+  `args.compare_years` on `disparity`.
+- Run golden byte-identical; schema golden differs only in supported-method/statistic messages (`round104_compatibility.md`).
+
+**Round 103 (v0.99.0; branch `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+agent access, routing contract and release hygiene after Rounds 76–102 (N80–N82; no new statistics).
+- New full-profile umbrella tool `demography_analysis` (81 tools; CLI + `TOOL_SOURCES`): exposes Round 101's
+  `census.demography` (`life_table`, `arriaga`, `age_quality`, `survival_migration`) and Round 95's `ypll`
+  (`ypll_from_wonder` / `ypll_table`).
+- Extended `disparity_measures` (`kind="double_disaggregation" | "priority_quadrants"`) and `spatial_model`
+  (`kind="diversity"`).
+- Agent routing contract (`docs/agent_routing.md`, `tests/test_agent_routing.py`) expanded from 15 to 30 offline-tested
+  rows (R16–R30); rule text synced, recipes and README refreshed, backlog closed-item markers updated.
+- Goldens byte-identical; 2416 passed, 42 skipped; 0 failures (`round103_compatibility.md`).
 
 **Round 102 (v0.98.0; merged, release pending owner approval; implemented by the maintainer agent):**
 meta-analysis completeness (N79; Harrer et al.).
@@ -819,6 +978,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N77: FCS imputation (100; closed);
 - N78: demographic tools (101; closed);
 - N79: meta-analysis (102; closed);
+- N80–N82: agent access (`demography_analysis`, WHO/diversity extensions), routing contract R16–R30, and README/backlog hygiene (103; closed);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.

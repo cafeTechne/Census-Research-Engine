@@ -13,8 +13,11 @@ import pandas as pd
 from . import joinpoint_core as jc
 
 AUDIT = "docs/audits/joinpoint_validation.md"
+REPAIRS_AUDIT = "docs/audits/repairs109_validation.md"
 # Set from the audit (docs/audits/joinpoint_validation.json "passed").
 VALIDATED = {"J1": True, "J2": False, "J3": False, "J2b": False, "J3b": False, "R1": True, "R1b": True}
+AAPC_BOOTSTRAP_T_VALIDATED = True
+AAPC_MIN_EVENTS = 200
 # J1: false-joinpoint rate .012-.023 (<= .10). APC/AAPC intervals failed: t given the true k .51-.91, AAPC .75-.92,
 # empirical quantile with selection .02-.88 (joinpoint location uncertainty). R1 Tiwari .900-.921, R1b .887-.900.
 MIN_POINTS, MIN_EVENTS = 15, 50
@@ -86,8 +89,12 @@ def joinpoint(years: Sequence[int], counts: Optional[Sequence[float]] = None, po
                      "include joinpoint selection and location uncertainty.")
     aapc = dict(aapc=g["aapc"], ci_lower=b["aapc_lower"] if VALIDATED["J3b"] else g["lower"],
                 ci_upper=b["aapc_upper"] if VALIDATED["J3b"] else g["upper"])
+    from . import repairs109_core as r109
+    aapc_bt = r109.joinpoint_aapc_bootstrap_t(x, y, w, k, B=min(int(bootstrap), 200), level=level, rng=rng)
+    aapc_bt["validated"] = bool(AAPC_BOOTSTRAP_T_VALIDATED and len(x) >= MIN_POINTS and events >= AAPC_MIN_EVENTS and k <= 1)
+    aapc_bt["audit"] = REPAIRS_AUDIT
     return dict(joinpoints=[int(v) for v in x[f["cfg"]]], n_joinpoints=k, max_joinpoints=K, permutation_p=pvals,
-                segments=seg, aapc=aapc,
+                segments=seg, aapc=aapc, aapc_bootstrap_t=aapc_bt,
                 validated=dict(selection=bool(VALIDATED["J1"]) and in_range,
                                apc=bool(VALIDATED["J2b"] or VALIDATED["J2"]) and in_range,
                                aapc=bool(VALIDATED["J3b"] or VALIDATED["J3"]) and in_range),

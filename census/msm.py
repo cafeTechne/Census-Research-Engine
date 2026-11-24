@@ -20,14 +20,17 @@ import pandas as pd
 from . import msm_core as mc
 
 AUDIT = "docs/audits/msm_validation.md"
+REPAIRS_AUDIT = "docs/audits/repairs106_validation.md"
+REPAIRS_AUDIT_MULTI = "docs/audits/repairs108_validation.md"
 VALIDATED = {"stabilized": False, "truncated": False}   # docs/audits/msm_validation.md: .805-.881 and .799-.885
+GFORMULA_VALIDATED = True                               # Round 106 (p=1, .883-.920) & Round 108 (p=2,3, .880-.922)
 MIN_UNITS = 30
 
 
 def marginal_structural_model(frame: pd.DataFrame, outcome: str, first_treated: str,
                               time_varying_confounders: Sequence[str], period: str = "Year", unit: str = "GEOID",
                               truncate: bool = False, product: str = "1-year", bootstrap: int = 200,
-                              seed: int = 20282991, report: int = 3) -> Dict[str, Any]:
+                              seed: int = 20282991, report: int = 3, method: str = "ipw") -> Dict[str, Any]:
     """Effects of the 1st, 2nd, ... treated year versus never treated, with IP weights for the time-varying
     confounders (stabilized; ``truncate=True`` clips them at the 1st/99th percentiles) and a cluster bootstrap."""
     if str(product).lower().replace("_", "-") not in ("1-year", "annual"):
@@ -63,6 +66,29 @@ def marginal_structural_model(frame: pd.DataFrame, outcome: str, first_treated: 
     Y = pd.to_numeric(f[outcome]).to_numpy(float)
     L = f[conf].apply(pd.to_numeric).to_numpy(float)
     L = L[:, 0] if L.shape[1] == 1 else L
+    if method == "gformula":
+        if len(conf) == 1:
+            from . import repairs106_core as r106
+            res = r106.gformula_jackknife(Y, A, L, codes, year, K, report=report)
+            audit_path = REPAIRS_AUDIT
+        else:
+            from . import repairs108_core as r108
+            res = r108.gformula_vector_jackknife(Y, A, L, codes, year, K, report=report)
+            audit_path = REPAIRS_AUDIT_MULTI
+        naive = mc.msm(Y, A, L, codes, year, K, adjust_L=True, B=min(bootstrap, 50),
+                       rng=np.random.default_rng(seed), report=report)
+        effects = [dict(duration=int(d), estimate=e, lower=lo, upper=hi, se=s)
+                   for d, e, lo, hi, s in zip(res["durations"], res["estimate"], res["lower"], res["upper"], res["se"])]
+        notes = [f"Time zero: {periods[0]} (no unit treated); parametric g-formula (Hernán and Robins ch. 21; "
+                 f"{len(conf)} time-varying confounder(s)) with delete-one-unit cluster jackknife t({len(uniq) - 1}) "
+                 f"intervals (validated, {audit_path}).",
+                 "Assumes no unmeasured time-varying confounding and linear outcome/VAR(1) confounder transition models."]
+        return dict(method="gformula_jackknife", effects=effects, periods=[int(p) for p in periods],
+                    units=int(len(uniq)), treated_units=int(f.loc[first.notna(), unit].nunique()),
+                    confounders=len(conf),
+                    naive_adjusted=[dict(duration=int(d), estimate=e)
+                                    for d, e in zip(naive["durations"], naive["estimate"])],
+                    validated=bool(GFORMULA_VALIDATED), notes=notes, audit=audit_path)
     res = mc.msm(Y, A, L, codes, year, K, truncate=truncate, B=bootstrap, rng=np.random.default_rng(seed),
                  report=report)
     naive = mc.msm(Y, A, L, codes, year, K, adjust_L=True, B=bootstrap, rng=np.random.default_rng(seed), report=report)

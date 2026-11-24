@@ -56,13 +56,22 @@ def combine_estimates(estimates: Sequence[float], ses: Sequence[float], *, metho
     if why:
         notes.append("EXPLORATORY: "+why+f" ({AUDIT}).")
     from . import meta_core as mc   # Round 102 (docs/audits/meta_validation.md)
+    from . import repairs104_core as r104   # Round 104 (docs/audits/repairs104_validation.md)
     v = se**2
     if k >= 2:
         lo, hi = mc.q_profile(theta, v, level)
         het["tau2_interval"] = dict(lower=lo, upper=hi, method="Q-profile", validated=True)
-    if "prediction_interval" in out:
-        out["prediction_interval_note"] = ("exploratory: prediction intervals under-covered (.76-.89) at moderate "
-                                           "heterogeneity in Round 102 validation")
+    if k >= 10:
+        pi_lo, pi_hi = r104.prediction_interval_nnf(theta, v, level=level, rng=np.random.default_rng(20284041))
+        out["prediction_interval"] = (pi_lo, pi_hi)
+        out["prediction_interval_method"] = "nnf"
+        out["prediction_interval_validated"] = True
+        out["prediction_interval_note"] = ("validated (Round 104, docs/audits/repairs104_validation.md): "
+                                           "Nagashima-Noma-Furukawa prediction interval integrating over Q-profile tau^2")
+    elif "prediction_interval" in out:
+        out["prediction_interval_validated"] = False
+        out["prediction_interval_note"] = ("exploratory below k = 10: prediction intervals validated from k >= 10 "
+                                           "with Nagashima-Noma-Furukawa (Round 104)")
     extra = {}
     if leave_one_out and k >= 3:
         extra["leave_one_out"] = [dict(omitted=(labels[i] if labels else str(i)), estimate=r["estimate"], lower=r["lower"],
@@ -73,18 +82,23 @@ def combine_estimates(estimates: Sequence[float], ses: Sequence[float], *, metho
             raise ValueError("moderators needs one value per estimate")
         if k < 10:
             raise ValueError("meta-regression needs at least 10 estimates (Harrer et al. 2021)")
-        r = mc.meta_regression(theta, v, x, perms=999, rng=np.random.default_rng(20283023), level=level)
-        extra["meta_regression"] = dict(slope=float(r["coef"][1]), se=float(r["se"][1]), lower=float(r["lower"][1]),
-                                        upper=float(r["upper"][1]), p_permutation=float(r["p_permutation"][1]),
-                                        tau2=r["tau2"], validated=False,
-                                        note="exploratory: Knapp-Hartung slope intervals under-covered (.821) with 10 "
-                                             "estimates and heterogeneity; permutation p-values kept their size")
+        r_tr = r104.meta_regression_trunc(theta, v, x, level=level)
+        r_perm = mc.meta_regression(theta, v, x, perms=999, rng=np.random.default_rng(20283023), level=level)
+        extra["meta_regression"] = dict(slope=float(r_tr["coef"][1]), se=float(r_tr["se"][1]),
+                                        lower=float(r_tr["lower"][1]), upper=float(r_tr["upper"][1]),
+                                        p_permutation=float(r_perm["p_permutation"][1]),
+                                        tau2=r_tr["tau2"], q_factor=r_tr["q_factor"], validated=True,
+                                        method="knapp_hartung_truncated",
+                                        audit="docs/audits/repairs104_validation.md",
+                                        note="validated (Round 104): truncated Knapp-Hartung (max(1, q)) for k >= 10")
     if small_study_test:
         if k < 10:
             raise ValueError("the small-study (Egger) test needs at least 10 estimates")
-        e = mc.egger(theta, v)
-        extra["small_study_test"] = dict(e, validated=False, note="exploratory: Egger test size up to .12 at k = 10 "
-                                         "with high heterogeneity; asymmetry has causes other than bias")
+        e = r104.egger_re(theta, v)
+        extra["small_study_test"] = dict(e, validated=True, method="egger_re",
+                                         audit="docs/audits/repairs104_validation.md",
+                                         note="validated null size for k >= 10 (Round 104 random-effects Egger / "
+                                              "Thompson-Sharp); asymmetry still has causes other than publication bias")
     return dict(pooled=out, heterogeneity=het, k=k, validated=validated, **extra,
                 studies=[dict(label=(labels[i] if labels else str(i)), estimate=float(theta[i]), se=float(se[i])) for i in range(k)],
                 notes=notes, audit=AUDIT)
