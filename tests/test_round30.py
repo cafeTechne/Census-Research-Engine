@@ -172,7 +172,7 @@ def test_posthoc_loader_verifies_inputs_and_reference_results(tmp_path,monkeypat
     (folder/'bundle/results/run.json').write_text(json.dumps(run))
     model=folder/'bundle/results/m1.json';model.write_text('{}')
     (folder/'bundle/tables/hypotheses.csv').write_text('id,p_adjusted\nH1,.2\n')
-    inventory={str(p.relative_to(folder/'bundle')):posthoc.digest(p) for p in (folder/'bundle').rglob('*') if p.is_file()}
+    inventory={p.relative_to(folder/'bundle').as_posix():posthoc.digest(p) for p in (folder/'bundle').rglob('*') if p.is_file()}
     (folder/'bundle/bundle.json').write_text(json.dumps({'files':inventory}))
     _,_,data,_=posthoc.load_verified(folder,'registered.json');assert data['analysis_frame'].GEOID.iloc[0]=='36001'
     frame.write_text('GEOID,x\n36001,3\n')

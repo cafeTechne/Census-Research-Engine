@@ -165,7 +165,7 @@ def test_offline_manifest_run_with_validated_correlation(tmp_path, monkeypatch):
     assert out["success"], out.get("deviations", out.get("errors"))
     h = out["hypotheses"].iloc[0]
     assert h.status == "tested" and -1 < h.estimate < 1
-    assert "docs/audits/rank_validation.md" in (tmp_path/"ok/bundle/methods.md").read_text()
+    assert "docs/audits/rank_validation.md" in (tmp_path/"ok/bundle/methods.md").read_text(encoding="utf-8")
 
 
 # ------------------------------------------------------------------ saturated-model bundle (backlog 7)
@@ -206,7 +206,7 @@ def test_tool_counts_in_readme_and_status():
     from census import mcp_profiles as p
     names = _tools()
     full, core, cs = len(names), len(p.tools_for("core", names)), len(p.tools_for("core_spatial", names))
-    readme = (ROOT/"README.md").read_text(); status = (ROOT/"STATUS.md").read_text()
+    readme = (ROOT/"README.md").read_text(encoding="utf-8"); status = (ROOT/"STATUS.md").read_text(encoding="utf-8")
     # README layout since the 2026-11-20 tool-guide rewrite: lead sentence, profile table and inventory heading.
     assert f"**{full} MCP tools**" in readme and f"All {full} MCP tools" in readme
     assert f"| `full` (default) | {full} |" in readme and f"| `core` | {core} |" in readme
@@ -218,7 +218,7 @@ def test_tool_counts_in_readme_and_status():
 def test_local_models_doc_lists_the_core_tools():
     from census import mcp_profiles as p
     names = _tools(); core = p.tools_for("core", names)
-    text = (ROOT/"docs/local_models.md").read_text()
+    text = (ROOT/"docs/local_models.md").read_text(encoding="utf-8")
     row = next(line for line in text.splitlines() if line.startswith("| `core` |"))
     assert f"{len(core)} tools" in row and all(f"`{t}`" in row for t in core)
     assert f"({len(p.tools_for('core_spatial', names))} tools)" in text

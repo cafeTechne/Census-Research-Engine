@@ -10,7 +10,7 @@ import pytest
 from census import policy_core as pc, staggered as sg
 
 ROOT = Path(__file__).resolve().parents[1]
-AUDIT = json.loads((ROOT/"docs/audits/policy_validation.json").read_text())
+AUDIT = json.loads((ROOT/"docs/audits/policy_validation.json").read_text(encoding="utf-8"))
 
 
 def _panel(noise=.5, n=51, seed=3, years=None, drop2020=True):
@@ -33,7 +33,7 @@ def test_flags_equal_the_audit():
     assert sg.VALIDATED["callaway_santanna_acs"] == p["S1r"] is True
     assert sg.VALIDATED["synthetic_control"] is False and not p["C1"] and not p["C2"]
     assert AUDIT["draws"] == 1000
-    assert "Committed before the full run" in (ROOT/"docs/audits/policy_validation_criterion.md").read_text()
+    assert "Committed before the full run" in (ROOT/"docs/audits/policy_validation_criterion.md").read_text(encoding="utf-8")
 
 
 def test_noiseless_recovery():

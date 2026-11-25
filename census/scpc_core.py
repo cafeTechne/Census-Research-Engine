@@ -95,6 +95,8 @@ def p_value(theta, e, S, null=0.):
     with the interval: p < alpha exactly when the interval excludes ``null``."""
     e = np.asarray(e, float); n = len(e)
     s = float(np.sqrt(np.mean((S["W"].T @ e)**2))/np.sqrt(n))
+    if s == 0.0:
+        return 0.0 if abs(float(theta)-null) > 0.0 else 1.0
     t = abs(float(theta)-null)/s
     return float(min(1., max(_size(V, S["q"], t) for V in S["V"])))
 

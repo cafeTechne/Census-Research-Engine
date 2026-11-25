@@ -182,9 +182,9 @@ def test_offline_manifest_bundle(tmp_path,monkeypatch):
     model=out['results']['m1']
     assert model.diagnostics['spatial_clusters']['k']==8
     import json
-    saved=json.loads((tmp_path/'bundle/results/m1.json').read_text())
+    saved=json.loads((tmp_path/'bundle/results/m1.json').read_text(encoding='utf-8'))
     assert len(saved['diagnostics']['spatial_clusters']['assignment'])==96
-    text=(tmp_path/'bundle/methods.md').read_text()
+    text=(tmp_path/'bundle/methods.md').read_text(encoding='utf-8')
     assert 'Ibragimov-Müller' in text and 'between-cluster spread' in text
 
 

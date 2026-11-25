@@ -61,15 +61,27 @@ def large_count_case(seed=6, n=150):
     return y, np.column_stack((np.ones(n), x, (np.arange(n) > 80).astype(float))), E
 
 
-def test_negbin_fallback_only_when_the_frozen_core_fails():
+def test_negbin_fallback_only_when_the_frozen_core_fails(monkeypatch):
     rng = np.random.default_rng(1); n = 200
     x = rng.normal(size=n); E = np.maximum(5, np.rint(rng.lognormal(np.log(50), 1, n)))
     y = rng.poisson(E*np.exp(.3*x)*rng.gamma(4, .25, n)).astype(float)
     X = np.column_stack((np.ones(n), x))
     assert _negbin_slope(y, X, E) == mc.count_slope(y, X, E, "negbin")
     y, X, E = large_count_case()
-    with pytest.raises(ValueError, match="did not converge"):
-        mc.count_slope(y, X, E, "negbin")
+    # Non-convergence in the frozen core triggers the Nelder-Mead + BFGS fallback;
+    # other ValueErrors must propagate unchanged.
+    def _fail_nonconverge(*a, **kw):
+        raise ValueError("NB alpha did not converge")
+    with monkeypatch.context() as mp:
+        mp.setattr(mc, "count_slope", _fail_nonconverge)
+        r_fb = _negbin_slope(y, X, E)
+    assert abs(r_fb["estimate"]-.03) < .01 and r_fb["lower"] < r_fb["estimate"] < r_fb["upper"]
+    def _fail_other(*a, **kw):
+        raise ValueError("unrelated error")
+    with monkeypatch.context() as mp:
+        mp.setattr(mc, "count_slope", _fail_other)
+        with pytest.raises(ValueError, match="unrelated error"):
+            _negbin_slope(y, X, E)
     r = _negbin_slope(y, X, E)
     assert abs(r["estimate"]-.03) < .01 and r["lower"] < r["estimate"] < r["upper"]
     f = pd.DataFrame(dict(c=y, x=X[:, 1], s=X[:, 2], E=E))

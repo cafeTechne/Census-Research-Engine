@@ -10,7 +10,7 @@ import pytest
 from census import sae_extensions as sx, sae_extensions_core as core
 
 ROOT = Path(__file__).resolve().parents[1]
-AUDIT = json.loads((ROOT/"docs/audits/sae_extensions_validation.json").read_text())
+AUDIT = json.loads((ROOT/"docs/audits/sae_extensions_validation.json").read_text(encoding="utf-8"))
 
 
 def _cross(m=120, seed=0):
@@ -35,7 +35,7 @@ def _panel(m=80, T=2, seed=1):
 def test_flags_equal_the_audit():
     assert sx.VALIDATED == AUDIT["passed"] == {"P1": True, "P1q": True, "T1": True}
     assert AUDIT["draws"] == 500
-    assert "Committed before the full run" in (ROOT/"docs/audits/sae_extensions_validation_criterion.md").read_text()
+    assert "Committed before the full run" in (ROOT/"docs/audits/sae_extensions_validation_criterion.md").read_text(encoding="utf-8")
 
 
 def test_bias_corrected_backtransform():
