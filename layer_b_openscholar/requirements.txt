@@ -1,0 +1,6 @@
+# Core (Semantic Scholar API + BM25 lexical fallback)
+requests>=2.31.0
+
+# Optional: uncomment to enable Hugging Face OpenScholar/OpenScholar_Reranker (0.6B params)
+# torch>=2.1.0
+# transformers>=4.40.0

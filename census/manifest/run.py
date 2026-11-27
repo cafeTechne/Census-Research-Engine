@@ -1057,6 +1057,12 @@ def _write_bundle(folder: Path, m, h, results, hyp_df, run_info, citation) -> Di
                                                         "rpp_table", "rpp_years", "price_index", "order",
                                                         "releases") if k in a}
                                      for a in run_info["adjustments"]]
+    from .methods_text import manifest_bibtex
+    bib_text = manifest_bibtex(m, run_info, only_if_registry=True)
+    extra_kw = {}
+    if wonder_policy:
+        extra_kw["wonder_policy"] = wonder_policy
+    if bib_text:
+        extra_kw["references"] = {"references.bib": bib_text}
     return results_bundle(folder, tables=tables, figures=figures_, methods=methods_section(m, run_info),
-                          results=payload, provenance=provenance, citation=citation,
-                          **({"wonder_policy":wonder_policy} if wonder_policy else {}))
+                          results=payload, provenance=provenance, citation=citation, **extra_kw)

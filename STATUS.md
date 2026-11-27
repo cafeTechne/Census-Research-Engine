@@ -3,8 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Latest published release:** v0.77.0 (Rounds 76–81: disparities, joinpoint, staggered DiD, decompositions, small-area
-proportions, spatial scan; DOI 10.5281/zenodo.24444186). **Next release ready on `defaultBranch`:** v0.115.0 (Rounds 82–119: epidemiologic reporting, causal/policy designs, demography, BYM2, RDD, MICE, meta-analysis, 22 validated repairs, 28 manifest methods, 81 MCP tools, 40 routing rows, reference benchmarks, N39 preflight & release hygiene; tag/release pending owner approval). Previous: v0.71.0 (Round 75 and the local-model evaluation; DOI 10.5281/zenodo.24434858); v0.70.0 (Rounds 70–74; DOI 10.5281/zenodo.24433164); v0.65.0 (Round 69;
+**Current release:** v0.115.0 (Rounds 82–119: epidemiologic reporting, causal/policy designs, demography, BYM2, RDD, MICE, meta-analysis, 22 validated repairs, 28 manifest methods, 81 MCP tools, 40 routing rows, reference benchmarks, N39 preflight & release hygiene; tagged & pushed 2026-11-26, Zenodo version DOI pending archive). Previous: v0.77.0 (Rounds 76–81: disparities, joinpoint, staggered DiD, decompositions, small-area
+proportions, spatial scan; DOI 10.5281/zenodo.24444186); v0.71.0 (Round 75 and the local-model evaluation; DOI 10.5281/zenodo.24434858); v0.70.0 (Rounds 70–74; DOI 10.5281/zenodo.24433164); v0.65.0 (Round 69;
 DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.24405380); v0.60.0 (Rounds 61–63; DOI 10.5281/zenodo.24400452); v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
 10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
 10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record

@@ -572,3 +572,51 @@ def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, 
     _methods_limitations(m, results, lines)
     _methods_references(cites, lines, FH_REFS)
     return "\n".join(lines) + "\n"
+
+
+def manifest_citations(manifest: Mapping[str, Any], results: Optional[Mapping[str, Any]] = None) -> List[str]:
+    """Return deduplicated citation keys referenced by ``methods_section(manifest, results)``."""
+    from ..report_tables import data_citation
+    m = manifest
+    run = results or {}
+    source = run.get("data_source") or effective_data_source(m)
+    rep_info = run.get("replicates")
+    rep_source, rep_short = _methods_replicate_source(m, results, rep_info)
+    level = float(m.get("confidence_level", 0.90))
+    corr = m.get("correction") or {}
+    cites: List[str] = ["acs"]
+    lines: List[str] = []
+    _methods_data(m, run, source, lines, cites, data_citation)
+    from .causal_block import causal_methods
+    causal_methods(m, lines, cites)
+    _methods_derivations(m, rep_info, lines, cites)
+    _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites)
+    _methods_hypotheses(m, corr, level, lines, cites)
+    out: List[str] = []
+    for c in cites:
+        if c not in out:
+            out.append(c)
+    return out
+
+
+def manifest_bibtex(manifest: Mapping[str, Any], results: Optional[Mapping[str, Any]] = None,
+                    only_if_registry: bool = False) -> str:
+    """Render BibTeX entries for all citation keys used by ``manifest``.
+
+    When ``only_if_registry=True``, returns an empty string if the manifest references only
+    legacy keys outside ``census.references.SOURCES`` (preserving legacy run goldens).
+    """
+    from ..references import SOURCES, bibtex
+    cites = manifest_citations(manifest, results)
+    mapped = ["hernan_robins2020" if c == "hernan_robins" else c for c in cites]
+    registry_keys = [k for k in mapped if k in SOURCES]
+    if only_if_registry and not any(k not in REFERENCES and k != "fh" for k in registry_keys):
+        return ""
+    entries: List[str] = []
+    seen = set()
+    for k in registry_keys:
+        if k in seen:
+            continue
+        seen.add(k)
+        entries.append(bibtex(k))
+    return "\n\n".join(entries) + ("\n" if entries else "")

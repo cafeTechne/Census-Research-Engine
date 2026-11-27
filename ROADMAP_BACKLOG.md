@@ -1,6 +1,6 @@
 # Backlog roadmap (open items only)
 
-**Status: rewritten 2026-11-21, after v0.65.0 (DOI 10.5281/zenodo.24411452); Rounds 70–74 released as v0.70.0 (DOI 10.5281/zenodo.24433164); Round 75 as v0.71.0 (DOI 10.5281/zenodo.24434858); Rounds 76–81 released as v0.77.0 (DOI 10.5281/zenodo.24444186).** Finished work (Rounds 43–69,
+**Status: rewritten 2026-11-21, after v0.65.0 (DOI 10.5281/zenodo.24411452); Rounds 70–74 released as v0.70.0 (DOI 10.5281/zenodo.24433164); Round 75 as v0.71.0 (DOI 10.5281/zenodo.24434858); Rounds 76–81 released as v0.77.0 (DOI 10.5281/zenodo.24444186); Rounds 82–119 tagged & pushed as v0.115.0 (2026-11-26; Zenodo DOI pending).** Finished work (Rounds 43–69,
 issues N1–N46, the replication shortlist) was removed from this file. It stays in git at tag `backlog-r43-69`,
 in `CHANGELOG.md` and in the plan tags `plan-r<n>`. This file is the owner's backlog, from which
 `PLAN_ROUND_<n>.md` files are drafted; it is not itself a plan. **Implementing agents: do not read this file

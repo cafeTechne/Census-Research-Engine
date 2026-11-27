@@ -1457,7 +1457,7 @@ def _run_estimate_effect(a, args, frame, level, replicates, correction, ctx):
         r = estimate_effect(frame, a["outcome"], a["treatment"], a["confounders"],
                             method=args.get("method", "aipw"), replicates=replicates,
                             calibrate=bool(args.get("calibrate", False)), weights=args.get("weights"))
-        eff = r["effect"] if "effect" in r else r
+        eff = r.get("ate") or r.get("effect") or r
         return dict(kind=kind, estimate=float(eff["estimate"]), se=float(eff["se"]),
                     ci_lower=float(eff["lower"]), ci_upper=float(eff["upper"]),
                     validated=bool(r["validated"]), se_basis=f"causal treatment ({args.get('method', 'aipw')})",
@@ -1508,14 +1508,18 @@ def _stat_estimate_effect(h, res):
 def _check_estimate_effect(stage, ctx):
     if stage != "before_spatial":
         return
-    a, manifest, names, errors = ctx["a"], ctx["manifest"], ctx["names"], ctx["errors"]
+    a, manifest, names, ext_names, errors = ctx["a"], ctx["manifest"], ctx["names"], ctx.get("ext_names") or (), ctx["errors"]
     label = f"analyses ({a.get('id')}) estimate_effect"
     kind = a.get("kind")
     if kind not in ("treatment", "matching", "iv", "mediation"):
         errors.append(f"{label}: kind must be 'treatment', 'matching', 'iv' or 'mediation'")
         return
-    if a.get("outcome") not in names:
-        errors.append(f"{label}: outcome {a.get('outcome')!r} is not a manifest variable")
+    out_v = a.get("outcome")
+    out_ok = isinstance(out_v, str) and (
+        out_v in names or out_v in ext_names or (out_v.endswith("_numerator") and out_v[:-10] in ext_names)
+    )
+    if not out_ok:
+        errors.append(f"{label}: outcome {out_v!r} is not a manifest variable")
     if not manifest.get("exploratory", False) and not manifest.get("causal_question"):
         errors.append(f"{label}: confirmatory causal analyses require a manifest-level causal_question block (Round 89)")
     args = a.get("args") or {}
@@ -1637,11 +1641,21 @@ def _run_stratified(a, args, frame, level, replicates, correction, ctx):
 def _stat_stratified(h, res):
     stat = h["statistic"]
     if stat == "homogeneity":
-        bd = res["homogeneity"].get("breslow_day_tarone") or res["homogeneity"].get("breslow_day")
-        return {"estimate": float(bd["statistic"]), "se": float("nan"), "se_basis": "Breslow-Day-Tarone",
-                "ci_lower": float("nan"), "ci_upper": float("nan"), "p_two_sided": float(bd["p_value"])}
+        hom = res.get("homogeneity") or {}
+        bd = hom.get("or") or hom.get("breslow_day_tarone") or hom.get("breslow_day")
+        if not bd:
+            raise KeyError("stratified: homogeneity test not present in result")
+        p_val = bd.get("p", bd.get("p_value", float("nan")))
+        out = {"estimate": float(bd["statistic"]), "se": float("nan"),
+               "se_basis": str(bd.get("test", "Breslow-Day-Tarone")),
+               "ci_lower": float("nan"), "ci_upper": float("nan"), "p_two_sided": float(p_val)}
+        if not bool(bd.get("validated", True)):
+            out["confirmatory_refusal"] = "stratified homogeneity test is exploratory"
+        return out
     if stat == "reri":
-        r = res["additive_interaction"]
+        r = res.get("additive_interaction")
+        if not r:
+            raise KeyError("stratified: additive_interaction (RERI) requires a binary (2-level) stratum")
         est = float(r["reri"]); lo = float(r["lower"]); hi = float(r["upper"])
         se = float(r.get("se", (hi - lo) / (2.0 * stats.norm.ppf(0.95))))
         z = abs(est - float(h.get("null_value", 0.0))) / se if se > 0 else np.inf
@@ -1753,8 +1767,13 @@ def _check_designation(stage, ctx):
     label = f"analyses ({a.get('id')}) designation"
     if stage == "before_spatial":
         names = ctx["names"]
-        if a.get("outcome") not in names:
-            errors.append(f"{label}: outcome {a.get('outcome')!r} is not a manifest variable")
+        ext_names = ctx.get("ext_names") or ()
+        out_v = a.get("outcome")
+        out_ok = isinstance(out_v, str) and (
+            out_v in names or out_v in ext_names or (out_v.endswith("_numerator") and out_v[:-10] in ext_names)
+        )
+        if not out_ok:
+            errors.append(f"{label}: outcome {out_v!r} is not a manifest variable")
         args = a.get("args") or {}
         bad = set(args) - {"covariates", "rule", "percent", "ppv_bootstrap", "se_col", "n_col"}
         if bad:
@@ -2161,10 +2180,14 @@ def _stat_did(h, res):
         valid = bool(r.get("validated", False))
         basis = f"MSM ({r.get('method', 'gformula_jackknife')}, d={dur})"
     else:
+        coefs = r.get("coefficients") or []
+        eff_rows = [c for c in coefs if c.get("role") == "effect"] or [c for c in coefs if c.get("term") == "did"]
         tbl = r.get("table") or []
-        row = tbl[0] if tbl else r
+        row = eff_rows[0] if eff_rows else (tbl[0] if tbl else r)
         est = float(row.get("estimate", float("nan")))
-        se = float(row.get("se", float("nan")))
+        se_col = r.get("interval_se_column", "se_total")
+        se_val = row.get(se_col) if row.get(se_col) is not None else row.get("se_total", row.get("se_model", row.get("se", float("nan"))))
+        se = float(se_val) if se_val is not None else float("nan")
         lo = float(row.get("ci_lower", row.get("lower", float("nan"))))
         hi = float(row.get("ci_upper", row.get("upper", float("nan"))))
         valid = True
@@ -2183,8 +2206,13 @@ def _check_did(stage, ctx):
     label = f"analyses ({a.get('id')}) difference_in_differences"
     if stage == "before_spatial":
         names = ctx["names"]
-        if a.get("outcome") not in names:
-            errors.append(f"{label}: outcome {a.get('outcome')!r} is not a manifest variable")
+        ext_names = ctx.get("ext_names") or ()
+        out_v = a.get("outcome")
+        out_ok = isinstance(out_v, str) and (
+            out_v in names or out_v in ext_names or (out_v.endswith("_numerator") and out_v[:-10] in ext_names)
+        )
+        if not out_ok:
+            errors.append(f"{label}: outcome {out_v!r} is not a manifest variable")
         args = a.get("args") or {}
         design = str(args.get("design", "two_group"))
         if design not in ("two_group", "event", "staggered", "triple", "msm"):
