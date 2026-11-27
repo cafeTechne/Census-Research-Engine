@@ -1596,7 +1596,7 @@ def _stat_spatial_scan(h, res):
     out = {"estimate": float(p["relative_risk"]), "se": float("nan"),
            "se_basis": "Kulldorff Poisson Monte Carlo (999 replicates)",
            "ci_lower": float("nan"), "ci_upper": float("nan"), "p_two_sided": float(p["p_value"])}
-    if not res.get("validated", False):
+    if not (res.get("confirmatory") if "confirmatory" in res else res.get("validated_p", res.get("validated", False))):
         out["confirmatory_refusal"] = f"spatial_scan was not validated ({res.get('audit', '')})"
     return out
 
@@ -1604,12 +1604,16 @@ def _stat_spatial_scan(h, res):
 def _check_spatial_scan(stage, ctx):
     if stage != "before_spatial":
         return
-    a, manifest, names, errors = ctx["a"], ctx["manifest"], ctx["names"], ctx["errors"]
+    a, manifest, names, ext_names, errors = ctx["a"], ctx["manifest"], ctx["names"], ctx.get("ext_names") or (), ctx["errors"]
     label = f"analyses ({a.get('id')}) spatial_scan"
     if manifest.get("geography", {}).get("level") not in (None, "county"):
         errors.append(f"{label}: spatial_scan is validated at county level only (Round 81)")
-    if a.get("cases") not in names:
-        errors.append(f"{label}: cases {a.get('cases')!r} is not a manifest variable")
+    cases = a.get("cases")
+    allowed_cases = isinstance(cases, str) and (
+        cases in names or cases in ext_names or (cases.endswith("_numerator") and cases[:-10] in ext_names)
+    )
+    if not allowed_cases:
+        errors.append(f"{label}: cases {cases!r} is not a manifest variable")
     if a.get("population") is None and a.get("expected") is None:
         errors.append(f"{label}: requires population or expected")
     for col in ("population", "expected"):
@@ -1792,9 +1796,16 @@ def _check_agreement(stage, ctx):
     label = f"analyses ({a.get('id')}) agreement"
     if stage == "before_spatial":
         names = ctx["names"]
+        ext_names = ctx.get("ext_names") or ()
         for k in ("first", "second"):
-            if a.get(k) not in names:
-                errors.append(f"{label}: {k} {a.get(k)!r} is not a manifest variable")
+            v = a.get(k)
+            ok = isinstance(v, str) and (
+                v in names or v in ext_names
+                or (v.endswith("_numerator") and v[:-10] in ext_names)
+                or (v.endswith("_denominator") and v[:-12] in ext_names)
+            )
+            if not ok:
+                errors.append(f"{label}: {k} {v!r} is not a manifest variable")
         args = a.get("args") or {}
         if args:
             errors.append(f"{label}: takes no args, got {sorted(args)}")
@@ -1868,17 +1879,37 @@ def _check_rdd(stage, ctx):
 def _run_disease_map(a, args, frame, level, replicates, correction, ctx):
     from ..disease_mapping import disease_map
     edges = args.get("edges")
+    bridges = []
     if edges is None:
-        # Derive connected edges from spatial neighbours in ctx if provided, else build from frame order
         if ctx.get("edges") is not None:
             edges = ctx["edges"]
-        else:
+        elif "GEOID" in frame.columns:
+            import geopandas as gpd
+            from ..workflows_geo import _bridge_components, _weights_for, _with_boundaries
+            geoids = frame["GEOID"].astype(str)
+            geo_level = ("county" if (geoids.str.len() == 5).all()
+                         else ("tract" if (geoids.str.len() == 11).all() else None))
+            if geo_level is not None:
+                year = int(frame["Year"].iloc[0]) if "Year" in frame.columns else 2022
+                gdf_joined = _with_boundaries(frame[["GEOID"]].copy(), geo_level, year)
+                gdf_aligned = gdf_joined.set_index("GEOID").loc[geoids].reset_index()
+                gdf_aligned = gpd.GeoDataFrame(gdf_aligned, geometry="geometry", crs=gdf_joined.crs)
+                _, w = _weights_for(gdf_aligned, "queen")
+                pos = {g: k_ for k_, g in enumerate(w.id_order)}
+                edges = sorted({tuple(sorted((pos[u], pos[v]))) for u, nb in w.neighbors.items() for v in nb})
+                edges, bridges = _bridge_components(gdf_aligned, edges)
+        if edges is None:
             raise ValueError("disease_map requires neighbour edges (args.edges or spatial boundary context)")
-    return disease_map(
+    res = disease_map(
         frame, a["observed"], a["expected"], edges=edges,
         covariates=args.get("covariates") or (), threshold=float(args.get("threshold", 1.2)),
         method=str(args.get("method", "B3")),
     )
+    if bridges:
+        res.setdefault("notes", []).append(
+            f"The contiguity graph had separate parts; {len(bridges)} bridge edge(s) join each part to its nearest area: {bridges}."
+        )
+    return res
 
 
 def _stat_disease_map(h, res):
@@ -1908,9 +1939,16 @@ def _check_disease_map(stage, ctx):
     label = f"analyses ({a.get('id')}) disease_map"
     if stage == "before_spatial":
         names = ctx["names"]
-        for k in ("observed", "expected"):
-            if a.get(k) not in names:
-                errors.append(f"{label}: {k} {a.get(k)!r} is not a manifest variable")
+        ext_names = ctx.get("ext_names") or ()
+        obs = a.get("observed")
+        obs_ok = isinstance(obs, str) and (
+            obs in names or obs in ext_names or (obs.endswith("_numerator") and obs[:-10] in ext_names)
+        )
+        if not obs_ok:
+            errors.append(f"{label}: observed {obs!r} is not a manifest variable")
+        exp = a.get("expected")
+        if exp not in names:
+            errors.append(f"{label}: expected {exp!r} is not a manifest variable")
         args = a.get("args") or {}
         bad = set(args) - {"covariates", "threshold", "method", "edges"}
         if bad:

@@ -1,0 +1,554 @@
+{
+  "analyses": [
+    {
+      "args": {
+        "method": "B3",
+        "threshold": 1.2
+      },
+      "expected": "E_cancer",
+      "id": "dm_cancer",
+      "method": "disease_map",
+      "observed": "cancer_numerator"
+    },
+    {
+      "args": {
+        "max_share": 0.5,
+        "year": 2022
+      },
+      "cases": "cancer_numerator",
+      "expected": "E_cancer",
+      "id": "scan_cancer",
+      "method": "spatial_scan"
+    },
+    {
+      "args": {
+        "ppv_bootstrap": 200,
+        "rule": "prob80"
+      },
+      "id": "des_poverty",
+      "method": "designation",
+      "outcome": "poverty_prop",
+      "threshold": 0.15
+    },
+    {
+      "first": "cancer_numerator",
+      "id": "ag_counts",
+      "method": "agreement",
+      "second": "E_cancer"
+    },
+    {
+      "args": {
+        "exposure": "E_cancer",
+        "model": "poisson",
+        "scale": "robust",
+        "target": "conservative"
+      },
+      "formula": "cancer_numerator ~ poverty + C(GEOID.str[:2])",
+      "id": "reg_cancer",
+      "method": "fit_replicate"
+    }
+  ],
+  "authors": [
+    "human:cafeTechne"
+  ],
+  "confidence_level": 0.9,
+  "correction": {
+    "family": "all",
+    "method": "holm"
+  },
+  "created": "2026-11-26",
+  "data_source": {
+    "synthetic": false
+  },
+  "derivations": [
+    {
+      "name": "age_m_0_4",
+      "num": [
+        "age_cell_003"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_5_14",
+      "num": [
+        "age_cell_004",
+        "age_cell_005"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_15_24",
+      "num": [
+        "age_cell_006",
+        "age_cell_007",
+        "age_cell_008",
+        "age_cell_009",
+        "age_cell_010"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_25_34",
+      "num": [
+        "age_cell_011",
+        "age_cell_012"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_35_44",
+      "num": [
+        "age_cell_013",
+        "age_cell_014"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_45_54",
+      "num": [
+        "age_cell_015",
+        "age_cell_016"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_55_64",
+      "num": [
+        "age_cell_017",
+        "age_cell_018",
+        "age_cell_019"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_65_74",
+      "num": [
+        "age_cell_020",
+        "age_cell_021",
+        "age_cell_022"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_75_84",
+      "num": [
+        "age_cell_023",
+        "age_cell_024"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_m_85_plus",
+      "num": [
+        "age_cell_025"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_0_4",
+      "num": [
+        "age_cell_027"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_5_14",
+      "num": [
+        "age_cell_028",
+        "age_cell_029"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_15_24",
+      "num": [
+        "age_cell_030",
+        "age_cell_031",
+        "age_cell_032",
+        "age_cell_033",
+        "age_cell_034"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_25_34",
+      "num": [
+        "age_cell_035",
+        "age_cell_036"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_35_44",
+      "num": [
+        "age_cell_037",
+        "age_cell_038"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_45_54",
+      "num": [
+        "age_cell_039",
+        "age_cell_040"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_55_64",
+      "num": [
+        "age_cell_041",
+        "age_cell_042",
+        "age_cell_043"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_65_74",
+      "num": [
+        "age_cell_044",
+        "age_cell_045",
+        "age_cell_046"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_75_84",
+      "num": [
+        "age_cell_047",
+        "age_cell_048"
+      ],
+      "op": "sum"
+    },
+    {
+      "name": "age_f_85_plus",
+      "num": [
+        "age_cell_049"
+      ],
+      "op": "sum"
+    },
+    {
+      "as_percent": true,
+      "den": "pov_total",
+      "name": "poverty",
+      "num": "pov_below",
+      "op": "proportion"
+    },
+    {
+      "as_percent": false,
+      "den": "pov_total",
+      "name": "poverty_prop",
+      "num": "pov_below",
+      "op": "proportion"
+    },
+    {
+      "name": "E_cancer",
+      "op": "expected_count",
+      "period_years": 5,
+      "population_bands": [
+        "age_m_0_4",
+        "age_m_5_14",
+        "age_m_15_24",
+        "age_m_25_34",
+        "age_m_35_44",
+        "age_m_45_54",
+        "age_m_55_64",
+        "age_m_65_74",
+        "age_m_75_84",
+        "age_m_85_plus",
+        "age_f_0_4",
+        "age_f_5_14",
+        "age_f_15_24",
+        "age_f_25_34",
+        "age_f_35_44",
+        "age_f_45_54",
+        "age_f_55_64",
+        "age_f_65_74",
+        "age_f_75_84",
+        "age_f_85_plus"
+      ],
+      "reference_export": {
+        "file": "external_data/wonder/ucd/2018-2022/national_age_sex/cancer.tsv",
+        "sha256": "ece55285e95e31f2bdf35caf3285150e4349f819c7902778e94f6f42984845e9"
+      }
+    }
+  ],
+  "exclusions": [
+    {
+      "action": "flag",
+      "rule": "cv_screen",
+      "threshold": 30,
+      "variables": [
+        "poverty"
+      ]
+    }
+  ],
+  "external": [
+    {
+      "file": "external_data/wonder/ucd/2018-2022/county/cancer.tsv",
+      "measure": "deaths",
+      "name": "cancer",
+      "sha256": "321fe5798057063afa0c79982ca3baf5d3d114ec308eff10c5ef0c4bca61b103",
+      "source": "wonder"
+    }
+  ],
+  "geography": {
+    "level": "county",
+    "states": [
+      "26",
+      "36"
+    ]
+  },
+  "hypotheses": [
+    {
+      "analysis": "dm_cancer",
+      "direction": "two-sided",
+      "geoid": "26163",
+      "id": "H1",
+      "null_value": 1.0,
+      "statement": "Wayne County, MI (26163) BYM2 smoothed cancer mortality relative risk differs from the 2018-2022 national age-sex standard.",
+      "statistic": "relative_risk"
+    },
+    {
+      "analysis": "scan_cancer",
+      "direction": "greater",
+      "id": "H2",
+      "null_value": 1.0,
+      "statement": "Age-standardized county cancer mortality exhibits a statistically significant high-rate Kulldorff spatial cluster.",
+      "statistic": "primary_rr"
+    },
+    {
+      "analysis": "des_poverty",
+      "direction": "greater",
+      "id": "H3",
+      "null_value": 0.7,
+      "statement": "The Fay-Herriot prob80 designation rule achieves positive predictive value above 0.70 for identifying counties with >=15% poverty.",
+      "statistic": "ppv"
+    },
+    {
+      "analysis": "ag_counts",
+      "direction": "two-sided",
+      "id": "H4",
+      "null_value": 0.0,
+      "statement": "Mean county observed cancer deaths differ from age-sex-expected deaths under the 2018-2022 national standard.",
+      "statistic": "bias"
+    },
+    {
+      "analysis": "reg_cancer",
+      "direction": "greater",
+      "id": "H5",
+      "statement": "Age-standardized county cancer mortality increases with county poverty percentage, conditional on state.",
+      "statistic": "coefficient",
+      "term": "poverty"
+    }
+  ],
+  "missing": "complete_case",
+  "protocol": {
+    "design": "End-to-end v0.115.0 surveillance study: BYM2 B3 disease mapping, Kulldorff spatial scan, FH prob80 poverty designation, observed-vs-expected count agreement, and Poisson HC3+VRE poverty association.",
+    "limitations": "Ecologic cross-sectional county analysis; Poisson regression assumes independent areas; no causal interpretation; no raw WONDER counts 1-9 exposed.",
+    "replication": "Held-out OH/PA replication with identical derivations, methods, thresholds, and Holm family H1-H5.",
+    "review": "author self-review, not independent"
+  },
+  "releases": [
+    2022
+  ],
+  "replicates": {
+    "source": "census_vre"
+  },
+  "schema_version": 1,
+  "title": "County cancer mortality surveillance, spatial mapping, and poverty designation (MI/NY, 2018-2022)",
+  "variables": [
+    {
+      "name": "age_cell_003",
+      "ref": "2022:B01001_003"
+    },
+    {
+      "name": "age_cell_004",
+      "ref": "2022:B01001_004"
+    },
+    {
+      "name": "age_cell_005",
+      "ref": "2022:B01001_005"
+    },
+    {
+      "name": "age_cell_006",
+      "ref": "2022:B01001_006"
+    },
+    {
+      "name": "age_cell_007",
+      "ref": "2022:B01001_007"
+    },
+    {
+      "name": "age_cell_008",
+      "ref": "2022:B01001_008"
+    },
+    {
+      "name": "age_cell_009",
+      "ref": "2022:B01001_009"
+    },
+    {
+      "name": "age_cell_010",
+      "ref": "2022:B01001_010"
+    },
+    {
+      "name": "age_cell_011",
+      "ref": "2022:B01001_011"
+    },
+    {
+      "name": "age_cell_012",
+      "ref": "2022:B01001_012"
+    },
+    {
+      "name": "age_cell_013",
+      "ref": "2022:B01001_013"
+    },
+    {
+      "name": "age_cell_014",
+      "ref": "2022:B01001_014"
+    },
+    {
+      "name": "age_cell_015",
+      "ref": "2022:B01001_015"
+    },
+    {
+      "name": "age_cell_016",
+      "ref": "2022:B01001_016"
+    },
+    {
+      "name": "age_cell_017",
+      "ref": "2022:B01001_017"
+    },
+    {
+      "name": "age_cell_018",
+      "ref": "2022:B01001_018"
+    },
+    {
+      "name": "age_cell_019",
+      "ref": "2022:B01001_019"
+    },
+    {
+      "name": "age_cell_020",
+      "ref": "2022:B01001_020"
+    },
+    {
+      "name": "age_cell_021",
+      "ref": "2022:B01001_021"
+    },
+    {
+      "name": "age_cell_022",
+      "ref": "2022:B01001_022"
+    },
+    {
+      "name": "age_cell_023",
+      "ref": "2022:B01001_023"
+    },
+    {
+      "name": "age_cell_024",
+      "ref": "2022:B01001_024"
+    },
+    {
+      "name": "age_cell_025",
+      "ref": "2022:B01001_025"
+    },
+    {
+      "name": "age_cell_027",
+      "ref": "2022:B01001_027"
+    },
+    {
+      "name": "age_cell_028",
+      "ref": "2022:B01001_028"
+    },
+    {
+      "name": "age_cell_029",
+      "ref": "2022:B01001_029"
+    },
+    {
+      "name": "age_cell_030",
+      "ref": "2022:B01001_030"
+    },
+    {
+      "name": "age_cell_031",
+      "ref": "2022:B01001_031"
+    },
+    {
+      "name": "age_cell_032",
+      "ref": "2022:B01001_032"
+    },
+    {
+      "name": "age_cell_033",
+      "ref": "2022:B01001_033"
+    },
+    {
+      "name": "age_cell_034",
+      "ref": "2022:B01001_034"
+    },
+    {
+      "name": "age_cell_035",
+      "ref": "2022:B01001_035"
+    },
+    {
+      "name": "age_cell_036",
+      "ref": "2022:B01001_036"
+    },
+    {
+      "name": "age_cell_037",
+      "ref": "2022:B01001_037"
+    },
+    {
+      "name": "age_cell_038",
+      "ref": "2022:B01001_038"
+    },
+    {
+      "name": "age_cell_039",
+      "ref": "2022:B01001_039"
+    },
+    {
+      "name": "age_cell_040",
+      "ref": "2022:B01001_040"
+    },
+    {
+      "name": "age_cell_041",
+      "ref": "2022:B01001_041"
+    },
+    {
+      "name": "age_cell_042",
+      "ref": "2022:B01001_042"
+    },
+    {
+      "name": "age_cell_043",
+      "ref": "2022:B01001_043"
+    },
+    {
+      "name": "age_cell_044",
+      "ref": "2022:B01001_044"
+    },
+    {
+      "name": "age_cell_045",
+      "ref": "2022:B01001_045"
+    },
+    {
+      "name": "age_cell_046",
+      "ref": "2022:B01001_046"
+    },
+    {
+      "name": "age_cell_047",
+      "ref": "2022:B01001_047"
+    },
+    {
+      "name": "age_cell_048",
+      "ref": "2022:B01001_048"
+    },
+    {
+      "name": "age_cell_049",
+      "ref": "2022:B01001_049"
+    },
+    {
+      "name": "pov_total",
+      "ref": "2022:B17001_001"
+    },
+    {
+      "name": "pov_below",
+      "ref": "2022:B17001_002"
+    }
+  ]
+}

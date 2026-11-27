@@ -432,6 +432,21 @@ def _methods_analyses(m, rep_info, level, rep_short, rep_source, lines, cites):
                          "their estimates are not independent, and no standard error reported here accounts for "
                          "that covariance (replicate SEs across overlapping releases are refused).")
         target = a.get("formula") or a.get("variables") or a.get("variable")
+        if target is None and a["method"] not in ("inequality", "smr", "segregation"):
+            if a.get("observed") and a.get("expected"):
+                target = f"{a['observed']} / {a['expected']}"
+            elif a.get("cases") and (a.get("expected") or a.get("population")):
+                target = f"{a['cases']} / {a.get('expected') or a.get('population')}"
+            elif a.get("first") and a.get("second"):
+                target = f"{a['first']} vs {a['second']}"
+            elif a.get("outcome") and a.get("threshold") is not None:
+                target = f"{a['outcome']} >= {a['threshold']}"
+            elif a.get("outcome") and a.get("running"):
+                target = f"{a['outcome']} | {a['running']}"
+            elif a.get("outcome"):
+                target = a["outcome"]
+            else:
+                target = a["method"]
         lines.append(f"- **{a['id']}** (`{target}`): {text}")
         cites += refs
         if args.get("spatial_se") is not None:
@@ -505,6 +520,7 @@ def _methods_limitations(m, results, lines):
 
 
 def _methods_references(cites, lines, FH_REFS):
+    from ..references import SOURCES, citation_text
     lines += ["", "### References", ""]
     seen = []
     for c in cites:
@@ -516,8 +532,9 @@ def _methods_references(cites, lines, FH_REFS):
         elif c in REFERENCES:
             lines.append(f"- {REFERENCES[c]}")
         elif c == "hernan_robins":
-            from ..references import citation_text
             lines.append(f"- {citation_text('hernan_robins2020')}")
+        elif c in SOURCES:
+            lines.append(f"- {citation_text(c)}")
 
 
 def methods_section(manifest: Mapping[str, Any], results: Optional[Mapping[str, Any]] = None) -> str:
