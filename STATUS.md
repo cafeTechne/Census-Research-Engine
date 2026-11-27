@@ -3,8 +3,8 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.77.0 (Rounds 76–81: disparities, joinpoint, staggered DiD, decompositions, small-area
-proportions, spatial scan; DOI 10.5281/zenodo.24444186). Previous: v0.71.0 (Round 75 and the local-model evaluation; DOI 10.5281/zenodo.24434858); v0.70.0 (Rounds 70–74; DOI 10.5281/zenodo.24433164); v0.65.0 (Round 69;
+**Latest published release:** v0.77.0 (Rounds 76–81: disparities, joinpoint, staggered DiD, decompositions, small-area
+proportions, spatial scan; DOI 10.5281/zenodo.24444186). **Next release ready on `defaultBranch`:** v0.115.0 (Rounds 82–119: epidemiologic reporting, causal/policy designs, demography, BYM2, RDD, MICE, meta-analysis, 22 validated repairs, 28 manifest methods, 81 MCP tools, 40 routing rows, reference benchmarks, N39 preflight & release hygiene; tag/release pending owner approval). Previous: v0.71.0 (Round 75 and the local-model evaluation; DOI 10.5281/zenodo.24434858); v0.70.0 (Rounds 70–74; DOI 10.5281/zenodo.24433164); v0.65.0 (Round 69;
 DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.24405380); v0.60.0 (Rounds 61–63; DOI 10.5281/zenodo.24400452); v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
 10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
 10.5281/zenodo.24357238); v0.26.0 (Round 29: WONDER mortality, replicated in OH/PA; DOI 10.5281/zenodo.24356572). All versions: concept record
@@ -20,8 +20,8 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
 | `examples/manifests/` | Registered manifests (their bytes are fixed once registered) |
-| `PLAN_ROUND_<n>.md` | Round 103 (`phase103/agent-access-hygiene`). Rounds 88–102 merged (attribution; Hernán and Robins; Walker; WHO; CDC SS1000; Moraga; Cunningham; van Buuren; IUSSP; Harrer et al.); mappings in `docs/literature/`. Merged plans are archived (below) |
-| `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 (ACS 2021–2025 refresh, ~2026-12-20); N47–N82 closed through Round 103 |
+| `PLAN_ROUND_<n>.md` | Rounds 103–119 merged on `defaultBranch` (kept in tree for `release_hygiene_check.py` through `v0.115.0` tag). Rounds 88–102 merged (attribution; Hernán and Robins; Walker; WHO; CDC SS1000; Moraga; Cunningham; van Buuren; IUSSP; Harrer et al.); mappings in `docs/literature/`. Earlier merged plans are archived (below) |
+| `ROADMAP_BACKLOG.md` | Open items only (rewritten 2026-11-21; finished history at tag `backlog-r43-69`): N39 (ACS 2021–2025 refresh, ~2026-12-20); N47–N126 closed through Round 119 |
 | `ROADMAP_STATISTICS.md` | Completed multi-round roadmap (Rounds 31–42, released as v0.39.0): SciPy/statsmodels methods wrapped for ACS replicates, PUMS weights and spatial dependence. Plans are drafted from it |
 | `docs/data/wonder_exports.md` | Owner's guide to manual CDC WONDER exports (into gitignored `external_data/wonder/`) |
 
@@ -169,39 +169,39 @@ fixed model offsets remain limitations. See the two `r29_*.md` study reports. No
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
 
-**Round 119 (v0.115.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 119 (v0.115.0; merged on `defaultBranch`, release pending owner approval):**
 citation integrity (`census/references.py`: 10 missing citation keys registered + hygiene invariant), 4 modern
 manifest templates (`examples/manifests/templates/`), end-to-end `run_manifest` integration tests (`tests/test_round119.py`),
 and AST static-hygiene check (N125–N126).
 
-**Round 118 (v0.114.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 118 (v0.114.0; merged on `defaultBranch`, release pending owner approval):**
 pre-commit release hygiene & packaging audit (`scripts/release_hygiene_check.py`, `docs/audits/round103_118_release_summary.md`,
 `tests/test_round118.py`; N124) and full-repository verification across Rounds 103–118.
 
-**Round 117 (v0.113.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 117 (v0.113.0; merged on `defaultBranch`, release pending owner approval):**
 turnkey offline preflight tooling & runbook for Backlog N39 (`scripts/acs_release_preflight.py`,
 `docs/audits/n39_preflight_checklist.md`, `tests/test_round117.py`; N123).
 
-**Round 116 (v0.112.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 116 (v0.112.0; merged on `defaultBranch`, release pending owner approval):**
 recipes & README discoverability refresh (`README.md`, `docs/recipes/preregistered.md`, `tests/test_round116.py`;
 81 MCP tools, 28 manifest methods, 40 routing rows; N122).
 
-**Round 115 (v0.111.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 115 (v0.111.0; merged on `defaultBranch`, release pending owner approval):**
 published textbook & closed-form reference benchmark suite (`tests/test_reference_benchmarks.py`,
 `docs/replications/reference_benchmarks.md`; 8 benchmarks locking Rounds 76–112 modules to exact published values; N121).
 
-**Round 114 (v0.110.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 114 (v0.110.0; merged on `defaultBranch`, release pending owner approval):**
 final 4 pre-registered manifest methods (`difference_in_differences`, `interrupted_series`, `combine_estimates`,
 `bias_analysis` → 28 manifest methods total; N120). Run golden byte-identical (`round114_compatibility.md`).
 
-**Round 113 (v0.109.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 113 (v0.109.0; merged on `defaultBranch`, release pending owner approval):**
 pre-specified national-domain check for three-level variance-share jackknife intervals (`M3c`, `G_top ∈ {49, 51}`;
 `docs/audits/repairs113_validation.md`; N119) and full-repository regression verification across Rounds 103–113.
 - **Kept exploratory:** `M3c` covered `.865–.960` in 11/12 cells and dipped to `.850` in `G_top = 49, 50/25/25, mid`;
   `census/multilevel3.py` keeps `SHARES_VALIDATED = False` (no post-hoc promotion).
 - Run golden byte-identical (`round113_compatibility.md`).
 
-**Round 112 (v0.108.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 112 (v0.108.0; merged on `defaultBranch`, release pending owner approval):**
 final repairable exploratory wave (`docs/audits/repairs112_validation.md`; N115–N118; 22 total exploratory measures
 repaired and validated across Rounds 104–112).
 - **Passed and wired (`census/repairs112_core.py`):**
@@ -215,7 +215,7 @@ repaired and validated across Rounds 104–112).
   `Q2e-prob50` (`.847` at `N=200 A=0.02`), and `W3_rr` (Woolf RR homogeneity: `.065–.135`).
 - Run golden byte-identical (`round112_compatibility.md`).
 
-**Round 111 (v0.107.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 111 (v0.107.0; merged on `defaultBranch`, release pending owner approval):**
 confirmed-method correctness, edge-case hardening & out-of-DGP adversarial stress-test audit (`docs/audits/confirmed_stress_audit.md`; N113–N114).
 - **Edge-case bugs found & fixed (`tests/test_round111.py`):**
   - `census/repairs109_core.py` & `census/repairs106_core.py`: guarded `ZeroDivisionError` in `ecologic_fuller_slope` / `ecologic_corrected_slope` when `x` is constant (`den == 0`).
@@ -224,7 +224,7 @@ confirmed-method correctness, edge-case hardening & out-of-DGP adversarial stres
 - **Out-of-DGP adversarial stress audit (`scripts/confirmed_stress_audit.py`):** 10/10 confirmed-method stress tests held under $t_3$ heavy tails, 3× heteroscedasticity, skewed lognormal data, unbalanced clusters, 2.5× negative-binomial overdispersion, extreme survey weight CV (`1.2`), and mild quadratic nonlinearity (`.867–.916` coverage; `.097–.100` size).
 - Run golden byte-identical (`round111_compatibility.md`).
 
-**Round 110 (v0.106.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 110 (v0.106.0; merged on `defaultBranch`, release pending owner approval):**
 manifest parity (`joinpoint`, `demography`; 24 manifest methods total), routing contract expansion (`R38–R40`; 40
 offline-tested rows), and validation checks for synthetic-control conformal (`S3`) and WHO mean-difference SNR gates
 (`W2`; `docs/audits/repairs110_validation.md`; N110–N112).
@@ -238,7 +238,7 @@ offline-tested rows), and validation checks for synthetic-control conformal (`S3
   `tests/test_agent_routing.py` to 40 offline-tested rows (`R1–R40`).
 - Run golden byte-identical (`round110_compatibility.md`).
 
-**Round 109 (v0.105.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 109 (v0.105.0; merged on `defaultBranch`, release pending owner approval):**
 Fuller (1987) ecologic slope repair (`E3d`), Joinpoint AAPC bootstrap-$t$ repair (`J3c`), and manifest parity (`rdd`,
 `disease_map`; 22 manifest methods total; `docs/audits/repairs109_validation.md`; N107–N109).
 - **Passed and wired (`census/repairs109_core.py`):**
@@ -252,7 +252,7 @@ Fuller (1987) ecologic slope repair (`E3d`), Joinpoint AAPC bootstrap-$t$ repair
   `census/manifest/methods.py` (22 manifest methods total).
 - Run golden byte-identical (`round109_compatibility.md`).
 
-**Round 108 (v0.104.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 108 (v0.104.0; merged on `defaultBranch`, release pending owner approval):**
 vector multi-confounder parametric g-formula (`M5b`), realistic-regime Shannon entropy diversity (`S2b`), and
 manifest parity (`designation`, `agreement`; 20 manifest methods total; `docs/audits/repairs108_validation.md`; N103–N106).
 - **Passed and wired (`census/repairs108_core.py`):**
@@ -267,7 +267,7 @@ manifest parity (`designation`, `agreement`; 20 manifest methods total; `docs/au
   `census/manifest/methods.py` (20 manifest methods total).
 - Run golden byte-identical (`round108_compatibility.md`).
 
-**Round 107 (v0.103.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 107 (v0.103.0; merged on `defaultBranch`, release pending owner approval):**
 final-wave gated exploratory-measure repairs (`docs/audits/repairs107_validation.md`; N99–N102) and full agent/workflow
 integration of Rounds 104–107 (12 total exploratory measures repaired and validated across Rounds 104–107).
 - **Passed and wired (`census/repairs107_core.py`):** FH parametric bootstrap PPV predictive intervals for `rule="prob80"`
@@ -281,7 +281,7 @@ integration of Rounds 104–107 (12 total exploratory measures repaired and vali
   and `tests/test_agent_routing.py` from 30 to 37 offline-tested rows (`R1–R37`).
 - Run golden byte-identical (`round107_compatibility.md`).
 
-**Round 106 (v0.102.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 106 (v0.102.0; merged on `defaultBranch`, release pending owner approval):**
 third wave of exploratory-measure repairs (validation-first; `docs/audits/repairs106_validation.md`; N94–N98).
 - **Passed and wired (`census/repairs106_core.py`):** Lin's CCC delete-one-area Fisher-z jackknife (`C2`,
   `.886–.901` across all 6 cells; wired into `census/agreement.py`; error-free CCC stays exploratory) and
@@ -292,7 +292,7 @@ third wave of exploratory-measure repairs (validation-first; `docs/audits/repair
   `.810–.825` at `n_j = 20`).
 - Run golden byte-identical (`round106_compatibility.md`).
 
-**Round 105 (v0.101.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 105 (v0.101.0; merged on `defaultBranch`, release pending owner approval):**
 second wave of exploratory-measure repairs (validation-first; `docs/audits/repairs105_validation.md`; N89–N93).
 - **Passed and wired (`census/repairs105_core.py`):** continuous RDD with CCT CER bandwidth `h_ik * n^(-1/20)`
   (`R1b`, `.877–.920` across all 8 cells including strong curvature; wired into `census/rdd.py`) and probabilistic
@@ -302,7 +302,7 @@ second wave of exploratory-measure repairs (validation-first; `docs/audits/repai
   `.963–.975`, `point` `.843–.858`), and Firth-logit MSM (`M4`: 34/36 cells ≥ `.86`, 2 `K = 18` d1 cells `.832`/`.852`).
 - Run golden byte-identical (`round105_compatibility.md`).
 
-**Round 104 (v0.100.0; uncommitted on `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 104 (v0.100.0; merged on `defaultBranch`, release pending owner approval):**
 exploratory-measure repairs (validation-first; `docs/audits/repairs104_validation.md`) and manifest support for
 validated methods (N83–N88).
 - **Part 1 repairs passed and wired (`census/repairs104_core.py`):** Nagashima–Noma–Furukawa meta-analysis prediction
@@ -317,7 +317,7 @@ validated methods (N83–N88).
   `args.compare_years` on `disparity`.
 - Run golden byte-identical; schema golden differs only in supported-method/statistic messages (`round104_compatibility.md`).
 
-**Round 103 (v0.99.0; branch `phase103/agent-access-hygiene`, merge/release pending owner approval):**
+**Round 103 (v0.99.0; merged on `defaultBranch`, release pending owner approval):**
 agent access, routing contract and release hygiene after Rounds 76–102 (N80–N82; no new statistics).
 - New full-profile umbrella tool `demography_analysis` (81 tools; CLI + `TOOL_SOURCES`): exposes Round 101's
   `census.demography` (`life_table`, `arriaga`, `age_quality`, `survival_migration`) and Round 95's `ypll`
@@ -979,6 +979,7 @@ dependencies, WONDER access or private-export-checkout access. Acceptance: 1886 
 - N78: demographic tools (101; closed);
 - N79: meta-analysis (102; closed);
 - N80–N82: agent access (`demography_analysis`, WHO/diversity extensions), routing contract R16–R30, and README/backlog hygiene (103; closed);
+- N83–N126: 22 validated exploratory-measure repairs, pre-registered manifest parity (28 methods), routing R31–R40, adversarial stress audit, 8 reference benchmarks, N39 preflight tooling, release hygiene, citation integrity & manifest templates (104–119; closed);
 - N39: ACS 2021–2025 refresh, about 2026-12-20.
 
 Recorded limits are listed in its section 2.
