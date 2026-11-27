@@ -343,6 +343,9 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
                         "check_replicate_availability")},
     "get_recipe": [("acs", "guidance"), *EPI, *CAUSAL, ("walker2023", "guidance")],
     "get_research_protocol": [("acs", "guidance"), *EPI, *CAUSAL],
+    "list_manifest_methods": [*ACS, ("testing", "method")],
+    "mcp_capabilities": [("acs", "guidance")],
+    "verify_bundle": [*ACS],
     "run_validation": [*ACS, _audit("validation_report.md")],
     "verify_proposition": [*ACS, ("testing", "method")],
     # estimates, MOEs and comparisons

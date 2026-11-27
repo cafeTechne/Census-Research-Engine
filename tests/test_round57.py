@@ -104,7 +104,7 @@ def test_group_quarters_exclusion():
 
 def test_rule_text_mirrored():
     from census import mcp_profiles
-    for path in ("docs/agent_protocol.md", "docs/recipes/segregation.md", "mcp_server.py"):
+    for path in ("docs/agent_protocol.md", "docs/recipes/segregation.md", "census/mcp_instructions.py"):
         text = " ".join((ROOT/path).read_text().split())
         assert "Round 57" in text and "group" in text.lower()
     assert "group_quarters" in mcp_profiles.CORE_INSTRUCTIONS

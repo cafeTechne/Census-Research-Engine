@@ -108,4 +108,4 @@ def test_bundle_design_lines(tmp_path):
 def test_protocol_language_rule_in_mcp_text():
     from census import mcp_profiles as p
     assert "never \"causes\"" in p.CORE_INSTRUCTIONS.replace("never “causes”", "never \"causes\"") or "never \"causes\"" in p.CORE_INSTRUCTIONS
-    assert "ECOLOGIC" in (ROOT/"mcp_server.py").read_text()
+    assert "ECOLOGIC" in (ROOT/"census/mcp_instructions.py").read_text()

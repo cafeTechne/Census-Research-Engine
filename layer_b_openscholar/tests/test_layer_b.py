@@ -2,7 +2,10 @@
 """Offline unit tests for Layer B OpenScholar (Semantic Scholar + reranker + dossier handoff)."""
 import json
 
+from layer_b_openscholar.benchmark import BENCHMARK_QUERIES, evaluate_backend
+from layer_b_openscholar.epmc_client import EuropePMCClient, merge_and_deduplicate
 from layer_b_openscholar.handoff import build_dossier, write_dossier
+from layer_b_openscholar.local_index import LocalLiteratureIndex, resolve_index_path
 from layer_b_openscholar.reranker import OpenScholarReranker
 from layer_b_openscholar.s2_client import OpenAlexClient, SemanticScholarClient
 
@@ -107,3 +110,56 @@ def test_openalex_client_normalizes_inverted_abstract_and_caches(tmp_path):
     assert out[0]["doi"] == "10.1097/xcs.0000000000001273" and out[0]["paperId"] == "W999999"
     # Second call uses cache
     assert client.search_papers("Appalachia cancer", limit=5) == out and len(calls) == 1
+
+
+def test_epmc_deduplication_local_fts5_index_and_benchmark(tmp_path):
+    sample_epmc = {
+        "resultList": {
+            "result": [
+                {
+                    "pmid": "38000001",
+                    "pmcid": "PMC10700001",
+                    "doi": "10.1000/appalachia.2021",
+                    "title": "County-level poverty and Appalachian cancer mortality disparities.",
+                    "abstractText": "Spatial clustering of Appalachian county cancer mortality and poverty.",
+                    "pubYear": "2021",
+                    "authorString": "Singh GK, Jemal A.",
+                    "journalTitle": "Cancer Epidemiology",
+                    "citedByCount": 142,
+                    "isOpenAccess": "Y",
+                },
+                {
+                    "pmid": "38000002",
+                    "doi": "10.1000/medicare.2023",
+                    "title": "Medicare age 65 regression discontinuity and uninsurance in ACS PUMS.",
+                    "abstractText": "Sharp drop in uninsurance at age 65 Medicare eligibility cutoff.",
+                    "pubYear": "2023",
+                    "authorString": "Card D, Dobkin C.",
+                    "journalTitle": "Health Economics",
+                    "citedByCount": 90,
+                },
+            ]
+        }
+    }
+    epmc = EuropePMCClient(cache_dir=tmp_path / "epmc_cache", http_get=lambda u, p, h: sample_epmc)
+    ep_papers = epmc.search_papers("Appalachia cancer", limit=10)
+    assert len(ep_papers) == 2 and ep_papers[0]["openAccessPdf"].endswith("pdf=render")
+
+    # Deduplicate overlapping DOI against S2 list
+    s2_papers = [SemanticScholarClient.normalize_paper(p) for p in SAMPLE_S2_RESPONSE["data"]]
+    merged = merge_and_deduplicate(s2_papers, ep_papers)
+    assert len(merged) == 4  # 3 + 2 - 1 duplicate DOI
+
+    # Local SQLite FTS5 index round-trip
+    db_file = tmp_path / "test_ssd_index.sqlite"
+    assert resolve_index_path(db_file) == db_file
+    idx = LocalLiteratureIndex(db_file)
+    assert idx.ingest_papers(merged, source="multi") == 4
+    assert idx.stats()["paper_count"] == 4
+    hits = idx.search_fts("Medicare 65 uninsurance PUMS", limit=5)
+    assert hits and hits[0]["doi"] == "10.1000/medicare.2023"
+
+    # Benchmark harness
+    by_q = {q["id"]: merged for q in BENCHMARK_QUERIES}
+    bm = evaluate_backend(by_q, backend="bm25", top_k=3)
+    assert bm["backend"] == "bm25" and len(bm["queries"]) == 5 and bm["mean_mrr"] > 0.0

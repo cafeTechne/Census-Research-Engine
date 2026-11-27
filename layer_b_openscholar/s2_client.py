@@ -24,21 +24,32 @@ def _reconstruct_openalex_abstract(inv: Optional[Dict[str, List[int]]]) -> str:
 
 
 class OpenAlexClient:
-    """Free, no-key-required fallback client for the OpenAlex Works API."""
+    """Free, no-key-required fallback client for the OpenAlex Works API with polite pool support."""
 
     def __init__(
         self,
         cache_dir: Optional[str | Path] = None,
         http_get: Optional[Callable[[str, Dict[str, Any], Dict[str, str]], Dict[str, Any]]] = None,
+        mailto: Optional[str] = None,
+        api_key: Optional[str] = None,
+        max_retries: int = 3,
     ) -> None:
         self.cache_dir = Path(cache_dir) if cache_dir is not None else None
         self._http_get = http_get
+        self.mailto = mailto if mailto is not None else os.environ.get("OPENALEX_MAILTO", "").strip()
+        self.api_key = api_key if api_key is not None else os.environ.get("OPENALEX_API_KEY", "").strip()
+        self.max_retries = max(int(max_retries), 1)
+
+    def _headers(self) -> Dict[str, str]:
+        ua = f"{USER_AGENT} (mailto:{self.mailto})" if self.mailto else USER_AGENT
+        return {"User-Agent": ua, "Accept": "application/json"}
 
     def _cache_path(self, params: Dict[str, Any]) -> Optional[Path]:
         if self.cache_dir is None:
             return None
+        cache_params = {k: v for k, v in params.items() if k not in ("api_key", "mailto")}
         key = hashlib.sha256(
-            json.dumps({"source": "openalex", "params": params}, sort_keys=True).encode("utf-8")
+            json.dumps({"source": "openalex", "params": cache_params}, sort_keys=True).encode("utf-8")
         ).hexdigest()
         return self.cache_dir / f"oa_{key}.json"
 
@@ -67,24 +78,43 @@ class OpenAlexClient:
             "openAccessPdf": oa.get("oa_url") or "",
         }
 
-    def search_papers(self, query: str, limit: int = 25, year: Optional[str] = None) -> List[Dict[str, Any]]:
+    def search_papers(self, query: str, limit: int = 25, year: Optional[str] = None, page: int = 1) -> List[Dict[str, Any]]:
         params: Dict[str, Any] = {"search": query, "per-page": min(max(int(limit), 1), 100)}
+        if int(page) > 1:
+            params["page"] = int(page)
         if year:
             params["filter"] = f"publication_year:{year}"
+        if self.mailto:
+            params["mailto"] = self.mailto
+        if self.api_key:
+            params["api_key"] = self.api_key
         cpath = self._cache_path(params)
         if cpath is not None and cpath.exists():
             data = json.loads(cpath.read_text(encoding="utf-8"))
         else:
             url = f"{OPENALEX_BASE}/works"
-            headers = {"User-Agent": USER_AGENT, "Accept": "application/json"}
+            headers = self._headers()
             if self._http_get is not None:
                 data = self._http_get(url, params, headers)
             else:
                 import requests
 
-                resp = requests.get(url, params=params, headers=headers, timeout=30)
-                resp.raise_for_status()
-                data = resp.json()
+                data = None
+                for attempt in range(self.max_retries):
+                    resp = requests.get(url, params=params, headers=headers, timeout=30)
+                    if resp.status_code in (429, 500, 502, 503, 504) and attempt + 1 < self.max_retries:
+                        retry_after = resp.headers.get("Retry-After")
+                        try:
+                            sleep_s = float(retry_after) if retry_after else 2.0 * (2 ** attempt)
+                        except ValueError:
+                            sleep_s = 2.0 * (2 ** attempt)
+                        time.sleep(min(max(sleep_s, 0.5), 30.0))
+                        continue
+                    resp.raise_for_status()
+                    data = resp.json()
+                    break
+                if data is None:
+                    raise RuntimeError(f"OpenAlex request failed after {self.max_retries} retries: {url}")
             if cpath is not None:
                 cpath.parent.mkdir(parents=True, exist_ok=True)
                 cpath.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")

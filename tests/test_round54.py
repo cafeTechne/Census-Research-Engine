@@ -74,7 +74,7 @@ def test_spatial_eiv_note_outside_miny(monkeypatch):
 
 def test_rule_text_mirrored():
     from census import mcp_profiles
-    for path in ("docs/agent_protocol.md", "docs/recipes/regression_sampling_error.md", "mcp_server.py",
+    for path in ("docs/agent_protocol.md", "docs/recipes/regression_sampling_error.md", "census/mcp_instructions.py",
                  "docs/recipes/external_health_outcome.md"):
         text = " ".join((ROOT/path).read_text().split())
         assert "Round 54" in text and ("4 or 6" in text)

@@ -623,6 +623,25 @@ def build_parser() -> argparse.ArgumentParser:
                    help="import: allow synthetic responses into the default cache (CENSUS_CACHE_PATH unset)")
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_cache)
+
+    def cmd_verify_bundle(args):
+        from .report_tables import verify_bundle
+        res = verify_bundle(args.bundle_dir)
+        print(json.dumps(res, indent=2))
+        return 0 if res["ok"] else 1
+
+    p = sub.add_parser("verify-bundle", help="verify bundle.json SHA-256 digests, methods.md, references.bib and LaTeX tables")
+    p.add_argument("bundle_dir", help="path to a manifest bundle directory containing bundle.json")
+    p.set_defaults(func=cmd_verify_bundle)
+
+    def cmd_doctor(args):
+        from .workflows_reporting import doctor_report
+        res = doctor_report()
+        return _emit(res, True if args.json else False)
+
+    p = sub.add_parser("doctor", help="check environment versions, bundled data integrity, MCP profiles, and manifest methods")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_doctor)
     return parser
 
 

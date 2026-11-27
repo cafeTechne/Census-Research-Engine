@@ -94,5 +94,5 @@ def test_tract_error_model_note():
 
 
 def test_rule_text_mirrored():
-    for path in ("docs/agent_protocol.md", "mcp_server.py", "docs/recipes/regression_sampling_error.md"):
+    for path in ("docs/agent_protocol.md", "census/mcp_instructions.py", "docs/recipes/regression_sampling_error.md"):
         assert "Round 71" in (ROOT/path).read_text() and "rho_bar .20" in (ROOT/path).read_text()

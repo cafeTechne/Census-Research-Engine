@@ -104,7 +104,7 @@ def test_binomial_calibrated_clusters():
 
 def test_rule_text_mirrored():
     from census import mcp_profiles
-    for path in ("docs/agent_protocol.md", "mcp_server.py", "docs/recipes/regression_sampling_error.md",
+    for path in ("docs/agent_protocol.md", "census/mcp_instructions.py", "docs/recipes/regression_sampling_error.md",
                  "docs/recipes/external_health_outcome.md"):
         text = " ".join((ROOT/path).read_text().split())
         assert "SCPC" in text and "Round 58" in text

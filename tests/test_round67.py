@@ -34,5 +34,5 @@ def test_tract_level_scpc_is_exploratory():
 
 
 def test_rule_text_mirrored():
-    for path in ("docs/agent_protocol.md", "mcp_server.py", "docs/recipes/regression_sampling_error.md"):
+    for path in ("docs/agent_protocol.md", "census/mcp_instructions.py", "docs/recipes/regression_sampling_error.md"):
         assert "Round 67" in (ROOT/path).read_text()

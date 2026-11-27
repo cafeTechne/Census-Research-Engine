@@ -52,7 +52,7 @@ def test_engine_gate():
 
 def test_rule_text_mirrored():
     from census import mcp_profiles
-    for path in ("docs/agent_protocol.md", "mcp_server.py", "docs/recipes/pums_tests.md"):
+    for path in ("docs/agent_protocol.md", "census/mcp_instructions.py", "docs/recipes/pums_tests.md"):
         text = " ".join((ROOT/path).read_text().split())
         assert "Round 60" in text and "7,000" in text
     assert "Round 60" in mcp_profiles.CORE_INSTRUCTIONS

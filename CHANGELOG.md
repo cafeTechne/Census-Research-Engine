@@ -5,6 +5,116 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.185.0 (Rounds 186–189): Tier 2 Neural BGE RAG, EPMC XML harvester, `doctor` CLI, 11-cause flagship manuscript & full-repo sweep
+
+- **Round 189 (`0.185.0`):** Expanded `docs/agent_routing.md` with rows `R85–R88` (88 rows total), extended `scripts/release_hygiene_check.py` through Round 189, executed full-repository `pytest` sweep across `tests/` and `layer_b_openscholar/tests/`, synced version `0.185.0`, and generated `docs/audits/v0185_release_readiness.md` (`tests/test_round189.py`).
+- **Round 188 (`0.183.0`):** Built flagship publishable manuscript package synthesizing all 11 CDC WONDER (2018–2022) county mortality causes (MI+OH primary + NY+PA replication) and 4 ACS methodological pitfall benchmarks (`SCPC vs HC3`, `KWW rank widths`, `PUMA ecologic fallacy`, `BEA RPP`) with 3 PDF/SVG/PNG figures, 2 booktabs LaTeX tables, `manuscript.tex`, `manuscript.md`, `references.bib`, permanent `docs/studies/r188_flagship_manuscript.md`, and `verify_bundle` sealing (`scripts/r188_flagship_manuscript_builder.py`, `tests/test_round188.py`).
+- **Round 187 (`0.182.0`):** Added `python -m census doctor [--json]` environment/integrity self-check (`census/workflows_reporting.py:doctor_report`, never leaking secrets), refreshed `README.md` with the Two-Layer Architecture Mermaid diagram and accurate MCP profile counts, and added `examples/mcp/dual_mcp_config.json` + `docs/dual_mcp_quickstart.md` (`tests/test_round187.py`).
+- **Round 186 (`0.181.0`):** Upgraded isolated Layer B (`layer_b_openscholar/`) to Tier 2 semantic neural RAG (`N127`) via isolated Python 3.12 `venv-neural` on the Samsung 850 EVO SSD (`2,631` `BAAI/bge-small-en-v1.5` 384-dim embeddings coexisting with `hash_projection_d256` via composite PK migration), added OpenAlex `OPENALEX_MAILTO`/`OPENALEX_API_KEY` polite pool + `Retry-After` backoff, added Europe PMC JATS XML full-text section harvester (`harvest-fulltext` CLI & `harvest_fulltext` MCP tool — 20 Layer B MCP tools total), and benchmarked Lexical vs. Hash vs. Neural BGE RAG (`docs/audits/layer_b_neural_rag_benchmark.md`, `tests/test_round186.py`).
+
+## 0.180.0 (Rounds 181–185): `pums_stats`/`health_sources_io` modularization, alcohol/injury BYM2 & corpus deduplication
+
+- **Round 185 (`0.180.0`):** Expanded `docs/agent_routing.md` with rows `R81–R84` (84 rows total), extended `scripts/release_hygiene_check.py` through Round 185, added `tests/test_round185.py`, and synced version `0.180.0`.
+- **Round 184 (`0.179.0`):** Added Layer B normalized-title deduplication merger (`layer_b_openscholar/maintenance.py:dedupe_title_duplicates`, `dedupe-corpus` CLI & `dedupe_corpus` MCP tool — 19 Layer B MCP tools total; deduplicated `76` cross-source rows and `73` orphan vectors on Samsung 850 EVO SSD; `tests/test_round184.py`).
+- **Round 183 (`0.178.0`):** Pre-registered WONDER 2018–2022 county alcohol-induced & unintentional injury BYM2 (`B3`) mapping & E-value QBA study across MI+OH and NY+PA (`docs/studies/r183_wonder_alcohol_injury_study.md`: positive poverty gradients in both regions, `verify_bundle` `ok: true`; `tests/test_round183.py`).
+- **Round 182 (`0.177.0`):** Modularized `census/health_sources.py` (`1,091` → `871` lines) by extracting CHR parsing and external health source loading/joining helpers into `census/health_sources_io.py` with full re-export parity (`tests/test_round182.py`).
+- **Round 181 (`0.176.0`):** Modularized `census/pums.py` (`1,159` → `921` lines) by extracting PUMS regression and PUMA geography helpers into `census/pums_stats.py` with full re-export parity (`tests/test_round181.py`).
+
+## 0.175.0 (Rounds 176–180): `geo_crosswalk_io`/`spatial_regression_helpers` modularization, kidney/firearm BYM2 & corpus compaction
+
+- **Round 180 (`0.175.0`):** Expanded `docs/agent_routing.md` with rows `R77–R80` (80 rows total), extended `scripts/release_hygiene_check.py` through Round 180, added `tests/test_round180.py`, and synced version `0.175.0`.
+- **Round 179 (`0.174.0`):** Added Layer B FTS5 integrity auditor, orphan-vector pruner, and SQLite compaction utility (`layer_b_openscholar/maintenance.py`, `compact-corpus` CLI & `compact_corpus` MCP tool — 18 Layer B MCP tools total; `tests/test_round179.py`).
+- **Round 178 (`0.173.0`):** Pre-registered WONDER 2018–2022 county kidney disease & firearm mortality BYM2 (`B3`) mapping & E-value QBA study across MI+OH and NY+PA (`docs/studies/r178_wonder_kidney_firearm_study.md`: firearm Q4/Q1 poverty RR `2.075` MI+OH / `1.410` NY+PA, `verify_bundle` `ok: true`; `tests/test_round178.py`).
+- **Round 177 (`0.172.0`):** Modularized `census/spatial.py` (`1,222` → `818` lines) by extracting spatial regression and known-variance correction helpers into `census/spatial_regression_helpers.py` with full re-export parity (`tests/test_round177.py`).
+- **Round 176 (`0.171.0`):** Modularized `census/geo_crosswalk.py` (`1,263` → `968` lines) by extracting panel harmonization and wide-row apportionment helpers into `census/geo_crosswalk_io.py` with full re-export parity (`tests/test_round176.py`).
+
+## 0.170.0 (Rounds 171–175): Auto-vector-sync, `concordance_overrides` modularization, CLRD/liver BYM2 & domain trends
+
+- **Round 175 (`0.170.0`):** Expanded `docs/agent_routing.md` with rows `R73–R76` (76 rows total), extended `scripts/release_hygiene_check.py` through Round 175, added `tests/test_round175.py`, and synced version `0.170.0`.
+- **Round 174 (`0.169.0`):** Added Layer B Multi-Domain Evidence Velocity & Trend Analyzer (`layer_b_openscholar/trends.py`, `domain-trends` CLI & `domain_trends` MCP tool — 17 Layer B MCP tools total; `tests/test_round174.py`).
+- **Round 173 (`0.168.0`):** Pre-registered WONDER 2018–2022 county CLRD & chronic liver disease BYM2 (`B3`) mapping & E-value QBA study across MI+OH and NY+PA (`docs/studies/r173_wonder_clrd_liver_study.md`: MI+OH Q4/Q1 poverty RR `1.324` CLRD / `1.308` liver disease, `verify_bundle` `ok: true`; `tests/test_round173.py`).
+- **Round 172 (`0.167.0`):** Modularized `census/concordance.py` (`1,327` → `1,006` lines) by extracting rule/override validation and crosswalk helpers into `census/concordance_overrides.py` with full re-export parity (`tests/test_round172.py`).
+- **Round 171 (`0.166.0`):** Added post-cycle `auto_sync_vectors=True` to `CorpusMiner` and incremental `sync-passages` CLI (indexed `64` study docs → `950` passages on Samsung 850 EVO SSD; `tests/test_round171.py`).
+
+## 0.165.0 (Rounds 166–170): 3-way Hybrid RAG + SSD vectors, `replicate_stats` modularization, suicide/diabetes BYM2 & agenda synthesizer
+
+- **Round 170 (`0.165.0`):** Expanded `docs/agent_routing.md` with rows `R69–R72` (72 rows total), extended `scripts/release_hygiene_check.py` through Round 170, added `tests/test_round170.py`, and synced version `0.165.0`.
+- **Round 169 (`0.164.0`):** Added Layer B Multi-Domain Research Agenda Synthesizer (`layer_b_openscholar/agenda.py`, `build-agenda` CLI & `build_research_agenda` MCP tool — 16 Layer B MCP tools total; `tests/test_round169.py`).
+- **Round 168 (`0.163.0`):** Pre-registered WONDER 2018–2022 county suicide & diabetes mortality BYM2 (`B3`) mapping & E-value QBA study across MI+OH and NY+PA (`docs/studies/r168_wonder_suicide_diabetes_study.md`: diabetes Q4/Q1 poverty RR `1.458` MI+OH / `1.163` NY+PA, `verify_bundle` `ok: true`; `tests/test_round168.py`).
+- **Round 167 (`0.162.0`):** Modularized `census/replicate.py` (`1,443` → `1,283` lines) by extracting derived replicate-statistic algebra and wide-frame helpers into `census/replicate_stats.py` with full re-export parity (`tests/test_round167.py`).
+- **Round 166 (`0.161.0`):** Upgraded Hybrid RAG to 3-way `FTS5 + BM25 + Vector Cosine` RRF (`layer_b_openscholar/rag.py`), added `sync_from_literature_index` (`sync-vectors` CLI & `sync_vectors` MCP tool), and embedded `1,941` SSD papers into `vectors.sqlite` (`tests/test_round166.py`).
+
+## 0.160.0 (Rounds 161–165): 36-domain background miner, citation expander, Hybrid RAG v2, daemon ops & vector store
+
+- **Round 165 (`0.160.0`):** Expanded `docs/agent_routing.md` with rows `R65–R68` (68 rows total), extended `scripts/release_hygiene_check.py` through Round 165, added `tests/test_round165.py`, and synced version `0.160.0`.
+- **Round 164 (`0.159.0`):** Added pluggable SQLite + NumPy vector store (`layer_b_openscholar/vector_store.py`, zero-dependency `HashProjectionEmbedder` + `SentenceTransformerEmbedder` adapter hook for N127) and `domain_hybrid_rag` recipe (`docs/recipes/domain_hybrid_rag.md`, 33 recipes total; `tests/test_round164.py`).
+- **Round 163 (`0.158.0`):** Added persistent daemon operations (`layer_b_openscholar/daemon_ops.py`: `render_systemd_unit`, `corpus_health_report`), `corpus-health`/`systemd-unit` CLI subcommands, and `corpus_health` MCP tool (14 Layer B MCP tools total; `tests/test_round163.py`).
+- **Round 162 (`0.157.0`):** Upgraded Hybrid RAG v2 (`layer_b_openscholar/rag.py`: JATS/HTML tag stripping, `min_year`/`domain_filter`/`export_bib_path`, and `build_evidence_brief` + `evidence_brief` MCP tool; `tests/test_round162.py`).
+- **Round 161 (`0.156.0`):** Expanded `layer_b_openscholar/corpus_miner.py` from 24 → 36 curated domain topics (`D01–D36`) and added OpenAlex 1-hop citation-graph expander (`layer_b_openscholar/citation_expander.py`, `expand-citations` CLI & `expand_citations` MCP tool; `tests/test_round161.py`).
+
+## 0.155.0 (Rounds 156–160): Live Layer B→A study, `methods_epi`/`models_eiv` modularization, async FastMCP tests & R120–R156 synthesis
+
+- **Round 160 (`0.155.0`):** Expanded `docs/agent_routing.md` with rows `R61–R64` (64 rows total), extended `scripts/release_hygiene_check.py` through Round 160, added `tests/test_round160.py`, and synced version `0.155.0`.
+- **Round 159 (`0.154.0`):** Added live async FastMCP protocol integration tests for both Layer A and Layer B (`tests/test_round159.py`) and published cross-study empirical synthesis (`docs/studies/r120_r156_synthesis.md`, including SSD 130-paper BM25 benchmark, 188 indexed study passages, and N39 ACS 2021–2025 preflight status).
+- **Round 158 (`0.153.0`):** Modularized `census/models.py` (`1,432` → `1,025` lines) by extracting `fit_eiv`, `simex`, and cluster-jackknife helpers into `census/models_eiv.py` with full re-export parity (`tests/test_round158.py`).
+- **Round 157 (`0.152.0`):** Modularized `census/manifest/methods.py` (`2,480` → `2,247` lines) by extracting causal/epidemiologic method handlers into `census/manifest/methods_epi.py` with full `METHODS` registry parity (`tests/test_round157.py`).
+- **Round 156 (`0.151.0`):** Executed the live end-to-end Layer B (Samsung 850 EVO SSD 130-paper corpus) → Layer A pre-registered stroke mortality BYM2 (`B3`) & E-value QBA study across MI+OH (171 counties) and NY+PA (129 counties) with `verify_bundle` passing (`ok: true`, `docs/studies/r156_layer_b_to_layer_a_study.md`, `tests/test_round156.py`).
+
+## 0.150.0 (Rounds 151–155): Monolith modularization (`validation`, `pipeline`), Layer B exploratory pipeline, 32 recipes & MCP v3
+
+- **Round 155 (`0.150.0`):** Expanded `docs/agent_routing.md` with rows `R57–R60` (60 rows total), extended `scripts/release_hygiene_check.py` through Round 155, added `tests/test_round155.py`, and consolidated milestone version `0.150.0`.
+- **Round 154 (`0.149.0`):** Added `mcp_capabilities` introspection tool to Layer A MCP, optional `query` keyword filter to `census.recipes.get_recipe`, and `run_exploratory_pipeline` to Layer B MCP (9 tools total; `tests/test_round154.py`).
+- **Round 153 (`0.148.0`):** Added 3 workflow recipes (`pums_inequality_ecologic`, `sae_temporal_pooling`, `layer_b_offline_corpus`; 32 recipes total) and one-command offline Layer B exploratory pipeline (`run_exploratory_pipeline` + `run-pipeline` CLI; `tests/test_round153.py`, `layer_b_openscholar/tests/test_layer_b_pipeline.py`).
+- **Round 152 (`0.147.0`):** Modularized `census/pipeline.py` (`1,944` → `1,657` lines) by extracting output diffing, verification, and replay into `census/pipeline_replay.py` with full re-export parity (`tests/test_round152.py`).
+- **Round 151 (`0.146.0`):** Modularized `census/validation.py` (`2,496` → `1,890` lines) by extracting extended validation checks (`F6–F8`, `F10–F11`) into `census/validation_extended.py` with full re-export parity (`tests/test_round151.py`).
+
+## 0.145.0 (Rounds 146–150): Layer B→A recipes & bridge, MCP profiles/tools, monolith modularization & R53–R56 routing
+
+- **Round 150 (`0.145.0`):** Expanded `docs/agent_routing.md` with rows `R53–R56` (56 rows total), extended `scripts/release_hygiene_check.py` through Round 150 with recipe-file parity enforcement, added `tests/test_round150.py`, and synced version `0.145.0`.
+- **Round 149 (`0.144.0`):** Modularized `census/workflows_inference.py` (`2,047` → `1,576` lines) by extracting reporting, results-bundle, manifest, health-source listing, and verification workflows into `census/workflows_reporting.py` with full re-export parity (`tests/test_round149.py`).
+- **Round 148 (`0.143.0`):** Modularized `mcp_server.py` (`1,719` → `1,102` lines) by extracting server instructions into `census/mcp_instructions.py` (with `scripts/sync_rule_text.py` target updated) and pure calculation tools into `census/mcp_helpers.py` (`tests/test_round148.py`).
+- **Round 147 (`0.142.0`):** Refined Layer A MCP (`verify_bundle` and `list_manifest_methods` tools + `publication` and `epidemiology` profiles in `census/mcp_profiles.py`) and Layer B MCP (`validate_handoff_seed`, 8 tools total; `tests/test_round147.py`).
+- **Round 146 (`0.141.0`):** Seeded the Samsung 850 EVO SSD Layer B FTS5 index (`130` deduplicated OpenAlex + Europe PMC domain papers), added 3 recipes (`literature_to_preregistration`, `publication_verification`, `spatial_mortality_qba`; 29 recipes total), and added isolated `layer_b_openscholar/handoff_bridge.py` (`tests/test_round146.py`, `layer_b_openscholar/tests/test_layer_b_handoff_bridge.py`).
+
+## 0.140.0 (Rounds 141–145): Deprivation/RPP index, PUMS causal AIPW, Layer B manifest seeder, WONDER BYM2/QBA & R49–R52 routing
+
+- **Round 145 (`0.140.0`):** Expanded `docs/agent_routing.md` with rows `R49–R52` (52 rows total), extended `scripts/release_hygiene_check.py` through Round 145, added `tests/test_round145.py`, and synced version `0.140.0`.
+- **Round 144 (`0.139.0`):** Pre-registered WONDER 2018–2022 county heart disease & drug overdose BYM2 (`B3`) disease mapping and E-value quantitative bias analysis across MI+OH and NY+PA (`docs/studies/r144_wonder_bym2_qba_study.md`: drug overdose Q4/Q1 poverty RR `2.31` MI+OH / `1.34` NY+PA, E-values `4.06` / `2.01`; `tests/test_round144.py`).
+- **Round 143 (`0.138.0`):** Added standalone Layer B Pre-Registration Manifest Seed Drafter (`layer_b_openscholar/manifest_seeder.py`), `draft-seed` CLI subcommand, and `draft_manifest_seed` MCP tool (7 tools total; `layer_b_openscholar/tests/test_layer_b_seeder.py`; zero `census/` imports).
+- **Round 142 (`0.137.0`):** Pre-registered ACS 2019–2023 PUMS causal AIPW/IPW/ATO study of college attainment (`SCHL >= 21`) on working-age poverty across MI and OH (`docs/studies/r142_pums_causal_study.md`: validated AIPW ATE `-8.84` pp MI / `-8.89` pp OH with `0.00%` positivity violations; `tests/test_round142.py`).
+- **Round 141 (`0.136.0`):** Pre-registered 4-state (MI, NY, OH, PA; 300 counties) PCA county deprivation index and BEA RPP real per-capita income study (`docs/studies/r141_deprivation_rpp_study.md`: RPP narrows interstate PCI spread by `46.8%` from `\$3,808` to `\$2,025`; `tests/test_round141.py`).
+
+## 0.135.0 (Rounds 136–140): PUMS inequality/ecologic fallacy, SCPC spatial inference, Layer B gap matrix, KWW rankings & R45–R48 routing
+
+- **Round 140 (`0.135.0`):** Expanded `docs/agent_routing.md` with rows `R45–R48` (48 rows total), extended `scripts/release_hygiene_check.py` through Round 140, added `tests/test_round140.py`, and synced version `0.135.0`.
+- **Round 139 (`0.134.0`):** Pre-registered 4-state (MI, NY, OH, PA; 300 counties) KWW individual/joint county poverty ranking and Holm state-reference comparison study (`docs/studies/r139_county_ranking_study.md`: only 2/300 counties certifiably top-decile while 129/300 differ from state mean under Holm; `tests/test_round139.py`).
+- **Round 138 (`0.133.0`):** Added standalone Layer B Evidence & Hypothesis-Gap Matrix builder (`layer_b_openscholar/gap_matrix.py`), `gap-matrix` CLI subcommand, and `build_gap_matrix` MCP tool (6 tools total; `layer_b_openscholar/tests/test_layer_b_gap_matrix.py`; zero `census/` imports).
+- **Round 137 (`0.132.0`):** Pre-registered MI/NY (145 counties) and OH/PA (155 counties) spatial Spearman & SCPC vs. HC3 inference study (`docs/studies/r137_spatial_inference_study.md`: SCPC intervals 1.46×–1.52× wider than HC3; `tests/test_round137.py`).
+- **Round 136 (`0.131.0`):** Pre-registered ACS 2019–2023 PUMS earnings inequality (Gini, Atkinson, disability gap) and PUMA ecologic fallacy decomposition study across 524,618 MI + OH working-age adults (`docs/studies/r136_pums_inequality_ecologic_study.md`: between-PUMA logit log-OR ~10× within-PUMA; `tests/test_round136.py`).
+
+## 0.130.0 (Rounds 131–135): 5-state segregation, temporal Fay–Herriot SAE, Layer B passage citations & WHO monitoring
+
+- **Round 135 (`0.130.0`):** Consolidated Rounds 131–135 in `scripts/release_hygiene_check.py` and `tests/test_round135.py`.
+- **Round 134 (`0.129.0`):** Pre-registered 4-state WHO poverty inequality monitoring (PAR vs. best subgroup) and priority quadrants study (`docs/studies/r134_who_inequality_study.md`, `tests/test_round134.py`).
+- **Round 133 (`0.128.0`):** Added page/section-level local document & PDF passage citation indexer (`layer_b_openscholar/pdf_indexer.py`, targeting `/run/media/hobo/Samsung 850 EVO SSD/layer_b_openscholar/passages.sqlite`) and `search_passages` MCP tool (`layer_b_openscholar/tests/test_layer_b_passages.py`; zero `census/` imports).
+- **Round 132 (`0.127.0`):** Pre-registered Arcsine & Rao–Yu temporal Fay–Herriot small-area poverty study across 300 MI/NY & OH/PA counties (`docs/studies/r132_sae_temporal_study.md`: temporal borrowing achieved `26.3%` MI/NY and `31.8%` OH/PA median MSE reduction; `tests/test_round132.py`).
+- **Round 131 (`0.126.0`):** Pre-registered 5-state (AZ, GA, MI, NY, TX; 525 counties) tract `B03002` racial segregation study (`docs/studies/r131_segregation_5state_study.md`, `tests/test_round131.py`).
+
+## 0.125.0 (Rounds 126–130): Demography/YPLL, PUMS decomposition, Layer B MCP, CLI `verify-bundle` & series hygiene
+
+- **Round 130 (`0.125.0`):** Added Arriaga & Oaxaca–Blinder closed-form benchmarks (`tests/test_round130.py`) and extended `scripts/release_hygiene_check.py` to enforce Rounds 121–130 compatibility audits and Layer B isolation.
+- **Round 129 (`0.124.0`):** Added `python -m census verify-bundle <bundle_dir>` CLI subcommand (`census/__main__.py`) and expanded `docs/agent_routing.md` with rows `R41–R44` (`tests/test_round129.py`).
+- **Round 128 (`0.123.0`):** Added standalone Layer B FastMCP server (`layer_b_openscholar/mcp_server.py`, 4 tools) and `seed-domain` SSD corpus seeder (`layer_b_openscholar/tests/test_layer_b_mcp.py`; zero `census/` imports).
+- **Round 127 (`0.122.0`):** Pre-registered ACS 2019–2023 PUMS disability earnings (Oaxaca–Blinder) & poverty (Fairlie) decomposition study across 524,618 MI + OH working-age adults (`docs/studies/r127_pums_decomposition_study.md`, `tests/test_round127.py`).
+- **Round 126 (`0.121.0`):** Pre-registered WONDER 2018–2022 national Chiang II life tables, exact Arriaga female–male $e_0$ decomposition (`+5.446` yrs), and cause-specific YPLL-75 study (`docs/studies/r126_demography_ypll_study.md`, `tests/test_round126.py`).
+
+## 0.119.0 (Rounds 121–124): PUMS Medicare RDD, multi-release DiD/pooling, Layer B SSD FTS5 indexer & Verification Phase 4
+
+- **Round 124 (`0.119.0`):** Added `census.report_tables.verify_bundle()` (verifying `bundle.json` SHA-256s, unlisted files, `methods.md`, `references.bib`, and balanced LaTeX tables) and `scripts/verification_orchestration_eval.py` (6/6 golden controls + 2/2 binding attacks blocked; `docs/audits/verification_phase4_eval.md`, `tests/test_round124.py`).
+- **Round 123 (`0.118.0`):** Upgraded standalone `layer_b_openscholar/` (zero `census/` imports) with ungated Europe PMC connector (`epmc_client.py`, `--source multi` DOI deduplication), domain-scoped SQLite FTS5 offline indexer (`local_index.py`, targeting `/run/media/hobo/Samsung 850 EVO SSD/layer_b_openscholar/index.sqlite` by default), and 5-query BM25 vs. `OpenScholar_Reranker` benchmark (`benchmark.py`).
+- **Round 122 (`0.117.0`):** Pre-registered multi-release (2015–2019 vs. 2020–2024) MI/NY + OH/PA county poverty disparity, rural–urban two-group DiD, and 4-state HKSJ pooling study (`scripts/r122_disparity_did_study.py`, `docs/studies/r122_multi_release_disparity_study.md`, `tests/test_round122.py`).
+- **Round 121 (`0.116.0`):** Pre-registered ACS 2019–2023 PUMS Age-65 Medicare RDD & disability stratification study on 325,216 MI + OH records (`scripts/r121_medicare_rdd_study.py`, `docs/studies/r121_medicare_rdd_study.md`), plus discrete large-sample bandwidth fallback fix in `census/rdd.py` (`tests/test_round121.py`).
+
 ## 0.115.0 (Round 119): citation integrity, E2E manifest integration, templates & static hygiene
 
 - Registered 10 missing citation keys in `census/references.py` (`bernal2017`, `calonico2014`, `fh`, `fuller1987`,

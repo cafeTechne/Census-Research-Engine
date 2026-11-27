@@ -589,3 +589,45 @@ def results_bundle(
                                       encoding="utf-8", newline="\n")
     manifest["paths"] = written
     return manifest
+
+
+def verify_bundle(bundle_dir: Union[str, Path]) -> Dict[str, Any]:
+    """Verify every SHA-256 digest in ``bundle.json``, plus ``methods.md``, ``references.bib``, and ``tables/*.tex``.
+
+    Returns ``{"ok": bool, "bundle_dir": str, "checked_files": int, "errors": list[str]}``.
+    """
+    root = Path(bundle_dir)
+    errors: List[str] = []
+    meta_path = root / "bundle.json"
+    if not meta_path.exists():
+        return {"ok": False, "bundle_dir": str(root), "checked_files": 0, "errors": ["missing bundle.json"]}
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    recorded = meta.get("files") or {}
+    checked = 0
+    for rel, expected_sha in sorted(recorded.items()):
+        p = root / rel
+        if not p.exists():
+            errors.append(f"missing recorded file: {rel}")
+            continue
+        actual_sha = hashlib.sha256(p.read_bytes()).hexdigest()
+        if actual_sha != expected_sha:
+            errors.append(f"sha256 mismatch for {rel}: expected {expected_sha[:12]}..., got {actual_sha[:12]}...")
+        checked += 1
+    actual_rel = {p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file() and p != meta_path}
+    extra = sorted(actual_rel - set(recorded))
+    if extra:
+        errors.append(f"unlisted extra files in bundle: {extra}")
+    if meta.get("has_methods"):
+        mp = root / "methods.md"
+        if not mp.exists() or not mp.read_text(encoding="utf-8").strip():
+            errors.append("has_methods is true but methods.md is missing or empty")
+    bib_p = root / "references.bib"
+    if bib_p.exists():
+        bib_txt = bib_p.read_text(encoding="utf-8").strip()
+        if not bib_txt or "@" not in bib_txt:
+            errors.append("references.bib is empty or lacks BibTeX entries")
+    for tex in sorted((root / "tables").glob("*.tex")) if (root / "tables").exists() else []:
+        t = tex.read_text(encoding="utf-8")
+        if t.count("{") != t.count("}"):
+            errors.append(f"unbalanced braces in {tex.relative_to(root).as_posix()}")
+    return {"ok": len(errors) == 0, "bundle_dir": str(root), "checked_files": checked, "errors": errors}

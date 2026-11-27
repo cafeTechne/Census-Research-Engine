@@ -56,7 +56,7 @@ def test_gated_spatial_eiv():
 
 def test_rule_text_mirrored():
     from census import mcp_profiles
-    for path in ("docs/agent_protocol.md", "mcp_server.py"):
+    for path in ("docs/agent_protocol.md", "census/mcp_instructions.py"):
         text = " ".join((ROOT/path).read_text().split())
         assert "bootstrap_t_cons" in text and "up to eight" in text and "Round 63" in text
     assert "bootstrap_t_cons" in mcp_profiles.CORE_INSTRUCTIONS and "Round 63" in mcp_profiles.CORE_INSTRUCTIONS

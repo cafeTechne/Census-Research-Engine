@@ -106,5 +106,5 @@ def test_acs_band_populations_partition_b01001():
 
 
 def test_rule_text_mirrored():
-    for path in ("docs/agent_protocol.md", "mcp_server.py"):
+    for path in ("docs/agent_protocol.md", "census/mcp_instructions.py"):
         assert "Round 73" in (ROOT/path).read_text()

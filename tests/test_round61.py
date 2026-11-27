@@ -121,7 +121,7 @@ def test_spatial_correlation_route():
 def test_scpc_text_and_rule_text():
     from census import mcp_profiles
     assert "SCPC" in mm._text_fit_replicate({"args": {"spatial_scpc": {}}}, "x")
-    for path in ("docs/agent_protocol.md", "mcp_server.py", "docs/recipes/regression_sampling_error.md"):
+    for path in ("docs/agent_protocol.md", "census/mcp_instructions.py", "docs/recipes/regression_sampling_error.md"):
         text = " ".join((ROOT/path).read_text().split())
         assert "Round 61" in text and "spatial_scpc" in text
     assert "spatial_scpc" in mcp_profiles.CORE_INSTRUCTIONS

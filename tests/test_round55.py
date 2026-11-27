@@ -82,7 +82,7 @@ def test_manifest_arg_checked():
 
 def test_rule_text_mirrored():
     from census import mcp_profiles
-    for path in ("docs/agent_protocol.md", "mcp_server.py"):
+    for path in ("docs/agent_protocol.md", "census/mcp_instructions.py"):
         text = " ".join((ROOT/path).read_text().split())
         assert "bootstrap_t_bc" in text and "reference_population_se" in text
     assert "bootstrap_t_bc" in mcp_profiles.CORE_INSTRUCTIONS

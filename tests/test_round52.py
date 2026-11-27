@@ -151,7 +151,7 @@ def test_rule_text_mirrored():
     from census import mcp_profiles
     proto = (ROOT/"docs/agent_protocol.md").read_text()
     recipe = (ROOT/"docs/recipes/segregation.md").read_text()
-    server = (ROOT/"mcp_server.py").read_text()
+    server = (ROOT/"census/mcp_instructions.py").read_text()
     for text in (proto, recipe, mcp_profiles.CORE_INSTRUCTIONS, server):
         flat = " ".join(text.split())
         assert "Round 52" in flat or "Rounds 50/52" in flat

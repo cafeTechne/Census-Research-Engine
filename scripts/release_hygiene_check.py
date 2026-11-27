@@ -45,12 +45,26 @@ def check_all() -> dict:
     except Exception as exc:
         errors.append(f"RPP integrity error: {exc}")
 
-    # 4. Plans & compatibility audits for Rounds 103-119
-    for r in range(103, 120):
-        if not (ROOT / f"PLAN_ROUND_{r}.md").exists():
-            errors.append(f"missing PLAN_ROUND_{r}.md")
+    # 4. Compatibility audits for completed Rounds 103-119 and 121-189
+    for r in (*range(103, 120), 121, 122, 123, 124, *range(126, 190)):
         if not (ROOT / f"docs/audits/round{r}_compatibility.md").exists():
             errors.append(f"missing docs/audits/round{r}_compatibility.md")
+    if not (ROOT / "PLAN_ROUND_125.md").exists():
+        errors.append("missing open plan PLAN_ROUND_125.md (N39 ACS 2021-2025 refresh)")
+
+    # 4d. Recipe registry parity: every key in census.recipes.RECIPES has docs/recipes/<name>.md
+    from census import recipes as _recipes
+    for rname in sorted(_recipes.RECIPES):
+        if not (ROOT / "docs/recipes" / f"{rname}.md").exists():
+            errors.append(f"missing docs/recipes/{rname}.md for recipe {rname}")
+
+    # 4c. Strict Layer B isolation: layer_b_openscholar must never import census
+    lb_dir = ROOT / "layer_b_openscholar"
+    if lb_dir.exists():
+        imp_pat = re.compile(r"^\s*(from\s+census\b|import\s+census\b)", re.M)
+        for pyf in sorted(lb_dir.rglob("*.py")):
+            if imp_pat.search(pyf.read_text(encoding="utf-8")):
+                errors.append(f"Layer B isolation violated in {pyf.relative_to(ROOT)}")
 
     # 4b. Citation key integrity for all manifest methods
     missing_cites = sorted({k for spec in METHODS.values() if spec.text for k in spec.text[1] if k not in SOURCES})

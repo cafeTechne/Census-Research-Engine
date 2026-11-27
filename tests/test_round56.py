@@ -84,7 +84,7 @@ def test_mcp_kind_inequality():
 
 def test_rule_text_mirrored():
     from census import mcp_profiles
-    for path in ("docs/agent_protocol.md", "mcp_server.py", "docs/recipes/pums_tests.md"):
+    for path in ("docs/agent_protocol.md", "census/mcp_instructions.py", "docs/recipes/pums_tests.md"):
         text = " ".join((ROOT/path).read_text().split())
         assert "Round 56" in text and "inequality" in text and "Gini" in text
     assert "inequality" in mcp_profiles.CORE_INSTRUCTIONS

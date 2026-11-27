@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT/"docs/agent_protocol.md"
-SERVER = ROOT/"mcp_server.py"
+SERVER = ROOT/"census/mcp_instructions.py"
 GROUPS = ("A", "B")
 
 

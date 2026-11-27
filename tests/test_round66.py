@@ -29,6 +29,6 @@ def test_ranges_follow_the_geometry_audit():
 
 
 def test_rule_text_mirrored():
-    for path in ("docs/agent_protocol.md", "mcp_server.py", "docs/recipes/segregation.md"):
+    for path in ("docs/agent_protocol.md", "census/mcp_instructions.py", "docs/recipes/segregation.md"):
         text = " ".join((ROOT/path).read_text().split())
         assert ("Round 66" in text or "50/52/66" in text) and ".75" in text

@@ -1,0 +1,1682 @@
+{
+  "ts": "2026-11-27T16:19:58.905Z",
+  "source": "auto-on-generation-start",
+  "contexts": [
+    {
+      "ctxId": "main",
+      "frameUrl": "http://127.0.0.1:44513/?extensionView=true&extensionVariant=vs-code&hostVariant=antigravity-ide&hostVersion=1.12.0&ideVersion=1.107.0&remoteKind=none&appName=Antigravity+IDE&useWebSocket=true&hostTheme=dark&enableMicrophone=false&platform=electron&isEnterpriseDisabled=true&hideWelcomePrefix=true&defaultGroupByNone=true&workspaceUri=file%3A%2F%2F%2Fhome%2Fhobo%2FProjects%2FUS-Census-5-Year-ACS-Data-Batch-Downloader",
+      "totalBtns": 160,
+      "inputBoxFound": true,
+      "inputBoxBtns": [
+        {
+          "aria": "Add context",
+          "title": "",
+          "cls": "p-1.5 rounded-full text-secondary-foreground hover:bg-secondary cursor-pointer",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\" class=\"w-4 h-4\"><path d=\"M450-450H250q-12.75,0-21.37-8.63T220-480.01t8.62",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": ":rgf:",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 43,
+            "y": 932,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Select model, current: Gemini 4 Neon Medium. Applies to /btw and messages sent after this turn",
+          "title": "",
+          "cls": "flex cursor-pointer items-center h-7 gap-1 rounded-full pl-2 [&:has(>[data-icon]:first-child)]:pl-1.",
+          "text": "Gemini 4 Neon Medium",
+          "innerHTML": "<span class=\"min-w-0 overflow-hidden text-ellipsis whitespace-nowrap\">Gemini 4 Neon<span class=\"opacity-70\"> Medium</span></span><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-no-drag": "",
+            "data-testid": "model-selector-trigger",
+            "data-model-label": "Gemini 4 Neon Medium",
+            "data-tooltip-id": ":rgr:"
+          },
+          "visible": true,
+          "rect": {
+            "x": 71,
+            "y": 932,
+            "w": 156,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Cancel (Ctrl+D)",
+          "title": "",
+          "cls": "bg-secondary hover:opacity-90 w-7 h-7 rounded-full cursor-pointer flex items-center justify-center t",
+          "text": "",
+          "innerHTML": "<div class=\"bg-red-500 w-[0.625rem] h-[0.625rem] rounded-[1px]\"></div>",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "input-cancel-button",
+            "data-tooltip-id": "input-send-button-cancel-tooltip"
+          },
+          "visible": true,
+          "rect": {
+            "x": 769,
+            "y": 932,
+            "w": 28,
+            "h": 28
+          }
+        }
+      ],
+      "buttons": [
+        {
+          "aria": "",
+          "title": "",
+          "cls": "flex min-w-0 items-center border-none bg-transparent p-0 text-left cursor-pointer font-inherit text-",
+          "text": "Conversations",
+          "innerHTML": "<span class=\"truncate\">Conversations</span><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\" class=\"shrink-0 transition-[op",
+          "hasSvg": true,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": -284,
+            "y": 139,
+            "w": 94,
+            "h": 16
+          }
+        },
+        {
+          "aria": "Display Options",
+          "title": "",
+          "cls": "agy-button agy-button-icon-sm inline-flex items-center font-medium transition-colors select-none out",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M411.15-260v-60H548.46v60H411.15Zm-155-190v-60H703.46v60H256.16Z",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "b5dbe32f-bc96-4a36-87a3-3fb1b56e269b",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -58,
+            "y": 137,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Create New Project",
+          "title": "",
+          "cls": "agy-button agy-button-icon-sm inline-flex items-center font-medium transition-colors select-none out",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M4 18V6V10.3672V10V18ZM4.30775 19.5C3.80258 19.5 3.375 19.325 3.025 18.975C2.675 18.625 2.5 18.1",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "8382f4d5-f390-4818-a5be-74d6e629ae29",
+            "data-testid": "sidebar-add-project-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -34,
+            "y": 137,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "f8ea4a44-8346-4cf0-8135-6c30974cae40",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 163,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "1ffdcc5c-400e-4859-bbea-3857dc51b6a3",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 163,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 163,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "e9bef62b-2de3-4b70-95d9-2e32c97650a0",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 212,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "6d710276-f6a4-46dd-a6cc-29a79753b3f4",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 212,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 212,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "6cdcb537-e62d-4bd7-9c1a-67fb0637c8a0",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 261,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "5eba8528-09e5-434a-8ded-94d8bd327896",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 261,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 261,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "91d9f0fd-58e7-4979-b851-186c2726c988",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 310,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "4d115da8-e08c-4e77-989d-0673dff6fcdb",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 310,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 310,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "ef285032-d121-4fba-b922-024a2f29b95b",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 359,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "f4a72bd8-d1e9-4e45-b7a2-8707a311af24",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 359,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 359,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "3c666265-0734-4e12-8fe2-7c010a3a5d93",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 408,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "d62031a0-00f8-4144-89d7-d2b102b2bb66",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 408,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 408,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "ab7abf34-e4af-41fa-9c59-d02406fb15cf",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 457,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "28cda5b1-4080-46b4-89e7-e18e18def4b1",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 457,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 457,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "",
+          "title": "",
+          "cls": "agy-button agy-button-custom inline-flex items-center font-medium transition-colors select-none outl",
+          "text": "Settings",
+          "innerHTML": "<span class=\"shrink-0 flex items-center\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M387.69-100L372.46-221.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": ":rf6:",
+            "data-testid": "settings-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -292,
+            "y": 951,
+            "w": 284,
+            "h": 32
+          }
+        },
+        {
+          "aria": "Conversation: Evaluating OpenScholar Integration Priorities",
+          "title": "",
+          "cls": "px-1.5 h-7 flex items-center min-w-0 overflow-hidden cursor-pointer hover:text-foreground focus-visi",
+          "text": "Evaluating OpenScholar Integration Priorities",
+          "innerHTML": "<span class=\"truncate inline-block\">Evaluating OpenScholar Integration Priorities</span>",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "breadcrumb-segment",
+            "data-tooltip-id": "fd5dc7c7-2226-4663-b613-634461c6ea0f"
+          },
+          "visible": true,
+          "rect": {
+            "x": 178,
+            "y": 6,
+            "w": 295,
+            "h": 28
+          }
+        },
+        {
+          "aria": "More actions",
+          "title": "",
+          "cls": "agy-button agy-button-icon-lg inline-flex items-center font-medium transition-colors select-none out",
+          "text": "",
+          "innerHTML": "<span class=\"relative flex items-center justify-center\" style=\"width: 18px; height: 18px;\"><span class=\"absolute inset-0 flex items-center justify-center\"><svg xmlns=\"http://www.w3.org/2000/svg\" width",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "titlebar-more-actions",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 740,
+            "y": 6,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "New Conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon-lg inline-flex items-center font-medium transition-colors select-none out",
+          "text": "",
+          "innerHTML": "<span class=\"relative flex items-center justify-center\" style=\"width: 18px; height: 18px;\"><span class=\"absolute inset-0 flex items-center justify-center\"><svg xmlns=\"http://www.w3.org/2000/svg\" width",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "4d36a436-76d4-4819-bc89-76c4c025a238",
+            "data-testid": "extension-new-conversation"
+          },
+          "visible": true,
+          "rect": {
+            "x": 772,
+            "y": 6,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Turn 1 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "0",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 336,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 2 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "1",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 347,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 3 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "2",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 358,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 4 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "3",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 369,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 5 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "4",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 380,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 6 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "5",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 391,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 7 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "6",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 402,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 8 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "7",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 413,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 9 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "8",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 424,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 10 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "9",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 435,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 11 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "10",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 446,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 12 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "11",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 457,
+            "w": 28,
+            "h": 11
+          }
+        }
+      ]
+    },
+    {
+      "ctxId": 1,
+      "frameUrl": "http://127.0.0.1:44513/?extensionView=true&extensionVariant=vs-code&hostVariant=antigravity-ide&hostVersion=1.12.0&ideVersion=1.107.0&remoteKind=none&appName=Antigravity+IDE&useWebSocket=true&hostTheme=dark&enableMicrophone=false&platform=electron&isEnterpriseDisabled=true&hideWelcomePrefix=true&defaultGroupByNone=true&workspaceUri=file%3A%2F%2F%2Fhome%2Fhobo%2FProjects%2FUS-Census-5-Year-ACS-Data-Batch-Downloader",
+      "totalBtns": 160,
+      "inputBoxFound": true,
+      "inputBoxBtns": [
+        {
+          "aria": "Add context",
+          "title": "",
+          "cls": "p-1.5 rounded-full text-secondary-foreground hover:bg-secondary cursor-pointer",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\" class=\"w-4 h-4\"><path d=\"M450-450H250q-12.75,0-21.37-8.63T220-480.01t8.62",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": ":rgf:",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 43,
+            "y": 932,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Select model, current: Gemini 4 Neon Medium. Applies to /btw and messages sent after this turn",
+          "title": "",
+          "cls": "flex cursor-pointer items-center h-7 gap-1 rounded-full pl-2 [&:has(>[data-icon]:first-child)]:pl-1.",
+          "text": "Gemini 4 Neon Medium",
+          "innerHTML": "<span class=\"min-w-0 overflow-hidden text-ellipsis whitespace-nowrap\">Gemini 4 Neon<span class=\"opacity-70\"> Medium</span></span><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-no-drag": "",
+            "data-testid": "model-selector-trigger",
+            "data-model-label": "Gemini 4 Neon Medium",
+            "data-tooltip-id": ":rgr:"
+          },
+          "visible": true,
+          "rect": {
+            "x": 71,
+            "y": 932,
+            "w": 156,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Cancel (Ctrl+D)",
+          "title": "",
+          "cls": "bg-secondary hover:opacity-90 w-7 h-7 rounded-full cursor-pointer flex items-center justify-center t",
+          "text": "",
+          "innerHTML": "<div class=\"bg-red-500 w-[0.625rem] h-[0.625rem] rounded-[1px]\"></div>",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "input-cancel-button",
+            "data-tooltip-id": "input-send-button-cancel-tooltip"
+          },
+          "visible": true,
+          "rect": {
+            "x": 769,
+            "y": 932,
+            "w": 28,
+            "h": 28
+          }
+        }
+      ],
+      "buttons": [
+        {
+          "aria": "",
+          "title": "",
+          "cls": "flex min-w-0 items-center border-none bg-transparent p-0 text-left cursor-pointer font-inherit text-",
+          "text": "Conversations",
+          "innerHTML": "<span class=\"truncate\">Conversations</span><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\" class=\"shrink-0 transition-[op",
+          "hasSvg": true,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": -284,
+            "y": 139,
+            "w": 94,
+            "h": 16
+          }
+        },
+        {
+          "aria": "Display Options",
+          "title": "",
+          "cls": "agy-button agy-button-icon-sm inline-flex items-center font-medium transition-colors select-none out",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M411.15-260v-60H548.46v60H411.15Zm-155-190v-60H703.46v60H256.16Z",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "b5dbe32f-bc96-4a36-87a3-3fb1b56e269b",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -58,
+            "y": 137,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Create New Project",
+          "title": "",
+          "cls": "agy-button agy-button-icon-sm inline-flex items-center font-medium transition-colors select-none out",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M4 18V6V10.3672V10V18ZM4.30775 19.5C3.80258 19.5 3.375 19.325 3.025 18.975C2.675 18.625 2.5 18.1",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "8382f4d5-f390-4818-a5be-74d6e629ae29",
+            "data-testid": "sidebar-add-project-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -34,
+            "y": 137,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "f8ea4a44-8346-4cf0-8135-6c30974cae40",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 163,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "1ffdcc5c-400e-4859-bbea-3857dc51b6a3",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 163,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 163,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "e9bef62b-2de3-4b70-95d9-2e32c97650a0",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 212,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "6d710276-f6a4-46dd-a6cc-29a79753b3f4",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 212,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 212,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "6cdcb537-e62d-4bd7-9c1a-67fb0637c8a0",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 261,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "5eba8528-09e5-434a-8ded-94d8bd327896",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 261,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 261,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "91d9f0fd-58e7-4979-b851-186c2726c988",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 310,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "4d115da8-e08c-4e77-989d-0673dff6fcdb",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 310,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 310,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "ef285032-d121-4fba-b922-024a2f29b95b",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 359,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "f4a72bd8-d1e9-4e45-b7a2-8707a311af24",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 359,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 359,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "3c666265-0734-4e12-8fe2-7c010a3a5d93",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 408,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "d62031a0-00f8-4144-89d7-d2b102b2bb66",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 408,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 408,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Archive conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-256.16L626.15-402.31L584-444.46l-74,74v-178H450v178l-74-74l",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "ab7abf34-e4af-41fa-9c59-d02406fb15cf",
+            "data-testid": "conversation-archive-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -88,
+            "y": 457,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Pin conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M620-471.54L691.54-400v60H510v220L480-90l-30-30V-340H268.46v-60L",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "28cda5b1-4080-46b4-89e7-e18e18def4b1",
+            "data-testid": "conversation-pin-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -62,
+            "y": 457,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "More options",
+          "title": "",
+          "cls": "agy-button agy-button-icon inline-flex items-center font-medium transition-colors select-none outlin",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-189.23q-24.75,0-42.37-17.62T420-249.23t17.62-42.37T480-309.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "conversation-kebab",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": -36,
+            "y": 457,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "",
+          "title": "",
+          "cls": "agy-button agy-button-custom inline-flex items-center font-medium transition-colors select-none outl",
+          "text": "Settings",
+          "innerHTML": "<span class=\"shrink-0 flex items-center\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M387.69-100L372.46-221.",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": ":rf6:",
+            "data-testid": "settings-button"
+          },
+          "visible": true,
+          "rect": {
+            "x": -292,
+            "y": 951,
+            "w": 284,
+            "h": 32
+          }
+        },
+        {
+          "aria": "Conversation: Evaluating OpenScholar Integration Priorities",
+          "title": "",
+          "cls": "px-1.5 h-7 flex items-center min-w-0 overflow-hidden cursor-pointer hover:text-foreground focus-visi",
+          "text": "Evaluating OpenScholar Integration Priorities",
+          "innerHTML": "<span class=\"truncate inline-block\">Evaluating OpenScholar Integration Priorities</span>",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "breadcrumb-segment",
+            "data-tooltip-id": "fd5dc7c7-2226-4663-b613-634461c6ea0f"
+          },
+          "visible": true,
+          "rect": {
+            "x": 178,
+            "y": 6,
+            "w": 295,
+            "h": 28
+          }
+        },
+        {
+          "aria": "More actions",
+          "title": "",
+          "cls": "agy-button agy-button-icon-lg inline-flex items-center font-medium transition-colors select-none out",
+          "text": "",
+          "innerHTML": "<span class=\"relative flex items-center justify-center\" style=\"width: 18px; height: 18px;\"><span class=\"absolute inset-0 flex items-center justify-center\"><svg xmlns=\"http://www.w3.org/2000/svg\" width",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "titlebar-more-actions",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 740,
+            "y": 6,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "New Conversation",
+          "title": "",
+          "cls": "agy-button agy-button-icon-lg inline-flex items-center font-medium transition-colors select-none out",
+          "text": "",
+          "innerHTML": "<span class=\"relative flex items-center justify-center\" style=\"width: 18px; height: 18px;\"><span class=\"absolute inset-0 flex items-center justify-center\"><svg xmlns=\"http://www.w3.org/2000/svg\" width",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "4d36a436-76d4-4819-bc89-76c4c025a238",
+            "data-testid": "extension-new-conversation"
+          },
+          "visible": true,
+          "rect": {
+            "x": 772,
+            "y": 6,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Turn 1 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "0",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 336,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 2 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "1",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 347,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 3 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "2",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 358,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 4 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "3",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 369,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 5 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "4",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 380,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 6 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "5",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 391,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 7 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "6",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 402,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 8 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "7",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 413,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 9 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "8",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 424,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 10 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "9",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 435,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 11 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "10",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 446,
+            "w": 28,
+            "h": 11
+          }
+        },
+        {
+          "aria": "Turn 12 of 32",
+          "title": "",
+          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-turn",
+            "data-turn-index": "11",
+            "data-trigger-disabled": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 457,
+            "w": 28,
+            "h": 11
+          }
+        }
+      ]
+    }
+  ]
+}

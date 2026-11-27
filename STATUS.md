@@ -3,7 +3,7 @@
 The single current summary of the Census Research Engine: what it does, which methods are validated, the
 standing rules, and what is next. Read this instead of old plans. Updated each round when it merges.
 
-**Current release:** v0.115.0 (Rounds 82–119: epidemiologic reporting, causal/policy designs, demography, BYM2, RDD, MICE, meta-analysis, 22 validated repairs, 28 manifest methods, 81 MCP tools, 40 routing rows, reference benchmarks, N39 preflight & release hygiene; tagged & pushed 2026-11-26, Zenodo version DOI pending archive). Previous: v0.77.0 (Rounds 76–81: disparities, joinpoint, staggered DiD, decompositions, small-area
+**Current release:** v0.185.0 (working tree, Rounds 121–189: flagship 11-cause WONDER county mortality spatial atlas & 4-pitfall manuscript with 3 PDF/SVG/PNG figures, 2 booktabs LaTeX tables & `verify_bundle`, 20 pre-registered empirical studies, 33 workflow recipes with keyword search, `python -m census doctor`, `verify_bundle`, `list_manifest_methods` & `mcp_capabilities`, `publication`/`epidemiology` MCP profiles, dual-MCP quickstart (`examples/mcp/dual_mcp_config.json`), 12 modularized monoliths, 88 routing rows, and isolated Layer B `layer_b_openscholar/` with Tier 2 Neural BGE (`BAAI/bge-small-en-v1.5`) + Hash multi-model `vectors.sqlite`, Europe PMC JATS XML full-text harvester, OpenAlex polite pool, 20-tool MCP server, and `systemd --user` daemon ops on Samsung 850 EVO SSD; last tagged release `v0.115.0` pushed 2026-11-26). Previous: v0.77.0 (Rounds 76–81: disparities, joinpoint, staggered DiD, decompositions, small-area
 proportions, spatial scan; DOI 10.5281/zenodo.24444186); v0.71.0 (Round 75 and the local-model evaluation; DOI 10.5281/zenodo.24434858); v0.70.0 (Rounds 70–74; DOI 10.5281/zenodo.24433164); v0.65.0 (Round 69;
 DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.24405380); v0.60.0 (Rounds 61–63; DOI 10.5281/zenodo.24400452); v0.57.0 (Rounds 57–60; DOI 10.5281/zenodo.24398149); v0.53.0 (Rounds 43–56; DOI 10.5281/zenodo.24384786); v0.39.0 (Rounds 31–42, the statistics roadmap; DOI
 10.5281/zenodo.24371310); v0.27.0 (Round 30: IM-8 with ACS sampling error; DOI
@@ -15,7 +15,7 @@ DOI 10.5281/zenodo.24411452); v0.64.0 (Rounds 64–68; DOI 10.5281/zenodo.244053
 | Path | What |
 | :--- | :--- |
 | `census/` | Library. `manifest/` package (pre-registered studies: `schema`, `validate`, `create`, `run` (typed `RunState` and ordered execution stages), `methods_text`, `methods` (single method registry), plus `adjustments`, `replicates`, `external`, `derivations`, `datasource`; import from `census.manifest`, but patch tests at the submodule that looks the name up), `models.py` (`fit_replicate`, `fit_eiv`, robust GLM SEs), `health_sources.py` (PLACES, USALEEP, CHR&R, WONDER exports), `spatial*.py`, `sae*.py`, `simulation*.py` (validation studies) |
-| `mcp_server.py` | MCP server (81 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
+| `mcp_server.py` | MCP server (84 tools; 16 in `core`, 17 in `core_spatial`; profiles in `census/mcp_profiles.py`) |
 | `docs/agent_protocol.md`, `docs/recipes/` | What agents are told; keep in step with engine rules |
 | `docs/audits/` | Validation reports (pass/fail, reproducible scripts in `scripts/`) |
 | `docs/studies/` | Pre-registered study reports; outputs are release attachments, not in the repo |
@@ -168,6 +168,39 @@ correction; H2 is stable under both registered suppression sensitivities. Indepe
 fixed model offsets remain limitations. See the two `r29_*.md` study reports. No WONDER network access.
 Acceptance: 1860 passed, 37 skipped, 4 warnings, 50 subtests; 20 new tests; no failures. Legacy schema
 snapshots unchanged; execution golden differs only for the intended WONDER fix (`round29_compatibility.md`).
+
+**Rounds 131–135 (v0.126.0–v0.130.0; implemented on `defaultBranch`, release pending owner approval):**
+- Round 131: 5-state (AZ, GA, MI, NY, TX; 525 counties) tract `B03002` racial segregation study (`docs/studies/r131_segregation_5state_study.md`).
+- Round 132: Arcsine & Rao–Yu temporal Fay–Herriot SAE study across 300 MI/NY & OH/PA counties (`26.3%` / `31.8%` median MSE reduction; `docs/studies/r132_sae_temporal_study.md`).
+- Round 133: Layer B page/section-level local passage citation indexer (`layer_b_openscholar/pdf_indexer.py` on Samsung 850 EVO SSD) & `search_passages` MCP tool.
+- Round 134: 4-state WHO poverty inequality monitoring (PAR vs. best subgroup) & priority quadrants (`docs/studies/r134_who_inequality_study.md`).
+- Round 135: Full-series hygiene (`scripts/release_hygiene_check.py`) & `v0.130.0` consolidation (`tests/test_round135.py`).
+
+**Rounds 126–130 (v0.121.0–v0.125.0; implemented on `defaultBranch`, release pending owner approval):**
+- Round 126: WONDER 2018–2022 national Chiang II life tables ($e_0 = 77.85$ yrs), exact Arriaga sex-gap decomposition (`+5.446` yrs), and cause-specific YPLL-75 (`docs/studies/r126_demography_ypll_study.md`).
+- Round 127: PUMS disability earnings (Oaxaca–Blinder) & poverty (Fairlie) decomposition on 524,618 MI + OH working-age adults (`docs/studies/r127_pums_decomposition_study.md`).
+- Round 128: standalone Layer B FastMCP server (`layer_b_openscholar/mcp_server.py`) & `seed-domain` Samsung 850 EVO SSD seeder (strictly isolated from `census/`).
+- Round 129: `python -m census verify-bundle` CLI subcommand & `docs/agent_routing.md` rows `R41–R44`.
+- Round 130: Arriaga/Oaxaca closed-form benchmarks (`tests/test_round130.py`) & `release_hygiene_check.py` Layer B isolation + R121–R130 audit checks.
+
+**Round 124 (v0.119.0; implemented on `defaultBranch`, release pending owner approval):**
+added `census.report_tables.verify_bundle()` and Gap Audit Phase 4 proposition-preserving orchestration harness
+(`scripts/verification_orchestration_eval.py`: 6/6 golden controls, 2/2 binding attacks blocked; `tests/test_round124.py`).
+
+**Round 123 (v0.118.0; implemented on `defaultBranch`, release pending owner approval):**
+upgraded standalone `layer_b_openscholar/` (zero `census/` imports) with ungated Europe PMC connector,
+domain-scoped SQLite FTS5 offline indexer targeting `/run/media/hobo/Samsung 850 EVO SSD/layer_b_openscholar/index.sqlite`,
+and 5-query BM25 vs. `OpenScholar_Reranker` benchmark harness.
+
+**Round 122 (v0.117.0; implemented on `defaultBranch`, release pending owner approval):**
+pre-registered multi-release (2015–2019 vs. 2020–2024) county poverty disparity, rural–urban DiD, and 4-state HKSJ
+pooling study across MI/NY and OH/PA (`docs/studies/r122_multi_release_disparity_study.md`; pooled DiD `-0.44` pp,
+90% CI `-0.72` to `-0.15`, `validated=True`; `tests/test_round122.py`).
+
+**Round 121 (v0.116.0; implemented on `defaultBranch`, release pending owner approval):**
+pre-registered ACS 2019–2023 PUMS Age-65 Medicare RDD & disability stratification study on 325,216 MI + OH records
+(`docs/studies/r121_medicare_rdd_study.md`; all 4 hypotheses replicated) plus large-sample discrete RDD bandwidth fix
+in `census/rdd.py` (`tests/test_round121.py`).
 
 **Round 119 (v0.115.0; merged on `defaultBranch`, release pending owner approval):**
 citation integrity (`census/references.py`: 10 missing citation keys registered + hygiene invariant), 4 modern

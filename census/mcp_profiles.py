@@ -59,10 +59,34 @@ PROFILES: Dict[str, Optional[List[str]]] = {
         "draft_rule_override",
         "record_rule_review",
     ],
+    "publication": [
+        "get_recipe",
+        "mcp_capabilities",
+        "make_figure",
+        "make_table",
+        "make_map",
+        "make_results_bundle",
+        "verify_bundle",
+        "list_manifest_methods",
+        "create_manifest",
+        "run_manifest",
+    ],
     "full": None,
 }
 # core plus the global/local Moran's I tool (Round 10 F1 evaluation).
 PROFILES["core_spatial"] = list(PROFILES["core"]) + ["spatial_autocorrelation"]
+# epidemiology profile: core plus epidemiologic reporting, demography, QBA, spatial scan/BYM2, and bundle verification (Round 147).
+PROFILES["epidemiology"] = list(PROFILES["core"]) + [
+    "list_health_sources",
+    "list_manifest_methods",
+    "disparity_measures",
+    "demography_analysis",
+    "stratified_analysis",
+    "bias_analysis",
+    "spatial_scan",
+    "spatial_model",
+    "verify_bundle",
+]
 # Profiles built like core: short descriptions and guided results.
 CORE_STYLE_PROFILES = ("core", "core_spatial")
 

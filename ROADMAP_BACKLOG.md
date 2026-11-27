@@ -98,6 +98,7 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N123 | Offline N39 ACS 2021–2025 release-refresh preflight script & runbook (`scripts/acs_release_preflight.py`) | N39 | tooling | 117 (closed) |
 | N124 | Pre-commit release hygiene audit (`scripts/release_hygiene_check.py`) & full Rounds 103–118 verification | R103–R118 | hygiene | 118 (closed) |
 | N125 | Missing manifest citation keys in `census/references.py` (10 keys registered + hygiene invariant) | R104–R114 | bug | 119 (closed) |
+| N127 | Layer B Tier 2 Neural Hybrid RAG (Option B): isolated `.venv-layer-b` with dense scientific embeddings (`allenai/specter2` or `BAAI/bge-base-en-v1.5`) stored on Samsung 850 EVO SSD + `OpenScholar/OpenScholar_Reranker` cross-encoder reranking via RRF, keeping Layer A `.venv` and `pyproject.toml` untouched | owner, 2026-11-27 | layer_b enhancement | open |
 | N126 | Modern manifest templates (`examples/manifests/templates/`) & end-to-end `run_manifest` integration tests | R104–R114 | docs/tests | 119 (closed) |
 
 ## 2. Recorded limits (not scheduled; reopen only with a new idea)

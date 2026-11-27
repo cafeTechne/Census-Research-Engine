@@ -40,32 +40,42 @@ RECIPES: Dict[str, str] = {
     "decennial_counts": "Use 2020 Census counts (P.L. 94-171, DHC) without inventing margins of error",
     "external_health_outcome": "Health outcome from CDC PLACES, USALEEP, County Health Rankings or WONDER, "
                                "without circularity; binomial counts with denominator trials and robust (HC3) SEs",
+    "literature_to_preregistration": "Bridge isolated Layer B literature dossiers and gap matrices to a human-reviewed Layer A pre-registered manifest (Round 146)",
+    "publication_verification": "Verify publication bundle SHA-256 digests, references.bib citations, and balanced LaTeX tables via MCP or CLI (Round 146)",
+    "spatial_mortality_qba": "County mortality BYM2 (B3) spatial disease mapping and E-value quantitative bias analysis with WONDER suppression rules (Round 146)",
+    "pums_inequality_ecologic": "PUMS earnings inequality (Gini, Atkinson, subgroup gap) and PUMA ecologic fallacy decomposition (Round 153)",
+    "sae_temporal_pooling": "Multi-release county arcsine and Rao-Yu temporal Fay-Herriot small-area estimation with MSE reduction checks (Round 153)",
+    "layer_b_offline_corpus": "Seed, query, and run the offline Layer B SSD FTS5 literature and handoff pipeline (Round 153)",
+    "domain_hybrid_rag": "Query the 36-domain Layer B SSD corpus + local passages via citation-grounded Hybrid RAG and manage the background miner (Round 164)",
 }
 
 RecipeName = Literal[
     "compare_counties", "tract_trend", "regression_sampling_error", "small_area", "preregistered",
     "decennial_counts", "external_health_outcome", "health_inequality", "segregation", "group_comparison", "pums_tests", "rank_methods", "rank_areas", "composite_index", "agreement", "combine_estimates", "causal", "context_covariates", "replications", "policy_change", "custom_geographies", "dollars", "spatial_patterns", "cross_release", "reporting", "confounding",
+    "literature_to_preregistration", "publication_verification", "spatial_mortality_qba",
+    "pums_inequality_ecologic", "sae_temporal_pooling", "layer_b_offline_corpus", "domain_hybrid_rag",
 ]
 
 
-def get_recipe(name: Optional[RecipeName] = None) -> Dict[str, Any]:
-    """Return numbered steps for a standard analysis; omit name to list recipes.
+def get_recipe(name: Optional[RecipeName] = None, query: Optional[str] = None) -> Dict[str, Any]:
+    """Return numbered steps for a standard analysis; omit name to list recipes (optional keyword query).
 
     Args:
-        name: compare_counties, tract_trend, regression_sampling_error,
-            small_area, preregistered, decennial_counts, external_health_outcome, health_inequality, segregation,
-            group_comparison, pums_tests, rank_methods,
-            rank_areas, composite_index, agreement,
-            combine_estimates, or causal.
+        name: Recipe name (omit to list all recipes or filter with query).
+        query: Optional case-insensitive keyword filter when listing recipes.
 
     Example: get_recipe(name="compare_counties")
     """
     if not name:
+        items = [{"name": k, "description": v} for k, v in RECIPES.items()]
+        if query:
+            q = str(query).strip().lower()
+            items = [it for it in items if q in it["name"].lower() or q in it["description"].lower()]
         return {
             "success": True,
-            "summary": f"{len(RECIPES)} recipes available.",
+            "summary": f"{len(items)} recipe(s) available" + (f" matching '{query}'." if query else "."),
             "next_step": "get_recipe(name=...) with one of the names in recipes",
-            "recipes": [{"name": k, "description": v} for k, v in RECIPES.items()],
+            "recipes": items,
         }
     key = str(name).strip().lower()
     if key not in RECIPES:

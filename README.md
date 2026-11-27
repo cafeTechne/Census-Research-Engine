@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23925301.svg)](https://doi.org/10.5281/zenodo.23925301)
 
-A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **81 MCP tools**, **28 pre-registered manifest methods**, **40 offline-tested agent routing contracts**, a Python library and a command-line interface.
+A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **84 MCP tools**, **28 pre-registered manifest methods**, **40 offline-tested agent routing contracts**, a Python library and a command-line interface.
 
 Use it to compare counties or neighborhoods, study associations while accounting for noisy ACS predictors and spatial dependence, construct custom population tabulations, measure segregation or income inequality, and evaluate agreement between sources. Statistical methods have different validated ranges; an available method is not automatically suitable for every research design. Each inference method was checked by a simulation whose pass criterion was fixed in advance (90% intervals must cover at least 86% of the time); methods or settings that failed are still available but are marked exploratory in their results (`validated: false` and a note). [STATUS.md](STATUS.md) records the current release, validation evidence and remaining limitations.
 
@@ -112,21 +112,42 @@ python -m census derive proportion --estimates 4500,30000 --moes 400,900 --json
 python -m census aggregate --input out/B17001_tract_panel_2023.csv --groups groups.csv --year 2023 \
     --derive '[{"name": "poverty_rate", "op": "proportion", "num": "B17001_002E", "den": "B17001_001E"}]'
 python -m census validate --offline
+python -m census doctor --json
+python -m census verify-bundle path/to/bundle
 ```
 
 Exit codes: `0` success, `2` invalid input, `3` concordance review required, `4` API or data failure.
 
-### MCP server
+### Two-Layer Architecture (Confirmatory Layer A vs. Exploratory Layer B)
 
-```bash
-claude mcp add census -- python mcp_server.py
+```mermaid
+flowchart LR
+    LB["Layer B: layer_b_openscholar/<br/>20 MCP tools · OpenAlex + EPMC XML<br/>FTS5 + BM25 + Neural BGE Hybrid RAG<br/>(zero census/ imports)"]
+    GATE{"Human Pre-Registration Gate<br/>bridge_report.json + manifest_seed.md"}
+    LA["Layer A: census/ + mcp_server.py<br/>84 MCP tools · 28 manifest methods<br/>33 recipes · BYM2 / SCPC / KWW / PUMS<br/>verify_bundle SHA-256 sealing"]
+    LB -->|"exploratory_hypothesis_seed"| GATE
+    GATE -->|"approved manifest"| LA
 ```
 
-Call `get_recipe()` to list the 26 task guides, then `get_recipe(name="regression_sampling_error")` (or another recipe) for the steps and applicable limits. `get_recipe` is in the core and full profiles. `get_research_protocol` returns the full protocol in profiles that expose it. Client configuration is in [docs/claude_setup.md](docs/claude_setup.md).
+- **Layer A (`census/` + `mcp_server.py`)** is the confirmatory statistical engine. It enforces cross-release concordance, ACS replicate/EIV uncertainty, spatial inference (SCPC, BYM2), KWW rank intervals, and pre-registered manifests sealed with `verify_bundle`.
+- **Layer B (`layer_b_openscholar/`)** is a strictly isolated exploratory literature and domain-RAG engine (zero imports from or into `census/`, zero added dependencies in `pyproject.toml`). Every Layer B output is tagged `exploratory_hypothesis_seed` and passes through a human review gate before Layer A pre-registration.
+
+### Dual-MCP Setup (Claude Desktop / Cursor / Antigravity)
+
+```bash
+claude mcp add census -- python mcp_server.py --profile publication
+claude mcp add layer-b -- python -m layer_b_openscholar.mcp_server
+```
+
+Ready-to-paste dual-server configuration is in [examples/mcp/dual_mcp_config.json](examples/mcp/dual_mcp_config.json), and a 5-minute walkthrough is in [docs/dual_mcp_quickstart.md](docs/dual_mcp_quickstart.md).
+
+Call `get_recipe()` (or `get_recipe(query="spatial")`) to search the 33 task guides, `list_manifest_methods()` to inspect all 28 pre-registered methods, and `mcp_capabilities()` for a live summary. `get_research_protocol` returns the full protocol in profiles that expose it. Client configuration is in [docs/claude_setup.md](docs/claude_setup.md).
 
 | Profile | Tools | Use |
 | :--- | ---: | :--- |
-| `full` (default) | 81 | All registered tools; use this for the complete research workflow |
+| `full` (default) | 84 | All registered Layer A tools; use this for the complete research workflow |
+| `publication` | 10 | Focused manuscript profile: manifests, figures, tables, bundles, and verification |
+| `epidemiology` | 25 | Focused epidemiology profile: WONDER/PLACES outcomes, BYM2/EB, QBA, disparity, and stratified analysis |
 | `core` | 16 | A smaller set for discovery, extraction, basic models, group/PUMS tests and outputs; guided results include `summary` and `next_step` |
 | `core_spatial` | 17 | Core plus `spatial_autocorrelation`; advanced tools such as `rank_areas` still require `full` |
 | `review` | 10 | Variable concordance and independent review of overrides |
@@ -175,7 +196,7 @@ python -m census tool minimum_detectable_difference --arg moe1=2.1 --arg moe2=2.
 </details>
 
 <details>
-<summary>All 81 MCP tools, grouped by purpose</summary>
+<summary>All 84 MCP tools, grouped by purpose</summary>
 
 The analysis tables below explain which to choose. This inventory also includes discovery, maintenance and review tools.
 

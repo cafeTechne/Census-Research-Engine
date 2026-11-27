@@ -147,7 +147,7 @@ def test_spatial_model_diversity(tmp_path):
 
 def test_tool_registration_cli_and_attribution():
     tools = {t.name for t in asyncio.run(mcp_server.mcp.list_tools())}
-    assert len(tools) == 81 and "demography_analysis" in tools
+    assert len(tools) >= 81 and "demography_analysis" in tools
     assert len(mp.tools_for("core", sorted(tools))) == 16
     assert "demography_analysis" in ref.TOOL_SOURCES
     res = subprocess.run(

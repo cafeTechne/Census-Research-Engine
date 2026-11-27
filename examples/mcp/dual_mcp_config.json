@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "census-research-engine": {
+      "command": "${WORKSPACE}/.venv/bin/python",
+      "args": [
+        "${WORKSPACE}/mcp_server.py",
+        "--profile",
+        "publication"
+      ],
+      "env": {
+        "CENSUS_API_KEY": "${CENSUS_API_KEY}"
+      },
+      "notes": "Layer A confirmatory ACS/epidemiology engine. Profiles: full (84 tools), publication, epidemiology, core, core_spatial, review, verification."
+    },
+    "layer-b-openscholar": {
+      "command": "${WORKSPACE}/.venv/bin/python",
+      "args": [
+        "-m",
+        "layer_b_openscholar.mcp_server"
+      ],
+      "env": {
+        "OPENALEX_MAILTO": "${OPENALEX_MAILTO}"
+      },
+      "notes": "Isolated Layer B exploratory literature & Hybrid RAG server (20 tools, zero census imports). For Tier 2 neural BGE embeddings, point command to your isolated venv-neural Python."
+    }
+  }
+}

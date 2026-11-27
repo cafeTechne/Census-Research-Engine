@@ -46,7 +46,13 @@ def regression_discontinuity(frame: pd.DataFrame, outcome: str, running: str, cu
     if bandwidth is not None:
         h = float(bandwidth)
     elif discrete:
-        h = max(rc.ik_bandwidth(x, y, cutoff), 4.0)   # 3+ support points per side for the local quadratic
+        try:
+            h = max(rc.ik_bandwidth(x, y, cutoff), 4.0)   # 3+ support points per side for the local quadratic
+        except ValueError:
+            if (x < cutoff).sum() >= 5 and (x >= cutoff).sum() >= 5:
+                h = 4.0
+            else:
+                raise
     else:
         h = float(rc.ik_bandwidth(x, y, cutoff) * (len(x) ** (-1.0 / 20.0)))   # Round 105: CCT CER bandwidth
     res = rc.rdd(x, y, cutoff, h=h, d=t, weights=w, replicate_weights=R, level=level)

@@ -130,7 +130,7 @@ def test_rule_text_mirrored():
     from census import mcp_profiles
     proto = (ROOT/"docs/agent_protocol.md").read_text()
     recipe = (ROOT/"docs/recipes/regression_sampling_error.md").read_text()
-    server = (ROOT/"mcp_server.py").read_text()
+    server = (ROOT/"census/mcp_instructions.py").read_text()
     for text in (proto, recipe, mcp_profiles.CORE_INSTRUCTIONS, server):
         flat = " ".join(text.split())
         assert "jackknife" in flat and "Round 53" in flat
