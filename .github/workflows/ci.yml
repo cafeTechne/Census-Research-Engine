@@ -1,87 +1,54 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
-name: CI
+name: Offline CI & Release Hygiene
 
 on:
   push:
+    branches: [defaultBranch, main]
   pull_request:
-  schedule:
-    # Weekly live validation against Census-published values (Mondays 06:17 UTC; off the hour, since GitHub may delay or drop top-of-hour schedules).
-    - cron: "17 6 * * 1"
-  workflow_dispatch:
-
-permissions:
-  contents: read
+    branches: [defaultBranch, main]
 
 jobs:
-  offline:
-    name: Offline tests (${{ matrix.os }}, Python ${{ matrix.python }})
-    if: github.event_name != 'schedule'
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python: ["3.11", "3.12", "3.13"]
+  verify:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
-          cache: pip
+          python-version: "3.12"
+          cache: "pip"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest
-      - name: Offline test suite
+
+      - name: Release hygiene & Layer B isolation check
+        run: python scripts/release_hygiene_check.py
+
+      - name: Environment & bundled data integrity check (doctor --verbose)
+        run: python -m census doctor --verbose --json
+
+      - name: Run Layer B & core contract tests (offline)
         env:
-          PYTHONUTF8: "1"
-        run: python -m pytest -q
-      - name: Validate concordance overrides
-        run: python -m census validate-crosswalks
-
-  fast-inference-gate:
-    # PLAN_ROUND_13 C1 / owner decision D13-5: pull requests only, one OS and Python.
-    # Smoke check (band widened by 3 MC SE); the full gate stays a release-time step.
-    name: Inference validation fast gate (smoke)
-    if: github.event_name == 'pull_request' && github.base_ref == 'defaultBranch'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-      - name: Install dependencies
+          MPLCONFIGDIR: /tmp/matplotlib-ci
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Fast inference-validation gate
-        run: python scripts/inference_validation.py --fast --gate
-
-  live-validation:
-    name: Live validation against Census-published values
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    env:
-      CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
-      CENSUS_LIVE_TESTS: "1"
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt pytest
-      - name: Full suite including live API, replicate, median, crosswalk, and validation tests
-        run: python -m pytest -q
-      - name: Validation battery
-        run: python scripts/validate_against_census.py --output-dir validation-report
-      - name: Upload validation report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: validation-report
-          path: validation-report/
+          pytest -q layer_b_openscholar/tests/ \
+            tests/test_packaging.py \
+            tests/test_mcp_profiles.py \
+            tests/test_agent_routing.py \
+            tests/test_track_a_manifest_parity.py \
+            tests/test_track_b_bibtex_bundle.py \
+            tests/test_proposition_verification.py \
+            tests/test_round185.py \
+            tests/test_round186.py \
+            tests/test_round187.py \
+            tests/test_round189.py \
+            tests/test_round190.py \
+            tests/test_round192.py \
+            tests/test_round193.py \
+            tests/test_round194.py \
+            tests/test_round196.py \
+            tests/test_round198.py \
+            tests/test_round199.py

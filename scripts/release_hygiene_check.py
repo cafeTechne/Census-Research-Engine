@@ -45,8 +45,8 @@ def check_all() -> dict:
     except Exception as exc:
         errors.append(f"RPP integrity error: {exc}")
 
-    # 4. Compatibility audits for completed Rounds 103-119 and 121-189
-    for r in (*range(103, 120), 121, 122, 123, 124, *range(126, 190)):
+    # 4. Compatibility audits for completed Rounds 103-119 and 121-212
+    for r in (*range(103, 120), 121, 122, 123, 124, *range(126, 213)):
         if not (ROOT / f"docs/audits/round{r}_compatibility.md").exists():
             errors.append(f"missing docs/audits/round{r}_compatibility.md")
     if not (ROOT / "PLAN_ROUND_125.md").exists():

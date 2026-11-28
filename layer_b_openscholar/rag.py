@@ -61,17 +61,22 @@ def query_hybrid_rag(
     backend: str = "bm25",
     vector_model: Optional[str] = None,
     embedder: Optional[Any] = None,
+    allow_subprocess_neural: bool = False,
+    expand_synonyms: bool = True,
     min_year: Optional[int] = None,
     domain_filter: Optional[str] = None,
     export_bib_path: Optional[str | Path] = None,
 ) -> Dict[str, Any]:
     """Retrieve and RRF-fuse literature (FTS5 + BM25 + optional Vector Cosine) + local passages."""
+    from .neural_bridge import DEFAULT_SSD_NEURAL_VENV, SubprocessNeuralEmbedder
+    from .query_expansion import expand_domain_query
     from .vector_store import LocalVectorStore, SentenceTransformerEmbedder
 
     lit_idx = LocalLiteratureIndex(db_path)
     pas_idx = LocalPassageIndex(passages_db_path)
 
-    fts_papers = lit_idx.search_fts(query, limit=max(top_k_papers * 6, 40))
+    fts_q, added_syns = expand_domain_query(query) if expand_synonyms else (query, [])
+    fts_papers = lit_idx.search_fts(fts_q, limit=max(top_k_papers * 6, 40))
     if min_year is not None:
         fts_papers = [p for p in fts_papers if isinstance(p.get("year"), int) and p["year"] >= int(min_year)]
     if domain_filter:
@@ -98,7 +103,10 @@ def query_hybrid_rag(
             try:
                 chosen_embedder = SentenceTransformerEmbedder(model_name=vector_model)
             except Exception:
-                chosen_embedder = None
+                if allow_subprocess_neural and DEFAULT_SSD_NEURAL_VENV.exists():
+                    chosen_embedder = SubprocessNeuralEmbedder(model_name=vector_model)
+                else:
+                    chosen_embedder = None
         vstore = LocalVectorStore(db_path=vpath, embedder=chosen_embedder)
         if chosen_embedder is None and vector_model is None:
             # Auto-upgrade to a stored neural model if sentence_transformers is available in this runtime
@@ -108,11 +116,10 @@ def query_hybrid_rag(
                 try:
                     vstore = LocalVectorStore(db_path=vpath, embedder=SentenceTransformerEmbedder(neural_models[0]))
                 except Exception:
-                    pass
+                    if allow_subprocess_neural and DEFAULT_SSD_NEURAL_VENV.exists():
+                        vstore = LocalVectorStore(db_path=vpath, embedder=SubprocessNeuralEmbedder(neural_models[0]))
         if vstore.stats()["vector_count"] > 0:
-            vec_hits = vstore.search(query, top_k=max(top_k_papers * 3, 20))
-            if min_year is not None:
-                vec_hits = [p for p in vec_hits if isinstance(p.get("year"), int) and p["year"] >= int(min_year)]
+            vec_hits = vstore.search(query, top_k=max(top_k_papers * 3, 20), min_year=min_year)
             used_vector = len(vec_hits) > 0
             if used_vector:
                 active_vector_model = vstore.embedder.model_name
@@ -210,6 +217,7 @@ def query_hybrid_rag(
         "query": query,
         "backend": f"rrf(fts5+{reranker.active_backend}{f'+vector({active_vector_model})' if used_vector else ''})+passages",
         "vector_model": active_vector_model,
+        "expanded_terms": added_syns,
         "filters": {"min_year": min_year, "domain_filter": domain_filter},
         "paper_hits": len(selected_papers),
         "passage_hits": len(selected_passages),

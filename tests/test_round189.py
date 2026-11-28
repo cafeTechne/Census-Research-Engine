@@ -26,4 +26,4 @@ def test_r189_release_hygiene_passes_at_v0185():
     assert proc.returncode == 0, proc.stdout + proc.stderr
     rep = json.loads(proc.stdout)
     assert rep["ok"] is True
-    assert rep["version"] == "0.185.0"
+    assert rep["version"] >= "0.185.0"

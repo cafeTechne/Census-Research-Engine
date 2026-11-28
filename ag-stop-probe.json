@@ -1,11 +1,11 @@
 {
-  "ts": "2026-11-27T16:19:58.905Z",
+  "ts": "2026-11-28T00:33:28.243Z",
   "source": "auto-on-generation-start",
   "contexts": [
     {
       "ctxId": "main",
       "frameUrl": "http://127.0.0.1:44513/?extensionView=true&extensionVariant=vs-code&hostVariant=antigravity-ide&hostVersion=1.12.0&ideVersion=1.107.0&remoteKind=none&appName=Antigravity+IDE&useWebSocket=true&hostTheme=dark&enableMicrophone=false&platform=electron&isEnterpriseDisabled=true&hideWelcomePrefix=true&defaultGroupByNone=true&workspaceUri=file%3A%2F%2F%2Fhome%2Fhobo%2FProjects%2FUS-Census-5-Year-ACS-Data-Batch-Downloader",
-      "totalBtns": 160,
+      "totalBtns": 124,
       "inputBoxFound": true,
       "inputBoxBtns": [
         {
@@ -599,7 +599,27 @@
           }
         },
         {
-          "aria": "Turn 1 of 32",
+          "aria": "Thu, Nov 26, 7:11 PM – 11:02 PM, 21 turns",
+          "title": "",
+          "cls": "group/bar flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block w-1 rounded-full bg-muted-foreground/35 transition-[background-color,scale] duration-200 group-hover/bar:scale-x-150 group-hover/bar:bg-foreground/70 group-focus-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-group",
+            "data-group-key": "chapter:0",
+            "data-base-ui-tooltip-trigger": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 410,
+            "w": 28,
+            "h": 17
+          }
+        },
+        {
+          "aria": "Turn 22 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -607,19 +627,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "0",
-            "data-trigger-disabled": ""
+            "data-turn-index": "21",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 336,
+            "y": 427,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 2 of 32",
+          "aria": "Turn 23 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -627,19 +647,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "1",
-            "data-trigger-disabled": ""
+            "data-turn-index": "22",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 347,
+            "y": 438,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 3 of 32",
+          "aria": "Turn 24 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -647,19 +667,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "2",
-            "data-trigger-disabled": ""
+            "data-turn-index": "23",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 358,
+            "y": 449,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 4 of 32",
+          "aria": "Turn 25 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -667,19 +687,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "3",
-            "data-trigger-disabled": ""
+            "data-turn-index": "24",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 369,
+            "y": 460,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 5 of 32",
+          "aria": "Turn 26 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -687,19 +707,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "4",
-            "data-trigger-disabled": ""
+            "data-turn-index": "25",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 380,
+            "y": 471,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 6 of 32",
+          "aria": "Turn 27 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -707,19 +727,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "5",
-            "data-trigger-disabled": ""
+            "data-turn-index": "26",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 391,
+            "y": 482,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 7 of 32",
+          "aria": "Turn 28 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -727,19 +747,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "6",
-            "data-trigger-disabled": ""
+            "data-turn-index": "27",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 402,
+            "y": 493,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 8 of 32",
+          "aria": "Turn 29 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -747,19 +767,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "7",
-            "data-trigger-disabled": ""
+            "data-turn-index": "28",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 413,
+            "y": 504,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 9 of 32",
+          "aria": "Turn 30 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -767,19 +787,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "8",
-            "data-trigger-disabled": ""
+            "data-turn-index": "29",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 424,
+            "y": 515,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 10 of 32",
+          "aria": "Turn 31 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -787,19 +807,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "9",
-            "data-trigger-disabled": ""
+            "data-turn-index": "30",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 435,
+            "y": 526,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 11 of 32",
+          "aria": "Turn 32 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -807,33 +827,13 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "10",
-            "data-trigger-disabled": ""
+            "data-turn-index": "31",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 446,
-            "w": 28,
-            "h": 11
-          }
-        },
-        {
-          "aria": "Turn 12 of 32",
-          "title": "",
-          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
-          "text": "",
-          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
-          "hasSvg": false,
-          "dataAttrs": {
-            "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "11",
-            "data-trigger-disabled": ""
-          },
-          "visible": true,
-          "rect": {
-            "x": 8,
-            "y": 457,
+            "y": 537,
             "w": 28,
             "h": 11
           }
@@ -843,7 +843,7 @@
     {
       "ctxId": 1,
       "frameUrl": "http://127.0.0.1:44513/?extensionView=true&extensionVariant=vs-code&hostVariant=antigravity-ide&hostVersion=1.12.0&ideVersion=1.107.0&remoteKind=none&appName=Antigravity+IDE&useWebSocket=true&hostTheme=dark&enableMicrophone=false&platform=electron&isEnterpriseDisabled=true&hideWelcomePrefix=true&defaultGroupByNone=true&workspaceUri=file%3A%2F%2F%2Fhome%2Fhobo%2FProjects%2FUS-Census-5-Year-ACS-Data-Batch-Downloader",
-      "totalBtns": 160,
+      "totalBtns": 124,
       "inputBoxFound": true,
       "inputBoxBtns": [
         {
@@ -1437,7 +1437,27 @@
           }
         },
         {
-          "aria": "Turn 1 of 32",
+          "aria": "Thu, Nov 26, 7:11 PM – 11:02 PM, 21 turns",
+          "title": "",
+          "cls": "group/bar flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
+          "text": "",
+          "innerHTML": "<span aria-hidden=\"true\" class=\"block w-1 rounded-full bg-muted-foreground/35 transition-[background-color,scale] duration-200 group-hover/bar:scale-x-150 group-hover/bar:bg-foreground/70 group-focus-",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-testid": "conversation-navigator-group",
+            "data-group-key": "chapter:0",
+            "data-base-ui-tooltip-trigger": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 8,
+            "y": 410,
+            "w": 28,
+            "h": 17
+          }
+        },
+        {
+          "aria": "Turn 22 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1445,19 +1465,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "0",
-            "data-trigger-disabled": ""
+            "data-turn-index": "21",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 336,
+            "y": 427,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 2 of 32",
+          "aria": "Turn 23 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1465,19 +1485,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "1",
-            "data-trigger-disabled": ""
+            "data-turn-index": "22",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 347,
+            "y": 438,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 3 of 32",
+          "aria": "Turn 24 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1485,19 +1505,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "2",
-            "data-trigger-disabled": ""
+            "data-turn-index": "23",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 358,
+            "y": 449,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 4 of 32",
+          "aria": "Turn 25 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1505,19 +1525,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "3",
-            "data-trigger-disabled": ""
+            "data-turn-index": "24",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 369,
+            "y": 460,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 5 of 32",
+          "aria": "Turn 26 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1525,19 +1545,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "4",
-            "data-trigger-disabled": ""
+            "data-turn-index": "25",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 380,
+            "y": 471,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 6 of 32",
+          "aria": "Turn 27 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1545,19 +1565,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "5",
-            "data-trigger-disabled": ""
+            "data-turn-index": "26",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 391,
+            "y": 482,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 7 of 32",
+          "aria": "Turn 28 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1565,19 +1585,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "6",
-            "data-trigger-disabled": ""
+            "data-turn-index": "27",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 402,
+            "y": 493,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 8 of 32",
+          "aria": "Turn 29 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1585,19 +1605,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "7",
-            "data-trigger-disabled": ""
+            "data-turn-index": "28",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 413,
+            "y": 504,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 9 of 32",
+          "aria": "Turn 30 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1605,19 +1625,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "8",
-            "data-trigger-disabled": ""
+            "data-turn-index": "29",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 424,
+            "y": 515,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 10 of 32",
+          "aria": "Turn 31 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1625,19 +1645,19 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "9",
-            "data-trigger-disabled": ""
+            "data-turn-index": "30",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 435,
+            "y": 526,
             "w": 28,
             "h": 11
           }
         },
         {
-          "aria": "Turn 11 of 32",
+          "aria": "Turn 32 of 38",
           "title": "",
           "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
           "text": "",
@@ -1645,33 +1665,13 @@
           "hasSvg": false,
           "dataAttrs": {
             "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "10",
-            "data-trigger-disabled": ""
+            "data-turn-index": "31",
+            "data-base-ui-tooltip-trigger": ""
           },
           "visible": true,
           "rect": {
             "x": 8,
-            "y": 446,
-            "w": 28,
-            "h": 11
-          }
-        },
-        {
-          "aria": "Turn 12 of 32",
-          "title": "",
-          "cls": "group/dot flex h-full w-7 cursor-pointer items-center justify-center rounded-sm outline-none no-focu",
-          "text": "",
-          "innerHTML": "<span aria-hidden=\"true\" class=\"block h-1.5 w-1.5 rounded-full transition-[background-color,scale] duration-200 bg-muted-foreground/40 group-hover/dot:scale-125 group-hover/dot:bg-foreground/70 group-",
-          "hasSvg": false,
-          "dataAttrs": {
-            "data-testid": "conversation-navigator-turn",
-            "data-turn-index": "11",
-            "data-trigger-disabled": ""
-          },
-          "visible": true,
-          "rect": {
-            "x": 8,
-            "y": 457,
+            "y": 537,
             "w": 28,
             "h": 11
           }

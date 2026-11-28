@@ -28,20 +28,77 @@ PHI_GRID = np.array([.05, .2, .35, .5, .65, .8, .95])
 BETA_PRIOR_SD = 100.0
 
 
-def scaled_icar_eigen(n: int, edges: Sequence[Tuple[int, int]]):
-    """Eigenvectors and eigenvalues of the scaled ICAR covariance Q*^+ (zero for the constant vector)."""
+def graph_components(n: int, edges: Sequence[Tuple[int, int]]):
+    """Return list of sorted node-index lists, one per connected component of an undirected graph."""
+    adj = [set() for _ in range(n)]
+    for a, b in edges:
+        if 0 <= a < n and 0 <= b < n and a != b:
+            adj[a].add(b)
+            adj[b].add(a)
+    seen = [False] * n
+    comps = []
+    for i in range(n):
+        if seen[i]:
+            continue
+        stack = [i]
+        seen[i] = True
+        comp = []
+        while stack:
+            u = stack.pop()
+            comp.append(u)
+            for v in adj[u]:
+                if not seen[v]:
+                    seen[v] = True
+                    stack.append(v)
+        comps.append(sorted(comp))
+    return comps
+
+
+def scaled_icar_eigen(n: int, edges: Sequence[Tuple[int, int]], *, allow_disconnected: bool = False):
+    """Eigenvectors and eigenvalues of the scaled ICAR covariance Q*^+ (zero for each component's constant vector).
+
+    When ``allow_disconnected=True`` (Round 200 / N132; Freni-Sterrantino et al. 2018), each connected
+    component of size >= 2 is scaled independently to unit geometric-mean marginal variance, and isolated
+    islands (size 1) receive zero structured variance (pure unstructured IID prior).
+    """
     Q = np.zeros((n, n))
     for a, b in edges:
         if a != b:
             Q[a, b] = Q[b, a] = -1
     np.fill_diagonal(Q, 0); np.fill_diagonal(Q, -Q.sum(1))
-    lam, V = np.linalg.eigh(Q)
-    if np.sum(lam < 1e-8) != 1:
-        raise ValueError("the neighbour graph must be connected (one component)")
-    inv = np.where(lam > 1e-8, 1/np.where(lam > 1e-8, lam, 1), 0.0)
-    marg = (V**2) @ inv
-    s = np.exp(np.mean(np.log(marg)))
-    return V, inv/s
+    if not allow_disconnected:
+        lam, V = np.linalg.eigh(Q)
+        if np.sum(lam < 1e-8) != 1:
+            raise ValueError("the neighbour graph must be connected (one component)")
+        inv = np.where(lam > 1e-8, 1/np.where(lam > 1e-8, lam, 1), 0.0)
+        marg = (V**2) @ inv
+        s = np.exp(np.mean(np.log(marg)))
+        return V, inv/s
+
+    comps = graph_components(n, edges)
+    if len(comps) == 1 and len(comps[0]) == n:
+        return scaled_icar_eigen(n, edges, allow_disconnected=False)
+
+    V_full = np.zeros((n, n), dtype=float)
+    inv_full = np.zeros(n, dtype=float)
+    col = 0
+    for comp in comps:
+        m = len(comp)
+        idx = np.asarray(comp, dtype=int)
+        if m == 1:
+            V_full[idx[0], col] = 1.0
+            inv_full[col] = 0.0
+            col += 1
+            continue
+        Qc = Q[np.ix_(idx, idx)]
+        lam_c, V_c = np.linalg.eigh(Qc)
+        inv_c = np.where(lam_c > 1e-8, 1.0 / np.where(lam_c > 1e-8, lam_c, 1.0), 0.0)
+        marg_c = (V_c ** 2) @ inv_c
+        s_c = float(np.exp(np.mean(np.log(np.maximum(marg_c, 1e-300)))))
+        V_full[idx[:, None], col + np.arange(m)[None, :]] = V_c
+        inv_full[col : col + m] = inv_c / s_c
+        col += m
+    return V_full, inv_full
 
 
 def _parts(X, V, lam, sigma, phi):

@@ -309,3 +309,77 @@ def indirect_standardize(observed, band_populations, reference_rates, band_repli
         result["period_years"] = int(period_years)
         result["variance_log_reference"] = reference_variance
     return result
+
+
+def confounding_adjustment_screen(
+    frame,
+    deaths_col: str,
+    population_col: str,
+    exposure_col: str,
+    confounders,
+    *,
+    exposure_scale: float = 1.0,
+    confidence_level: float = 0.90,
+):
+    """Compare crude vs. confounder-adjusted Poisson rate ratios (HC3 robust SEs) for ecologic/surveillance frames.
+
+    Flags demographic/urban-rural confounding and Simpson's-paradox sign flips (Round 202 / N128).
+    Returns ``crude``, ``adjusted``, ``cie_pct`` (percentage change-in-estimate on the RR scale),
+    and ``sign_flipped`` (True when crude and adjusted RRs lie on opposite sides of 1.0).
+    """
+    import pandas as pd
+    import statsmodels.api as sm
+    from scipy.stats import norm
+
+    conf_cols = [str(c) for c in confounders]
+    if not conf_cols:
+        raise ValueError("confounders must contain at least one column name")
+    if exposure_scale <= 0 or not np.isfinite(exposure_scale):
+        raise ValueError("exposure_scale must be finite and positive")
+    if not 0 < confidence_level < 1:
+        raise ValueError("confidence_level must be between 0 and 1")
+
+    cols = [deaths_col, population_col, exposure_col, *conf_cols]
+    df = frame[cols].apply(pd.to_numeric, errors="coerce").dropna().copy()
+    df = df[(df[deaths_col] >= 0) & (df[population_col] > 0)].reset_index(drop=True)
+    if len(df) <= len(conf_cols) + 2:
+        raise ValueError(f"insufficient complete rows ({len(df)}) for {len(conf_cols)} confounders")
+
+    exp_scaled = df[exposure_col].to_numpy(float) / float(exposure_scale)
+    y = df[deaths_col].to_numpy(float)
+    offset = np.log(df[population_col].to_numpy(float))
+    z = float(norm.ppf(0.5 + confidence_level / 2.0))
+
+    def _fit(X_df: pd.DataFrame):
+        fit = sm.GLM(y, sm.add_constant(X_df), family=sm.families.Poisson(), offset=offset).fit(cov_type="HC3")
+        b = float(fit.params["exposure"])
+        se = float(fit.bse["exposure"])
+        return {
+            "log_rr": round(b, 6),
+            "se": round(se, 6),
+            "rr": round(float(np.exp(b)), 4),
+            "ci_lower": round(float(np.exp(b - z * se)), 4),
+            "ci_upper": round(float(np.exp(b + z * se)), 4),
+        }
+
+    crude = _fit(pd.DataFrame({"exposure": exp_scaled}))
+    adj_df = pd.DataFrame({"exposure": exp_scaled})
+    for c in conf_cols:
+        adj_df[c] = df[c].to_numpy(float)
+    adjusted = _fit(adj_df)
+
+    cie_pct = round(100.0 * (adjusted["rr"] - crude["rr"]) / max(crude["rr"], 1e-12), 2)
+    sign_flipped = bool((crude["rr"] - 1.0) * (adjusted["rr"] - 1.0) < 0.0)
+    return {
+        "n_obs": int(len(df)),
+        "exposure": exposure_col,
+        "exposure_scale": float(exposure_scale),
+        "confounders": conf_cols,
+        "confidence_level": float(confidence_level),
+        "crude": crude,
+        "adjusted": adjusted,
+        "cie_pct": cie_pct,
+        "sign_flipped": sign_flipped,
+        "validated": False,
+        "note": "Exploratory HC3 Poisson confounding screen; for confirmatory inference use a pre-registered manifest with spatial/replicate SEs.",
+    }

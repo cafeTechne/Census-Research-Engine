@@ -1097,6 +1097,7 @@ from census.workflows_reporting import (  # noqa: E402, F401
     run_manifest,
     run_variant,
     save_json,
+    confounding_screen,
     verify_bundle,
 )
 

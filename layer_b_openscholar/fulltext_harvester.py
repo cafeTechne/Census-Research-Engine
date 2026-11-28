@@ -21,8 +21,62 @@ from .pdf_indexer import LocalPassageIndex, _chunk_text
 from .rag import strip_jats_html
 
 EPMC_FULLTEXT_URL = "https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"
+PMC_OAI_PMH_URL = "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:{num}&metadataPrefix=pmc"
+ARXIV_HTML_URL = "https://arxiv.org/html/{arxiv_id}"
 USER_AGENT = "ResearchIntelligence-LayerB/0.1"
-_PMC_RE = re.compile(r"\bPMC\d+\b")
+_PMC_RE = re.compile(r"\bPMC(\d+)\b")
+
+
+def fetch_oa_fulltext_with_fallback(
+    pmcid: str,
+    *,
+    arxiv_id: str = "",
+    headers: Optional[Dict[str, str]] = None,
+    max_retries: int = 2,
+    http_get_text: Optional[Callable[[str, Dict[str, str]], str]] = None,
+) -> tuple[Optional[str], str, str]:
+    """3-tier OA full-text fallback: Europe PMC XML -> NCBI PMC OAI-PMH -> arXiv HTML.
+
+    Returns ``(text_or_none, source_used, last_error)``.
+    """
+    hdrs = headers or {"User-Agent": USER_AGENT, "Accept": "application/xml, text/html"}
+    m_num = _PMC_RE.search(pmcid or "")
+    attempts: List[tuple[str, str]] = []
+    if pmcid:
+        attempts.append(("epmc_xml", EPMC_FULLTEXT_URL.format(pmcid=pmcid)))
+    if m_num:
+        attempts.append(("pmc_oai_pmh", PMC_OAI_PMH_URL.format(num=m_num.group(1))))
+    if arxiv_id:
+        attempts.append(("arxiv_html", ARXIV_HTML_URL.format(arxiv_id=arxiv_id.strip())))
+
+    last_err = ""
+    for src_name, url in attempts:
+        for attempt in range(max(int(max_retries), 1)):
+            try:
+                if http_get_text is not None:
+                    txt = http_get_text(url, hdrs)
+                    if txt and ("<article" in txt[:4000] or "<body" in txt[:4000] or len(txt) >= 120):
+                        return txt, src_name, ""
+                    last_err = f"{src_name}:empty_or_non_article"
+                    break
+                import requests
+
+                resp = requests.get(url, headers=hdrs, timeout=20)
+                if resp.status_code == 200 and (
+                    "<article" in resp.text[:4000] or "<body" in resp.text[:4000]
+                ):
+                    return resp.text, src_name, ""
+                last_err = f"{src_name}:HTTP {resp.status_code}"
+                if resp.status_code >= 500 and attempt + 1 < max(int(max_retries), 1):
+                    time.sleep(0.5 * (attempt + 1))
+                    continue
+                break
+            except Exception as exc:
+                last_err = f"{src_name}:{type(exc).__name__}: {exc}"
+                if attempt + 1 < max(int(max_retries), 1):
+                    time.sleep(0.5 * (attempt + 1))
+                    continue
+    return None, "", last_err or "unavailable"
 
 
 def parse_jats_sections(xml_text: str) -> List[Dict[str, str]]:
@@ -172,21 +226,34 @@ def harvest_epmc_fulltext(
     cache_dir: str | Path = ".cache/layer_b_epmc_xml",
     limit: int = 20,
     delay_seconds: float = 0.5,
+    skip_existing: bool = True,
+    max_retries: int = 2,
     pmcids: Optional[List[str]] = None,
     http_get_text: Optional[Callable[[str, Dict[str, str]], str]] = None,
 ) -> Dict[str, Any]:
     """Harvest open-access Europe PMC JATS XML full-text sections into ``passages.sqlite``."""
     cdir = Path(cache_dir)
     cdir.mkdir(parents=True, exist_ok=True)
+    pidx = LocalPassageIndex(passages_db_path)
+    already_indexed: set[str] = set()
+    if skip_existing:
+        with pidx._connect() as conn:
+            for (doc_name,) in conn.execute("SELECT DISTINCT doc_name FROM passages WHERE doc_name LIKE 'PMC%_fulltext.xml'").fetchall():
+                already_indexed.add(str(doc_name).split("_fulltext.xml", 1)[0])
+
     if pmcids:
         targets = [{"pmcid": p.strip(), "title": ""} for p in pmcids if p.strip()]
     else:
-        targets = find_pmc_candidates(db_path=db_path, limit=limit)
+        targets = find_pmc_candidates(db_path=db_path, limit=max(int(limit) * 2, int(limit) + len(already_indexed)))
+    if skip_existing and already_indexed:
+        targets = [t for t in targets if t["pmcid"] not in already_indexed]
+    targets = targets[: max(int(limit), 1)]
 
     harvested_articles = 0
     total_passages = 0
+    sources_used: Dict[str, int] = {}
     errors: List[Dict[str, str]] = []
-    headers = {"User-Agent": USER_AGENT, "Accept": "application/xml"}
+    headers = {"User-Agent": USER_AGENT, "Accept": "application/xml, text/html"}
 
     for idx_i, item in enumerate(targets):
         pmcid = item["pmcid"]
@@ -194,24 +261,20 @@ def harvest_epmc_fulltext(
         xml_text: Optional[str] = None
         if cpath.exists():
             xml_text = cpath.read_text(encoding="utf-8", errors="replace")
+            sources_used["cache"] = sources_used.get("cache", 0) + 1
         else:
-            url = EPMC_FULLTEXT_URL.format(pmcid=pmcid)
-            try:
-                if http_get_text is not None:
-                    xml_text = http_get_text(url, headers)
-                else:
-                    import requests
-
-                    resp = requests.get(url, headers=headers, timeout=30)
-                    if resp.status_code == 200 and "<article" in resp.text[:2000]:
-                        xml_text = resp.text
-                    else:
-                        errors.append({"pmcid": pmcid, "error": f"HTTP {resp.status_code}"})
-                        continue
-                if xml_text:
-                    cpath.write_text(xml_text, encoding="utf-8")
-            except Exception as exc:
-                errors.append({"pmcid": pmcid, "error": f"{type(exc).__name__}: {exc}"})
+            xml_text, src_used, last_err = fetch_oa_fulltext_with_fallback(
+                pmcid,
+                arxiv_id=item.get("arxiv", ""),
+                headers=headers,
+                max_retries=max_retries,
+                http_get_text=http_get_text,
+            )
+            if xml_text:
+                cpath.write_text(xml_text, encoding="utf-8")
+                sources_used[src_used] = sources_used.get(src_used, 0) + 1
+            else:
+                errors.append({"pmcid": pmcid, "error": last_err or "empty"})
                 continue
             if delay_seconds > 0 and idx_i + 1 < len(targets) and http_get_text is None:
                 time.sleep(delay_seconds)
@@ -234,6 +297,7 @@ def harvest_epmc_fulltext(
         "candidates": len(targets),
         "harvested_articles": harvested_articles,
         "passages_added": total_passages,
+        "sources_used": sources_used,
         "errors": errors[:10],
         "stats": pidx.stats(),
     }

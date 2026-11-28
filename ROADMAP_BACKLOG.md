@@ -98,7 +98,15 @@ unless the owner asks; implement only the lowest-numbered `PLAN_ROUND_<n>.md`.**
 | N123 | Offline N39 ACS 2021–2025 release-refresh preflight script & runbook (`scripts/acs_release_preflight.py`) | N39 | tooling | 117 (closed) |
 | N124 | Pre-commit release hygiene audit (`scripts/release_hygiene_check.py`) & full Rounds 103–118 verification | R103–R118 | hygiene | 118 (closed) |
 | N125 | Missing manifest citation keys in `census/references.py` (10 keys registered + hygiene invariant) | R104–R114 | bug | 119 (closed) |
-| N127 | Layer B Tier 2 Neural Hybrid RAG (Option B): isolated `.venv-layer-b` with dense scientific embeddings (`allenai/specter2` or `BAAI/bge-base-en-v1.5`) stored on Samsung 850 EVO SSD + `OpenScholar/OpenScholar_Reranker` cross-encoder reranking via RRF, keeping Layer A `.venv` and `pyproject.toml` untouched | owner, 2026-11-27 | layer_b enhancement | open |
+| N127 | Layer B Tier 2 Neural Hybrid RAG (Option B): isolated `venv-neural` on Samsung 850 EVO SSD with dense scientific embeddings (`BAAI/bge-small-en-v1.5`, 2,631 vectors) coexisting with `hash_projection_d256`, keeping Layer A `.venv` and `pyproject.toml` untouched | owner, 2026-11-27 | layer_b enhancement | 186 (closed) |
+| N128 | Age-standardized & ERS rural-urban stratified county mortality workflow to resolve NY+PA urban-rural crude-rate confounding observed in the 11-cause atlas (R188) | R188 | epi / confounding | 197 (closed) |
+| N129 | Head-to-head CPU benchmark of cross-encoder reranking (`OpenScholar/OpenScholar_Reranker` / `BAAI/bge-reranker-base`) over top-10 RRF candidates in Layer B | R186 | layer_b / rag | open |
+| N130 | Seamless subprocess query-encoding bridge from `.venv` to SSD `venv-neural` so Layer B MCP/CLI uses `BAAI/bge-small-en-v1.5` without requiring users to swap interpreters | R186/R190 | layer_b / ops | 196 (closed) |
+| N131 | Multi-source open-access full-text harvesting (Unpaywall / PMC OAI-PMH / arXiv HTML fallback) to overcome Europe PMC `fullTextXML` HTTP 500s on non-OA records | R186/R190 | layer_b / data | 201 (closed) |
+| N132 | National 50-state + DC county mortality & ACS atlas with multi-component BYM2 handling for AK/HI/island counties | R188 | scale / spatial | 200 (closed) |
+| N133 | Optional `pdflatex` / `tectonic` PDF compilation check and GitHub Actions CI workflow (offline pytest + `release_hygiene_check.py` + `doctor`) | R188/R191 | ci / publication | 198 (closed) |
+| N134 | Reproducible container spec (`Dockerfile` / `devcontainer.json`) & external peer-review checklist for JOSS / journal submission | R189 | release / review | 199 (closed) |
+| N135 | Interactive county choropleth map panel (raw SMR vs. BYM2 smoothed RR via `web_choropleth`) embedded into the offline 11-cause HTML atlas | R191 | visualization | 204 (closed; `side_by_side_choropleth`) |
 | N126 | Modern manifest templates (`examples/manifests/templates/`) & end-to-end `run_manifest` integration tests | R104–R114 | docs/tests | 119 (closed) |
 
 ## 2. Recorded limits (not scheduled; reopen only with a new idea)

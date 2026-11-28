@@ -71,7 +71,7 @@ spatial_autocorrelation spatial_regression spatial_small_area_estimates custom_a
 pums_tabulate pums_regression multilevel_model difference_in_differences adjust_for_place
 place_adjust_frame make_web_map verify_proposition
 compare_groups test_association estimate_effect check_agreement combine_estimates rank_areas build_index
-list_health_sources run_variant interrupted_series bias_analysis designation_accuracy disparity_measures joinpoint demography_analysis decompose_gap spatial_scan stratified_analysis spatial_model regression_discontinuity
+list_health_sources run_variant interrupted_series bias_analysis designation_accuracy disparity_measures joinpoint demography_analysis decompose_gap spatial_scan stratified_analysis spatial_model regression_discontinuity confounding_screen
 """.split())
 _INPUT_CODES = {
     errors.PROPOSITION_MISMATCH,
@@ -636,12 +636,38 @@ def build_parser() -> argparse.ArgumentParser:
 
     def cmd_doctor(args):
         from .workflows_reporting import doctor_report
-        res = doctor_report()
+        res = doctor_report(verbose=args.verbose, deep=args.deep)
         return _emit(res, True if args.json else False)
 
     p = sub.add_parser("doctor", help="check environment versions, bundled data integrity, MCP profiles, and manifest methods")
+    p.add_argument("--verbose", action="store_true", help="include crosswalk validity, ACS 2025 archive status, and SSD mount check")
+    p.add_argument("--deep", action="store_true", help="verify 1:1 MCP tool <-> TOOL_SOURCES parity, recipe docs, and metadata manifest")
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_doctor)
+
+    def cmd_lint_latex(args):
+        from pathlib import Path
+        from .report_tables import lint_latex
+
+        results = {}
+        all_ok = True
+        for raw in args.paths:
+            p_tex = Path(raw)
+            if not p_tex.exists():
+                results[raw] = {"ok": False, "errors": ["file not found"]}
+                all_ok = False
+                continue
+            r = lint_latex(p_tex.read_text(encoding="utf-8"))
+            results[raw] = r
+            if not r["ok"]:
+                all_ok = False
+        payload = {"ok": all_ok, "success": all_ok, "checked": len(results), "results": results}
+        return _emit(payload, True if args.json else False)
+
+    p = sub.add_parser("lint-latex", help="verify balanced environments, braces, and booktabs rules in LaTeX files")
+    p.add_argument("paths", nargs="+", help="one or more .tex file paths to lint")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_lint_latex)
     return parser
 
 

@@ -585,7 +585,7 @@ def mcp_capabilities() -> Dict[str, Any]:
     )
 
 
-def doctor_report() -> Dict[str, Any]:
+def doctor_report(verbose: bool = False, deep: bool = False) -> Dict[str, Any]:
     """Environment, bundled-data integrity, and MCP/manifest self-check (never leaks secrets)."""
     import platform
     import sys
@@ -615,7 +615,7 @@ def doctor_report() -> Dict[str, Any]:
     }
     has_key = bool(os.environ.get("CENSUS_API_KEY", "").strip())
 
-    return {
+    out: Dict[str, Any] = {
         "ok": bundled_ok,
         "success": bundled_ok,
         "version": __version__,
@@ -639,3 +639,78 @@ def doctor_report() -> Dict[str, Any]:
             else "Fix bundled data integrity error before running analyses."
         ),
     }
+    if verbose or deep:
+        from census.concordance import validate_all_crosswalks
+
+        cw = validate_all_crosswalks()
+        out["diagnostics"] = {
+            "crosswalks_valid": bool(cw.get("valid", False)),
+            "acs_2025_archived": os.path.isdir(os.path.join(ROOT, "metadata", "acs5", "2025")),
+            "ssd_corpus_mounted": os.path.isdir("/run/media/hobo/Samsung 850 EVO SSD/layer_b_openscholar"),
+        }
+    if deep:
+        import asyncio
+        import mcp_server
+        from census import references as R
+
+        mcp_names = {t.name for t in asyncio.run(mcp_server.mcp.list_tools())}
+        src_names = set(R.TOOL_SOURCES)
+        missing_in_sources = sorted(mcp_names - src_names)
+        missing_in_mcp = sorted(src_names - mcp_names)
+        missing_recipe_docs = sorted(
+            r for r in RECIPES if not os.path.isfile(os.path.join(ROOT, "docs", "recipes", f"{r}.md"))
+        )
+        meta_manifest = os.path.join(ROOT, "metadata", "manifest.json")
+        meta_ok = os.path.isfile(meta_manifest) and os.path.getsize(meta_manifest) > 10
+        deep_ok = (
+            not missing_in_sources
+            and not missing_in_mcp
+            and not missing_recipe_docs
+            and meta_ok
+            and out["diagnostics"]["crosswalks_valid"]
+        )
+        out["deep_checks"] = {
+            "ok": deep_ok,
+            "mcp_tool_count": len(mcp_names),
+            "tool_sources_count": len(src_names),
+            "missing_in_tool_sources": missing_in_sources,
+            "missing_in_mcp_server": missing_in_mcp,
+            "missing_recipe_docs": missing_recipe_docs,
+            "metadata_manifest_ok": meta_ok,
+        }
+        out["ok"] = bool(out["ok"] and deep_ok)
+        out["success"] = out["ok"]
+    return out
+
+
+def confounding_screen(
+    input_path: str,
+    deaths_col: str,
+    population_col: str,
+    exposure_col: str,
+    confounders: List[str],
+    exposure_scale: float = 1.0,
+    confidence_level: float = 0.90,
+) -> Dict[str, Any]:
+    """Compare crude vs. confounder-adjusted Poisson rate ratios (HC3 SEs) and detect Simpson's-paradox sign flips."""
+    from census.standardize import confounding_adjustment_screen
+
+    try:
+        df = _load_frame(input_path)
+        rep = confounding_adjustment_screen(
+            df,
+            deaths_col,
+            population_col,
+            exposure_col,
+            confounders,
+            exposure_scale=exposure_scale,
+            confidence_level=confidence_level,
+        )
+    except _INPUT_ERRORS as exc:
+        return _fail(errors.INVALID_INPUT, str(exc), "check column names, confounders list, and positive population counts")
+    flip_note = " SIGN FLIPPED (Simpson's paradox)." if rep["sign_flipped"] else ""
+    summary = (
+        f"Confounding screen ({rep['n_obs']} areas): crude RR={rep['crude']['rr']:.3f}, "
+        f"adjusted RR={rep['adjusted']['rr']:.3f} (CIE={rep['cie_pct']:+.1f}%).{flip_note}"
+    )
+    return _ok(summary, "follow up with a pre-registered manifest or stratified analysis for confirmatory inference", **rep)

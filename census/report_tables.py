@@ -626,8 +626,114 @@ def verify_bundle(bundle_dir: Union[str, Path]) -> Dict[str, Any]:
         bib_txt = bib_p.read_text(encoding="utf-8").strip()
         if not bib_txt or "@" not in bib_txt:
             errors.append("references.bib is empty or lacks BibTeX entries")
-    for tex in sorted((root / "tables").glob("*.tex")) if (root / "tables").exists() else []:
-        t = tex.read_text(encoding="utf-8")
-        if t.count("{") != t.count("}"):
-            errors.append(f"unbalanced braces in {tex.relative_to(root).as_posix()}")
-    return {"ok": len(errors) == 0, "bundle_dir": str(root), "checked_files": checked, "errors": errors}
+    linted_tex = 0
+    for tex in sorted(root.rglob("*.tex")):
+        linted_tex += 1
+        lres = lint_latex(tex.read_text(encoding="utf-8"))
+        for err in lres["errors"]:
+            errors.append(f"latex lint error in {tex.relative_to(root).as_posix()}: {err}")
+    return {
+        "ok": len(errors) == 0,
+        "bundle_dir": str(root),
+        "checked_files": checked,
+        "linted_tex_files": linted_tex,
+        "errors": errors,
+    }
+
+
+def lint_latex(text: str) -> Dict[str, Any]:
+    """Structural verifier for generated LaTeX tables and manuscripts (Round 191).
+
+    Checks balanced ``\\begin{env}``/``\\end{env}`` tags, balanced unescaped curly braces,
+    and booktabs rule ordering (``\\toprule`` -> ``\\midrule`` -> ``\\bottomrule``) when
+    ``\\begin{tabular}`` is present.
+    """
+    import re
+
+    errors: List[str] = []
+    stack: List[str] = []
+    for m in re.finditer(r"\\(begin|end)\{([^}]+)\}", text):
+        kind, env = m.group(1), m.group(2)
+        if kind == "begin":
+            stack.append(env)
+        else:
+            if not stack or stack[-1] != env:
+                errors.append(f"mismatched \\end{{{env}}} (expected {stack[-1] if stack else 'none'})")
+            else:
+                stack.pop()
+    if stack:
+        errors.append(f"unclosed environments: {stack}")
+
+    depth = 0
+    i = 0
+    while i < len(text):
+        ch = text[i]
+        if ch == "\\" and i + 1 < len(text):
+            i += 2
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth < 0:
+                errors.append("extra closing brace '}'")
+                break
+        i += 1
+    if depth > 0:
+        errors.append(f"unclosed opening braces: {depth}")
+
+    if r"\begin{tabular}" in text:
+        idx_top = text.find(r"\toprule")
+        idx_mid = text.find(r"\midrule")
+        idx_bot = text.find(r"\bottomrule")
+        if idx_top < 0 or idx_mid < 0 or idx_bot < 0:
+            errors.append("booktabs table missing \\toprule, \\midrule, or \\bottomrule")
+        elif not (idx_top < idx_mid < idx_bot):
+            errors.append("booktabs rules out of order (expected \\toprule < \\midrule < \\bottomrule)")
+
+    return {"ok": len(errors) == 0, "errors": errors}
+
+
+def compile_latex_pdf(tex_path: str | Path, out_dir: Optional[str | Path] = None) -> Dict[str, Any]:
+    """Lint and optionally compile a LaTeX file to PDF using ``tectonic`` or ``pdflatex`` if installed.
+
+    Never fails merely because a TeX compiler is absent on the host machine; returns
+    ``{"ok": True, "compiled": False, "reason": "no_latex_compiler_on_path"}`` after
+    passing ``lint_latex()``.
+    """
+    import shutil
+    import subprocess
+
+    p = Path(tex_path)
+    if not p.exists():
+        return {"ok": False, "compiled": False, "errors": [f"file not found: {p}"]}
+    lres = lint_latex(p.read_text(encoding="utf-8"))
+    if not lres["ok"]:
+        return {"ok": False, "compiled": False, "errors": lres["errors"]}
+
+    compiler = shutil.which("tectonic") or shutil.which("pdflatex")
+    if compiler is None:
+        return {
+            "ok": True,
+            "compiled": False,
+            "compiler": None,
+            "reason": "no_latex_compiler_on_path",
+            "errors": [],
+        }
+
+    target_dir = Path(out_dir) if out_dir is not None else p.parent
+    target_dir.mkdir(parents=True, exist_ok=True)
+    if Path(compiler).name == "tectonic":
+        cmd = [compiler, "--outdir", str(target_dir), str(p)]
+    else:
+        cmd = [compiler, "-interaction=nonstopmode", "-output-directory", str(target_dir), str(p)]
+    proc = subprocess.run(cmd, cwd=p.parent, capture_output=True, text=True, check=False, timeout=120)
+    pdf_path = target_dir / f"{p.stem}.pdf"
+    ok = proc.returncode == 0 and pdf_path.exists()
+    return {
+        "ok": ok,
+        "compiled": ok,
+        "compiler": Path(compiler).name,
+        "pdf_path": str(pdf_path) if pdf_path.exists() else None,
+        "errors": [] if ok else [proc.stderr[-500:] or proc.stdout[-500:] or f"exit {proc.returncode}"],
+    }

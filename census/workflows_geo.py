@@ -11,84 +11,18 @@ import pandas as pd
 
 from census import errors
 from census.workflows import _jsonable, _load_frame, _records, _write_frame
+from census.workflows_geo_helpers import (  # noqa: F401
+    _GEO_ERRORS,
+    _LEVELS,
+    _MAP_KINDS,
+    _fetch_boundaries,
+    _paths,
+    _per_state,
+    _release_replicates,
+    _weights_for,
+    _with_boundaries,
+)
 from census.workflows_inference import _fail, _ok, _out_dir, _read_replicates, result_summary
-
-_LEVELS = ("state", "county", "tract", "block group", "place", "zcta")
-_MAP_KINDS = ("estimate", "uncertainty", "significance")
-_GEO_ERRORS = (FileNotFoundError, OSError, KeyError, ValueError, TypeError, RuntimeError)
-
-
-def _release_replicates(reps: Optional[pd.DataFrame], year: int) -> Optional[pd.DataFrame]:
-    """Select the requested release from a replicate frame with a Year column
-    (PLAN_ROUND_11 C3): never let row order pick among releases."""
-    if reps is None or "Year" not in reps.columns:
-        return reps
-    sel = reps[pd.to_numeric(reps["Year"], errors="coerce") == int(year)]
-    if not len(sel):
-        raise ValueError(f"replicates have no rows for release {int(year)}")
-    return sel
-
-
-def _per_state(level: str, boundary_year: int) -> bool:
-    """Whether boundaries for ``level`` must come from per-state files: tract and
-    block group always (smaller downloads), other per-state levels (place,
-    county subdivision) only before national cb files exist (2019)."""
-    from census.boundaries import FIRST_NATIONAL_SUBSTATE_CB_YEAR, LEVELS, normalize_level
-
-    lvl = normalize_level(level)
-    if not LEVELS[lvl]["per_state"]:
-        return False
-    return lvl in ("tract", "block group") or int(boundary_year) < FIRST_NATIONAL_SUBSTATE_CB_YEAR
-
-
-def _fetch_boundaries(level: str, acs_year: int, states=None):
-    """Boundaries matching an ACS release: the boundary year comes from
-    ``boundary_vintage`` (e.g. ZCTA for ACS 2023 -> the 2020 file) and per-state
-    files are stitched together when the level has no national file that year."""
-    from census.boundaries import boundary_vintage, get_boundaries
-
-    b_year = boundary_vintage(acs_year, level)
-    if not _per_state(level, b_year):
-        return get_boundaries(level, b_year)
-    states = sorted(set(states or ()))
-    if not states:
-        raise ValueError(f"{level} boundaries for {b_year} are per state; pass state")
-    parts = [get_boundaries(level, b_year, state=s) for s in states]
-    if len(parts) == 1:
-        return parts[0]
-    bounds = parts[0].__class__(pd.concat(parts, ignore_index=True), geometry="geometry", crs=parts[0].crs)
-    # concat drops attrs; keep the vintage and source for captions and provenance
-    bounds.attrs.update({k: v for k, v in parts[0].attrs.items() if k not in ("state", "source_url", "sha256")})
-    bounds.attrs["states"] = states
-    return bounds
-
-
-def _with_boundaries(df: pd.DataFrame, level: str, year: int):
-    """Attach Census cartographic boundaries matching the ACS release."""
-    from census.boundaries import join_boundaries
-
-    if level not in _LEVELS:
-        raise ValueError(f"level must be one of {_LEVELS}")
-    states = {g[:2] for g in df["GEOID"].astype(str)}
-    bounds = _fetch_boundaries(level, year, states)
-    return join_boundaries(df, level, acs_year=year, boundaries=bounds, how="inner", on_unmatched="warn")
-
-
-def _weights_for(gdf, kind: str):
-    """Spatial weights; knn / distance weights are built in an equal-area CRS so
-    distances are in meters, not degrees."""
-    from census import spatial
-
-    if kind in ("knn", "distance") and gdf.crs is not None:
-        from census.boundaries import equal_area_crs
-
-        gdf = gdf.to_crs(equal_area_crs(gdf))
-    return gdf, spatial.spatial_weights(gdf, kind=kind)
-
-
-def _paths(fig: Any) -> List[str]:
-    paths = fig.paths.values() if isinstance(fig.paths, dict) else fig.paths
-    return [str(p) for p in paths]
 
 
 def get_boundaries(level: str, year: int, state: Optional[str] = None,
@@ -216,6 +150,7 @@ def spatial_model(
     replicates_path: Optional[str] = None,
     bias_correct: bool = True,
     method: Optional[str] = None,
+    allow_disconnected: bool = False,
 ) -> Dict[str, Any]:
     """Exploratory spatial models (Round 93; Walker 2023 ch. 8): kind="gwr" (geographically weighted regression of
     outcome on predictors; local slopes + non-stationarity test), "classify" (k-means neighbourhood types on
@@ -300,9 +235,11 @@ def spatial_model(
             _, w = _weights_for(d, "queen")
             pos = {g: k_ for k_, g in enumerate(w.id_order)}
             edges = sorted({tuple(sorted((pos[a], pos[b]))) for a, nb in w.neighbors.items() for b in nb})
-            edges, bridges = _bridge_components(d, edges)
+            bridges = []
+            if not allow_disconnected:
+                edges, bridges = _bridge_components(d, edges)
             r = disease_map(d, outcome, expected, edges, covariates=predictors or (), threshold=threshold,
-                            method=method or "B2")
+                            method=method or "B2", allow_disconnected=allow_disconnected)
             if bridges:
                 r["notes"].append(f"The contiguity graph had separate parts; {len(bridges)} bridge edge(s) join each "
                                   f"part to its nearest area: {bridges}.")

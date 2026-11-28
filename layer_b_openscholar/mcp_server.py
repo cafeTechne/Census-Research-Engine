@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 from .agenda import build_research_agenda as _build_research_agenda
 from .agenda import write_research_agenda as _write_research_agenda
 from .citation_expander import expand_seed_citations as _expand_seed_citations
+from .claim_grounder import ground_claims as _ground_claims
 from .corpus_miner import load_miner_status as _load_miner_status
 from .daemon_ops import corpus_health_report as _corpus_health_report
 from .epmc_client import EuropePMCClient, merge_and_deduplicate
@@ -21,6 +22,7 @@ from .maintenance import audit_and_compact_corpus as _audit_and_compact_corpus
 from .maintenance import dedupe_title_duplicates as _dedupe_title_duplicates
 from .manifest_seeder import draft_manifest_seed as _draft_manifest_seed
 from .manifest_seeder import write_manifest_seed as _write_manifest_seed
+from .neural_bridge import neural_runtime_status as _neural_runtime_status
 from .pdf_indexer import LocalPassageIndex
 from .rag import build_evidence_brief as _build_evidence_brief
 from .rag import query_hybrid_rag as _query_hybrid_rag
@@ -294,6 +296,30 @@ def harvest_fulltext(
     return _harvest_epmc_fulltext(db_path=db_path, passages_db_path=passages_db_path, limit=limit)
 
 
+def neural_status(vector_db_path: Optional[str] = None) -> Dict[str, Any]:
+    """Report Layer B Tier 2 neural runtime capabilities, SSD venv-neural presence, and stored vector models."""
+    return _neural_runtime_status(vector_db_path=vector_db_path)
+
+
+def ground_claims(
+    claims: list[str],
+    db_path: Optional[str] = None,
+    passages_db_path: Optional[str] = None,
+    vector_db_path: Optional[str] = None,
+    top_k_papers: int = 4,
+    top_k_passages: int = 2,
+) -> Dict[str, Any]:
+    """Ground draft research claims against Layer B 3-way Hybrid RAG and return DOI/BibTeX coverage."""
+    return _ground_claims(
+        claims,
+        db_path=db_path,
+        passages_db_path=passages_db_path,
+        vector_db_path=vector_db_path,
+        top_k_papers=top_k_papers,
+        top_k_passages=top_k_passages,
+    )
+
+
 _TOOL_REGISTRY = (
     ("search_literature", search_literature),
     ("local_search_literature", local_search_literature),
@@ -315,6 +341,8 @@ _TOOL_REGISTRY = (
     ("compact_corpus", compact_corpus),
     ("dedupe_corpus", dedupe_corpus),
     ("harvest_fulltext", harvest_fulltext),
+    ("neural_status", neural_status),
+    ("ground_claims", ground_claims),
 )
 
 
@@ -324,7 +352,7 @@ def list_tool_names() -> list[str]:
 
 
 def create_server():
-    """Build a standalone FastMCP server exposing the 20 Layer B tools."""
+    """Build a standalone FastMCP server exposing the 22 Layer B tools."""
     from mcp.server.fastmcp import FastMCP
 
     mcp = FastMCP("layer-b-openscholar")

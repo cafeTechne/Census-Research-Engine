@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23925301.svg)](https://doi.org/10.5281/zenodo.23925301)
 
-A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **84 MCP tools**, **28 pre-registered manifest methods**, **40 offline-tested agent routing contracts**, a Python library and a command-line interface.
+A research toolkit for US Census data: extract comparable measures across places and years, quantify uncertainty, and carry an analysis through to tables, maps and reproducible study outputs. The engine combines ACS area estimates, PUMS microdata, 2020 Census counts and selected external health outcomes. It offers **85 MCP tools**, **28 pre-registered manifest methods**, **40 offline-tested agent routing contracts**, a Python library and a command-line interface.
 
 Use it to compare counties or neighborhoods, study associations while accounting for noisy ACS predictors and spatial dependence, construct custom population tabulations, measure segregation or income inequality, and evaluate agreement between sources. Statistical methods have different validated ranges; an available method is not automatically suitable for every research design. Each inference method was checked by a simulation whose pass criterion was fixed in advance (90% intervals must cover at least 86% of the time); methods or settings that failed are still available but are marked exploratory in their results (`validated: false` and a note). [STATUS.md](STATUS.md) records the current release, validation evidence and remaining limitations.
 
@@ -145,7 +145,7 @@ Call `get_recipe()` (or `get_recipe(query="spatial")`) to search the 33 task gui
 
 | Profile | Tools | Use |
 | :--- | ---: | :--- |
-| `full` (default) | 84 | All registered Layer A tools; use this for the complete research workflow |
+| `full` (default) | 85 | All registered Layer A tools; use this for the complete research workflow |
 | `publication` | 10 | Focused manuscript profile: manifests, figures, tables, bundles, and verification |
 | `epidemiology` | 25 | Focused epidemiology profile: WONDER/PLACES outcomes, BYM2/EB, QBA, disparity, and stratified analysis |
 | `core` | 16 | A smaller set for discovery, extraction, basic models, group/PUMS tests and outputs; guided results include `summary` and `next_step` |
@@ -196,7 +196,7 @@ python -m census tool minimum_detectable_difference --arg moe1=2.1 --arg moe2=2.
 </details>
 
 <details>
-<summary>All 84 MCP tools, grouped by purpose</summary>
+<summary>All 85 MCP tools, grouped by purpose</summary>
 
 The analysis tables below explain which to choose. This inventory also includes discovery, maintenance and review tools.
 

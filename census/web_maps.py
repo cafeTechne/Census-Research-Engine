@@ -295,3 +295,55 @@ def web_choropleth(
     return WebMap(path=str(out), bytes=len(raw), tolerance_m=tol, separability=payload["separability"],
                   bins=[float(b) for b in bins], n_low_reliability=int(low.sum()), n_features=len(g),
                   crs=str(g.crs.to_string()), caption=f"{title}. {subtitle} Boundaries: {binfo['description']}.")
+
+
+def side_by_side_choropleth(
+    gdf,
+    left_col: str,
+    right_col: str,
+    out_path: Union[str, Path],
+    *,
+    left_title: Optional[str] = None,
+    right_title: Optional[str] = None,
+    title: str = "Side-by-Side Interactive Choropleth Comparison",
+    scheme: str = "quantiles",
+    k: int = 5,
+    data_source: str = "",
+) -> Dict[str, Any]:
+    """Write a self-contained, zero-CDN side-by-side HTML comparison of two interactive choropleths (Round 204 / N135)."""
+    import tempfile
+
+    out = Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as td:
+        lp = Path(td) / "left.html"
+        rp = Path(td) / "right.html"
+        lw = web_choropleth(gdf, left_col, out_path=lp, title=left_title or left_col, scheme=scheme, k=k, data_source=data_source)
+        rw = web_choropleth(gdf, right_col, out_path=rp, title=right_title or right_col, scheme=scheme, k=k, data_source=data_source)
+        l_src = html.escape(lp.read_text(encoding="utf-8"), quote=True)
+        r_src = html.escape(rp.read_text(encoding="utf-8"), quote=True)
+
+    page = (
+        "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
+        "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';\">\n"
+        f"<title>{html.escape(title)}</title>\n"
+        "<style>body{font-family:system-ui,sans-serif;margin:1rem;background:#fafbfd;color:#1a1a1a;}"
+        "h1{font-size:1.15rem;margin:0 0 0.75rem;color:#0b3c5d;}"
+        ".grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;height:86vh;}"
+        "iframe{width:100%;height:100%;border:1px solid #d0dae4;border-radius:6px;background:#fff;}"
+        "@media(max-width:900px){.grid{grid-template-columns:1fr;height:auto;}iframe{height:70vh;}}</style>\n"
+        f"</head>\n<body>\n<h1>{html.escape(title)}</h1>\n<div class=\"grid\">\n"
+        f"<iframe sandbox=\"allow-scripts\" srcdoc=\"{l_src}\"></iframe>\n"
+        f"<iframe sandbox=\"allow-scripts\" srcdoc=\"{r_src}\"></iframe>\n"
+        "</div>\n</body>\n</html>\n"
+    )
+    out.write_text(page, encoding="utf-8")
+    return {
+        "ok": True,
+        "path": str(out),
+        "bytes": len(page.encode("utf-8")),
+        "left_col": left_col,
+        "right_col": right_col,
+        "left_features": int(len(gdf)),
+        "right_features": int(len(gdf)),
+    }

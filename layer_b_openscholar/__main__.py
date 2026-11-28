@@ -11,6 +11,7 @@ from pathlib import Path
 from .agenda import build_research_agenda, write_research_agenda
 from .benchmark import BENCHMARK_QUERIES
 from .citation_expander import expand_seed_citations
+from .claim_grounder import ground_claims, write_grounding_markdown
 from .corpus_miner import CorpusMiner, load_topics
 from .daemon_ops import corpus_health_report, render_systemd_unit
 from .epmc_client import EuropePMCClient, merge_and_deduplicate
@@ -21,6 +22,7 @@ from .handoff_bridge import run_exploratory_pipeline
 from .local_index import LocalLiteratureIndex, resolve_index_path
 from .maintenance import audit_and_compact_corpus, dedupe_title_duplicates
 from .manifest_seeder import draft_manifest_seed, write_manifest_seed
+from .neural_bridge import neural_runtime_status
 from .pdf_indexer import LocalPassageIndex
 from .rag import build_evidence_brief, query_hybrid_rag
 from .reranker import OpenScholarReranker
@@ -168,6 +170,18 @@ def main(argv: list[str] | None = None) -> int:
     p_ft.add_argument("--limit", type=int, default=20)
     p_ft.add_argument("--delay", type=float, default=0.5)
     p_ft.add_argument("--cache-dir", default=".cache/layer_b_epmc_xml")
+
+    p_ns = sub.add_parser("neural-status", help="Report Tier 2 neural runtime capabilities and stored vector models.")
+    p_ns.add_argument("--vectors-db", default=None)
+
+    p_gc = sub.add_parser("ground-claims", help="Ground draft research claims against Layer B 3-way Hybrid RAG.")
+    p_gc.add_argument("claims", nargs="+", help="One or more research claim strings to ground.")
+    p_gc.add_argument("--db", default=None)
+    p_gc.add_argument("--passages-db", default=None)
+    p_gc.add_argument("--vectors-db", default=None)
+    p_gc.add_argument("--model", default=None, help="Optional vector model name (e.g. BAAI/bge-small-en-v1.5).")
+    p_gc.add_argument("--out-md", default=None, help="Optional Markdown audit output path.")
+    p_gc.add_argument("--title", default="Layer B Claim Grounding Audit")
 
     p_ag = sub.add_parser("build-agenda", help="Synthesize a multi-domain exploratory research agenda from index.sqlite.")
     p_ag.add_argument("--db", default=None)
@@ -340,6 +354,31 @@ def main(argv: list[str] | None = None) -> int:
             delay_seconds=args.delay,
         )
         print(json.dumps(rep, indent=2))
+        return 0
+
+    if args.cmd == "neural-status":
+        print(json.dumps(neural_runtime_status(vector_db_path=args.vectors_db), indent=2))
+        return 0
+
+    if args.cmd == "ground-claims":
+        rep = ground_claims(
+            args.claims,
+            db_path=args.db,
+            passages_db_path=args.passages_db,
+            vector_db_path=args.vectors_db,
+            vector_model=args.model,
+        )
+        if args.out_md:
+            write_grounding_markdown(rep, args.out_md, title=args.title)
+        print(json.dumps({
+            "ok": rep["ok"],
+            "backend": rep["backend"],
+            "vector_model": rep["vector_model"],
+            "grounded_count": rep["grounded_count"],
+            "claim_count": rep["claim_count"],
+            "unique_doi_count": rep["unique_doi_count"],
+            "out_md": args.out_md,
+        }, indent=2))
         return 0
 
     if args.cmd == "build-agenda":

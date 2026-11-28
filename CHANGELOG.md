@@ -5,6 +5,65 @@ each tagged release (`v<version>`) is archived on Zenodo with its own DOI (see
 [Releasing](#releasing)). Plans and acceptance criteria for each round are in
 `PLAN_ROUND_<n>.md`.
 
+## 0.208.0 (Round 212): Unattended pure-engine sprint final regression gate
+
+- **Round 212 (`0.208.0`):** Completed the 7-hour unattended pure-engine sprint (Rounds 203–212), expanded `docs/agent_routing.md` to **110** rows (`R110`), verified `doctor --deep` (`85 == 85` MCP/TOOL_SOURCES parity), `release_hygiene_check.py`, and full contract + Rounds 185–212 regression suite (`tests/test_round212.py`, `docs/audits/unattended_engine_sprint_log.md`).
+
+## 0.207.0 (Round 211): `confounding_screen` MCP/CLI tool (85 Layer A tools) & routing `R104–R109`
+
+- **Round 211 (`0.207.0`):** Exposed `confounding_screen` across `census/workflows_reporting.py`, `census/workflows_inference.py`, `mcp_server.py` (**85** tools total, 1:1 `TOOL_SOURCES` parity), and `python -m census tool confounding_screen`; expanded `docs/agent_routing.md` to **109** rows (`R104–R109`), and synced version `0.207.0` (`tests/test_round211.py`).
+
+## 0.206.0 (Round 210): `workflows_geo_helpers.py` modularization
+
+- **Round 210 (`0.206.0`):** Extracted geography boundary, spatial-weight, replicate-release, and figure-path helpers from `census/workflows_geo.py` into `census/workflows_geo_helpers.py` with 100% re-export parity (`tests/test_round210.py`).
+
+## 0.205.0 (Round 209): Layer B domain synonym query expansion & passage vector sync
+
+- **Round 209 (`0.205.0`):** Added `layer_b_openscholar/query_expansion.py` (`DOMAIN_SYNONYMS`, `expand_domain_query`) wired into `rag.py:query_hybrid_rag(expand_synonyms=True)` for acronym recall (`BYM2`, `SCPC`, `RPP`, `KWW`, `PUMS`, `MAUP`, `QBA`, `SAE`, `VRE`, `RDD`, `DiD`), plus `sync_passages_to_vectors()` in `vector_store.py` (`tests/test_round209.py`).
+
+## 0.204.0 (Round 208): `doctor --deep` invariant self-check
+
+- **Round 208 (`0.204.0`):** Added `--deep` mode to `python -m census doctor` (`census/workflows_reporting.py:doctor_report(deep=True)`) verifying 1:1 MCP tool ↔ `census.references.TOOL_SOURCES` parity, recipe doc parity, and `metadata/manifest.json` integrity (`tests/test_round208.py`).
+
+## 0.203.0 (Round 207): Layer B SQLite WAL concurrency hardening & vector `min_year` SQL pre-filter
+
+- **Round 207 (`0.203.0`):** Enabled `PRAGMA journal_mode=WAL`, `busy_timeout=5000`, and `synchronous=NORMAL` across `layer_b_openscholar/{local_index,pdf_indexer,vector_store}.py` for safe concurrent daemon mining + MCP reads, and pushed `min_year` filtering into SQLite inside `LocalVectorStore.search()` (`tests/test_round207.py`).
+
+## 0.202.0 (Round 206): Multi-component BYM2 finite-sample simulation calibration
+
+- **Round 206 (`0.202.0`):** Added `census/simulation_multicomponent_bym2.py` empirically calibrating 90% CI coverage on connected components vs. isolated islands, exceedance precision, and RMSE vs. raw SMRs for `disease_map(..., allow_disconnected=True)` (`tests/test_round206.py`).
+
+## 0.201.0 (Rounds 203–205): Multi-component `spatial_model`, `side_by_side_choropleth` (`N135`) & `rag.py` subprocess neural hook
+
+- **Round 205 (`0.201.0`):** Wired `allow_subprocess_neural=True` auto-delegation into `layer_b_openscholar/rag.py:query_hybrid_rag()`, expanded `docs/agent_routing.md` (`R101–R103`, 103 rows total), extended `scripts/release_hygiene_check.py` through Round 205, and synced version `0.201.0` (`tests/test_round205.py`).
+- **Round 204 (`0.200.0`, `N135`):** Added reusable zero-CDN, CSP-locked `census.web_maps.side_by_side_choropleth()` dual-panel interactive map comparator (`tests/test_round204.py`).
+- **Round 203 (`0.199.0`):** Exposed `allow_disconnected=True` in `census/workflows_geo.py:spatial_model` (skipping artificial bridge edges) and exported `confounding_adjustment_screen`, `lint_latex`, `compile_latex_pdf`, and `verify_bundle` at top-level `census` (`tests/test_round203.py`).
+
+## 0.198.0 (Rounds 200–202): Multi-component BYM2 (`N132`), 3-tier OA full-text fallback (`N131`), reusable confounding screen & 100 routing rows
+
+- **Round 202 (`0.198.0`):** Added reusable `census.standardize.confounding_adjustment_screen()` (crude vs. confounder-adjusted Poisson GLM with HC3 SEs, `% change-in-estimate`, and Simpson's-paradox `sign_flipped` detector), expanded `docs/agent_routing.md` to **100** rows (`R98–R100`), extended `scripts/release_hygiene_check.py` through Round 202, and synced version `0.198.0` (`tests/test_round202.py`).
+- **Round 201 (`0.197.0`, `N131`):** Upgraded `layer_b_openscholar/fulltext_harvester.py` with a 3-tier OA full-text fallback chain (`epmc_xml` → `pmc_oai_pmh` → `arxiv_html`) and `sources_used` tracking (`tests/test_round201.py`).
+- **Round 200 (`0.196.0`, `N132`):** Extended `census/disease_mapping_core.py` and `census/disease_mapping.py` with opt-in `allow_disconnected=True` multi-component & island-aware BYM2 ICAR scaling (Freni-Sterrantino et al. 2018), unlocking 50-state + DC and island-county disease mapping (`tests/test_round200.py`).
+
+## 0.195.0 (Rounds 196–199): Neural query bridge, 11-cause age/urban confounding study, GitHub Actions CI & `Dockerfile`
+
+- **Round 199 (`0.195.0`, `N134`):** Added reproducible `Dockerfile` (`python:3.12-slim`) and `docs/external_review_checklist.md`, expanded `docs/agent_routing.md` (`R95–R97`, 97 rows total), extended `scripts/release_hygiene_check.py` through Round 199, and synced version `0.195.0` (`tests/test_round199.py`).
+- **Round 198 (`0.194.0`, `N133`):** Added offline GitHub Actions CI workflow (`.github/workflows/ci.yml`) and optional `compile_latex_pdf()` helper in `census/report_tables.py` (`tests/test_round198.py`).
+- **Round 197 (`0.193.0`, `N128`):** Built offline 11-cause county mortality age-structure (`% 65+` from cached 2024 ACS `B17001` VRE) & urban-rural (`log(population density)`) confounding study across MI+OH and NY+PA (`scripts/r197_age_urban_mortality_confounding.py`, `docs/studies/r197_age_urban_confounding_study.md`, `tests/test_round197.py`).
+- **Round 196 (`0.192.0`, `N130`):** Added `SubprocessNeuralEmbedder` in `layer_b_openscholar/neural_bridge.py` enabling zero-PyTorch callers to query SSD `BAAI/bge-small-en-v1.5` embeddings via isolated `venv-neural` (`tests/test_round196.py`).
+
+## 0.191.0 (Rounds 193–195): `verify_bundle` LaTeX lint + `lint-latex` CLI, Layer B `ground-claims` & live neural manuscript grounding
+
+- **Round 195 (`0.191.0`):** Ran live Samsung 850 EVO SSD `BAAI/bge-small-en-v1.5` neural claim-grounding audit on 5 core empirical claims from the Round 188 flagship 11-cause mortality manuscript (`docs/audits/r195_manuscript_claim_grounding.md`), expanded `docs/agent_routing.md` with `R92–R94` (94 rows total), extended `scripts/release_hygiene_check.py` through Round 195, and synced version `0.191.0` (`tests/test_round195.py`).
+- **Round 194 (`0.190.0`):** Added Layer B cross-corpus claim grounder (`layer_b_openscholar/claim_grounder.py`, `ground-claims` CLI & `ground_claims` MCP tool — 22 isolated Layer B MCP tools total; `tests/test_round194.py`).
+- **Round 193 (`0.189.0`):** Integrated `lint_latex()` directly into `census.report_tables.verify_bundle()` and added `python -m census lint-latex <paths...> [--json]` CLI subcommand (`tests/test_round193.py`).
+
+## 0.188.0 (Rounds 190–192): Layer B `neural_status`, LaTeX linter + offline interactive atlas & `doctor --verbose`
+
+- **Round 192 (`0.188.0`):** Added `--verbose` diagnostics to `python -m census doctor` (crosswalk validity, N39 ACS 2025 archive presence, read-only SSD mount check), expanded `docs/agent_routing.md` with `R89–R91` (91 rows total), extended `scripts/release_hygiene_check.py` through Round 192, and synced version `0.188.0` (`tests/test_round192.py`).
+- **Round 191 (`0.187.0`):** Added `lint_latex()` structural LaTeX verifier in `census/report_tables.py` and built zero-CDN offline interactive 11-cause mortality atlas companion (`scripts/r191_manuscript_companion.py`, `studies_output/r188_flagship_manuscript/dashboard.html`, `docs/studies/r191_interactive_atlas_summary.md`, `tests/test_round191.py`).
+- **Round 190 (`0.186.0`):** Fixed `sentence-transformers>=6` `FutureWarning` in `layer_b_openscholar/vector_store.py`, added `layer_b_openscholar/neural_bridge.py` (`neural_status` MCP tool — 21 Layer B tools total — and `neural-status` CLI), and added `skip_existing=True` + polite retry to `layer_b_openscholar/fulltext_harvester.py` (`tests/test_round190.py`).
+
 ## 0.185.0 (Rounds 186–189): Tier 2 Neural BGE RAG, EPMC XML harvester, `doctor` CLI, 11-cause flagship manuscript & full-repo sweep
 
 - **Round 189 (`0.185.0`):** Expanded `docs/agent_routing.md` with rows `R85–R88` (88 rows total), extended `scripts/release_hygiene_check.py` through Round 189, executed full-repository `pytest` sweep across `tests/` and `layer_b_openscholar/tests/`, synced version `0.185.0`, and generated `docs/audits/v0185_release_readiness.md` (`tests/test_round189.py`).

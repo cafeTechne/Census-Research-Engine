@@ -991,6 +991,7 @@ for _fn in (
     workflows_inference.make_figure,
     workflows_inference.make_table,
     workflows_inference.make_results_bundle,
+    workflows_inference.confounding_screen,
     workflows_inference.verify_bundle,
     workflows_inference.list_manifest_methods,
     workflows_inference.mcp_capabilities,
@@ -1058,6 +1059,7 @@ stratified_analysis = workflows_microdata.stratified_analysis
 make_figure = workflows_inference.make_figure
 make_table = workflows_inference.make_table
 make_results_bundle = workflows_inference.make_results_bundle
+confounding_screen = workflows_inference.confounding_screen
 verify_bundle = workflows_inference.verify_bundle
 list_manifest_methods = workflows_inference.list_manifest_methods
 mcp_capabilities = workflows_inference.mcp_capabilities

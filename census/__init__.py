@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Headless Census ACS data client and processing library."""
 
-__version__ = "0.185.0"
+__version__ = "0.208.0"
 
 from census.api import (
     DATASETS,
@@ -184,7 +184,8 @@ from census.sae import fay_herriot, fh_regression
 from census.planning import aggregation_forecast, minimum_detectable_difference, reliability_profile
 from census.trends import linear_trend_test, overlap_design_check
 from census.correlation import correlation_matrix
-from census.report_tables import results_bundle
+from census.report_tables import compile_latex_pdf, lint_latex, results_bundle, verify_bundle
+from census.standardize import confounding_adjustment_screen, indirect_standardize
 from census.manifest import create_manifest, label_exploratory, manifest_hash, methods_section, run_manifest, validate_manifest
 from census.models import INTERVAL_TARGETS
 from census.boundaries import equal_area_crs, get_boundaries, join_boundaries, write_geo

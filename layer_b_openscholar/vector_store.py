@@ -70,7 +70,8 @@ class SentenceTransformerEmbedder:
         self.model_name = model_name
         self.batch_size = int(batch_size)
         self._model = SentenceTransformer(model_name, device="cpu")
-        self.dim = int(self._model.get_sentence_embedding_dimension())
+        dim_fn = getattr(self._model, "get_embedding_dimension", None) or self._model.get_sentence_embedding_dimension
+        self.dim = int(dim_fn())
 
     def embed(self, texts: Sequence[str]) -> np.ndarray:
         if not texts:
@@ -103,9 +104,16 @@ class LocalVectorStore:
         self.embedder: Embedder = embedder or HashProjectionEmbedder(dim=256)
         self._init_db()
 
+    def _connect(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(str(self.db_path), timeout=5.0)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=5000")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        return conn
+
     def _init_db(self) -> None:
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(self.db_path) as conn:
+        with self._connect() as conn:
             tbl = conn.execute(
                 "SELECT sql FROM sqlite_master WHERE type='table' AND name='embeddings'"
             ).fetchone()
@@ -213,13 +221,20 @@ class LocalVectorStore:
             total += len(rows)
         return total
 
-    def search(self, query: str, top_k: int = 10) -> List[Dict[str, Any]]:
+    def search(self, query: str, top_k: int = 10, min_year: Optional[int] = None) -> List[Dict[str, Any]]:
         qvec = self.embedder.embed([query])[0]
-        with sqlite3.connect(self.db_path) as conn:
-            rows = conn.execute(
-                "SELECT item_id, title, doi, year, vec FROM embeddings WHERE model_name = ? AND dim = ?",
-                (self.embedder.model_name, self.embedder.dim),
-            ).fetchall()
+        with self._connect() as conn:
+            if min_year is not None:
+                rows = conn.execute(
+                    "SELECT item_id, title, doi, year, vec FROM embeddings "
+                    "WHERE model_name = ? AND dim = ? AND year IS NOT NULL AND year >= ?",
+                    (self.embedder.model_name, self.embedder.dim, int(min_year)),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT item_id, title, doi, year, vec FROM embeddings WHERE model_name = ? AND dim = ?",
+                    (self.embedder.model_name, self.embedder.dim),
+                ).fetchall()
         if not rows:
             return []
         mat = np.vstack([np.frombuffer(r[4], dtype=np.float32) for r in rows])
@@ -271,4 +286,27 @@ def sync_from_literature_index(
         for r in rows
     ]
     synced = store.upsert_papers(papers, incremental=incremental)
+    return {"ok": True, "status": "exploratory_hypothesis_seed", "synced": synced, "stats": store.stats()}
+
+
+def sync_passages_to_vectors(
+    passages_db_path: Optional[str | Path] = None,
+    vector_db_path: Optional[str | Path] = None,
+    embedder: Optional[Embedder] = None,
+    incremental: bool = True,
+) -> Dict[str, Any]:
+    """Incrementally embed local study/XML passages from ``passages.sqlite`` into ``vectors.sqlite``."""
+    from .pdf_indexer import resolve_passages_path
+
+    ppath = resolve_passages_path(passages_db_path)
+    store = LocalVectorStore(db_path=vector_db_path or ppath.with_name("vectors.sqlite"), embedder=embedder)
+    if not ppath.exists():
+        return {"ok": True, "status": "exploratory_hypothesis_seed", "synced": 0, "stats": store.stats()}
+    with sqlite3.connect(ppath) as conn:
+        rows = conn.execute("SELECT passage_id, doc_name, text FROM passages").fetchall()
+    items = [
+        {"paperId": f"psg:{r[0]}", "title": str(r[1] or "passage"), "abstract": str(r[2] or ""), "year": None, "doi": ""}
+        for r in rows
+    ]
+    synced = store.upsert_papers(items, incremental=incremental)
     return {"ok": True, "status": "exploratory_hypothesis_seed", "synced": synced, "stats": store.stats()}

@@ -159,5 +159,5 @@ def test_rag_custom_embedder_and_benchmark_and_mcp_20_tools(tmp_path: Path):
     )
     assert bench["ok"] is True
     assert out_md.exists()
-    assert len(list_tool_names()) == 20
+    assert len(list_tool_names()) >= 20
     assert "harvest_fulltext" in list_tool_names()

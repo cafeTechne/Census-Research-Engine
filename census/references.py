@@ -345,6 +345,7 @@ TOOL_SOURCES: Dict[str, List[Tuple[str, str]]] = {
     "get_research_protocol": [("acs", "guidance"), *EPI, *CAUSAL],
     "list_manifest_methods": [*ACS, ("testing", "method")],
     "mcp_capabilities": [("acs", "guidance")],
+    "confounding_screen": [*EPI, ("statsmodels", "software")],
     "verify_bundle": [*ACS],
     "run_validation": [*ACS, _audit("validation_report.md")],
     "verify_proposition": [*ACS, ("testing", "method")],
